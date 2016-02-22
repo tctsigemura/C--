@@ -1,0 +1,9 @@
+.f
+	ENTRY	8
+	LDL	6
+	STL	5
+	POP
+	LDL	8
+	STL	7
+	POP
+	RET

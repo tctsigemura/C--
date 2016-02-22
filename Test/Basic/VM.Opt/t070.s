@@ -1,0 +1,26 @@
+.f2
+	ENTRY	1
+.L1
+	LDC	1
+	ARG
+	CALLF	1,.f1
+	STL	1
+	POP
+	LDL	1
+	LDC	10
+	GT
+	JF	.L2
+	JMP	.L3
+.L2
+	JMP	.L4
+.L5
+	JMP	.L6
+.L6
+	JMP	.L3
+.L4
+	LDL	1
+	LDC	0
+	EQ
+	JT	.L1
+.L3
+	RET

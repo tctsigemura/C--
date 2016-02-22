@@ -1,0 +1,29 @@
+.main
+	ENTRY	2
+.L1
+	JMP	.L1
+.L2
+	LDL	2
+	LDC	100
+	LT
+	JF	.L3
+	LDL	2
+	LDC	0
+	LT
+	JF	.L4
+	JMP	.L2
+.L4
+	LDC	3
+	STL	1
+	POP
+	LDL	2
+	LDC	0
+	LT
+	JF	.L5
+	JMP	.L3
+.L5
+	JMP	.L2
+.L3
+	JMP	.L6
+.L6
+	RET

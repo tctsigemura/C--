@@ -1,0 +1,23 @@
+//
+// t190.cmm
+// 0 の和、差の省略
+
+int[] a = array(10);
+struct X {
+  int a;
+  int b;
+};
+
+void main() {
+  int i,j;
+  X l;
+
+  i = i + 0;
+  i = i + 1;
+  j = j - 0;
+  j = j - 1;
+  i = a[0];
+  j = a[1];
+  i = l.a;
+  j = l.b;
+}

@@ -1,0 +1,170 @@
+/*
+ *  t160.cmm
+ *   グローバル変数とスコープのテスト
+ */
+
+void[] malloc(int n);
+void free(void[] p);
+
+int a;
+char b = '0';
+int d, e;
+int f = 10, g = 20;
+int[] h, i = { 1000,2000,3000 }, j;
+int[][] k, l = { { 4000,5000},{6000,7000,8000} };
+char[] n = "aaaa";
+char[][] o = {"abc",{'a','b','\0'}};
+int[][][] p = { array(10), { {6},{7,8},{9} } };
+int[][][][][] pq = { { {{{6},{7,8},{9}} },null }, null };
+
+void f0() {
+  int n;
+  n = 1;
+  int[][][][] m;
+  char[] a = "abc";
+  h[1] = 1;
+  m[0][1][1][3]=2;
+  ;
+//  m[0][1][1]=refer(addr(a));
+}
+
+char[][][] q = { {"ab","cd"}, array(3)};
+
+int[][][] r = { { {1,2},{3,4,5} }, { {6},{7,8},{9} } };
+char[] s = array(3);
+char[][] t = array(3,2);
+char[][][] u = array(2,2,2);
+char[][][] v = { {"ab","cd"}, array(2,2)};
+
+int f1(boolean x, int y) {
+  int a = 1,b,c;
+  int[] q = malloc(sizeof(int)*10);
+  if (q[0]==0) q[1]=1; else q[1]=0;
+  if (q[0]==1) q[1]=1;
+  if (a==1) a = 2;
+  if (a!=0) a = 3; else a = 4;
+  if (a!=1) {
+   a = 5;
+   b = 6;
+  } else {
+   a = 7;
+   b = 8;
+  }
+  while (a==0) {
+    int d = 1;
+    d = d + 1;
+  }
+  for (a=0;a<3;a=a+1)
+    q[a]=a;
+
+  while (a==2||b==2||c==2) {
+    if (c==1) continue;
+    while (b==2) {
+      if (c==3) break;
+    }
+    if (c==4) break;
+  }
+  free(q);
+  return c;
+}
+
+char[][] ab = {{chr(1),chr(2)},{chr(3),chr(4)}};
+//char[][] ab = {{1,2},{3,4}};
+char[] f2() {
+  int a = 1;
+  int b = 2;
+  f1(a==1&&b==1, b);
+  return ab[1];
+}
+
+void f3() {
+ if (true) {} else {}
+ for (;;) {}
+}
+
+void f4() {
+  for (int i=0, j=1; i<10; i=i+1) {
+    i=(j+1)*2;
+  }
+}
+
+int[] x = array(5);
+int[][] y = array(5,5);
+void f5(int a, int b, char[] s) {
+  x[i[x[1]]+1] = i[a] = i[5] = 1;
+  b=y[1][a*b*ord(f2()[2])*x[3]];
+}
+
+struct X {
+  int a, b;
+  X[] c;
+};
+
+struct Y {
+  int a, b;
+  char[] c;
+};
+
+X z1;
+X z2   = {1,2,null};
+X[] z3 = {{1,2,null},{3,4,null}};
+Y z4   = {1,2,"ab"};
+Y z5   = null;
+Y[] z6   = { null, {1,2,"abc"}, null};
+Y[] z7 = array(3);
+Y[][] z8 = array(2,3);
+Y[][] z9 = array(2);
+
+void f6() {
+  z1 = z2;
+  z1 = malloc(sizeof(X));
+  free(z1);
+  z1 = z3[1+2];
+  a  = z3[1+2].a;
+  z1 = z3[1+2].c[1];
+  a = z2.c[1].c[1].a;
+  z8[1][1] = malloc(sizeof(Y));
+  z8[1][1].a = 1;
+  free(z8);
+}
+
+X f7(int a);
+X[] f8(X x);
+X[] f9(X[] x);
+
+void f10(char[] s , ...);
+
+void f11(int a, ...) {
+  int b;
+  z1 = f7(1);
+  a = f7(1).b;
+  z1 = f8(z1)[1];
+  z1 = f9(z3)[1];
+  z1 = null;
+  f10("aaa");
+  f10("aaa",2,"bbb");
+  f11(b,a,b,a,b);
+  z6[1]=z6[2]=z6[3];
+  (y[1]=y[2])[1]=1;
+  for (int i=0,j=0; i==j; i=i+1)
+    j=j+1;
+}
+
+char[] ss = "aaa";
+
+/* '" */
+
+void f12() {
+  int[]   x1 = malloc(sizeof(int)*4);
+  free(x1);
+  boolean b = true || true;
+}
+
+void f13() {
+  void[] x;
+  int a = 012;
+  int b = 0x12;
+  int c = ord('c');
+  x = ss;
+  z1 = x;
+}

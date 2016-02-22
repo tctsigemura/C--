@@ -1,0 +1,9 @@
+//
+// t300.cmm
+// 論理式の最後で論理値が Acc にある場合
+//
+
+boolean b;
+void main() {
+  boolean s = true && (b = true);
+}

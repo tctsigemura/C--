@@ -1,0 +1,8 @@
+//
+// t290.cmm
+// 論理式の最後で論理値が Acc 以外にある
+//
+
+void main() {
+  boolean s = true && false;
+}

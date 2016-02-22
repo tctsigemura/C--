@@ -1,0 +1,47 @@
+/*
+ * Programing Language C-- "Compiler"
+ *    Tokuyama kousen Educational Computer 16bit Ver.
+ *
+ * Copyright (C) 2002-2016 by
+ *                      Dept. of Computer Science and Electronic Engineering,
+ *                      Tokuyama College of Technology, JAPAN
+ *
+ *   上記著作権者は，Free Software Foundation によって公開されている GNU 一般公
+ * 衆利用許諾契約書バージョン２に記述されている条件を満たす場合に限り，本ソース
+ * コード(本ソースコードを改変したものを含む．以下同様)を使用・複製・改変・再配
+ * 布することを無償で許諾する．
+ *
+ *   本ソースコードは＊全くの無保証＊で提供されるものである。上記著作権者および
+ * 関連機関・個人は本ソースコードに関して，その適用可能性も含めて，いかなる保証
+ * も行わない．また，本ソースコードの利用により直接的または間接的に生じたいかな
+ * る損害に関しても，その責任を負わない．
+ *
+ *
+ */
+
+/*
+ * code.h : コード生成関係の外部仕様を定義
+ *
+ * 2016.02.03 v3.0.0  : トランスレータと統合
+ *                      (genProto, genStruc, genOn, genOff 関数追加)
+ * 2015.08.31 v2.1.0  : カーネルコンパイル用のフラグを genFunc に追加
+ * 2010.09.12 v1.0.0  : 最適化と外部変数の定数式による初期化ができる H8 統合版
+ * 2010.09.09         : getFunc に最適化オプション
+ * 2010.07.20         : Subversion による管理を開始
+ * 2010.03.30 v0.9.11 : ファイル構成を整理し新たに作成
+ *
+ * $Id$
+ *
+ */
+
+void genFunc(int funcIdx, int depth, boolean krnFlg); // 関数単位でコードを生成
+void genData(int idx);                                // 初期化データを生成
+void genBss(int idx);                                 // 非初期化データを生成
+int  genStr(char *s);                                 // 文字列を生成し
+                                                      //   ラベル番号を返す
+// 以下はトランスレータのみで必要
+void genProto(int idx);                               // プロトタイプ宣言を出力
+void genStruc(int idx);                               // 構造体宣言を出力
+void genOn(void);                                     // コード生成を許可する
+void genOff(char *hdr);                               // コード生成を禁止する
+                                                      // (代替の#includeを出力)

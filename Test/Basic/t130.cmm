@@ -1,0 +1,28 @@
+/*
+ * t130.cmm
+ * 参照の比較、for 初期化式
+ */
+
+int x=0;
+/* void y; */
+int x; int y;
+
+struct X {int a,b;};
+
+char f() {
+  int i,j;
+  X l;
+
+  if ((i==j)==(x==y)) return chr(i);
+
+  if (l==l) return chr(i);
+
+  i=(j=i*2);
+
+  for (i=0, j=0; i<10; i=i+1)
+    j=j*2;
+  for (i=j=0; i<10; i=i+1)
+    j=j*2;
+
+  return chr(i);
+}

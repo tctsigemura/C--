@@ -1,0 +1,27 @@
+.a	DW	1
+.b	DW	65535
+.L1	DW	1
+	DW	65535
+	DW	65526
+.c	DW	.L1
+.L2	DW	65535
+	DW	1
+.d	DW	.L2
+.L3	DW	1
+	DW	0
+.L4	DW	65535
+	DW	1
+.L5	DW	.L3
+	DW	.L4
+.e	DW	.L5
+.main	PUSH	FP
+	LD	FP,SP
+	PUSH	G3
+	PUSH	G4
+	CALL	__stkChk
+	LD	G3,#1
+	LD	G4,#65535
+	POP	G4
+	POP	G3
+	POP	FP
+	RET

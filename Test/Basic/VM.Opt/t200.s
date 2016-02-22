@@ -1,0 +1,48 @@
+.main
+	ENTRY	3
+	LDL	2
+	LDL	3
+	MUL
+	STL	1
+	POP
+	LDL	2
+	LDL	3
+	DIV
+	STL	1
+	POP
+	LDL	2
+	LDL	3
+	MOD
+	STL	1
+	POP
+	CALLF	0,.f
+	LDL	3
+	MUL
+	STL	1
+	POP
+	CALLF	0,.f
+	LDL	3
+	DIV
+	STL	1
+	POP
+	CALLF	0,.f
+	LDL	3
+	MOD
+	STL	1
+	POP
+	CALLF	0,.f
+	LDL	2
+	MUL
+	STL	1
+	POP
+	LDL	2
+	CALLF	0,.f
+	DIV
+	STL	1
+	POP
+	LDL	2
+	CALLF	0,.f
+	MOD
+	STL	1
+	POP
+	RET

@@ -1,0 +1,21 @@
+.h
+	ENTRY	0
+	LDA	1
+	ARG
+	CALLF	1,.g
+	MREG
+	RET
+.f
+	ENTRY	2
+	CALLF	0,.fopen
+	STL	2
+	POP
+	LDL	2
+	STL	1
+	POP
+	LDL	2
+	ARG
+	CALLF	1,.g
+	STL	1
+	POP
+	RET

@@ -1,0 +1,46 @@
+.L1	DW	0
+	DW	20480
+.L2	DW	0
+	DW	32768
+.L3	DW	.L1
+	DW	.L2
+.tcbs	DW	.L3
+.task1	PUSH	FP
+	LD	FP,SP
+	CALL	__stkChk
+	POP	FP
+	RET
+.task2	PUSH	FP
+	LD	FP,SP
+	CALL	__stkChk
+	POP	FP
+	RET
+.boole	WS	1
+_main	PUSH	FP
+	LD	FP,SP
+	PUSH	G3
+	PUSH	G4
+	CALL	__stkChk
+	LD	G0,#65024
+	PUSH	G0
+	CALL	___ItoA
+	ADD	SP,#2
+	LD	G3,G0
+	LD	G0,.tcbs
+	LD	G0,0,G0
+	LD	G1,#.task1
+	ST	G1,0,G0
+	LD	G0,#.task2
+	ADD	G0,#100
+	LD	G1,.tcbs
+	ADDS	G1,#1
+	LD	G1,0,G1
+	ADDS	G1,#1
+	ST	G0,0,G1
+	LD	G0,#.boole
+	ADD	G0,#10
+	LD	G4,G0
+	POP	G4
+	POP	G3
+	POP	FP
+	RET

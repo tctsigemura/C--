@@ -1,0 +1,11 @@
+//
+// t350.cmm
+// 論理式の途中に関数呼び出しがある
+//
+
+boolean a,b;
+boolean f();
+
+void main() {
+  boolean c = (a!=b) && (a==b) == f();
+}

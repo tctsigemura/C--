@@ -1,0 +1,12 @@
+//
+// t270.cmm
+// 因子がラベルになる場合
+//
+
+int i;
+void putchar(char a);
+
+void main() {
+  putchar("ABC"[i-1]);
+
+}

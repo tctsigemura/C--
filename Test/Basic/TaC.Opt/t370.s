@@ -1,0 +1,125 @@
+.a	WS	1
+.c	WS	1
+.f	PUSH	FP
+	LD	FP,SP
+	PUSH	G3
+	PUSH	G4
+	PUSH	G5
+	CALL	__stkChk
+	LD	G0,#3
+	MUL	G0,.a
+	ADD	G0,#3
+	MUL	G0,#56
+	LD	G3,G0
+	LD	G0,#3
+	MUL	G0,.a
+	ADD	G0,#3
+	MUL	G0,#112
+	LD	G3,G0
+	LD	G0,#102
+	ADD	G0,.a
+	LD	G3,G0
+	LD	G0,#1
+	DIV	G0,.a
+	LD	G3,G0
+	LD	G0,#1
+	DIV	G0,.a
+	LD	G3,#1
+	JGT	.T0
+	LD	G3,#0
+.T0
+	LD	G0,#3
+	ADD	G0,.a
+	LD	G3,G0
+	LD	G0,#1
+	ADD	G0,.a
+	LD	G1,G3
+	ADD	G1,#10
+	ADD	G1,.c
+	CMP	G0,G1
+	LD	G3,#1
+	JGT	.T1
+	LD	G3,#0
+.T1
+	LD	G0,G3
+	ADD	G0,#65531
+	ADD	G0,.a
+	LD	G3,G0
+	LD	G0,G3
+	ADD	G0,.a
+	LD	G3,G0
+	LD	G3,#65535
+	LD	G3,#65280
+	LD	G3,#0
+	LD	G0,G3
+	DIV	G0,#100
+	DIV	G0,.a
+	LD	G3,G0
+	LD	G0,G3
+	SUB	G0,.a
+	LD	G3,G0
+	LD	G0,G3
+	ADD	G0,#9
+	LD	G3,G0
+	LD	G3,#255
+	LD	G0,G3
+	SHLA	G0,#1
+	LD	G3,G0
+	LD	G0,G3
+	SHLA	G0,#1
+	LD	G3,G0
+	LD	G0,G3
+	SHRA	G0,#1
+	LD	G3,G0
+	LD	G0,G3
+	AND	G0,#1
+	LD	G3,G0
+	LD	G3,#0
+	LD	G4,#1
+	LD	G0,#0
+	PUSH	G0
+	LD	G0,#3
+	ADD	G0,.a
+	PUSH	G0
+	CALL	.e
+	ADD	SP,#4
+.L1
+	LD	G0,.a
+	CMP	G0,.c
+	JGE	.L2
+	JMP	.L1
+.L2
+.L3
+	LD	G0,.a
+	CMP	G0,.c
+	JGE	.L4
+	JMP	.L3
+.L4
+	LD	G0,.a
+	AND	G0,#1
+	LD	G4,G0
+	LD	G5,#0
+.L5
+	CMP	G5,#97
+	JNZ	.L6
+	LD	G0,G5
+	ADD	G0,#65535
+	AND	G0,#0x00ff
+	LD	G5,G0
+	JMP	.L5
+.L6
+	LD	G5,#0
+.L7
+	CMP	G5,#1
+	JNZ	.L8
+	LD	G0,G5
+	ADD	G0,#65535
+	AND	G0,#1
+	LD	G5,G0
+	JMP	.L7
+.L8
+	POP	G5
+	POP	G4
+	POP	G3
+	POP	FP
+	RET

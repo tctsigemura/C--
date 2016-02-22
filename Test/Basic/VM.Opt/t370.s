@@ -1,0 +1,198 @@
+.a
+	WS	1
+.c
+	WS	1
+.f
+	ENTRY	3
+	LDC	3
+	LDG	.a
+	MUL
+	LDC	3
+	ADD
+	LDC	56
+	MUL
+	STL	1
+	POP
+	LDC	3
+	LDG	.a
+	MUL
+	LDC	3
+	ADD
+	LDC	112
+	MUL
+	STL	1
+	POP
+	LDC	102
+	LDG	.a
+	ADD
+	STL	1
+	POP
+	LDC	1
+	LDG	.a
+	DIV
+	STL	1
+	POP
+	LDC	1
+	LDG	.a
+	DIV
+	LDC	0
+	GT
+	STL	1
+	POP
+	LDC	3
+	LDG	.a
+	ADD
+	STL	1
+	POP
+	LDC	1
+	LDG	.a
+	ADD
+	LDL	1
+	LDC	10
+	ADD
+	LDG	.c
+	ADD
+	GT
+	STL	1
+	POP
+	LDL	1
+	LDC	65531
+	ADD
+	LDG	.a
+	ADD
+	STL	1
+	POP
+	LDL	1
+	LDG	.a
+	ADD
+	STL	1
+	POP
+	LDC	65535
+	STL	1
+	POP
+	LDC	65280
+	STL	1
+	POP
+	LDC	0
+	STL	1
+	POP
+	LDL	1
+	LDC	100
+	DIV
+	LDG	.a
+	DIV
+	STL	1
+	POP
+	LDL	1
+	LDG	.a
+	SUB
+	STL	1
+	POP
+	LDL	1
+	LDC	9
+	ADD
+	STL	1
+	POP
+	LDC	255
+	STL	1
+	POP
+	LDL	1
+	LDC	2
+	MUL
+	STL	1
+	POP
+	LDC	2
+	LDL	1
+	MUL
+	STL	1
+	POP
+	LDL	1
+	LDC	2
+	DIV
+	STL	1
+	POP
+	LDL	1
+	LDC	2
+	MOD
+	STL	1
+	POP
+	LDL	1
+	STL	1
+	POP
+	LDL	1
+	STL	1
+	POP
+	LDL	1
+	STL	1
+	POP
+	LDC	0
+	STL	1
+	POP
+	LDC	1
+	STL	2
+	POP
+	LDL	2
+	STL	2
+	POP
+	LDL	2
+	STL	2
+	POP
+	LDC	0
+	ARG
+	LDC	3
+	LDG	.a
+	ADD
+	ARG
+	CALLF	2,.e
+	POP
+.L1
+	LDG	.a
+	LDG	.c
+	LT
+	JF	.L2
+	JMP	.L1
+.L2
+.L3
+	LDG	.a
+	LDG	.c
+	LT
+	JF	.L4
+	JMP	.L3
+.L4
+	LDG	.a
+	BOOL
+	STL	2
+	POP
+	LDC	0
+	STL	3
+	POP
+.L5
+	LDL	3
+	LDC	97
+	EQ
+	JF	.L6
+	LDL	3
+	LDC	65535
+	ADD
+	CHAR
+	STL	3
+	POP
+	JMP	.L5
+.L6
+	LDC	0
+	STL	3
+	POP
+.L7
+	LDL	3
+	LDC	1
+	EQ
+	JF	.L8
+	LDL	3
+	LDC	65535
+	ADD
+	BOOL
+	STL	3
+	POP
+	JMP	.L7
+.L8
+	RET

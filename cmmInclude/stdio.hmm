@@ -1,0 +1,28 @@
+typedefref FILE;
+FILE fopen(char[] filename, char[] mode);
+int fclose(FILE stream);
+
+int fprintf(FILE stream, char[] format, ...);
+int printf(char[] format, ...);
+
+int fscanf(FILE stream, char[] format, ...);
+int scanf(char[] format, ...);
+
+FILE stdin;
+FILE stdout;
+char fgetc(FILE stream);
+char[] fgets(char[] s, int n, FILE stream);
+int fputc(char c, FILE stream);
+int fputs(char[] s, FILE stream);
+char getc(FILE stream);
+char getchar();
+char[] gets(char[] s);
+int putc(char c, FILE stream);
+int putchar(char c);
+int puts(char[] s);
+int feof(FILE stream);
+int ferror(FILE stream);
+void perrer(char[] s);
+
+
+

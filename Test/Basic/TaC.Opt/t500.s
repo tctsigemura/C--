@@ -1,0 +1,25 @@
+.h	PUSH	FP
+	LD	FP,SP
+	CALL	__stkChk
+	LD	G0,4,FP
+	PUSH	G0
+	CALL	.g
+	ADD	SP,#2
+	POP	FP
+	RET
+.f	PUSH	FP
+	LD	FP,SP
+	PUSH	G3
+	PUSH	G4
+	CALL	__stkChk
+	CALL	.fopen
+	LD	G4,G0
+	LD	G3,G4
+	PUSH	G4
+	CALL	.g
+	ADD	SP,#2
+	LD	G3,G0
+	POP	G4
+	POP	G3
+	POP	FP
+	RET

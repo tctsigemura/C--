@@ -1,0 +1,21 @@
+/*
+ *  t140.cmm
+ *  コメントとコートに関するテスト
+ */
+
+int printf(char[]a);
+void putch(char c);
+void main() {
+       printf("/* */");  /* */
+       printf("//");  // /* */
+       printf(//);
+         "/*");
+       printf(/*);
+         "/*");
+       printf(//); */
+         "/*");
+       printf("abcde\"fghi");
+       printf("\"");
+       putch('\n');
+       putch('\'');
+}

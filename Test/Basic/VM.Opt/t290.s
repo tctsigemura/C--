@@ -1,0 +1,6 @@
+.main
+	ENTRY	1
+	LDC	0
+	STL	1
+	POP
+	RET

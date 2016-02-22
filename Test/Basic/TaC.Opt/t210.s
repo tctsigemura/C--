@@ -1,0 +1,32 @@
+.main	PUSH	FP
+	LD	FP,SP
+	PUSH	G3
+	PUSH	G4
+	CALL	__stkChk
+.L1
+	JMP	.L1
+	LD	G4,#0
+.L2
+	CMP	G4,#100
+	JGE	.L3
+	CMP	G4,#0
+	JGE	.L4
+	JMP	.L5
+.L4
+	LD	G3,#3
+	CMP	G4,#0
+	JGE	.L6
+	JMP	.L3
+.L6
+.L5
+	LD	G0,G4
+	ADD	G0,#1
+	LD	G4,G0
+	JMP	.L2
+.L3
+	JMP	.L7
+.L7
+	POP	G4
+	POP	G3
+	POP	FP
+	RET

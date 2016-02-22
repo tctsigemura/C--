@@ -1,0 +1,59 @@
+//
+// t310.cmm
+// addrof 演算子
+//
+
+public void[] __ItoA(int i);
+
+struct TCB {
+  int pc;
+  int sp;
+};
+
+TCB[] tcbs = { {0, 0x5000}, {0, 0x8000}};
+
+/* -K オプションを付けないとエラーになる
+interrupt f5();
+
+interrupt f5() {
+  // 割込みハンドラ
+}
+*/
+
+void task1() {
+  // タスク１
+}
+
+void task2() {
+  // タスク２
+}
+
+/* エラーになる書き方
+interrupt x;
+
+int f1(interrupt a);
+
+interrupt[] f2();
+
+interrupt f3(int a);
+
+int f4() {
+  int a;
+  interrupt b;
+}
+*/
+
+boolean boole;
+
+public void main() {
+  // 割込みベクタの初期化例
+  int[] vect = __ItoA(0xfe00);
+  //vect[0] = addrof(f5);
+
+  // TCB の初期化
+  tcbs[0].pc = addrof(task1);
+  tcbs[1].sp = addrof(task2)+100;
+
+  // 変数のアドレスを見つける例
+  int b = addrof(boole) + 10;
+}

@@ -1,0 +1,19 @@
+/*
+ * t150.cmm
+ * 構造体を参照するコードのテスト
+ */
+
+struct Node { Node next, prev; int val; };
+
+Node n = { null, null, 10 };
+Node m;
+
+void main() {
+ n.next = n;
+ n.prev = n;
+ m = n.next.prev;
+
+ Node l = m;
+ l.next  = l.prev.prev;
+ int x = l.val;
+}

@@ -1,0 +1,18 @@
+//
+// t200.cmm
+// 掛算、割算
+
+int f();
+
+void main() {
+  int i,j,k;
+  i = j * k;
+  i = j / k;
+  i = j % k;
+  i = f() * k;
+  i = f() / k;
+  i = f() % k;
+  i = j * f();
+  i = j / f();
+  i = j % f();
+}
