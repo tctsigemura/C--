@@ -1,4 +1,4 @@
-char[] strcpr(char[] s, char[] ct);
+char[] strcpy(char[] s, char[] ct);
 char[] strncpy(char[] s, char[] ct, int n);
 char[] strcat(char[] s,char[] ct);
 char[] strncat(char[] s, char[] ct, int n);
