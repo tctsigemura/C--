@@ -1,4 +1,4 @@
-typedefref FILE;
+typedef FILE;
 FILE fopen(char[] filename, char[] mode);
 int fclose(FILE stream);
 
