@@ -1,5 +1,5 @@
 # Programing Laguage C--
-Programing Language C-- is  a Educational System Description Language.
+Programing Language C-- is an Educational System Description Language.
 ---
 プログラミング言語C−-は、教育用のシステム記述言語です。
 C言語をお手本にしていますが、型チェックが厳しい、ポインターがない等、初心者に使いやすい仕様になっています。
