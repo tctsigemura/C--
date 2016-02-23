@@ -1,0 +1,201 @@
+% 
+% $Id$
+%
+\chapter{\tac ハードウェアマニュアル}
+
+\section{メモリ構成}
+
+\subsection{メモリマップ}
+\label{app:memmap}
+
+\tac は 64kW (64キロワード) のメモリ空間を持ちます。
+1ワードは16ビットです。
+しかし、ビデオメモリだけは8ビット幅です。
+次の表に、メモリマップを示します。
+
+\begin{center}
+{\bf \tac のメモリマップ} \\
+\begin{tabular}{|c|c|c|c|}
+\hline
+アドレス    & \multicolumn{2}{|c|}{内 容}              & 種類 \\
+\hline
+{\tt 0000H} & \multicolumn{2}{|c|}{}                   &      \\
+{\tt ...  } & \multicolumn{2}{|c|}{ユーザ領域(60kW)}   & RAM  \\
+{\tt EFFFH} & \multicolumn{2}{|c|}{}                   &      \\
+\hline
+{\tt F000H} &                  &  ビデオ               &      \\
+{\tt ...  } &    空き          &  メモリ(2kB)          & RAM  \\
+{\tt F7FFH} &    (上位8ビット) &  (下位8ビット)        &(8ビット幅) \\
+\hline
+{\tt F800H} & \multicolumn{2}{|c|}{}                   &      \\
+{\tt ...  } & \multicolumn{2}{|c|}{IPL(2016W)}         & ROM  \\
+{\tt FFDFH} & \multicolumn{2}{|c|}{}                   &      \\
+\hline
+{\tt FFE0H} & \multicolumn{2}{|c|}{}                   &      \\
+{\tt ...  } & \multicolumn{2}{|c|}{IPLワーク(16W)}     &      \\
+{\tt FFEFH} & \multicolumn{2}{|c|}{}                   &      \\
+\cline{1-3}
+{\tt FFF0H} & \multicolumn{2}{|c|}{INT0割込みベクタ}   &      \\
+\cline{1-3}
+{\tt FFF1H} & \multicolumn{2}{|c|}{INT1割込みベクタ}   &      \\
+\cline{1-3}
+{\tt FFF2H} & \multicolumn{2}{|c|}{INT2割込みベクタ}   &      \\
+\cline{1-3}
+{\tt FFF3H} & \multicolumn{2}{|c|}{INT3割込みベクタ}   &      \\
+\cline{1-3}
+{\tt FFF4H} & \multicolumn{2}{|c|}{Timer0割込みベクタ} &      \\
+\cline{1-3}
+{\tt FFF5H} & \multicolumn{2}{|c|}{Timer1割込みベクタ} &      \\
+\cline{1-3}
+{\tt FFF6H} & \multicolumn{2}{|c|}{Timer2割込みベクタ} & RAM  \\
+\cline{1-3}
+{\tt FFF7H} & \multicolumn{2}{|c|}{ATA割込みベクタ}    &      \\
+\cline{1-3}
+{\tt FFF8H} & \multicolumn{2}{|c|}{SIO受信割込みベクタ}&      \\
+\cline{1-3}
+{\tt FFF9H} & \multicolumn{2}{|c|}{SIO送信割込みベクタ}&      \\
+\cline{1-3}
+{\tt FFFAH} & \multicolumn{2}{|c|}{PS2受信割込みベクタ}&      \\
+\cline{1-3}
+{\tt FFFBH} & \multicolumn{2}{|c|}{PS2送信割込みベクタ}&      \\
+\cline{1-3}
+{\tt FFFCH} & \multicolumn{2}{|c|}{INT12割込みベクタ}  &      \\
+\cline{1-3}
+{\tt FFFDH} & \multicolumn{2}{|c|}{INT13割込みベクタ}  &      \\
+\cline{1-3}
+{\tt FFFEH} & \multicolumn{2}{|c|}{INT14割込みベクタ}  &      \\
+\cline{1-3}
+{\tt FFFFH} & \multicolumn{2}{|c|}{INT15割込みベクタ}  &      \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{ビデオメモリの構成}
+
+ビデオメモリは1アドレスに8ビットのデータを格納できます。
+この8ビットデータを ASCII コードとみなし対応する文字を画面に表示します。
+画面は横80文字、縦25行の構成になっており、
+アドレスと画面上の文字の位置は次の表のような対応になります。
+左上隅が F000H 番地、その右隣が F001H 番地です。
+1行は 80 文字なので右端が F04FH 番地になります。
+2行目から先も同様な構成で、
+最後の行(第25行)が F780H 番地から F7CF 番地になります。
+
+\begin{center}
+{\bf \tac のビデオメモリと画面の対応} \\
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+F000H & F001H & F002H & ... & F04FH \\
+\hline
+F050H & F051H & F052H & ... & F09FH \\
+\hline
+F0A0H & F0A1H & F0A2H & ... & F0EFH \\
+\hline
+      &       &       &     &       \\
+\multicolumn{5}{|c|}{...}           \\
+      &       &       &     &       \\
+\hline
+F780H & F781H & F782H & ... & F7CFH \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{IPLプログラム}
+\label{app:ipl}
+
+F800H 番地からの 2016 ワードに IPL プログラムの機械語本体が、
+FFE0H 番地からの 16 ワードに変数領域が配置されます。
+IPL プログラムはマイクロドライブの第23セクタからの連続セクタに記録された
+「\verb/.bin/形式」の機械語プログラムをメモリに読み込んで実行を開始します。
+
+IPL プログラムのいくつかのルーチンはユーザプログラムに公開されており、
+``{\tt Kernel/*/*/kernel.cmm}''から呼び出して使用することができます。
+例えば、``{\tt Kernel/*/*/util.h}''にプロトタイプ宣言されている putch 関数は、
+``{\tt Kernel/*/*/crt0.s}''に本体が記述してあるように見えますが、
+実は、{\tt crt0.s }には IPL ルーチンへのジャンプ命令が書いてあるだけです。
+{\tt kernel.cmm} が呼び出している putch 関数は IPL ルーチンの putch 関数です。
+そのため、IPL 実行時から一貫した画面の表示や、
+カーソル位置の管理が可能です。
+以下の表に IPL ルーチンのエントリーポイント一覧と、
+変数領域の内容を示します。
+
+\begin{center}
+{\bf \tac のIPLルーチンエントリーポイント} \\
+\begin{tabular}{|c|l|l|}
+\hline
+番地  & \multicolumn{1}{|c|}{ルーチン} & \multicolumn{1}{|c|}{意味} \\
+\hline
+F800H & \verb/ipl();/                  & IPL に戻る                 \\
+F802H & \verb/cls();/                  & 画面をクリアする           \\
+F804H & \verb/putch(char ch);/         & 画面に1文字表示する        \\
+F806H & \verb/putstr(char[] str);/     & 画面に文字列を表示する     \\
+F808H & \verb/_puthex(int x);/         & 画面に16進数を表示する     \\
+F80AH & \verb/readSct(int labH, int LabL, char[] buf);/ & 1セクタリード \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+{\bf \tac のIPLルーチン変数領域} \\
+\begin{tabular}{|c|l|l|}
+\hline
+番地  & \multicolumn{1}{|c|}{変数} & \multicolumn{1}{|c|}{意味} \\
+\hline
+FFE0H & hBuf & 1セクタリード用バッファアドレス(IPL実行時のみ使用) \\
+FFE1H & vRam & VRAMアドレス(IPL実行時のみ使用)                    \\
+FFE2H & cX   & 文字カーソル位置の X 座標(0〜79)                   \\
+FFE3H & cY   & 文字カーソル位置の Y 座標(0〜24)                   \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{割込みベクタと割込みルーチンの登録}
+
+FFF0H 番地から FFFFH 番地は割込みベクタです。
+INT0 〜 INT3、INT12 〜 INT15 は現在のところ使用されていません。
+その他は、メモリマップに示された割込み要因から割込みが発生したときの
+ジャンプアドレスを書き込んでおきます。
+
+interrupt 関数と、addrof 演算子を用いて
+割り込み処理を \cmml で記述することができます。
+次のプログラムは、``{\tt Kernel/SioEcho/*/kernel.cmm}'' の一部です。
+
+\begin{mylist}
+\begin{verbatim}
+/*
+ * TaC カーネルの原型
+ */
+#include "util.h"
+
+// SIO 送信割込み処理ルーチン
+interrupt sioTrs() {                 // interrupt 関数！！
+  if (ISEmpty(trsBuf)) {             // 送信すべきデータがないなら
+    out(0x0001,0x0040);              // 送信割込み禁止
+    trsIdle = true;
+  } else {                           // そうでなければ
+    char c = getBuf(trsBuf);         // 送信バッファから一文字取り出す
+    out(0x0000,c);                   // データを送信
+  }
+}
+
+// SIO 受信割込み処理ルーチン
+interrupt sioRcv() {                 // interrupt 関数！！
+  char c = in(0x0000);               // 受信データを入力する
+
+  if (0x0020 <= c && c <= 0x007e) {  // 印刷可能な ASCII 文字なら
+    putBuf(rcvBuf, c);               // 受信バッファへ転記
+  }
+  ...
+}
+
+void main() {
+  int[] vect = __ItoA(0xfff0);       // 割込みベクタの配列
+  vect[8] = addrof(sioRcv);          // #8(sio受信)ベクタの初期化
+  vect[9] = addrof(sioTrs);          // #9(sio送信)ベクタの初期化
+
+  initSIO();                         // SIO 関係の初期化
+  ei();                              // 割込み許可
+  ...
+}
+\end{verbatim}
+\end{mylist}

@@ -1,0 +1,90 @@
+% 
+% $Id$
+%
+\chapter{\cmml 文法まとめ}
+
+以下に、\cmml の文法を BNF 風にまとめたものを掲載します。
+仕様の最後に掲載されている ``\verb/#ディレクティブ/'' は、
+プリプロセッサがソースプログラムのファイル名を
+\cmm コンパイラに伝えるために出力するものです。
+\cmm コンパイラは、
+``\verb/#ディレクティブ/'' によって、
+ソースプログラムやインクルードファイルの名前を知ることができます。
+
+\begin{mylist}
+{\small\tt
+\begin{verbatim}
+C--言語仕様(Ver. 1.0.5)                                      2010.03.13
+
+全角記号がメタ文字、意味は次の通り
+(1) A ※   はAのゼロ回以上の繰り返し
+(2) 《...》はグループ
+(3) 【...】は省略可能
+(4) A ｜ B は A または B
+
+\end{verbatim}
+
+{\footnotesize\tt
+\begin{tabular}{l l}
+プログラム：  & 《 構造体宣言 ｜ 大域変数定義 ｜ 関数定義 ｜ 関数宣言 》※ \\
+構造体宣言：  & \verb+struct+ 名前 \verb+{+
+                《 型 名前 《 \verb+,+ 名前 》※ \verb+;+ 》※ \verb+} ;+ \\
+大域変数定義：& 【修飾子】 型 大域変数並び \verb+;+ \\
+大域変数並び：& 名前 【 \verb+=+ 初期化 】
+                《 \verb+,+ 名前 【 \verb+=+ 初期化 】 》※ \\
+修飾子：      & \verb+public+ \\
+型：          & \verb+int+  ｜ \verb+char+ ｜ \verb+boolean+ ｜
+                \verb+void+ ｜ \verb+interrupt+ ｜ 名前 ｜ 型 \verb+[]+ \\
+初期化：      & 定数 ｜ \verb+{+ 初期化 《 \verb+,+ 初期化 》※ \verb+}+ ｜\\
+              & \verb+array(+ 数値 《 \verb+,+ 数値 》※ \verb+)+\\
+定数：        & 数値 ｜ 文字列 ｜ \verb+null+ ｜ \verb+true+ ｜
+                \verb+false+ \\
+関数定義：    & 【修飾子】 型 名前\verb+(+ 引数リスト \verb+)+ ブロック \\
+関数宣言：    & 【修飾子】 型 名前\verb+(+ 引数リスト \verb+) ;+ \\
+引数リスト：  & 【 型 名前 《 \verb+,+ 型 名前 》※~
+                【 \verb+, ...+ 】 】 ｜ \verb+...+ \\
+ブロック：    & \verb+{+ 《 局所変数定義 ｜ 文 》※ \verb+}+ \\
+局所変数定義：& 型 局所変数並び \verb+;+ \\
+局所変数並び：& 名前 【 \verb+=+ 代入式 】
+                《 \verb+,+ 名前 【 \verb+=+ 代入式 】 》※ \\
+              & \\
+文：          & IF文 ｜ WHILE文 ｜ DO-WHILE文 ｜ FOR文 ｜ RETURN文 ｜ \\
+              & BREAK文 ｜ CONTINUE文 ｜ ブロック ｜ 式 \verb+;+ ｜ \verb+;+\\
+IF文：        & \verb+if (+ 式 \verb+)+ 文  【 \verb+else+ 文  】 \\
+WHILE文：     & \verb+while (+ 式 \verb+)+ 文 \\
+DO-WHILE文:   & \verb+do+ 文 \verb+while (+ 式 \verb+) ;+ \\
+FOR文：       & \verb+for(+ 【 式 ｜ 局所変数定義 】 \verb+;+
+               【 式 】 \verb+;+ 【 式 】 \verb+)+ 文 \\
+RETURN文：    & \verb+return+ 【 式 】\verb+;+ \\
+BREAK文：     & \verb+break;+ \\
+CONTINUE文：  & \verb+continue;+ \\
+\\
+式：          & 代入式 ｜ 代入式 \verb+,+ 式 \\
+代入式：      & 論理OR式 ｜ 論理OR式 \verb+=+ 代入式 \\
+論理OR式：    & 論理AND式 ｜ 論理OR式  \verb+||+ 論理AND式 \\
+論理AND式：   & OR式 ｜ 論理AND式 \verb+&&+ OR式 \\
+OR式：        & XOR式 ｜ OR式 \verb+|+ XOR式 \\
+XOR式：       & AND式 ｜ XOR式 \verb+^+ AND式 \\
+AND式：       & 等式 ｜ AND式 \verb+&+ 等式 \\
+等式：        & 比較式 ｜ 等式 \verb+==+ 比較式 ｜ 等式 \verb+!=+ 比較式 \\
+比較式：      & シフト式 ｜ 比較式 \verb+<+ シフト式  ｜
+                比較式 \verb+<=+ シフト式 ｜ \\
+              & 比較式 \verb+>+ シフト式 ｜ 比較式 \verb+>=+ シフト式 \\
+シフト式：    & 和式 ｜ シフト式 \verb+<<+ 和式 ｜ シフト式 \verb+>>+ 和式 \\
+和式：        & 積式 ｜ 和式 \verb/+/ 積式 ｜ 和式 \verb+-+ 積式 \\
+積式：        & 単項式 ｜ 積式 \verb+*+ 単項式 ｜
+                積式 \verb+/+ 単項式 ｜ 積式 \verb+%+ 単項式 \\
+単項式：      & 因子 ｜ \verb/+/ 単項式 ｜ \verb+-+ 単項式 ｜
+                \verb+!+ 単項式 ｜ \verb+~+ 単項式 \\
+因子：        & 名前 ｜ 定数 ｜ 関数呼出 ｜ \verb+(+ 式 \verb+)+ ｜
+                因子\verb+[+ 代入式 \verb+]+ ｜ \\
+              & 因子\verb+.+名前 ｜ \verb+sizeof (+ 型 \verb+)+ ｜
+                \verb+addrof (+ 名前 \verb+)+ \\
+関数呼出：    & 名前 \verb+(+ 【 代入式 《 \verb+,+ 代入式 》※ 】 \verb+)+\\
+\\
+その他 & \\
+コメント：    & \verb+/* ... */+ または \verb+// ...+ \\
+＃ディレクティブ： & \verb+#+ 行番号 \verb+"+ファイル名\verb+"+\\
+\end{tabular}
+}}
+\end{mylist}
