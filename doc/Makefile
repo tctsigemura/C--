@@ -10,4 +10,4 @@ all :
 	dvipdfmx cmm.dvi
 
 clean:
-	rm -f *~ cmm.aux cmm.dvi cmm.log cmm.pdf cmm.toc
+	rm -f *~ cmm.aux cmm.dvi cmm.log cmm.pdf cmm.toc cmm.out
