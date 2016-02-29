@@ -1,0 +1,198 @@
+/*
+ * TacOS Source Code
+ *    Tokuyama kousen Advanced educational Computer.
+ *
+ * Copyright (C) 2011 - 2016 by
+ *                      Dept. of Computer Science and Electronic Engineering,
+ *                      Tokuyama College of Technology, JAPAN
+ *
+ *   上記著作権者は，Free Software Foundation によって公開されている GNU 一般公
+ * 衆利用許諾契約書バージョン２に記述されている条件を満たす場合に限り，本ソース
+ * コード(本ソースコードを改変したものを含む．以下同様)を使用・複製・改変・再配
+ * 布することを無償で許諾する．
+ *
+ *   本ソースコードは＊全くの無保証＊で提供されるものである。上記著作権者および
+ * 関連機関・個人は本ソースコードに関して，その適用可能性も含めて，いかなる保証
+ * も行わない．また，本ソースコードの利用により直接的または間接的に生じたいかな
+ * る損害に関しても，その責任を負わない．
+ *
+ *
+ */
+
+/*
+ * lib/lib.cmm : C-- で記述するライブラリ関数を集めたファイル
+ *
+ * 2016.02.25 : TacOS/os/lib から C--/lib へコピー
+ *              インクルードするヘッダファイルの拡張子変更 .h => .hmm
+ *              _ItoA() などの名前を lower camel case に変更
+ * 2016.01.07 : include と lib に分離
+ * 2015.12.17 : readDir() を実装
+ * 2015.06.10 : カーネル用の printf をコピーしユーザ用に修正、putch を新規に実装
+ * 2015.06.08 : panic() 使用箇所を(printf + exit(1))に変更
+ * 2015.06.05 : 新規作成
+ *
+ * $Id$
+ */
+
+#include <crt0.hmm>
+#include <syslib.hmm>
+#include <stdlib.hmm>
+#include <stdio.hmm>
+#include <ctype.hmm>
+
+#define MBSIZE sizeof(MemBlk)                   // MemBlk のバイト数
+#define MAGIC  (memPool)                        // 番兵のアドレスを使用する
+
+// 空き領域はリストにして管理される
+struct MemBlk {                                 // 空き領域管理用の構造体
+  MemBlk next;                                  // 次の空き領域アドレス
+  int    size;                                  // 空き領域サイズ
+};
+
+public void[] alcAddr;                          // どこまで割り当てたか
+// -------------------------- メモリ初期化ルーチン ----------------------------
+// メモリ管理の初期化
+MemBlk memPool = {null, 0};                     // 空き領域リストのルート
+public int _end();                              // プロセスの BBS 領域の最後
+
+// メモリの初期化
+//   メモリの開始アドレス　addrof(_end)
+//   メモリの大きさ　　　　SP - addrof(_end)
+public void  _memInit() {                       // プログラム起動前の初期化
+  int sp = _sp();                               // メモリの終端アドレス
+  memPool.next = _iToA(addrof(_end));           // 空き領域
+  memPool.next.size = sp - addrof(_end);        // 空きメモリサイズ
+  memPool.next.next = null;
+
+  alcAddr = _iToA(addrof(_end));                // 割当アドレスの初期化
+}
+
+// ------------------------- メモリ割当・解放ルーチン -------------------------
+
+// メモリを割り付ける
+public void[] malloc(int s) {                   // メモリ割り当て
+  s = (s + MBSIZE + 1) & ~1;                    // 制御データ分大きい偶数に
+
+  MemBlk p = memPool;                           // 直前の領域
+  MemBlk m = p.next;                            // 対象となる領域
+
+  while (_uCmp(m.size,s)<0) {                   // 領域が小さい間
+    p = m;                                      // リストを手繰る
+    m = m.next;
+    if (m==null) return null;                   // リストの最後まできた
+  }
+
+  if (_uCmp(s,m.size)<=0 &&                     // ちょうどピッタリか
+      _uCmp(m.size, s+MBSIZE)<=0) {             // 分割する価値がないサイズ
+    p.next = m.next;
+  } else {                                      // 領域を分割する価値がある
+    int ss = m.size - s;                        // ss は最低でも MBSIZE より大
+    MemBlk q = _addrAdd(m, s);                  // 残り領域
+    q.next = m.next;
+    q.size = ss;
+    p.next = q;
+    m.size = s;
+  }
+  m.next = MAGIC;                               // マジックナンバー格納
+
+  // どこまでメモリを割り当てたかを示すポインタを更新 
+  if (_aCmp(_addrAdd(m,MBSIZE+m.size),alcAddr)>1)// 今までより深く割当したなら
+    alcAddr = _addrAdd(m, MBSIZE+m.size);       //   ポインタを更新
+
+  // SP と割り付けたメモリの衝突を検知したらエラー出力して終了
+  if (_aCmp(alcAddr, _iToA(_sp()))>=0) {        // ポインタが SP 以上なら
+    printf("malloc: no enough memory\n");       //   エラー出力し
+    exit(1);                                    //     異常終了
+  }
+
+  return _addrAdd(m, MBSIZE);                   // 管理領域を除いて返す
+}
+
+// メモリを解放する
+public void free(void[] mem) {                  // 領域解放
+  MemBlk q = _addrAdd(mem, -MBSIZE);            // 解放する領域
+  MemBlk p = memPool;                           // 直前の空き領域
+  MemBlk m = p.next;                            // 直後の空き領域
+
+  if (q.next!=MAGIC) {                          // 領域マジックナンバー確認
+    printf("free: bad address\n");
+    exit(1);                                    // 異常終了
+  }
+
+  while (_aCmp(m, q)<0) {                       // 解放する領域の位置を探る
+    p = m;
+    m = m.next;
+    if (m==null) break;
+  }
+
+  void[] ql = _addrAdd(q, q.size);              // 解放する領域の最後
+  void[] pl = _addrAdd(p, p.size);              // 直前の領域の最後
+
+  if (_aCmp(q,pl)<0 || m!=null&&_aCmp(m,ql)<0) {// 未割り当て領域では？
+    printf("free: bad address\n");
+    exit(1);                                    // 異常終了
+  }
+   
+  if (pl==q) {                                  // 直前の領域に隣接している
+    p.size = p.size + q.size;
+    if (ql==m) {                                // 直後の領域とも隣接してる
+      p.size = p.size + m.size;
+      p.next = m.next;
+    }
+  } else if (m==null) {                         // ヒープの最後の部分
+    p.next = q;
+    q.next = null;
+  } else if (ql==m) {                           // 直後の領域に隣接している
+    q.size = q.size + m.size;
+    q.next = m.next;
+    p.next = q;
+  } else {
+    p.next = q;
+    q.next = m;
+  }
+
+  // 最も深く割り当てたメモリを解放したならば、ポインタを直前の最深の末尾に移動
+  //   解放した領域の直前の空き領域の先頭は、最深の直前の割当領域の終端になる
+  if (_aCmp(alcAddr, ql)==0)                    // 現在の最深を解放したなら
+    alcAddr = p;                                //   ポインタを直前の最深に
+}
+
+// ゼロでクリアされた配列を割りあてる
+public void[] calloc(int n, int s) {
+  char[] mem = malloc(n*s);                     // 割当てる。
+                                                // malloc はエラーで勝手に終了
+  for (int i=0; i<n*s; i=i+1)                   // 領域全体を
+    mem[i] = '\0';                              //   ゼロでクリアする
+
+  return mem;                                   // 領域を返す
+}
+
+// -------------------------------- その他 -----------------------------------
+
+// 文字列から整数に
+public int atoi(char[] s) {
+  int v = 0;
+  for (int i=0; s[i]!='\0'; i=i+1)
+    if (isDigit(s[i]))
+      v = v * 10 + ord(s[i]) - ord('0');
+  return v;
+}
+
+// プロセスを終了
+public void exit(int status) {
+  _flush();
+  _exit(status);
+}
+
+// 擬似乱数の初期化（0で初期化はNG)
+int lfsr = 1;
+public void srand(int seed) {
+  if (seed==0) seed=1;
+  lfsr = seed;
+}
+
+// 擬似乱数（ガロアLFSR）
+public int rand() {
+  lfsr = ((lfsr >> 1) & 0x7fff) ^ (-(lfsr & 1) & 0xb400); 
+  return lfsr;
+}

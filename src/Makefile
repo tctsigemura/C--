@@ -77,6 +77,7 @@ c-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
 #	optree.c
 
 install : c-- vm-c-- c-c-- # h8300hn-c--
+	install -d -m 755 /usr/local/bin
 	install -m 755 c-- /usr/local/bin
 	install -m 755 vm-c-- /usr/local/bin
 	install -m 755 c-c-- /usr/local/bin

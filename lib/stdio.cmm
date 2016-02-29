@@ -1,0 +1,230 @@
+/*
+ * TacOS Source Code
+ *    Tokuyama kousen Advanced educational Computer.
+ *
+ * Copyright (C) 2016 by
+ *                      Dept. of Computer Science and Electronic Engineering,
+ *                      Tokuyama College of Technology, JAPAN
+ *
+ *   上記著作権者は，Free Software Foundation によって公開されている GNU 一般公
+ * 衆利用許諾契約書バージョン２に記述されている条件を満たす場合に限り，本ソース
+ * コード(本ソースコードを改変したものを含む．以下同様)を使用・複製・改変・再配
+ * 布することを無償で許諾する．
+ *
+ *   本ソースコードは＊全くの無保証＊で提供されるものである。上記著作権者および
+ * 関連機関・個人は本ソースコードに関して，その適用可能性も含めて，いかなる保証
+ * も行わない．また，本ソースコードの利用により直接的または間接的に生じたいかな
+ * る損害に関しても，その責任を負わない．
+ *
+ *
+ */
+
+/*
+ * lib/stdio.cmm : TacOS 用の入出力ルーチン
+ *
+ * 2016.02.25 : os/lib/lib.cmm をもとに作成
+ *
+ * $Id$
+ */
+
+#include <crt0.hmm>
+#include <stdio.hmm>
+#include <ctype.hmm>
+#include <syslib.hmm>
+
+// 将来使用予定
+public File stdin  = { -1 };
+public File stdout = { -2 };
+public File stderr = { -3 };
+
+#define LMAX 80                                 // 1行最大 80 文字              
+char[] lBuf = array(LMAX+1);                    // LMAX + '\0'
+int bCnt = 0;                                   // lBuf の参照位置
+
+// lBuf をフラッシュする
+public void _flush() {
+  lBuf[bCnt]='\0';                              //   lBuf に終端記号を格納
+  conWrite(lBuf);                               //   TTY に lBuf を送る
+  bCnt = 0;                                     //   参照位置の初期化
+}
+
+// 渡された文字を lBuf に溜めて、まとめて TTY に送る
+public boolean putChar(char c) {
+  lBuf[bCnt]=c;
+  bCnt = bCnt + 1;
+  if (bCnt>=LMAX || c=='\n') _flush();          // バッファフラッシュが必要
+  return false;                                 // エラーはなかった
+}
+
+// 文字列を出力する
+public char[] putStr(char[] str) {
+  for (int i=0; str[i]!='\0'; i=i+1)
+    putChar(str[i]);
+  return str;                                   // エラーはなかった
+}
+
+char[] __hstr = "0123456789abcdef";
+int  __putnum_w;
+int  __putnum_b;
+char __putnum_p;
+boolean __putnum_m;
+
+void __putnum_sub(int x, int n) {
+  if (x!=0) {
+    __putnum_sub(x/__putnum_b, n+1);
+    putChar(__hstr[x%__putnum_b]);
+  } else {
+    if (__putnum_m&&__putnum_p!=' ') putChar('-');
+    if (n==0) __putnum_w = __putnum_w - 1;
+    while (__putnum_w>n) {
+      putChar(__putnum_p);
+      __putnum_w = __putnum_w - 1;
+    }
+    if (__putnum_m&&__putnum_p==' ') putChar('-');
+    if (n==0) putChar('0');
+  }
+}
+    
+void __uputnum(int x, int w, char p, int base) {
+  __putnum_b = base;
+  __putnum_m = false;
+  __putnum_w = w;
+  __putnum_p = p;
+  __putnum_sub(x,0);
+}
+
+void __sputnum(int x, int w, char p, int base) {
+  __putnum_b = base;
+  __putnum_m = false;
+  if (x<0) {
+    x = -x;
+    __putnum_m = true;
+    w = w - 1;
+  }
+  __putnum_w = w;
+  __putnum_p = p;
+  __putnum_sub(x,0);
+}
+
+void putdec(int x, int w, char p) {
+  __sputnum(x,w,p,10);
+}
+
+void puthex(int x, int w, char p) {
+  __uputnum(x,w,p,16);
+}
+
+// fmt を '\0' までたぐる、% の次が意味のあるものであれば後ろの引数を参照する
+public int printf(char[] fmt, ...) {
+  int[] args = _args();                         // fmt より後ろの引数を取得
+  int n=0;
+  int arg = args[0];                            // 関数の第2引数を取得する
+  for (int i=0; fmt[i]!='\0'; i=i+1) {          // '\0' が来るまで fmt をたぐる
+    char c = fmt[i];                            // fmt から1文字取得する
+    if (c=='%') {                               // '%' ならば
+      c = fmt[i=i+1];                           //   次の1文字を取得する
+      char  p = ' ';
+      if (c=='0') p='0';                        //   先行の0詰め用
+      int  w = 0;
+      while (isDigit(c)) {
+        w = w * 10 + (ord(c) - ord('0'));
+        c = fmt[i=i+1];
+      }
+      if (c=='o') {                             // 8進数として出力
+        __uputnum(arg,w,p,8);
+        arg = args[n=n+1];                      // 後ろの引数を更新
+      } else if (c=='d') {                      // 10進数として出力
+        __sputnum(arg,w,p,10);
+        arg = args[n=n+1];                      // 後ろの引数を更新
+      } else if (c=='x') {                      // 16進数として出力
+        __uputnum(arg,w,p,16);
+        arg = args[n=n+1];                      // 後ろの引数を更新
+      } else if (c=='c') {                      // 文字として出力
+        putChar(chr(arg));
+        arg = args[n=n+1];                      // 後ろの引数を更新
+      } else if (c=='s') {                      // 文字列として出力
+        putStr(_iToA(arg));
+        arg = args[n=n+1];
+      } else if (c=='%') {                      // '%' を出力
+        putChar('%');
+      } else {
+        putChar(c);
+      }
+    } else                                      // '%' 以外なら
+      putChar(c);                               //   そのまま出力 
+  }
+  return n;
+}
+
+// ------------------------------- エラー処理 ------------------------------
+#define ERRMAX (-25)                            // エラー番号の最大絶対値の負数
+char[][] errList = {                            // エラーメッセージリスト
+  null,                                         // エラー番号 0 は存在しない
+  "Invalid file name",                          // -1  ファイル名が不正
+  "No such file or directrory",                 // -2  ファイルが存在しない
+  "File exists",                                // -3  同名ファイルが存在する
+  "File is opened",                             // -4  オープンされている
+  "File table overflow",                        // -5  システムのオープン超過
+  "Bad file number",                            // -6  ファイル記述子が不正
+  "No space left on device",                    // -7  デバイスに空き領域が不足
+  "Bad path",                                   // -8  パスが不正
+  "Bad mode",                                   // -9  モードが一致しない
+  "Bad attribute",                              // -10 ファイルの属性が不正
+  "Directory is not empty",                     // -11 ディレクトリが空でない
+  "Invalid argument",                           // -12 引数が不正
+  "Process table overflow",                     // -13 プロセスが多すぎる
+  "Bad EXE file",                               // -14 EXE ファイルが不正
+  "Bad MAGIC number",                           // -15 不正なマジック番号
+  "Too many open files",                        // -16 プロセス毎のオープン超過
+  "No children",                                // -17 子プロセスが存在しない
+  "No zombie children",                         // -18 ゾンビの子が存在しない
+  "Not enough core",                            // -19 十分な空き領域が無い
+  "Invalid system call number",                 // -20 システムコール番号が不正
+  "Zero division",                              // -21 ゼロ割り算
+  "Privilege violation",                        // -22 特権例外
+  "Illegality instruction",                     // -23 不正命令
+  "Stack overflow"                              // -24 スタックオーバーフロー
+};
+
+public void _perror(char[] s, int err) {
+  if (err>=0)     return;                       // 0以上なら何もしない
+  if (err<ERRMAX) {                             // err の値が不正なら
+    putStr("Invalid err\n");                    //   エラーメッセージを出力
+    return;
+  }
+  printf("%s : %s\n",s, errList[err*-1]);       // 対象のエラーメッセージを出力
+}
+
+public void perror(char[] s) {
+  _perror(s, errno);
+}
+
+// ---------------------------- readDir の処理 ------------------------------
+
+// isValidDirEnt : DIR エントリが有効か判定する
+// 返り値        : true=有効なエントリ、false=無効なエントリ(未使用か削除済み)
+// 引数  c       : DIR エントリの最初の文字
+
+#define wordLE(b, i) ((ord((b)[(i)+1])<<8) | ord((b)[i]))
+char[] buf = array(32);
+
+public int readDir(int fd, Dir dir) {
+  int r;
+  while ((r=read(fd, buf, 32))>0) {            // EOF まで
+    char flag = buf[0];                        //   エントリの先頭１バイト
+    int  attr = ord(buf[11]);                  //   属性
+    if (flag=='\x00') return 0;                //   この先に有効エントリは無い
+    if (flag!='\xe5' && flag!='\x05' &&        //   有効なエントリでかつ
+        (attr & 0x0a)==0) {                    //   通常ファイルかディレクトリ
+      for (int i=0; i<11; i=i+1)               //     ファイル名をコピー
+        dir.name[i]=buf[i];
+      dir.name[11]='\0';                       //       ファイル名を完成させる
+      dir.attr = attr;                         //     属性
+      dir.clst = wordLE(buf, 26);              //     先頭クラスタ番号
+      dir.lenH = wordLE(buf, 30);              //     上位ファイルサイズ
+      dir.lenL = wordLE(buf, 28);              //     下位ファイルサイズ
+      return 1;
+    }
+  }
+  return r;
+}

@@ -1,0 +1,68 @@
+/*
+ * TacOS Source Code
+ *    Tokuyama kousen Advanced educational Computer.
+ *
+ * Copyright (C) 2016 by
+ *                      Dept. of Computer Science and Electronic Engineering,
+ *                      Tokuyama College of Technology, JAPAN
+ *
+ *   上記著作権者は，Free Software Foundation によって公開されている GNU 一般公
+ * 衆利用許諾契約書バージョン２に記述されている条件を満たす場合に限り，本ソース
+ * コード(本ソースコードを改変したものを含む．以下同様)を使用・複製・改変・再配
+ * 布することを無償で許諾する．
+ *
+ *   本ソースコードは＊全くの無保証＊で提供されるものである。上記著作権者および
+ * 関連機関・個人は本ソースコードに関して，その適用可能性も含めて，いかなる保証
+ * も行わない．また，本ソースコードの利用により直接的または間接的に生じたいかな
+ * る損害に関しても，その責任を負わない．
+ *
+ *
+ */
+
+/*
+ * cmmInclude/cfunc.hmm : C-- 関数と C 関数の読みかえを定義
+ *
+ * 2016.02.26 : 新規作成
+ *
+ * $Id$
+ */
+
+// stdio.hmm
+#define File FILE
+#define getChar() getchar()
+#define putChar(c) putchar(c)
+#define getStr(s,n) fgets(s,n,stdin)
+#define putStr(s)  puts(s)
+#define fOpen(n,m) fopen(n,m)
+#define fClose(f)  fclose(f)
+#define fPrintf    fprintf
+#define fGetChar(f) fgetc(f)
+#define fPutChar(c,f) fputc(c,f)
+#define fGetStr(s,n,f) fgets(s,n,f)
+#define fPutStr(s,f) fputs(s,f)
+#define fEof(f) feof(f)
+
+// ctype.hmm
+#define isAlnum(c) isalnum(c)
+#define isAlpha(c) isalpha(c)
+#define isDigit(c) isdigit(c)
+#define isXdigit(c) isxdigit(c)
+#define isPrint(c) isprint(c)
+#define isSpace(c) sispace(c)
+#define isLower(c) islower(c)
+#define isUpper(c) isupper(c)
+#define toLower(c) tolower(c)
+#define toUpper(c) toupper(c)
+
+// string.hmm
+#define strCpy(d,s) strcpy(d,s)
+#define strNcpy(d,s,n) strncpy(d,s,n)
+#define strCat(d,s) strcat(d,s)
+#define strNcat(d,s,n) strncat(d,s,n)
+#define strCmp(s1,s2) strcmp(s1,s2)
+#define strNcmp(s1,s2,n) strncmp(s1,s2,n)
+#define strLen(s) strlen(s)
+
+//#define strChr(s,c) strchr(s,c)
+//#define strRchr(s,c) strrchr(s,c)
+//#define strStr(s1,s2) strstr(s1,s2)
