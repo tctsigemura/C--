@@ -1,4 +1,5 @@
-% プログラミング言語 C--
+%
+% C-- 言語 ver.2 の解説書
 %
 % 2010.07.17 V.0.3.2 I/Oマップのバグ(ATA Status と Alternate Status)
 % 2010.06.18 V.0.3.1 cpp の使用例に -std=c99 オプションを追記
@@ -23,6 +24,7 @@
 \usepackage{multicol}
 \usepackage{bigfoot}  % \footnote{} 中で \verb/../ が利用可能になる。
 %\usepackage{listings,jlisting}
+\usepackage{url}
 %----------------------------------------------------------------------
 % ハイパーリンク設定（印刷用では色使いに注意）
 \usepackage[colorlinks,linkcolor=blue,urlcolor=blue]{hyperref}  % PDF用
@@ -59,20 +61,30 @@
 %----------------------------------------------------------------------
 \newcommand{\figref}[1]{図~\ref{fig:#1}}
 \newcommand{\tabref}[1]{表~\ref{tab:#1}}
-\newcommand{\ver}{Ver. 0.3.2}
+\newcommand{\ver}{Ver. 1.0.0}
 \newcommand{\cmm}{{\tt C--}}
 \newcommand{\cmml}{\cmm 言語}
+\newcommand{\cmmc}{{\tt c--}}
 \newcommand{\cl}{{\tt C}言語}
 \newcommand{\javal}{{\tt Java}言語}
 \newcommand{\tac}{TaC}
+\newcommand{\tacos}{TacOS}
+\newcommand{\util}{{\tt Util--}}
+\newcommand{\as}{{\tt as--}}
+\newcommand{\ld}{{\tt ld--}}
+\newcommand{\objbin}{{\tt objbin--}}
+\newcommand{\objexe}{{\tt objexe--}}
+\newcommand{\size}{{\tt size--}}
 \newcommand{\ul}{\underline{~~}}
 \newcommand{\lw}[1]{\smash{\lower2.0ex\hbox{#1}}}
 %----------------------------------------------------------------------
 
 \newenvironment{mylist}
 {\vspace{0.3cm}
-\begin{tabular}{|c|}\hline\\\begin{minipage}{14.5cm}\begin{quote}}
-{\end{quote}\end{minipage}\\\\\hline\end{tabular}\vspace{0.3cm}}
+\begin{tabular}{|c|}\hline\\\begin{minipage}{14.5cm}}
+{\end{minipage}\\\\\hline\end{tabular}\vspace{0.3cm}}
+%\begin{tabular}{|c|}\hline\\\begin{minipage}{14.5cm}\begin{quote}}
+%{\end{quote}\end{minipage}\\\\\hline\end{tabular}\vspace{0.3cm}}
 
 \newenvironment{myminipage}
 {\begin{minipage}{14.5cm}\vspace{0.2cm}\begin{center}}
