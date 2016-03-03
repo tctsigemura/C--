@@ -1,6 +1,6 @@
 #
 #  Programing Language C-- "Compiler"
-#    Tokuyama kousen Educational Computer 16 bit Version
+#    Tokuyama kousen Advanced educational Computer
 #
 # Copyright (C) 2016 by
 #                      Dept. of Computer Science and Electronic Engineering,
@@ -17,7 +17,9 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# Makefile : C--/lib の makefile
+# lib/Makefile : makefile
+#
+# 2016.02.27 : 初期バージョン
 #
 
 # 使用されそうなフラグ
@@ -37,7 +39,7 @@ CPP=cc -E -std=c99 -nostdinc ${CPFLAGS} -I/usr/local/cmmInclude - <
 .cmm.s:
 	${CPP} $*.cmm| c-- ${CMFLAGS} > $*.s
 
-OBJS= crt0.o ctype.o stdio.o stdlib.o string.o syslib.o
+OBJS= crt0.o ctype.o stdio.o printf.o stdlib.o string.o syslib.o
 
 all: libtac.o
 

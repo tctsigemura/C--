@@ -1,0 +1,177 @@
+/*
+ * Programing Language C-- "Compiler"
+ *    Tokuyama kousen Advanced educational Computer.
+ *
+ * Copyright (C) 2016 by
+ *                      Dept. of Computer Science and Electronic Engineering,
+ *                      Tokuyama College of Technology, JAPAN
+ *
+ *   上記著作権者は，Free Software Foundation によって公開されている GNU 一般公
+ * 衆利用許諾契約書バージョン２に記述されている条件を満たす場合に限り，本ソース
+ * コード(本ソースコードを改変したものを含む．以下同様)を使用・複製・改変・再配
+ * 布することを無償で許諾する．
+ *
+ *   本ソースコードは＊全くの無保証＊で提供されるものである。上記著作権者および
+ * 関連機関・個人は本ソースコードに関して，その適用可能性も含めて，いかなる保証
+ * も行わない．また，本ソースコードの利用により直接的または間接的に生じたいかな
+ * る損害に関しても，その責任を負わない．
+ *
+ *
+ */
+
+/*
+ * lib/printf.cmm : TacOS 用の入出力ルーチン
+ *
+ * 2016.02.29 : TacOS の usr/lib/lib.cmm をもとに作成
+ *
+ * $Id$
+ */
+
+#include <crt0.hmm>
+#include <syslib.hmm>
+#include <stdio.hmm>
+#include <stdlib.hmm>
+#include <ctype.hmm>
+#include <string.hmm>
+
+// カウンター付きの出力ルーチン
+FILE out;                                       // 出力ストリーム
+int  cnt;                                       // 出力文字数
+
+void putC(char c) {                             // 文字数カウント付き
+  if (!fputc(c, out)) cnt = cnt + 1;            //  出力ルーチン
+}
+
+void putN(char c, int n) {                      //  c を n 個出力する
+  for (int i=0; i<n; i=i+1)
+    putC(c);
+}
+
+// 幅指定のありの文字出力
+void putCW(char c, int w, boolean lf) {
+  int l = w -1;
+  if (!lf) putN(' ', l);                        // 右詰めなら前に空白
+  putC(c);
+  if (lf) putN(' ', l);                         // 左詰めなら後で空白
+}
+
+// 幅指定のありの文字列出力
+void putS(char[] s, int w, boolean lf) {
+  int l = w - strLen(s);                        // 必要な空白の文字数
+  if (!lf) putN(' ', l);                        // 右詰めなら前に空白
+  for (int i=0; s[i]!='\0'; i=i+1)              // 文字列本体の出力
+    putC(s[i]);
+  if (lf) putN(' ', l);                         // 左詰めなら後で空白
+}
+
+// 数値 x を b 進数で出力
+void putNum(int x, int b) {                     // 数値を上の桁から順に出力する
+  if (x!=0) {
+    putNum(x/b, b);                             //   逆順のために再帰使用
+    putC("0123456789abcdef"[x%b]);              //   文字列は文字配列
+  }
+}
+
+// 数値 x が b 進数のとき何桁で表示されるか
+int numLen(int x, int b) {                      
+  int l;
+  for (l=0; x!=0; l=l+1)
+    x = x / b;
+  if (l==0) l=1;                                // 最低でも 1 桁
+  return l;
+}
+
+// 符号なしの数値出力
+void uPutNum(int x, int w, boolean lf, char p, int b) {
+  int  l = w - numLen(x, b);                    // 空白がいくつ必要か
+  if (!lf) putN(p, l);                          // 右詰めなら前に空白
+  if (x!=0) putNum(x, b);                       // 数値を出力
+  else putC('0');                               // putNumでは0桁になるので
+  if (lf) putN(' ', l);                         // 左詰めなら後で空白
+}
+
+// 符号付きの数値出力
+void sPutNum(int x, int w, boolean lf, char p, int b) {
+  boolean minus = false;
+  if (x<0) {                                    // 値が負なら
+    minus = true;                               //  フラグを立てる
+    x = -x;                                     //   値は正にする
+    w = w - 1;                                  // '-'のために幅1文字減
+  }
+  int  l = w - numLen(x, b);                    // 空白がいくつできるか
+  if (!lf) putN(p, l);                          // 右詰めなら前に空白
+  if (minus) putC('-');                         // 負なら符号を表示
+  if (x!=0) putNum(x, b);                       // 数値を出力
+  else putC('0');                               // putNumでは0桁になるので
+  if (lf) putN(' ', l);                         // 左詰めなら後で空白
+}
+
+// 可変個引数を順に取り出す
+int[] args;                                     // printf の引数
+int pos;                                        // 次の引数位置
+
+int getArg() {                                  // 次の引数へ進む
+  int arg = args[pos];
+  pos = pos + 1;
+  return arg;
+}
+
+void initArg(int[] arg, int offs) {             // 引数配列を記録
+  args = arg;
+  pos  = offs;
+}
+
+// 書式文字列を解析して出力する
+void conv(char c, int w, boolean lf, char p) {
+  if (c=='o') {                                 // 8進数として出力
+    uPutNum(getArg(),w,lf,p,8);
+  } else if (c=='d') {                          // 10進数として出力
+    sPutNum(getArg(),w,lf,p,10);
+  } else if (c=='x') {                          // 16進数として出力
+    uPutNum(getArg(),w,lf,p,16);
+  } else if (c=='c') {                          // 文字として出力
+    putCW(chr(getArg()),w,lf);
+  } else if (c=='s') {                          // 文字列として出力
+    putS(_iToA(getArg()),w,lf);
+  } else if (c=='%') {                          // '%' を出力
+    putC('%');
+  } else exit(EUFMT);                           // どれでもなければエラー
+}
+
+int print(int[] arg, int offs) {
+  cnt = 0;                                      // 出力した文字数
+  initArg(arg, offs);                           // getArgの準備
+  char[] fmt = _iToA(getArg());                 // 最初の引数は書式文字列
+  for (int i=0; fmt[i]!='\0'; i=i+1) {          // '\0' が来るまで fmt をたぐる
+    char c = fmt[i];                            // fmt から1文字取得する
+    if (c=='%') {                               // '%' ならば
+      c = fmt[i=i+1];                           //  次の1文字を取得する
+      boolean lf = false;                       //  左詰め
+      if (c=='-') {
+        lf=true;                                //  左詰め
+        c = fmt[i=i+1];                         //  次の1文字を取得する
+      }
+      char  p = ' ';
+      if (c=='0') p='0';                        //  先行の0詰め用
+      int  w = 0;                               //  幅指定
+      while (isDigit(c)) {                      //  数字が来れば
+        w = w * 10 + (ord(c) - ord('0'));       //   幅指定がある
+        c = fmt[i=i+1];
+      }                                         //  cが'\0'の可能性がある！注意
+      conv(c, w, lf, p);                        //  arg を変換して出力
+    } else                                      // '%' 以外なら
+      putC(c);                                  //   そのまま出力 
+  }
+  return cnt;
+}
+
+// 以下が外部に公開される関数
+public int fprintf(FILE fp, char[] fmt, ...) {
+  out = fp;                                     // 出力先は fp
+  return print(_args(), 1);                     // fp の次の引数から必要
+}
+
+public int printf(char[] fmt, ...) {
+  out = stdout;                                 // 出力先は stdout
+  return print(_args(), 0);                     // 全ての引数が必要
+}

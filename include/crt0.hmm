@@ -1,8 +1,8 @@
 /*
- * TacOS Source Code
+ * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer
  *
- * Copyright (C) 2008-2016 by
+ * Copyright (C) 2016 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,18 +20,15 @@
  */
 
 /*
- * cmmInclude/crt0.hmm : lib/crt0.s の外部インタフェース
+ * include/crt0.hmm : lib/crt0.s の外部インタフェース
  *
- * 2016.02.25: os ソースから C-- ソースにコピーしファイル名も .hmm に変更
- *             関数名を lower camel case に変更
- * 2015.06.17: _sp() を追加
- * 2015.06.08: 新規作成
+ * 2016.02.25 : 新規作成
  *
  * $Id$
  */
 
 
-// C-- をサポートする関数
+// C-- 言語をサポートする関数
 public int    _aToI(void[] a);                      // 型変換ルーチン
 public void[] _iToA(int a);                         // 型変換ルーチン
 public void[] _aToA(void[] a);                      // 型変換ルーチン

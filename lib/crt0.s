@@ -1,8 +1,8 @@
 ;
-; TacOS Source Code
+; Programing Language C-- "Compiler"
 ;    Tokuyama kousen Advanced educational Computer
 ;
-; Copyright (C) 2009-2016 by
+; Copyright (C) 2016 by
 ;                      Dept. of Computer Science and Electronic Engineering,
 ;                      Tokuyama College of Technology, JAPAN
 ;
@@ -19,13 +19,7 @@
 
 ; lib/crt0.s : ユーザプロセス用スタートアップ
 ;
-; 2016.02.25  os/lib から C--/lib へコピー
-;             関数名を lower camel case に変更 
-; 2015.09.01  __stkChk を追加 
-; 2015.06.17  __sp を実装
-; 2015.06.16　スタートアップルーチンから memInit() を呼ぶように変更
-; 2015.06.10 .start の exit のパラメータの積み方を修正
-; 2015.06.08 新規作成
+; 2016.02.25  新規作成（TacOS の usr/lib/crt0.s をもとに）
 ;
 ; $Id$
 ;
@@ -47,7 +41,8 @@
 
 ;プログラムの開始位置（このルーチンは必ずテキストの先頭に配置する)
 .start
-    call    __memInit           ; メモリの初期化ルーチンを呼ぶ
+    call    __stdlibInit        ; stdlibの初期化ルーチンを呼ぶ
+    call    __stdioInit         ; stdio の初期化ルーチンを呼ぶ
     call    _main               ; ユーザプログラムのメインに飛ぶ
     push    g0                  ; メインの戻り値をスタックに積む
     call    _exit               ; プログラムの最後まで到達した場合は終了する
@@ -83,10 +78,10 @@ __aCmp                          ; int _aCmp(void[] a, void[] b);
         ld      g0,#-1
 .L1     ret
 
-;; 呼び出した C-- 関数の第2引数のアドレスを返す
+;; 呼び出した C-- 関数の第1引数のアドレスを返す
 __args                          ; void[] _args();
         ld      g0,fp
-        add     g0,#6
+        add     g0,#4
         ret
 
 ;; SP の値を取得する
@@ -96,14 +91,14 @@ __sp
 
 ;; ヒープとスタックの間に 10Byte 以上の余裕があるかチェックする 
 __stkChk
-        ld      g0,_alcAddr     ; G0 にヒープ領域の最後をロード
+        ld      g0,__alcAddr    ; G0 にヒープ領域の最後をロード
         add     g0,#10          ; 10Byte 分の余裕を持たせる
-        cmp     g0,sp           ; G0 と G1 を比較   [ヒープの最後+10Byte] - [SP]
+        cmp     g0,sp           ; G0 と G1 を比較 [ヒープの最後+10Byte] - [SP]
         jnc     .stkOverFlow    ; ユーザスタックがオーバーフローしている
         ret
         
-; スタックがオーバーフローした場合、 exit(ESTKOVRFLW) を実行
+; スタックがオーバーフローした場合、 exit(EUSTK) を実行
 .stkOverFlow
-        ld      g0,#-24         ; パラメータ(os/kernel/syscall.h の ESTKOVRFLW)
+        ld      g0,#-24         ; パラメータ(lib/syscall.hmm の EUSTK)
         push    g0              ;   をスタックに積む
         call    _exit           ; exit を呼ぶ

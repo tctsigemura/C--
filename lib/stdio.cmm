@@ -1,5 +1,5 @@
 /*
- * TacOS Source Code
+ * Programingxx Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
  * Copyright (C) 2016 by
@@ -22,144 +22,254 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
- * 2016.02.25 : os/lib/lib.cmm をもとに作成
+ * 2016.02.25 : TacOS の usr/lib/lib.cmm をもとに作成
  *
  * $Id$
  */
 
-#include <crt0.hmm>
 #include <stdio.hmm>
-#include <ctype.hmm>
+#include <stdlib.hmm>
+#include <string.hmm>
 #include <syslib.hmm>
 
-// 将来使用予定
-public File stdin  = { -1 };
-public File stdout = { -2 };
-public File stderr = { -3 };
+// 標準 I/O
+#define FMAX 5                     // TacOS で１ユーザプロセスの最大ファイル数
+#define LMAX 80                    // コンソールI/O, 1行80文字以内
 
-#define LMAX 80                                 // 1行最大 80 文字              
-char[] lBuf = array(LMAX+1);                    // LMAX + '\0'
-int bCnt = 0;                                   // lBuf の参照位置
+FILE[] allFiles = array(3+FMAX);   // オープンファイルの一覧(stdin,out,err含む)
 
-// lBuf をフラッシュする
-public void _flush() {
-  lBuf[bCnt]='\0';                              //   lBuf に終端記号を格納
-  conWrite(lBuf);                               //   TTY に lBuf を送る
-  bCnt = 0;                                     //   参照位置の初期化
+// stdin 用のFILE構造体とバッファ
+char[] stdinBuf = array(LMAX+1);
+public FILE stdin  = {-1, READ,  null, LMAX, 0, 0, true, false, false, 0};
+
+// stdout 用のFILE構造体とバッファ
+char[] stdoutBuf = array(LMAX+1);
+public FILE stdout = {-2, WRITE, null, LMAX, 0, 0, true, false, false, 1};
+
+// stderr 用のFILE構造体とバッファ
+char[] stderrBuf = array(LMAX+1);
+public FILE stderr = {-3, WRITE, null, LMAX, 0, 0, true, false, false, 2};
+
+// stdio の初期化ルーチン
+public void _stdioInit() {
+  stdin.buf = stdinBuf;
+  allFiles[0] = stdin;
+  stdout.buf = stdoutBuf;
+  allFiles[1] = stdout;
+  stderr.buf = stderrBuf;
+  allFiles[2] = stderr;
 }
 
-// 渡された文字を lBuf に溜めて、まとめて TTY に送る
-public boolean putChar(char c) {
-  lBuf[bCnt]=c;
-  bCnt = bCnt + 1;
-  if (bCnt>=LMAX || c=='\n') _flush();          // バッファフラッシュが必要
-  return false;                                 // エラーはなかった
+// 妥当な fp か判定する
+void chkFp(FILE fp) {
+  if (fp==null || fp.slot<0 || 3+FMAX<=fp.slot
+      || allFiles[fp.slot]!=fp)                 // 怪しい fp なら
+    exit(EUBADF);                               // エラー終了する
+}
+
+// EOFチェック
+public boolean feof(FILE fp) {
+  chkFp(fp);                                    // 妥当な fp かチェックする
+  return fp.eof;
+}
+
+// エラーチェック
+public boolean ferror(FILE fp) {
+  chkFp(fp);                                    // 妥当な fp かチェックする
+  return fp.err;
+}
+
+// --------------------------- ファイルの write -------------------------------
+// バッファをフラッシュする
+public boolean fflush(FILE fp) {
+  chkFp(fp);                                    // 妥当な fp かチェックする
+  if (fp.mode==READ) exit(EUMODE);              // READ はフラッシュできない
+  if (fp.err) return true;                      // 既にエラーになっている
+  if (fp.cnt==0) return false;                  // フラッシュすべきものがない
+
+  if (fp.tty) {                                 // コンソールの場合
+    fp.buf[fp.cnt]='\0';                        //  文字列として完成させる
+    conWrite(fp.buf);                           //  コンソールに送信
+    fp.cnt=0;                                   // バッファは空
+  } else {                                      // ファイルの場合
+    int l;
+    do {
+      l = write(fp.fd, fp.buf, fp.cnt);         // バッファを出力する
+      if (l>0) fp.cnt = fp.cnt - l;             // 出力しただけ cnt を減らす
+    } while (l>=0 && fp.cnt>0);                 // エラーが起こるか空になるまで
+  }                                             // (errnoがセットされるまで)
+
+  return fp.eof = fp.err = fp.cnt!=0;           // バッファが空になっていない
+}                                               //  ならエラー
+
+// exit が使用する
+public void _flushAll() {
+  for (int i=0; i<3+FMAX; i=i+1) {
+    FILE fp = allFiles[i];
+    if (fp!=null) fflush(fp);
+  }
+}
+
+// ファイル（ストリーム）に1文字書き込む
+public boolean fputc(char c, FILE fp) {
+  chkFp(fp);                                    // 妥当な fp かチェックする
+  if (fp.mode==READ) exit(EUMODE);              // READモードにfputcできない
+  if (!fp.err) {
+    fp.buf[fp.cnt] = c;                         // バッファに追加する
+    fp.cnt = fp.cnt + 1;
+    if (fp.cnt>=fp.size || fp.tty && c=='\n')   // バッファが一杯か改行で
+      fflush(fp);                               //  write する
+  }
+  return fp.err;
+}
+
+public boolean putchar(char c) {
+  return fputc(c, stdout);
 }
 
 // 文字列を出力する
-public char[] putStr(char[] str) {
+public char[] fputs(char[] str, FILE fp) {
   for (int i=0; str[i]!='\0'; i=i+1)
-    putChar(str[i]);
+    if (fputc(str[i], fp)) return null;
   return str;                                   // エラーはなかった
 }
 
-char[] __hstr = "0123456789abcdef";
-int  __putnum_w;
-int  __putnum_b;
-char __putnum_p;
-boolean __putnum_m;
+public char[] puts(char[] str) {
+  return fputs(str, stdout);
+}
 
-void __putnum_sub(int x, int n) {
-  if (x!=0) {
-    __putnum_sub(x/__putnum_b, n+1);
-    putChar(__hstr[x%__putnum_b]);
+// --------------------------- ファイルの read -------------------------------
+// 読み込みバッファにデータを読む
+void fillBuf(FILE fp) {
+  if (fp.tty) {                                 // コンソールの場合は
+    int l = conRead(fp.buf, fp.size);
+    fp.buf[l]='\n';
+    fp.len = l + 1;
   } else {
-    if (__putnum_m&&__putnum_p!=' ') putChar('-');
-    if (n==0) __putnum_w = __putnum_w - 1;
-    while (__putnum_w>n) {
-      putChar(__putnum_p);
-      __putnum_w = __putnum_w - 1;
+    int l = read(fp.fd, fp.buf, fp.size);
+    if (l<0) {
+      fp.err = fp.eof = true;
+      l = 0;
+    } else if (l==0) {
+      fp.eof = true;
     }
-    if (__putnum_m&&__putnum_p==' ') putChar('-');
-    if (n==0) putChar('0');
+    fp.len = l;
   }
-}
-    
-void __uputnum(int x, int w, char p, int base) {
-  __putnum_b = base;
-  __putnum_m = false;
-  __putnum_w = w;
-  __putnum_p = p;
-  __putnum_sub(x,0);
+  fp.cnt = 0;
 }
 
-void __sputnum(int x, int w, char p, int base) {
-  __putnum_b = base;
-  __putnum_m = false;
-  if (x<0) {
-    x = -x;
-    __putnum_m = true;
-    w = w - 1;
+// ファイル（ストリーム）から1文字読み込む
+public char fgetc(FILE fp) {
+  chkFp(fp);                                    // 妥当な fp かチェックする
+  if (fp.mode!=READ) exit(EUMODE);              // READ以外にfgetcできない
+  if (fp.eof) exit(EUEOF);                      // ユーザがEOFチェックをすべき
+  char c = fp.buf[fp.cnt];                      // バッファから１文字取り出す
+  fp.cnt = fp.cnt + 1;
+  if (fp.cnt>=fp.len) fillBuf(fp);              // バッファが空なら満たす
+
+  return c;
+}
+
+public char getchar() {
+  return fgetc(stdin);
+}    
+
+// 文字列を入力する
+public char[] fgets(char[] str, int n, FILE fp) {
+  int i = 0;                                    // 入力した文字数
+  n = n - 1;                                    // '\0'の場所を作る
+  while (i<n && !feof(fp)) {
+    char c = str[i] = fgetc(fp);
+    i = i + 1;
+    if (c=='\n')  break;                        // 改行を入力した
   }
-  __putnum_w = w;
-  __putnum_p = p;
-  __putnum_sub(x,0);
+  str[i]='\0';
+
+  if (i==0) str = null;                         // EOFかエラー
+  return str;
 }
 
-void putdec(int x, int w, char p) {
-  __sputnum(x,w,p,10);
-}
-
-void puthex(int x, int w, char p) {
-  __uputnum(x,w,p,16);
-}
-
-// fmt を '\0' までたぐる、% の次が意味のあるものであれば後ろの引数を参照する
-public int printf(char[] fmt, ...) {
-  int[] args = _args();                         // fmt より後ろの引数を取得
-  int n=0;
-  int arg = args[0];                            // 関数の第2引数を取得する
-  for (int i=0; fmt[i]!='\0'; i=i+1) {          // '\0' が来るまで fmt をたぐる
-    char c = fmt[i];                            // fmt から1文字取得する
-    if (c=='%') {                               // '%' ならば
-      c = fmt[i=i+1];                           //   次の1文字を取得する
-      char  p = ' ';
-      if (c=='0') p='0';                        //   先行の0詰め用
-      int  w = 0;
-      while (isDigit(c)) {
-        w = w * 10 + (ord(c) - ord('0'));
-        c = fmt[i=i+1];
-      }
-      if (c=='o') {                             // 8進数として出力
-        __uputnum(arg,w,p,8);
-        arg = args[n=n+1];                      // 後ろの引数を更新
-      } else if (c=='d') {                      // 10進数として出力
-        __sputnum(arg,w,p,10);
-        arg = args[n=n+1];                      // 後ろの引数を更新
-      } else if (c=='x') {                      // 16進数として出力
-        __uputnum(arg,w,p,16);
-        arg = args[n=n+1];                      // 後ろの引数を更新
-      } else if (c=='c') {                      // 文字として出力
-        putChar(chr(arg));
-        arg = args[n=n+1];                      // 後ろの引数を更新
-      } else if (c=='s') {                      // 文字列として出力
-        putStr(_iToA(arg));
-        arg = args[n=n+1];
-      } else if (c=='%') {                      // '%' を出力
-        putChar('%');
-      } else {
-        putChar(c);
-      }
-    } else                                      // '%' 以外なら
-      putChar(c);                               //   そのまま出力 
+// ------------------------- ファイルの open/close ----------------------------
+// allFiles に空きスロットを捜す
+int srchSlot() {
+  int n=-1;
+  for (int i=0; i<3+FMAX; i=i+1) {
+    if (allFiles[i]==null) {
+      n = i;
+      break;
+    }
   }
+  if (n<0) exit(EUNFILE);                       // 空きスロットが見つからない
   return n;
 }
 
+// FILE 構造体を割当てる
+FILE allocFile(int fd, int mode, int siz) {
+  int slot = srchSlot();                        // 空きスロットを探す
+  FILE fp = calloc(1, sizeof(FILE));            // calloc はメモリクリアもする
+  fp.fd =fd;
+  fp.mode = mode;
+  fp.buf = malloc(siz);                         // バッファを割当てる
+  fp.size = siz;
+  allFiles[slot] = fp;                          // スロットに登録
+  fp.slot = slot;                               // スロットを記録
+  return fp;
+}
+
+// リードモードオープン
+FILE rdOpen(char[] name) {
+  int fd = open(name, READ);                    // READモードでファイルオープン
+  if (fd<0) return null;                        // 原因はopenがerrnoに記録済み
+  FILE fp = allocFile(fd, READ, BLKSIZ);        // FILE 構造体を割当てる
+  fillBuf(fp);                                  // feofのために先読みする
+  return fp;
+}
+
+// アペンド/ライトモードオープン
+FILE awOpen(char[] name, int mode) {
+  int fd = open(name, mode);                    // ファイルオープン
+  if (fd<0) {                                   // ファイルが存在しないなら
+    if (errno==ENOENT && creat(name)>=0)        //  creat でファイルを作成する
+      fd = open(name, mode);                    //  もう一度オープンしてみる
+    if (fd<0) return null;                      // それでもだめならエラー
+  }
+  return allocFile(fd, mode, BLKSIZ);           // FILE 構造体を割当てる
+}
+
+// ファイルオープン
+public FILE fopen(char[] name, char[] mode) {
+  if (strCmp(mode, "r")==0)
+    return rdOpen(name);                        // リードオープン
+  if (strCmp(mode, "w")==0)
+    return awOpen(name, WRITE);                 // ライトオープン
+  if (strCmp(mode, "a")==0)
+    return awOpen(name, APPEND);                // アペンドオープン
+
+  exit(EUMODE);                                 // モードが不正
+  return null;
+}
+
+// ファイルクローズ
+public boolean fclose(FILE fp) {
+  chkFp(fp);                                    // 妥当な fp かチェックする
+  if (fp.slot<3) exit(EUSTDIO);                 // 標準 I/O はクローズ禁止
+  if (fp.mode!=READ && fflush(fp))              // WRITE, APPEND ならフラッシュ
+    return true;                                //  フラッシュエラーなら戻る
+
+  if (close(fp.fd)<0) {                         // ファイルをクローズする
+    fp.eof = fp.err = true;                     //  クローズできなかった
+    return true;                                //   エラーで戻る
+  }
+
+  free(fp.buf);                                 // バッファを解放して
+  allFiles[fp.slot]=null;                       // スロットを解放して
+  free(fp);                                     // 構造体を解放する
+  return false;
+}
+
 // ------------------------------- エラー処理 ------------------------------
-#define ERRMAX (-25)                            // エラー番号の最大絶対値の負数
 char[][] errList = {                            // エラーメッセージリスト
-  null,                                         // エラー番号 0 は存在しない
+  "Undefined error",                            // エラー番号 0 は存在しない
   "Invalid file name",                          // -1  ファイル名が不正
   "No such file or directrory",                 // -2  ファイルが存在しない
   "File exists",                                // -3  同名ファイルが存在する
@@ -178,32 +288,36 @@ char[][] errList = {                            // エラーメッセージリ�
   "Too many open files",                        // -16 プロセス毎のオープン超過
   "No children",                                // -17 子プロセスが存在しない
   "No zombie children",                         // -18 ゾンビの子が存在しない
-  "Not enough core",                            // -19 十分な空き領域が無い
+  "Not enough memory",                          // -19 十分な空き領域が無い
   "Invalid system call number",                 // -20 システムコール番号が不正
   "Zero division",                              // -21 ゼロ割り算
   "Privilege violation",                        // -22 特権例外
   "Illegality instruction",                     // -23 不正命令
-  "Stack overflow"                              // -24 スタックオーバーフロー
+
+  // 以下はライブラリ(ユーザプロセス自身)が検知するエラー
+  "Stack overflow",                             // -24 スタックオーバーフロー
+  "stdio: Bad open mode",                       // -25 READにfputc/WRITEにfgetc
+  "stdio: Bad file pointer",                    // -26 不正な fp が使用された
+  "fgetc: EOF was ignored",                     // -27 fgetc前にEOFチェック必要
+  "fopen: Too many open files",                 // -28 プロセス毎のオープン超過
+  "fclose: Standard i/o should not be closed",  // -29 標準ioはクローズできない
+  "fprintf: Invalid conversion",                // -30 書式文字列に不正な変換
+  "malloc: Insufficient memory",                // -31 ヒープ領域が不足
+  "free: Bad address"                           // -32 mallocした領域ではない
 };
 
-public void _perror(char[] s, int err) {
-  if (err>=0)     return;                       // 0以上なら何もしない
-  if (err<ERRMAX) {                             // err の値が不正なら
-    putStr("Invalid err\n");                    //   エラーメッセージを出力
-    return;
-  }
-  printf("%s : %s\n",s, errList[err*-1]);       // 対象のエラーメッセージを出力
+public void _perror(char[] msg, int err) {
+  if (err<ELAST || 0<=err) err = 0;             // 不正な err は Undefined error
+  if (msg!=null && msg[0]!='\0')                // msg があるなら
+    fprintf(stderr, "%s: ", msg);               // "xxxx: "と表示
+  fprintf(stderr, "%s\n", errList[-err]);       // エラーメッセージを表示
 }
 
-public void perror(char[] s) {
-  _perror(s, errno);
+public void perror(char[] msg) {                // 普通はこの関数を使う
+  _perror(msg, errno);
 }
 
 // ---------------------------- readDir の処理 ------------------------------
-
-// isValidDirEnt : DIR エントリが有効か判定する
-// 返り値        : true=有効なエントリ、false=無効なエントリ(未使用か削除済み)
-// 引数  c       : DIR エントリの最初の文字
 
 #define wordLE(b, i) ((ord((b)[(i)+1])<<8) | ord((b)[i]))
 char[] buf = array(32);
@@ -218,11 +332,11 @@ public int readDir(int fd, Dir dir) {
         (attr & 0x0a)==0) {                    //   通常ファイルかディレクトリ
       for (int i=0; i<11; i=i+1)               //     ファイル名をコピー
         dir.name[i]=buf[i];
-      dir.name[11]='\0';                       //       ファイル名を完成させる
+      dir.name[11]='\0';                       //     ファイル名を完成させる
       dir.attr = attr;                         //     属性
       dir.clst = wordLE(buf, 26);              //     先頭クラスタ番号
-      dir.lenH = wordLE(buf, 30);              //     上位ファイルサイズ
-      dir.lenL = wordLE(buf, 28);              //     下位ファイルサイズ
+      dir.lenH = wordLE(buf, 30);              //     ファイルサイズ上位16bit
+      dir.lenL = wordLE(buf, 28);              //     ファイルサイズ下位16bit
       return 1;
     }
   }

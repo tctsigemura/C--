@@ -1,6 +1,6 @@
 /*
  * Programing Language C-- "Compiler"
- *    Tokuyama kousen Educational Computer 16bit Ver.
+ *    Tokuyama kousen Advanced educational Computer.
  *
  * Copyright (C) 2016 by
  *                      Dept. of Computer Science and Electronic Engineering,
@@ -22,10 +22,12 @@
 /*
  * wrapper.c : C-- 版と C 版で仕様が異なる関数など
  *
- * 2016.02.26         : 初期バージョン
+ * 2016.03.02 : mAlloc, fOpen を追加
+ * 2016.02.26 : 初期バージョン
  *
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 void *_addrAdd(void *a, int inc) {
@@ -46,6 +48,25 @@ void *_iToA(int i) {
   return (void*)i;
 }
 */
+
+// TaC 版ではエラーチェックして終了する
+void * mAlloc(int s) {
+  void *p = malloc(s);
+  if (p==NULL) {
+    perror("malloc");
+    exit(1);
+  }
+  return p;
+}
+
+FILE *fOpen(char *n, char *m) {
+  FILE *fp = fopen(n, m);
+  if (fp==NULL) {
+    perror("fopen");
+    exit(1);
+  }
+  return fp;
+}
 
 // TaC 版では string.cmm に記述されている関数
 

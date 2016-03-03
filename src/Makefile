@@ -64,7 +64,7 @@ c-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
 	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"C\" \
-	-DNWORD=16 -DNBYTE=8 -o c-c-- \
+	-DNWORD=32 -DNBYTE=8 -o c-c-- \
 	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
 

@@ -1,8 +1,8 @@
 ; 
-;  TacOS Source Code
-;     Tokuyama kousen Advanced educational Computer.
+; Programing Language C-- "Compiler"
+;    Tokuyama kousen Advanced educational Computer
 ; 
-;  Copyright (C) 2011 - 2016 by
+;  Copyright (C) 2016 by
 ;                       Dept. of Computer Science and Electronic Engineering,
 ;                       Tokuyama College of Technology, JAPAN
 ; 
@@ -21,13 +21,7 @@
 ; lib/syslib.s : システムコールに関するユーザ用ライブラリを集めたファイル
 ;
 ; 2016.02.27 : _exit を __exit に変更
-; 2016.02.24 : TacOS/usr/lib から C--/lib にコピー
-; 2016.01.02 : sleep システムコールを追加
-; 2015.11.17 : mkDir システムコール と rmDir システムコールを追加 
-; 2015.06.08 : スタートアップルーチンをユーザプログラム用 crt0.s に移植
-; 2015.05.22 : main() 呼び出し後の exit のパラメータを設定するように修正
-; 2015.05.20 : プログラムの先頭にスタートアップルーチンを追加
-; 2015.05.12 : 新規作成
+; 2016.02.24 : TacOS の usr/lib からコピー
 ; 
 ; $Id$
 ;
