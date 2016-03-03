@@ -1,5 +1,5 @@
 #
-# C-- 言語からMacOSやUNIXの実行形式に変換する手順
+# Makefile.unix : C--言語からMacOSやUNIXの実行形式に変換する手順
 #
 INCDIR=/usr/local/cmmInclude
 LIBDIR=/usr/local/cmmLib

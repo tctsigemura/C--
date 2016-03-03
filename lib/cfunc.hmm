@@ -1,5 +1,5 @@
 /*
- * TacOS Source Code
+ * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
  * Copyright (C) 2016 by
@@ -20,27 +20,20 @@
  */
 
 /*
- * cmmInclude/cfunc.hmm : C-- 関数と C 関数の読みかえを定義
+ * lib/cfunc.hmm : C-- 関数と C 関数の読みかえを定義
  *
  * 2016.02.26 : 新規作成
  *
  * $Id$
  */
 
-// stdio.hmm
-#define File FILE
-#define getChar() getchar()
-#define putChar(c) putchar(c)
-#define getStr(s,n) fgets(s,n,stdin)
-#define putStr(s)  puts(s)
-#define fOpen(n,m) fopen(n,m)
-#define fClose(f)  fclose(f)
-#define fPrintf    fprintf
-#define fGetChar(f) fgetc(f)
-#define fPutChar(c,f) fputc(c,f)
-#define fGetStr(s,n,f) fgets(s,n,f)
-#define fPutStr(s,f) fputs(s,f)
-#define fEof(f) feof(f)
+// stdio, stdlib の関数は C 言語の名前をそのまま使用する
+// 一部は仕様を変更したので wrapper.c の関数を参照するようにする
+#define malloc(s) mAlloc(s)
+#define fopen(n,m) fOpen(n,m)
+
+
+// ctype, stringの関数は Lower Camel Case にする
 
 // ctype.hmm
 #define isAlnum(c) isalnum(c)
@@ -48,7 +41,7 @@
 #define isDigit(c) isdigit(c)
 #define isXdigit(c) isxdigit(c)
 #define isPrint(c) isprint(c)
-#define isSpace(c) sispace(c)
+#define isSpace(c) isspace(c)
 #define isLower(c) islower(c)
 #define isUpper(c) isupper(c)
 #define toLower(c) tolower(c)
@@ -63,6 +56,7 @@
 #define strNcmp(s1,s2,n) strncmp(s1,s2,n)
 #define strLen(s) strlen(s)
 
+// 以下は機能が異なるので wrapper.c で解決
 //#define strChr(s,c) strchr(s,c)
 //#define strRchr(s,c) strrchr(s,c)
 //#define strStr(s1,s2) strstr(s1,s2)

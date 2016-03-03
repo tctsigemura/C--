@@ -1,5 +1,5 @@
 #
-# C-- 言語からTacOSの実行形式に変換する手順
+# Makefile.tac : C-- 言語からTacOSの実行形式に変換する手順
 #
 INCDIR=/usr/local/cmmInclude
 LIBDIR=/usr/local/cmmLib
