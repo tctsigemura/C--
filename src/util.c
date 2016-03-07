@@ -22,6 +22,8 @@
 /*
  * util.c : 良く使う関数
  *
+ * 2016.03.01         : NULL を null に書き換え
+ * 2016.02.24         : strEndsWith 関数のバグ訂正
  * 2016.02.05 v3.0.0  : トランスレータと統合(strEndsWith 関数を追加)
  * 2012.12.30         : error2 を追加
  * 2010.07.20         : Subversion による管理を開始
@@ -61,7 +63,7 @@ void error2(char s1[], char s2[]) {
 /* 領域を割り当ててエラーチェック */
 void *ealloc(int s) {
   void *p = malloc(s);
-  if (p==NULL) {
+  if (p==null) {
     error("メモリ割り当て");
   }
   return p;
@@ -83,7 +85,8 @@ int isOdigit(int ch) {
 boolean strEndsWith(char *str, char *suffix){
   int len1 = strlen(str);
   int len2 = strlen(suffix);
-  for(int i = 0; i < len2; i++)
+  if (len1<len2) return false;
+  for(int i = 1; i <= len2; i++)
     if(str[len1-i]!=suffix[len2-i])
       return false;
   return true;

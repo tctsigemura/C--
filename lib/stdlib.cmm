@@ -1,0 +1,170 @@
+/*
+ * Programing Language C-- "Compiler"
+ *    Tokuyama kousen Advanced educational Computer.
+ *
+ * Copyright (C) 2016 by
+ *                      Dept. of Computer Science and Electronic Engineering,
+ *                      Tokuyama College of Technology, JAPAN
+ *
+ *   上記著作権者は，Free Software Foundation によって公開されている GNU 一般公
+ * 衆利用許諾契約書バージョン２に記述されている条件を満たす場合に限り，本ソース
+ * コード(本ソースコードを改変したものを含む．以下同様)を使用・複製・改変・再配
+ * 布することを無償で許諾する．
+ *
+ *   本ソースコードは＊全くの無保証＊で提供されるものである。上記著作権者および
+ * 関連機関・個人は本ソースコードに関して，その適用可能性も含めて，いかなる保証
+ * も行わない．また，本ソースコードの利用により直接的または間接的に生じたいかな
+ * る損害に関しても，その責任を負わない．
+ *
+ *
+ */
+
+/*
+ * lib/stdlib.cmm : C-- のライブラリ関数
+ *
+ * 2016.02.25 : TacOS の usr/lib/lib.cmm をもとに作成
+ *
+ * $Id$
+ */
+
+#include <crt0.hmm>
+#include <syslib.hmm>
+#include <errno.hmm>
+#include <stdlib.hmm>
+#include <stdio.hmm>
+#include <ctype.hmm>
+
+#define MBSIZE sizeof(MemBlk)                   // MemBlk のバイト数
+#define MAGIC  (memPool)                        // 番兵のアドレスを使用する
+
+// 空き領域はリストにして管理される
+struct MemBlk {                                 // 空き領域管理用の構造体
+  MemBlk next;                                  // 次の空き領域アドレス
+  int    size;                                  // 空き領域サイズ
+};
+
+// -------------------------- メモリ初期化ルーチン ----------------------------
+// メモリ管理の初期化
+MemBlk memPool = {null, 0};                     // 空き領域リストのルート
+public int _end();                              // プロセスの BBS 領域の最後
+
+// メモリの初期化
+//   メモリの開始アドレス addrof(_end)
+//   メモリの最終アドレス _sp();
+//   メモリの大きさ       _sp() - addrof(_end)
+public void _stdlibInit() {                     // プログラム起動前の初期化
+  memPool.next = _iToA(addrof(_end));           // 空き領域
+  memPool.next.size = _sp() - addrof(_end);     // 空きメモリサイズ
+  memPool.next.next = null;
+  _alcAddr = _iToA(addrof(_end));               // 割当アドレスの初期化
+}
+
+// ------------------------- メモリ割当・解放ルーチン -------------------------
+
+// メモリを割り付ける
+public void[] malloc(int siz) {                 // メモリ割り当て
+  int s = (siz + MBSIZE + 1) & ~1;              // 制御データ分大きい偶数に
+  MemBlk p = memPool;                           // 直前の領域
+  MemBlk m = p.next;                            // 対象となる領域
+
+  while (_uCmp(m.size, s)<0) {                  // 領域が小さい間
+    p = m;                                      // リストを手繰る
+    m = m.next;
+    if (m==null) _exit(EUNOMEM);                // 領域が見つからない
+  }
+
+  if (_uCmp(m.size, s+MBSIZE+2)<=0) {           // 分割する価値がない領域で
+    if (m.next==null) _exit(EUNOMEM);           //   リストが維持できない
+    s = m.size;                                 // 領域全体を使用する
+  }
+
+  MemBlk n = _addrAdd(m, s);                    // 割り当てる領域の後端
+  if (_aCmp(n, _iToA(_sp()-10))>=0)             // ヒープ残りが10バイト以下なら
+    _exit(EUNOMEM);                             //   エラー終了
+
+  if (s==m.size) {                              // 領域を分割しない
+    p.next = m.next;
+  } else {                                      // 領域を分割する
+    n.next = m.next;
+    n.size = m.size - s;                        // 残り領域のサイズ
+    p.next = n;
+    m.size = s;
+  }
+  m.next = MAGIC;                               // マジックナンバー格納
+
+  if (_aCmp(n, _alcAddr)>0) _alcAddr = n;       // ヒープの後端を更新
+  return _addrAdd(m, MBSIZE);                   // 管理領域を除いて返す
+}
+
+// メモリを解放する
+public void free(void[] mem) {                  // 領域解放
+  MemBlk q = _addrAdd(mem, -MBSIZE);            // 解放する領域
+  MemBlk p = memPool;                           // 直前の空き領域
+  MemBlk m = p.next;                            // 直後の空き領域
+  if (q.next!=MAGIC) _exit(EUBADA);             // 領域マジックナンバー確認
+
+  while (_aCmp(m, q)<0) {                       // 解放する領域の位置を探る
+    p = m;
+    m = m.next;
+    if (m==null) break;
+  }
+
+  void[] ql = _addrAdd(q, q.size);              // 解放する領域の最後
+  void[] pl = _addrAdd(p, p.size);              // 直前の領域の最後
+
+  if (_aCmp(q,pl)<0 || m!=null&&_aCmp(m,ql)<0)  // 未割り当て領域では？
+    _exit(EUBADA);
+   
+  if (pl==q) {                                  // 直前の領域に隣接している
+    p.size = p.size + q.size;
+    if (ql==m) {                                // 直後の領域とも隣接してる
+      p.size = p.size + m.size;
+      p.next = m.next;
+    }
+  } else if (ql==m) {                           // 直後の領域に隣接している
+    q.size = q.size + m.size;
+    q.next = m.next;
+    p.next = q;
+  } else {
+    p.next = q;
+    q.next = m;
+  }
+}
+
+// ゼロでクリアされた配列を割りあてる
+public void[] calloc(int n, int s) {
+  char[] mem = malloc(n*s);                     // 割当てる。
+  for (int i=0; i<n*s; i=i+1)                   // 領域全体を
+    mem[i] = '\0';                              //   ゼロでクリアする
+  return mem;                                   // 領域を返す
+}
+
+// -------------------------------- その他 -----------------------------------
+
+// 文字列から整数に
+public int atoi(char[] s) {
+  int v = 0;
+  for (int i=0; s[i]!='\0'; i=i+1)
+    if (isDigit(s[i]))
+      v = v * 10 + ord(s[i]) - ord('0');
+  return v;
+}
+
+// プロセスを終了
+public void exit(int status) {
+  _flushAll();
+  _exit(status);
+}
+
+// 擬似乱数の初期化（0で初期化はNG)
+int lfsr = 1;
+public void srand(int seed) {
+  if (seed==0) seed=1;
+  lfsr = seed;
+}
+
+// 擬似乱数（ガロアLFSR）
+public int rand() {
+  lfsr = ((lfsr >> 1) & 0x7fff) ^ (-(lfsr & 1) & 0xb400); 
+  return lfsr;
+}
