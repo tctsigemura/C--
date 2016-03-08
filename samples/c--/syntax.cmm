@@ -22,7 +22,9 @@
 /*
  * syntax.cmm : C--コンパイラの構文解析ルーチン
  *
- * 2016.02.06         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.24         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.05 v3.0.0  : main() 関数を main.c に分離して新規作成
+ *                      トランスレータと統合
  * 2016.01.12         : 可変個引数関数の実引数にvoid型が来た時のバグ発見(未解決)
  * 2015.12.15 v2.1.1  : void 型以外の関数が return で終わっているかの判定にバグ
  * 2015.10.04         : -Wall でも警告が出ないように無駄な初期化を3箇所追加
@@ -75,6 +77,7 @@
 #include "code.hmm"          // コード生成モジュール
 #include "namtbl.hmm"        // 名前表モジュール
 #include "sytree.hmm"        // 構文木モジュール
+#include "syntax.hmm"
 
 /*
  * グローバルデータ
@@ -84,15 +87,39 @@ int     curScope;            // 現在のスコープ
 int     curType;             // 最近読み込んだ型
 int     curDim;              // 最近読み込んだ型の配列次元数
 int     curCnt;              // 最近読み込んだローカル変数や引数、
-                                    //   構造体フィールドの番号
+                             //   構造体フィールドの番号
 boolean pubFlag;             // public 修飾子を読んだ
 int     funcIdx;             // 現在読込中の関数
 
 boolean optFlag = true;      // 最適化を行う
 boolean krnFlag = false;     // カーネルコンパイルモード
 
-int tok;                            // 次のトークン
-#define getTok() (tok = lxGetTok()) // 次のトークンを入力する
+// (# 行番号 "path")ディレクティブの処理
+#define  CMMINC "/cmmInclude/"      // C--用システムヘッダファイルの目印
+
+void getFile() {
+  char[] fname = lxGetStr();                 // 現在のファイル
+
+  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
+      strEndsWith(fname, ".hmm"))  {         // ヘッダファイルなら
+    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
+    genOff(subStr(strrchr(fname,'/'),1));    // システムヘッダ内容は出力しない
+  } else {                                   // (代替のディレクティブを出力)
+    genOn();                                 // システムヘッダ以外は出力する
+  }
+}
+
+// トークンの読み込み
+int tok;                                     // 次のトークン
+
+int getTok() {
+  tok = lxGetTok();                          // 次のトークンを入力する
+  while (tok==LxFILE) {                      // ディレクティブなら
+    getFile();                               //   ディレクティブを処理する
+    tok = lxGetTok();                        //   次のトークンを入力する
+  }
+  return tok;
+}
 
 /*
  * 構文解析
@@ -126,7 +153,7 @@ boolean isType() {
 }
 
 // 型名と配列を表す '[]' を読み込む
-public void getType() {
+void getType() {
   if (!isType()) error("型がない");                   // 型かどうか調べる
   getTok();                                           // 型名を読み飛ばす
   for (curDim=0; isTok(ord('[')); curDim=curDim+1)    // 配列型なら次元を増やす
@@ -134,7 +161,7 @@ public void getType() {
 }
 
 // 名前を読み込み、表に登録する(引数は public 名の意味)
-public void getName(boolean pub) {
+void getName(boolean pub) {
   chkTok(LxNAME, "名前がない");                          // 名前か調べる
   if (curScope!=ScPROT && curType==TyVOID && curDim==0)  // 関数以外でvoid型は
     error("void型変数/引数は使用できない");              //   ポインタだけOK
@@ -151,7 +178,7 @@ public void getName(boolean pub) {
  * 構造体の宣言
  */
 // 構造体フィールド１行を読み込む
-public void getFieldLine() {
+void getFieldLine() {
   getType();                                    // 型を読み込む
   getName(false);                               // 名前を読み込んで表に登録
   curCnt = curCnt + 1;                          // フィールドの番号
@@ -163,7 +190,7 @@ public void getFieldLine() {
 }
 
 // 構造体宣言を読み込む
-public void getStruct() {
+void getStruct() {
   chkTok(ord('{'), "構造体宣言に '{' がない");
   int structIdx=ntGetSize();                   // 構造体宣言は関数の外にあるの
   curScope = ScLVAR;                           //   でフィールド名の衝突チェッ
@@ -189,12 +216,12 @@ struct watch {
 };
 
 // watch を割り当てる
-public watch newWatch() {
+watch newWatch() {
   return ealloc(sizeof(watch));
 }
 
 // watch に値を設定する
-public void setWatch(watch w, int t, int d, boolean l, int r) {
+void setWatch(watch w, int t, int d, boolean l, int r) {
   w.type = t;
   w.dim  = d;
   w.lhs  = l;
@@ -203,12 +230,12 @@ public void setWatch(watch w, int t, int d, boolean l, int r) {
 }
 
 // watch の領域を解放する
-public void freeWatch(watch w) {
+void freeWatch(watch w) {
   free(w);                                     // 領域をシステムに返却する
 }
 
 // 式(w)の型が type 型の基本型か調べる
-public void chkType(watch w, int type) {
+void chkType(watch w, int type) {
   if (w.dim>0)      error("配列型は使用できない");
   if (w.type==TyVOID) error("void型は使用できない");
   if (type==TyBOOL && w.type!=TyBOOL)  error("論理型が必要");
@@ -218,51 +245,98 @@ public void chkType(watch w, int type) {
 }
 
 // 式(w)の値を type, dim 型へ代入可能か調べる
-public void chkCmpat(watch w, int type, int dim) {
-  if (!(w.type==TyVOID && w.dim>0 && dim>0) &&          // void[] はどの [] にも OK
+void chkCmpat(watch w, int type, int dim) {
+  if (!(w.type==TyVOID && w.dim>0 && dim>0) &&       // void[] はどの [] にも OK
       !(type==TyVOID && dim>0 && w.dim>0) &&
-      !(w.type==TyVOID && w.dim==1 && type<=0)&&        // void[] と構造体は OK
+      !(w.type==TyVOID && w.dim==1 && type<=0)&&     // void[] と構造体は OK
       !(type==TyVOID && dim==1 && w.type<=0) &&
-      (w.type!=type || w.dim!=dim))                     // それ以外は正確に型が合
+      (w.type!=type || w.dim!=dim))                  // それ以外は正確に型が合
     error("代入/比較/初期化/引数/returnの型が合わない");// わないと代入できない
 }
 
-public void getAsExpr(watch w);               // 再帰呼出の関係で
-public void getExpr(watch w);                 //   プロトタイプ宣言が必要
+void getAsExpr(watch w);               // 再帰呼出の関係で
+void getExpr(watch w);                 //   プロトタイプ宣言が必要
 
+/*
 // 後置演算子(添字('[n]')と構造体フィールド('.'))の処理
-public void getPostOP(watch w) {
-  while (tok==ord('[') || tok==ord('.')) {          // 後置演算子が続く間繰り返す
+void getPostOP(watch w) {
+  while (tok==ord('[') || tok==ord('.')) {      // 後置演算子が続く間繰り返す
     watch w2 = newWatch();
     int stype = SyPOST;
     int rval = 0;
-    if (isTok(ord('['))) {                          // 添字の場合
+    if (isTok(ord('['))) {                      // 添字の場合
       if (w.dim<=0) error("添字が多すぎる");
-      getAsExpr(w2);                                // 添字式(w2)はカンマ式不可
+      getAsExpr(w2);                            // 添字式(w2)はカンマ式不可
       chkTok(ord(']'), "']' がない");
-      if (w2.type!=TyINT || w2.dim!=0)              // 添字式(w2)の型チェック
+      if (w2.type!=TyINT || w2.dim!=0)          // 添字式(w2)の型チェック
 	error("配列の添字が整数以外になっている");
-      w.dim = w.dim - 1;                            // 式(w)の次元を下げる
+      w.dim = w.dim - 1;                        // 式(w)の次元を下げる
       rval = w2.tree;
-      if ((w.type==TyCHAR || w.type==TyBOOL)        // char, boolean の配列は
-	  && w.dim==0) stype = SyBYTE;                    //   バイト単位で詰め込む
-    } else if (isTok(ord('.'))) {                   // 構造体の場合は
-      if (w.type>0 || w.dim>0)                      //   式(w)が基本型または配列の
-	error("構造体以外に'.' がある");                  //   場合は'.'が続いてはならない
-      chkTok(LxNAME, "'.' の次に名前がない");       // '.'の次は必ず名前が必要
-      int n = ntSrcField(w.type,lxGetStr());        // 構造体をフィールド名でサーチ
-      w.type = ntGetType(n);                        // 式(w)をフィールドの型と
-      w.dim  = ntGetDim(n);                         //   次元に変更する
-      rval = syNewNode(SyCNST,ntGetCnt(n),SyNULL);  // フィールドオフセット
+      if ((w.type==TyCHAR || w.type==TyBOOL)    // char, boolean の配列は
+	  && w.dim==0) stype = SyBYTE;                //   バイト単位で詰め込む
+    } else if (isTok(ord('.'))) {               // 構造体の場合は
+      if (w.type>0 || w.dim>0)                  //   式(w)が基本型または配列の
+	error("構造体以外に'.' がある");              //   場合は'.'が続いてはならない
+      chkTok(LxNAME, "'.' の次に名前がない");   // '.'の次は必ず名前が必要
+      int n = ntSrcField(w.type,lxGetStr());    // 構造体をフィールド名でサーチ
+      w.type = ntGetType(n);                    // 式(w)をフィールドの型と
+      w.dim  = ntGetDim(n);                     //   次元に変更する
+      rval = syNewNode(SyCNST,ntGetCnt(n),SyNULL);// フィールドオフセット
     } else error("バグ...getPostOP");
-    w.tree = syNewNode(stype, w.tree, rval);        // 後置演算を構文木に追加
-    w.lhs = true;                                   // 演算結果は代入可
+    w.tree = syNewNode(stype, w.tree, rval);    // 後置演算を構文木に追加
+    w.lhs = true;                               // 演算結果は代入可
     freeWatch(w2); 
   }
 }
+*/
+
+// 後置演算子(添字('[n]'))の処理
+void getIdxOP(watch w) {
+  watch w2 = newWatch();                       // w2 は添字式
+  if (w.dim<=0) error("添字が多すぎる");
+  getAsExpr(w2);                               // 添字式(w2)はカンマ式不可
+  chkTok(ord(']'), "']' がない");
+  if (w2.type!=TyINT || w2.dim!=0)             // 添字式(w2)の型チェック
+    error("配列の添字が整数以外になっている");
+  w.dim = w.dim - 1;                           // 式(w)の次元を下げる
+
+  int stype = w.type;
+  if (w.dim>0 || stype<=0)  stype = SyIDXW;    // 参照はワード配列
+  else if (stype==TyINT)    stype = SyIDXW;    // int はワード配列
+  else if (stype==TyCHAR)   stype = SyIDXB;    // char はバイト配列
+  else if (stype==TyBOOL)   stype = SyIDXB;    // boolean はバイト配列
+  else error("バグ...getIdxOP");
+
+  w.tree = syNewNode(stype, w.tree, w2.tree); 
+  w.lhs = true;                                // 演算結果は代入可
+  freeWatch(w2); 
+}
+
+// 後置演算子(構造体フィールド('.'))の処理
+void getDotOP(watch w) {
+  if (w.type>0 || w.dim>0)                     //   式(w)が基本型または配列の
+    error("構造体以外に'.' がある");           //   場合は'.'が続いてはならない
+  chkTok(LxNAME, "'.' の次に名前がない");      // '.'の次は必ず名前が必要
+  int n = ntSrcField(w.type,lxGetStr());       // 構造体をフィールド名でサーチ
+  w.type = ntGetType(n);                       // 式(w)をフィールドの型と
+  w.dim  = ntGetDim(n);                        //   次元に変更する
+  int cnst = syNewNode(SyCNST, n, SyNULL);     // フィールドの名前表インデクス
+  w.tree = syNewNode(SyDOT, w.tree, cnst);     // '.'演算を構文木に追加
+  w.lhs = true;                                // 演算結果は代入可
+}
+
+// 後置演算子(添字('[n]')と構造体フィールド('.'))の処理
+void getPostOP(watch w) {
+  while (true) {                               // 後置演算子が続く間繰り返す
+    if (isTok(ord('['))) getIdxOP(w);          // '[n]' の処理
+    else if (isTok(ord('.'))) getDotOP(w);     // '.' の処理
+    else break;
+  }
+}
+
 
 // 実引数を読み込む
-public void getArgs(watch w, int func) {       // funcは表の現在の関数を指す
+void getArgs(watch w, int func) {       // funcは表の現在の関数を指す
   int idx = func + 1;                          // 仮引数を指すインデクス
   int lastIdx = func + ntGetCnt(func);         // 最後の仮引数のインデクス
   int list = SyNULL;                           // 引数リストを作る
@@ -284,7 +358,7 @@ public void getArgs(watch w, int func) {       // funcは表の現在の関数�
 }
 
 // 関数呼出
-public void getCall(watch w, int n) {          // n は名前表で関数の位置
+void getCall(watch w, int n) {          // n は名前表で関数の位置
   chkTok(ord('('),"関数名の次に '(' がない");
   if (ntGetType(n)==TyINTR)
     error("interrupt型関数は呼び出せない");
@@ -294,7 +368,7 @@ public void getCall(watch w, int n) {          // n は名前表で関数の位�
 }
 
 // sizeof 演算子
-public void getSizeof(watch w) {
+void getSizeof(watch w) {
   chkTok(ord('('), "sizeof に '(' が続かない");
   int ty=curType, dm=curDim;                  // getType が壊すので保存し、
   getType();                                  // 型を読む
@@ -314,7 +388,7 @@ public void getSizeof(watch w) {
 }
 
 // addrof 演算子
-public void getAddrof(watch w) {
+void getAddrof(watch w) {
   chkTok(ord('('), "addrof に '(' が続かない");
   chkTok(LxNAME, "addrof( に名前が続かない");
   int n = ntSrcName(lxGetStr());              // 表から名前を探し
@@ -328,7 +402,7 @@ public void getAddrof(watch w) {
 }
 
 // ord 演算子
-public void getOrd(watch w) {
+void getOrd(watch w) {
   chkTok(ord('('), "ord に '(' が続かない");
   getExpr(w);                                // 括弧内の式を読み込む
   chkTok(ord(')'), "ord が ')' で終わらない");
@@ -339,7 +413,7 @@ public void getOrd(watch w) {
 }
 
 // chr 演算子
-public void getChr(watch w) {
+void getChr(watch w) {
   chkTok(ord('('), "chr に '(' が続かない");
   getExpr(w);                                // 括弧内の式を読み込む
   chkTok(ord(')'), "chr が ')' で終わらない");
@@ -350,7 +424,7 @@ public void getChr(watch w) {
 }
 
 // bool 演算子
-public void getBool(watch w) {
+void getBool(watch w) {
   chkTok(ord('('), "bool に '(' が続かない");
   getExpr(w);                                 // 括弧内の式を読み込む
   chkTok(ord(')'), "bool が ')' で終わらない");
@@ -360,31 +434,36 @@ public void getBool(watch w) {
   w.lhs  = false;                            // 代入不可
 }
 
+// 関数呼出しか変数（登録済みの名前で始まる）
+void getIdent(watch w) {
+  int n = ntSrcName(lxGetStr());              // 表から名前を探し
+  int s = ntGetScope(n);                      //   それのスコープを調べ
+  int t = ntGetType(n);                       //   それの型を調べ、
+  int d = ntGetDim(n);                        //   それの配列次元数を調べ、
+  int c = ntGetCnt(n);                        //   それの番号を調べる
+  if (s==ScPROT || s==ScFUNC) {               // 関数名の場合は、
+    getCall(w,n);                             //   関数呼び出しの処理
+  } else if (s==ScCOMM || s==ScGVAR) {        // 大域変数の場合
+    int a = syNewNode(SyGLB, n, SyNULL);      //   大域変数を表現するノード
+    setWatch(w, t, d, true, a);               //   式(w)が大域変数になる
+  } else if (s>=ScLVAR) {                     // ScLVAR の場合は
+    if (c>0) {                                //   c>0 なら局所変数
+      int a = syNewNode(SyLOC, c, SyNULL);    //     局所変数のノード
+      setWatch(w, t, d, true, a);             //     式(w)が局所変数になる
+    } else {                                  //   c<0 なら仮引数
+      int a = syNewNode(SyARG,-c, SyNULL);    //     仮引数のノード
+      setWatch(w, t, d, true, a);             //     式(w)が仮引数になる
+    }
+  } else error("バグ...getIdent");            // それ以外の名前はあり得ない
+}
+
 // 因子
-public void getFactor(watch w) {
+void getFactor(watch w) {
   if (isTok(ord('('))) {                      // '(' の場合は
     getExpr(w);                               // 括弧内の式を読み込む
     chkTok(ord(')'), "')' が不足");
-  } else if (isTok(LxNAME)) {                 // 名前の場合は
-    int n = ntSrcName(lxGetStr());            //   表から名前を探し
-    int s = ntGetScope(n);                    //   それのスコープを調べ
-    int t = ntGetType(n);                     //   それの型を調べ、
-    int d = ntGetDim(n);                      //   それの配列次元数を調べ、
-    int c = ntGetCnt(n);                      //   それの番号を調べる
-    if (s==ScPROT || s==ScFUNC) {             // 関数名の場合は、
-      getCall(w,n);                           //   関数呼び出しの処理
-    } else if (s==ScCOMM || s==ScGVAR) {      // 大域変数の場合
-      int a = syNewNode(SyGLB, n, SyNULL);    //   大域変数を表現するノード
-      setWatch(w, t, d, true, a);             //   式(w)が大域変数になる
-    } else if (s>=ScLVAR) {                   // ScLVAR の場合は
-      if (c>0) {                              //   c>0 なら局所変数
-	int a = syNewNode(SyLOC, c, SyNULL);  //     局所変数のノード
-	setWatch(w, t, d, true, a);           //     式(w)が局所変数になる
-      } else {                                //   c<0 なら仮引数
-	int a = syNewNode(SyARG,-c, SyNULL);  //     仮引数のノード
-	setWatch(w, t, d, true, a);           //     式(w)が仮引数になる
-      }
-    } else error("バグ...getFactor");         // それ以外の名前はあり得ない
+  } else if (isTok(LxNAME)) {                 // 名前の場合
+    getIdent(w);                              // 　関数呼び出しか変数
   } else if (isTok(LxINTEGER)) {              // 整数定数の場合は
     int a = syNewNode(SyCNST, lxGetVal(), SyNULL);  // 定数を格納するノード
     setWatch(w, TyINT, 0, false, a);          //   式(w)がint型定数になる
@@ -417,7 +496,7 @@ public void getFactor(watch w) {
 }
 
 // 単項演算
-public void getUniExpr(watch w) {
+void getUniExpr(watch w) {
   if (isTok(ord('+'))) {                      // '+' の場合は
     getUniExpr(w);                            //   まず、式(w)を読み込み
     chkType(w, TyINT);                        //   式(w)が整数型か調べる
@@ -441,7 +520,7 @@ public void getUniExpr(watch w) {
 }
 
 // 型チェックを行った上で2項演算の木を作る
-public void cal2(int op, watch w1, watch w2, int type) {
+void cal2(int op, watch w1, watch w2, int type) {
   chkType(w1, type);                          // 左辺も
   chkType(w2, type);                          //   右辺も同じ型かチェック
   w1.tree = syNewNode(op, w1.tree, w2.tree);
@@ -450,7 +529,7 @@ public void cal2(int op, watch w1, watch w2, int type) {
 }
 
 // 掛算，割算
-public void getMulExpr(watch w) {
+void getMulExpr(watch w) {
   getUniExpr(w);                               // 左辺(w)を読み込む
   while (true) {
     int op;
@@ -465,7 +544,7 @@ public void getMulExpr(watch w) {
 }
 
 // 足算，引算
-public void getAddExpr(watch w) {
+void getAddExpr(watch w) {
   getMulExpr(w);                               // 左辺(w)を読み込む
   while (true) {
     int op;
@@ -479,7 +558,7 @@ public void getAddExpr(watch w) {
 }
 
 // シフト演算
-public void getSftExpr(watch w) {
+void getSftExpr(watch w) {
   getAddExpr(w);                               // 左辺(w)を読み込む
   while (true) {
     int op;
@@ -493,14 +572,14 @@ public void getSftExpr(watch w) {
 }
 
 // 大小比較演算
-public void getCmpExpr(watch w) {
+void getCmpExpr(watch w) {
   getSftExpr(w);                               // 左辺(w)を読み込む
   while (true) {
     int op;
     if      (isTok(ord('<')))   op = SyLT;     // '<'  か
-    else if (isTok(LxLTE)) op = SyLE;          // '<=' か
+    else if (isTok(LxLTE))      op = SyLE;     // '<=' か
     else if (isTok(ord('>')))   op = SyGT;     // '>'  か
-    else if (isTok(LxGTE)) op = SyGE;          // '>=' が続く間
+    else if (isTok(LxGTE))      op = SyGE;     // '>=' が続く間
     else break;
     watch w2 = newWatch();
     getSftExpr(w2);                            // 右辺(w2)を読み込む
@@ -510,7 +589,7 @@ public void getCmpExpr(watch w) {
 }
 
 // 比較演算
-public void getEquExpr(watch w) {
+void getEquExpr(watch w) {
   getCmpExpr(w);                               // 左辺(w)を読み込む
   while (true) {
     int op;
@@ -527,7 +606,7 @@ public void getEquExpr(watch w) {
 }
 
 // ビット毎の論理積
-public void getAndExpr(watch w) {
+void getAndExpr(watch w) {
   getEquExpr(w);                               // 左辺(w)を読み込む
   while (isTok(ord('&'))) {                    // '&' が続く間
     watch w2 = newWatch();
@@ -537,7 +616,7 @@ public void getAndExpr(watch w) {
 }
 
 // ビット毎の排他的論理和
-public void getXorExpr(watch w) {
+void getXorExpr(watch w) {
   getAndExpr(w);                               // 左辺(w)を読み込む
   while (isTok(ord('^'))) {                    // '^' が続く間
     watch w2 = newWatch();
@@ -547,7 +626,7 @@ public void getXorExpr(watch w) {
 }
 
 // ビット毎の論理和
-public void getOrExpr(watch w) {
+void getOrExpr(watch w) {
   getXorExpr(w);                               // 左辺(w)を読み込む
   while (isTok(ord('|'))) {                    // '|' が続く間
     watch w2 = newWatch();
@@ -557,7 +636,7 @@ public void getOrExpr(watch w) {
 }
 
 // 論理積
-public void getLogAndExpr(watch w) {
+void getLogAndExpr(watch w) {
   getOrExpr(w);                                // 左辺(w)を読み込む
   while (isTok(LxAND)) {                       // '&&' が続く間
     watch w2 = newWatch();
@@ -567,7 +646,7 @@ public void getLogAndExpr(watch w) {
 }
 
 // 論理和
-public void getLogOrExpr(watch w) {
+void getLogOrExpr(watch w) {
   getLogAndExpr(w);                            // 左辺(w)を読み込む
   while (isTok(LxOR)) {                        // '||' が続く間
     watch w2 = newWatch();
@@ -577,7 +656,7 @@ public void getLogOrExpr(watch w) {
 }
 
 // 代入式
-public void getAsExpr(watch w) {
+void getAsExpr(watch w) {
   getLogOrExpr(w);                             // 左辺式(w)を読み込む
   if (isTok(ord('='))) {                       // '=' があるなら
     watch w2 = newWatch();
@@ -591,7 +670,7 @@ public void getAsExpr(watch w) {
 }
 
 // カンマ式
-public void getExpr(watch w) {
+void getExpr(watch w) {
   getAsExpr(w);                                // 左辺(w)を読み込む
   while (isTok(ord(','))) {                    // ',' があるなら
     int rVal = w.tree;
@@ -605,9 +684,10 @@ public void getExpr(watch w) {
  * ローカル変数の処理
  */
 // ローカル変数の宣言を読み込む
-public int    maxCnt;                          // 関数内の最大スタック使用量
+int maxCnt;                                    // 関数内の最大スタック使用量
                                                //   (最大ローカル変数の深さ)
-public int getLVar() {
+/*
+int getLVar() {
   int sta = SyNULL;
   curCnt = curCnt + 1;                         // ローカル変数の番号
   getName(false);                              // 変数名を読み込み表に登録
@@ -621,9 +701,27 @@ public int getLVar() {
   }
   return sta;
 }
+*/
+
+int getLVar() {
+  curCnt = curCnt + 1;                         // ローカル変数の番号
+  getName(false);                              // 変数名を読み込み表に登録
+  int dec = syNewNode(SySEMI,curType,curDim);  // 変数の型
+  dec = syNewNode(SyVAR, curCnt, dec);         // 変数宣言
+  if (isTok(ord('='))) {                       // '='があれば、初期化がある
+    int sta = syNewNode(SyLOC,curCnt,SyNULL);  // 初期化の左辺を作る
+    watch w = newWatch();
+    getAsExpr(w);                              // 初期化式にはカンマ式不可
+    chkCmpat(w, curType, curDim);              // 初期化(代入)できるかチェック
+    sta = syNewNode(SyASS, sta, w.tree);      // 左辺と右辺を接続
+    freeWatch(w);                              // 式(w)は役目を終えた
+    dec = syCatNode(dec, sta);                 // 宣言と初期化を接続
+  }
+  return dec;
+}
 
 // ローカル変数の宣言並びを読み込む
-public int getLVars() {
+int getLVars() {
   getType();                                   // 型を読み込む
   int sta = getLVar();                         // 名前 [ = 式 ] を読み込む
   while (isTok(ord(',')))                      // ',' が続く間
@@ -635,12 +733,12 @@ public int getLVars() {
 /*
  *  実行文の処理
  */
-public int depth = 0;
-public int getStat();                               // 再帰呼出の関係で
-public int getBlock();                              //   プロトタイプ宣言が必要
+int depth = 0;
+int getStat();                               // 再帰呼出の関係で
+int getBlock();                              //   プロトタイプ宣言が必要
 
 // IF文
-public int getIf() {
+int getIf() {
   chkTok(ord('('), "if の次に '(' がない");
   watch w = newWatch();
   getExpr(w);                                  // 条件式(w)を読み込む
@@ -655,7 +753,7 @@ public int getIf() {
 }    
 
 // WHILE文
-public int getWhile() {
+int getWhile() {
   chkTok(ord('('), "while の次に '(' がない");
   watch w = newWatch();
   getExpr(w);                                  // 条件式(w)を読み込む
@@ -670,7 +768,7 @@ public int getWhile() {
 }    
 
 // DO - WHILE文
-public int getDoWhile() {
+int getDoWhile() {
   depth = depth + 1;
   int sta = getStat();                         // 本体を読み込む
   depth = depth - 1;
@@ -687,7 +785,7 @@ public int getDoWhile() {
 }    
 
 // FOR文
-public int getFor() {
+int getFor() {
   // curScope = curScope + 1;         // C言語と同じスコープルールにするなら
   int tmpIdx  = ntGetSize();                   // for 文はひとつのスコープに
   int tmpCnt  = curCnt;                        //   なるのでローカル変数をもつ
@@ -734,9 +832,11 @@ public int getFor() {
   depth = depth - 1;
 
   // 木を組み立てる
-  sta = syNewNode(SySEMI, sta, rini);          // 再初期化を本文の後ろに接続
+  // for (int i=1; i<10; i=i+1) sum = sum + a[i];  は
+  // {int i=1; for (;i<10; i=i+1) sum = sum + a[i]; にする
+  sta = syNewNode(SySEMI, sta, rini);          // 再初期化と本文
   sta = syNewNode(SyWHL, cnd, sta);            // while文相当部分
-  sta = syCatNode(ini, sta);                   // 初期化を前に接続
+  sta = syNewNode(SyBLK, ini, sta);            // 初期化とwhile文でブロック
   
   ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
@@ -745,21 +845,21 @@ public int getFor() {
 }    
 
 // break 文
-public int getBreak() {
+int getBreak() {
   if (depth <= 0) error("ループ外で break を使用");
   chkTok(ord(';'), "break の次に ';' がない");
   return syNewNode(SyBRK, SyNULL, SyNULL);
 }
 
 // continue 文
-public int getCont() {
+int getCont() {
     if (depth <= 0) error("ループ外で continue を使用");
   chkTok(ord(';'), "continue の次に ';' がない");
   return syNewNode(SyCNT, SyNULL, SyNULL);
 }
 
 // return 文
-public int getReturn() {
+int getReturn() {
   int t = ntGetType(funcIdx);                  // 関数の型
   int d = ntGetDim(funcIdx);                   // 関数の型の配列次元数
   int exp = SyNULL;                            // 式
@@ -774,10 +874,10 @@ public int getReturn() {
   return syNewNode(SyRET, exp, SyNULL);
 }
 
-public int lastStat = LxNONTOK;      // 最後の文はどの種類のトークンで始まったか
+int lastStat = LxNONTOK;      // 最後の文はどの種類のトークンで始まったか
 
 // 文
-public int getStat() {
+int getStat() {
   int sta = SyNULL;
   int ltok = tok;                              // 最後に読んだ文(returnがあるか)
   if      (isTok(LxIF))       sta=getIf();     // if 文を見つけた場合
@@ -804,7 +904,7 @@ public int getStat() {
 }
 
 // ブロックを読み込む
-public int getBlock() {
+int getBlock() {
   int lval   = SyNULL;
   int tmpIdx = ntGetSize();                    // ブロック終了時にローカル変数
   int tmpCnt = curCnt;                         //   を捨てるために憶えておくもの
@@ -816,22 +916,24 @@ public int getBlock() {
     } else {                                   // 型以外なら
       rval = getStat();                        //   文を読み込む
     }
-    lval = syCatNode(lval, rval);
+    lval = syCatNode(lval, rval);              // リストを作る
   }
   chkTok(ord('}'), "ブロックが '}' で終了していない");
   ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
+  if (lval!=SyNULL && syGetType(lval)==SySEMI) // 意味のあるブロックなら
+    sySetType(lval, SyBLK);                    //   リストを { } で括る
   return lval;
 }
 
 // プロトタイプ宣言と引数を比較する
-public void chkParam(int idx) {
+void chkParam(int idx) {
   if (ntGetType(idx)!=curType || ntGetDim(idx)!=curDim)
     error("引数が以前の宣言と異なる");
 }
 
 // 関数宣言の引数リスト( 'f( ... )'の ... 部分)を読み込む
-public void getParams(int idx) {
+void getParams(int idx) {
   int lastTok = ord(',');                       // '...'の前は ',' でなきゃ
   for(curCnt=-1;isType();curCnt=curCnt-1){      // 型名の間,オフセットを変化
     getType();                                  // 型を読む
@@ -852,7 +954,7 @@ public void getParams(int idx) {
 
 
 // 関数を読み込む(プロトタイプ宣言、定義両方を処理する)
-public void getFunc() {
+void getFunc() {
   funcIdx = ntGetSize() - 1;           // 処理中の関数(return型のチェックに使用)
   int idx = ntSrcGlob(funcIdx);              // 同じ名前のものはないか
   if (idx>=0 && (ntGetScope(idx)==ScCOMM || ntGetScope(idx)==ScGVAR))
@@ -863,7 +965,7 @@ public void getFunc() {
   if (curType==TyINTR && curDim!=0)
     error("interrupt型の配列は認められない");
   getTok();                                    // '(' を読み飛ばす
-  lastStat = LxNONTOK;                         // 最後の文(returnで終わっているか)
+  lastStat = LxNONTOK;                         // 最後の文(returnで終わるか)
   curScope = ScLVAR;                           // 仮引数、ローカル変数のスコープ
   int prmIdx = ntGetSize();                    // 仮引数の先頭を記憶
   getParams(idx);                              // 仮引数リストを読み込む
@@ -886,12 +988,15 @@ public void getFunc() {
 	ntGetType(funcIdx)!=TyINTR  &&       // interupt型以外の関数が
 	lastStat!=LxRETURN)                  // return文で終わっていない
       error("関数が値を返していない");
+    //syPrintTree();                         // ### デバッグ用 ###
     if (optFlag) optTree(syGetRoot());       // 木を最適化する
+    //syPrintTree();                         // ### デバッグ用 ###
     genFunc(funcIdx, maxCnt, krnFlag);       // コード生成
     syClear(0);                              // コード生成終了で木を消去する
   } else {                                   // プロトタイプ宣言の場合
     chkTok(ord(';'), "プロトタイプ宣言が ';' で終わっていない");
-  }
+    genProto(funcIdx);                       // プロトタイプ宣言を出力
+  }                                          // (トランスレータ版だけで必要)
   if (idx>=0) {                              // 既に名前表にあれば
     ntUndefName(funcIdx);                    //   全体を削除
   } else {                                   // そうでなければ
@@ -904,10 +1009,10 @@ public void getFunc() {
 /*
  * グローバル変数の処理
  */
-public int getGArrayInit(int dim);           // 再帰呼出があるので宣言必要
+int getGArrayInit(int dim);           // 再帰呼出があるので宣言必要
 
 // 初期化に使用される定数式を読み込む
-public int getCnst(int typ) {
+int getCnst(int typ) {
   watch w = newWatch();
   getAsExpr(w);                              // 初期化式にはカンマ式不可
   chkCmpat(w, typ, 0);                       // 初期化(代入)できるかチェック
@@ -921,7 +1026,7 @@ public int getCnst(int typ) {
 }
 
 // array(n1 [, n2] ...) を読み込む */
-public int getArray0(int dim) {
+int getArray0(int dim) {
   if (dim<=0) error("array の次元が配列の次元を超える");
   int node = getCnst(TyINT);                 // 整数定数式を読み込む
   if (isTok(ord(','))) {                     // ',' が続くなら
@@ -931,7 +1036,7 @@ public int getArray0(int dim) {
   return node;
 }
 
-public int getArray(int dim) {
+int getArray(int dim) {
   chkTok(ord('('), "array の次に '(' がない");
   int node = getArray0(dim);
   chkTok(ord(')'), "array の後に ')' がない");
@@ -942,7 +1047,7 @@ public int getArray(int dim) {
 }
 
 // 構造体初期化('{ ... }'を読み込む
-public int getStructInit0() {
+int getStructInit0() {
   int node = SyNULL;
   int i=-curType+1;                          // i が構造体フィールドを指す
   do {
@@ -954,12 +1059,12 @@ public int getStructInit0() {
       n = syNewNode(SyCNST, 0, SyNULL);
     } else if (ntGetDim(i)>0) {              // フィールドが配列の場合
       if (isTok(LxSTRING)) {                 // 入力が文字列なら
-	if (ntGetDim(i)!=1||ntGetType(i)!=TyCHAR)
-	  error("文字列で初期化できない");
-	int lab = genStr(lxGetStr());              // .Lx STRING "..." を出力
-	n = syNewNode(SySTR, lab, SyNULL);
+        if (ntGetDim(i)!=1||ntGetType(i)!=TyCHAR)
+          error("文字列で初期化できない");
+        int lab = genStr(lxGetStr());        // .Lx STRING "..." を出力
+        n = syNewNode(SySTR, lab, SyNULL);
       } else if (isTok(LxNUL)) {             // 配列を null で初期化
-	n = syNewNode(SyCNST, 0, SyNULL);
+        n = syNewNode(SyCNST, 0, SyNULL);
       } else error("構造体フィールドの配列初期化は文字列か null だけ");
     } else if (ntGetType(i)==TyINT) {        // フィールドが整数型の場合
       n = getCnst(TyINT);                    //   整数定数式を読み込む
@@ -977,7 +1082,7 @@ public int getStructInit0() {
 }
 
 // 構造体の初期化
-public int getStructInit() {
+int getStructInit() {
   int node = SyNULL;
   if (isTok(LxNUL)) {                        // null による初期化の場合
     node = syNewNode(SyCNST, 0, SyNULL);     // 0 を木に登録
@@ -991,7 +1096,7 @@ public int getStructInit() {
 }
 
 // 配列初期化('{ ... }'の ... を読み込む
-public int getGArrayInit0(int dim) {
+int getGArrayInit0(int dim) {
   int node = SyNULL;                         // 最初はリスト要素が空
   if (dim<=1) {                              // 最後の１次元の場合
     if (curType<=0) {                        //   型が構造体型なら
@@ -1020,7 +1125,7 @@ public int getGArrayInit0(int dim) {
 }
 
 // 大域配列の初期化
-public int getGArrayInit(int dim) {
+int getGArrayInit(int dim) {
   int node = 0;
   if (isTok(ord('{'))) {                     // '{ ... ' の初期化の場合
     node = getGArrayInit0(dim);              // 初期化の本体(リスト)を読み込む
@@ -1038,7 +1143,7 @@ public int getGArrayInit(int dim) {
 }
 
 // 大域変数
-public void getGVar() {
+void getGVar() {
   int curIdx = ntGetSize()-1;                // 処理中の変数
   int idx = ntSrcGlob(curIdx);               // 2重定義の可能性があるか？
   if (isTok(ord('='))) {                     // '='が続けば初期化部分がある
@@ -1051,8 +1156,7 @@ public void getGVar() {
       getCnst(curType);                      //   整数定数式を入力する
     } else if (curType<=0) {                 // 構造体初期化なら
       getStructInit();                       //   構造体の初期化部分 '{ ... }'
-    } else error("バグ...getGVarInit");
-    //syPrintTree();                         // ### デバッグ用 ###
+    } else error("バグ...getGVar");
     genData(curIdx);                         // 初期化済みデータを生成
     syClear(0);                              // データ生成終了で木を消去する
     if (idx>=0) {                            // 既に登録されていた場合
@@ -1066,6 +1170,8 @@ public void getGVar() {
 	ntUndefName(curIdx);                       // 既に登録されている
       else
 	error("2重定義(以前は関数)");
+    } else {
+      genBss(curIdx);                        // 初めての宣言なら出力する
     }
   }
   if (idx>=0) {                              // 型に矛盾がないかチェック
@@ -1075,7 +1181,7 @@ public void getGVar() {
 }
 
 // 大域変数宣言
-public void getGVars() {
+void getGVars() {
   getGVar();                                 // 大域変数１件
   while (isTok(ord(','))) {                  // ',' が続いている
     getName(pubFlag);                        // 変数名を表に登録
@@ -1084,108 +1190,51 @@ public void getGVars() {
   chkTok(ord(';'), "大域変数の宣言が ';' で終わっていない");
 }
 
-// プログラム
-public void getProg() {
-  getTok();                                  // 最初の tok を読み込む
-  while (tok!=LxEOF) {                       // EOF以外で、以下を繰り返す
-    pubFlag = false;                         // 'public'をまだ読んでいない
-    if (isTok(LxPUBLIC)) {                   // 'public'修飾子があった
-      pubFlag = true;                        //   それを記録し
-    }
-    if (isTok(LxSTRUCT)) {                   // 'struct'なら構造体宣言
-      curScope = ScSTRC;                     // スコープは構造体(-1)にする
-      curType=TySTRUC;                       // 型は一応 STRUC にする
-      if (pubFlag) error("\'public struct\'は使えない");
-      getName(false);                        // 構造体名を表に登録
-      getStruct();                           // 構造体宣言の本体を読み込む
-    } else {
-      curScope = ScPROT;                     // プロトタイプ宣言と仮定する
-      getType();                             // 型を読み込む
-      getName(pubFlag);                      // プロトタイプ宣言として登録
-      if (tok==ord('(')) {                   // '('が続けば関数(仮定は正解)
-	getFunc();                                 // 関数定義かプロトタイプ宣言
-      } else {                               // 大域変数宣言だと判明
-	ntSetScope(ntGetSize()-1, ScCOMM);         // 仮定が外れたので訂正
-	curScope = ScCOMM;                         // 仮定が外れたので訂正
-	if (curType==TyVOID && curDim==0)          // 変数だとすればvoid型はエラー
-	  error("void型変数は使用できない");
-	if (curType==TyINTR)                       // 変数ならinterrupt型はエラー
-	  error("interrupt型変数は使用できない");
-	getGVars();                                // グローバル変数宣言
-      }
-    }
+// C-- プログラムを読む
+void getProg() {
+  pubFlag = false;                         // 'public'をまだ読んでいない
+  if (isTok(LxPUBLIC)) {                   // 'public'修飾子があった
+    pubFlag = true;                        //   それを記録し次トークンの処理
   }
-}
-
-// 使い方表示関数
-public void usage(char[] name) {
-  fprintf(stderr, "使用方法 : %s [-h] [-v] [-O0] [-O] [-O1] [<source file>]\n",
-	  name);
-  fprintf(stderr, "    <source file> は C--言語ソースコード\n");
-  fprintf(stderr, "    <source file> 省略時は stdin から入力\n");
-  fprintf(stderr, "    コンパイル結果は stdout へ出力\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "    -h, -v  : このメッセージを表示\n");
-  fprintf(stderr, "    -O, -O1 : 定数をコンパイル前に計算する(デフォルト)\n");
-  fprintf(stderr, "    -O0     : 定数をコンパイル前に計算しない\n");
-  fprintf(stderr, "    -K      : カーネルコンパイルモード\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "%s version %s (%s 版)\n", name, VER, ARC);
-  fprintf(stderr, "(build date : %s)\n", DATE);
-  fprintf(stderr, "\n");
-}
-
-// main 関数
-public int main(int argc, char[][] argv) {
-  FILE fp;
-  int i = 1;
-
-  if (argc>i &&
-      (strcmp(argv[i],"-v")==0 ||            //  "-v", "-h" で、使い方と
-       strcmp(argv[i],"-h")==0   ) ) {       //   バージョンを表示
-    usage(argv[0]);
-    exit(0);
-  }
-
-  if (argc>i &&
-      (strcmp(argv[i],"-O")==0 ||
-       strcmp(argv[i],"-O1")==0)  ) {        //  "-O","-O1" で、最適化
-    optFlag = true;
-    i = i + 1;
-  }
-
-  if (argc>i &&
-      (strcmp(argv[i],"-O0")==0)) {          //  "-O0" で、最適化しない
-    optFlag = false;
-    i = i + 1;
-  }
-
-  if (argc>i &&
-      (strcmp(argv[i],"-K")==0)) {           //  "-K" で、カーネルコンパイル
-    krnFlag = true;
-    i = i + 1;
-  }
-
-  if (argc==i+1) {                           // 引数としてソースファイルがある
-    fp = fopen(argv[i],"r");
-    if(fp == null){                          // ソースファイルをオープン
-      perror(argv[i]);                       // オープン失敗の場合は、メッ
-      exit(1);                               //   セージを出力して終了
-    }
-    lxSetFname(argv[i]);                     // error表示用にファイル名を登録
-  } else if (argc==i) {
-    fp = stdin;
-    lxSetFname("STDIN");                     // error表示用にファイル名を登録
+  if (isTok(LxSTRUCT)) {                   // 'struct'なら構造体宣言
+    curScope = ScSTRC;                     // スコープは構造体(-1)にする
+    curType=TySTRUC;                       // 型は STRUC にする
+    if (pubFlag) error("\'public struct\'は使えない");
+    getName(false);                        // 構造体名を表に登録
+    getStruct();                           // 構造体宣言の本体を読み込む
+  } else if (isTok(LxTYPEDEF)) {           // 'typedef'なら
+    curScope = ScSTRC;                     // スコープは構造体(-1)にする
+    curType = TyREF;                       // 何か参照型
+    if (pubFlag) error("\'public typedef\'は使えない");
+    getName(false);                        // 新たな型名を表に登録
+    chkTok(ord(';'), "typedef宣言が';'で終わっていない");
   } else {
-    usage(argv[0]);
-    exit(1);
+    curScope = ScPROT;                     // プロトタイプ宣言と仮定する
+    getType();                             // 型を読み込む
+    getName(pubFlag);                      // プロトタイプ宣言として登録
+    if (tok==ord('(')) {                   // '('が続けば関数(仮定は正解)
+      getFunc();                                 // 関数定義かプロトタイプ宣言
+    } else {                               // 大域変数宣言だと判明
+      ntSetScope(ntGetSize()-1, ScCOMM);         // 仮定が外れたので訂正
+      curScope = ScCOMM;                         // 仮定が外れたので訂正
+      if (curType==TyVOID && curDim==0)          // 変数だとすればvoid型はエラー
+        error("void型変数は使用できない");
+      if (curType==TyINTR)                       // 変数ならinterrupt型はエラー
+        error("interrupt型変数は使用できない");
+      getGVars();                                // グローバル変数宣言
+    }
   }
-
-  lxSetFp(fp);                               // 字句解析に fp を知らせる
-  getProg();                                 // fp から C-- を入力して
-                                             //   stdout へアセンブラを出力
-  for (int j=0; j<ntGetSize(); j=j+1)
-    if (ntGetScope(j)==ScCOMM)               // 最後にコモンを出力
-      genBss(j);
-  return 0;
 }
+
+// フラグを操作する
+public void snSetOptFlag(boolean f) { optFlag = f; }
+public void snSetKrnFlag(boolean f) { krnFlag = f; }
+
+// ソースプログラムを読む
+public void snGetSrc() {
+  genOn();                                   // コード生成を許可する
+  getTok();                                  // 最初の tok を読み込む
+  while (tok!=LxEOF)                         // EOF になるまで
+    getProg();                               //   C-- プログラムを処理
+}
+

@@ -22,6 +22,7 @@
 /*
  * util.cmm : 良く使う関数
  *
+ * 2016.02.24         : substr を追加
  * 2016.01.28         : C 言語から C-- 言語にコンパイラの記述言語を変更
  * 2012.12.30         : error2 を追加
  * 2010.07.20         : Subversion による管理を開始
@@ -68,7 +69,7 @@ public void error2(char[] s1, char[] s2) {
   exit(1);
 }
 
-/* 領域を割り当ててエラーチェック */
+// 領域を割り当ててエラーチェック
 public void[] ealloc(int s) {
   void[] p = malloc(s);
   if (p==null) {
@@ -77,15 +78,20 @@ public void[] ealloc(int s) {
   return p;
 }
 
-/* 以下は ctype.h にありそうで存在しない関数 */
+// 以下は ctype.h にありそうで存在しない関数
 
-/* 区切り記号かテスト */
+// 区切り記号かテスト
 public boolean isDelim(char ch) {
-  return !isalnum(ch) && ch!='_';                   /* アルファベット,'_'以外 */
+  return !isalnum(ch) && ch!='_';                    // アルファベット, '_'以外
 }
 
-/* 8進数字かテスト */
+// 8進数字かテスト
 public boolean isOdigit(char ch) {
-  return ord('0') <= ord(ch) && ord(ch) <= ord('7');/* '0'〜'7'が8進数        */
+  return ord('0') <= ord(ch) && ord(ch) <= ord('7'); // '0'〜'7'が8進数
 }
 
+// 文字列の一部を文字列として返す
+void[] _addrAdd(void[], int pos);
+public char[] subStr(char[] str, int pos) {
+  return _addrAdd(str, pos);
+}

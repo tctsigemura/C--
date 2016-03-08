@@ -22,8 +22,9 @@
 /*
  * namtbl.hmm : 名前表の外部仕様を定義
  *
- * 2016.02.06         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.24         : C 言語から C-- 言語にコンパイラの記述言語を変更
                         名前表サイズを400から500に変更
+ * 2016.02.05 v3.0.0  : トランスレータと統合(TyREF追加)
  * 2015.08.07         : 名前表サイズを300から400に変更
  * 2010.12.14         : 名前表で型を表現するために使用する定数を追加
  * 2010.07.20         : Subversion による管理を開始
@@ -35,6 +36,8 @@
  * $Id$
  *
  */
+
+#define P public         // public の綴りが長いので
 
 /* 名前のスコープ */
 #define ScVOID (-2)      // 仮引数やフィールド名等、通常の検索対象外
@@ -55,28 +58,29 @@
 #define TySTRUC     5     // struct
 #define TyINTR      6     // interrupt
 #define TyDOTDOTDOT 7     // ...
-#define TyNON       8     // 型ではない
+#define TyREF       8     // 何か参照型
+#define TyNON       9     // 型ではない
 
 /* 名前表 */
-#define NtMAX      500                         // 表のサイズ
-public int       ntNextIdx;                    // 次に登録する位置、スコープにより逆戻りする
-public char[][]  ntName;
-public int[]     ntScope;
-public int[]     ntType;
-public int[]     ntDim;
-public int[]     ntCnt;
-                                               //   関数、構造体の場合は、引数やフィールドの数
-public boolean[] ntPub;
+#define NtMAX      500    // 表のサイズ
+P int       ntNextIdx;    // 次に登録する位置、スコープにより逆戻りする
+P char[][]  ntName;       // 名前のつづり
+P int[]     ntScope;      // スコープ(ScXXXX を格納する)
+P int[]     ntType;       // 型(TyVOID、TyINT、TyCHAR、...、構造体型)
+P int[]     ntDim;        // 配列変数の場合、配列の次元
+P int[]     ntCnt;        // 局所変数、仮引数の場合は番号
+                          //   関数、構造体の場合は、引数やフィールドの数
+P boolean[] ntPub;        // 名前が外部公開される
 
 /* 公開関数 */
-public int ntSrcName(char[] str);              // str と同じ名前の関数、変数、仮引数を探索
-public int ntSrcStruct(char[] str);            // str と同じ名前の構造体を探索
-public int ntSrcField(int n, char[] str);      // 構造体(n)のフィールドから str を探索
-public int ntSrcGlob(int n);                   // 大域名(n)と２重定義になるものを探索
-public void ntDefName(char[] name,             // 新規登録
-	       int scope, int type, int dim, int val, boolean pub);
+P int ntSrcName(char[] str);         // str と同じ名前の関数、変数、仮引数を探索
+P int ntSrcStruct(char[] str);       // str と同じ名前の構造体を探索
+P int ntSrcField(int n, char[] str); // 構造体(n)のフィールドから str を探索
+P int ntSrcGlob(int n);              // 大域名(n)と２重定義になるものを探索
+P void ntDefName(char[] name,        // 新規登録
+                 int scope, int type, int dim, int val, boolean pub);
 
-public void ntUndefName(int idx);              // 名前表をもとに戻す
+P void ntUndefName(int idx);         // 名前表をもとに戻す
 
 #define ntGetSize()     (ntNextIdx)            // 名前表のサイズを返す
 
@@ -94,3 +98,4 @@ public void ntUndefName(int idx);              // 名前表をもとに戻す
 #define ntSetCnt(idx,v)   (ntCnt[idx]=(v))
 #define ntSetPub(idx,v)   (ntPub[idx]=(v))
 
+#undef P

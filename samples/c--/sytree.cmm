@@ -22,7 +22,9 @@
 /*
  * sytree.cmm : 構文木(Syntax Tree)の管理プログラム
  *
- * 2016.02.06         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.24         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.05 v3.0.0  : トランスレータと統合
+ *                      (SyPOST, SyBYTE 削除、SyIDXx, SyDOT, SyVAR, SyBLK 追加)
  * 2012.09.12         : 外部非公開の関数、変数に static を付ける
  * 2012.08.14         : sySetXX, syGetXX マクロを使用して操作するように変更
  * 2011.04.24         : syPrintTree, 表の改良
@@ -42,10 +44,6 @@
 
 // 構文木表
 int syNextIdx = 0;                      // 次に登録する場所
-public int[] syType = array(SyMAX);         // ノードの種類
-public int[] syLVal = array(SyMAX);         // ノードの値１
-public int[] syRVal = array(SyMAX);         // ノードの値２
-
 
 // 構文木表に新しいノードを作る
 public int syNewNode(int type, int lVal, int rVal) {
@@ -78,6 +76,7 @@ public int syGetRoot() {
 }
 
 // デバッグ用
+//#ifdef DEBUG
 struct D {char[]  a; int b; };
 D[] d = {
   // 特別な値
@@ -107,8 +106,8 @@ D[] d = {
   { "SyMUL",  SyMUL},                  // ２項演算 *
   { "SyDIV",  SyDIV},                  // ２項演算 /
   { "SyMOD",  SyMOD},                  // ２項演算 %
-  { "SyPOST", SyPOST},                 // 後置演算子(配列([ ])、構造体(.))
-  { "SyPOST", SyBYTE},                 // 後置演算子(バイト配列([ ]))
+  { "SyIDXW", SyIDXW},                 // 後置演算子(ワード配列([ ]))
+  { "SyIDXB", SyIDXB},                 // 後置演算子(バイト配列([ ]))
 
   { "SyGT",   SyGT},                   // ２項演算 >  (Greater Than)
   { "SyGE",   SyGE},                   // ２項演算 >  (Greater or Equal)
@@ -116,7 +115,7 @@ D[] d = {
   { "SyLE",   SyLE},                   // ２項演算 <= (Less or Equal)
   { "SyEQU",  SyEQU},                  // ２項演算 == (EQUal)
   { "SyNEQ",  SyNEQ},                  // ２項演算 != (Not EQual)
-
+  
   { "SyASS",  SyASS},                  // ２項演算 =  (ASSign)
   { "SyCOMM", SyCOMM},                 // ２項演算 ,  (COMMa)
 
@@ -131,6 +130,8 @@ D[] d = {
   { "SyCNT",  SyCNT},                  // continue 文
   { "SyRET",  SyRET},                  // return 文
   { "SySEMI", SySEMI},                 // セミコロン
+  { "SyVAR",  SyVAR},                  // セミコロン
+  { "SyBLK",  SyBLK},                  // セミコロン
 
   { "SyARRY", SyARRY},                 // 非初期化配列
   { "SyLIST", SyLIST}                  // 配列要素の初期化並び
@@ -155,3 +156,4 @@ public void syPrintTree() {
       fprintf(stderr,"%4d)\n", syGetRVal(i));
   }
 }
+//#endif

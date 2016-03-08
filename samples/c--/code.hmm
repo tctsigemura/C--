@@ -22,7 +22,9 @@
 /*
  * code.hmm : コード生成関係の外部仕様を定義
  *
- * 2016.02.06         : C--仕様に変更
+ * 2016.02.24         : C--仕様に変更
+ * 2016.02.03 v3.0.0  : トランスレータと統合
+ *                      (genProto, genStruc, genOn, genOff 関数追加)
  * 2015.08.31 v2.1.0  : カーネルコンパイル用のフラグを genFunc に追加
  * 2010.09.12 v1.0.0  : 最適化と外部変数の定数式による初期化ができる H8 統合版
  * 2010.09.09         : getFunc に最適化オプション
@@ -33,9 +35,18 @@
  *
  */
 
-public void genFunc(int funcIdx, int depth, boolean krnFlg);
+#define P public
+
+P void genFunc(int funcIdx, int depth, boolean krnFlg);
                                                       // 関数単位でコードを生成
-public void genData(int idx);                         // 初期化データを生成
-public void genBss(int idx);                          // 非初期化データを生成
-public int  genStr(char[] s);                         // 文字列を生成し
-                                                      // ラベル番号を返す
+P void genData(int idx);                         // 初期化データを生成
+P void genBss(int idx);                          // 非初期化データを生成
+P int  genStr(char[] s);                         // 文字列を生成し
+                                                      //   ラベル番号を返す
+// 以下はトランスレータのみで必要
+P void genProto(int idx);                        // プロトタイプ宣言を出力
+P void genStruc(int idx);                        // 構造体宣言を出力
+P void genOn();                                  // コード生成を許可する
+P void genOff(char[] hdr);                       // コード生成を禁止する
+                                                      // (代替の#includeを出力)
+#undef P
