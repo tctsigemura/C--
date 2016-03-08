@@ -1,0 +1,750 @@
+% 
+%  ４章 ライブラリ関数
+%
+\chapter{ライブラリ関数}
+
+\cmml で使用できる関数です。
+2016年2月現在、\tacos の高水準ファイルI/Oが完成していません。
+その代わり\tacos では、システムコールを使用した入出力ができます。
+
+\section{標準入出力}
+
+\tac の OS カーネルやブートプログラムを作るために必要な特殊なルーチンです。
+
+\subsection{ipl 関数と \ul exit 関数}
+\tac のIPL ROMルーチンに戻り \tac を再起動します。
+この関数は呼び出し側に戻ってきません。
+ipl 関数と \underline{~~}exit 関数に違いはありません。
+``{\tt Kernel/*/*/kernel.cmm}''の \verb/main/ 関数を終了した場合は
+自動的に ipl 関数が呼び出されます。
+
+\begin{quote}
+\begin{verbatim}
+public void ipl();
+public void _exit();
+\end{verbatim}
+\end{quote}
+
+なお、ipl 関数は、\pageref{app:ipl}ページで解説する
+同名の IPL ルーチンを呼び出しています。
+
+\subsection{\ul jump 関数}
+
+引数の整数で指定したアドレスにジャンプします。
+ジャンプする前にスタックポインタは
+\tac 主記憶のユーザ領域の最終アドレスに初期化されます
+(\pageref{app:memmap}ページ、「メモリマップ」参照)。
+この関数は呼び出し側に戻ってきません。
+
+\begin{quote}
+\begin{verbatim}
+public void _jump(int addr);
+\end{verbatim}
+\end{quote}
+
+\subsection{ei 関数}
+
+割込みを許可する関数です。
+TaC の \verb/EI/ 機械語命令を実行し
+CPU が割込みを受け付けるようにします。
+
+\begin{quote}
+\begin{verbatim}
+public void ei();
+\end{verbatim}
+\end{quote}
+
+\subsection{di 関数}
+
+割込みを禁止する関数です。
+TaC の \verb/DI/ 機械語命令を実行し
+CPU が割込みを受け付けないようにします。
+
+\begin{quote}
+\begin{verbatim}
+public void di();
+\end{verbatim}
+\end{quote}
+
+\section{入出力関数}
+
+\tac の I/O ポート、VGA 画面を制御するための関数です。
+
+\subsection{in 関数}
+
+引数の整数で指定したI/Oアドレス(\verb/p/)からデータを読み込みます。
+in 関数のプロトタイプ宣言を次に示します。
+入力した値が関数の値になります。
+
+\begin{quote}
+\begin{verbatim}
+public int in(int p);
+\end{verbatim}
+\end{quote}
+
+in 関数を使用して、
+シリアルポートから1バイト入力するプログラムの例を次に示します。
+\pageref{app:sio}ページで説明するように、
+I/O アドレス 0000H 番地と 0001H 番地で SIO を制御します。
+
+\begin{mylist}
+\begin{verbatim}
+int getsio() {
+  while ((in(0x0001)&0x0040)==0)
+    ;
+  return in(0x0000);
+}
+\end{verbatim}
+\end{mylist}
+
+\subsection{out 関数}
+
+引数の整数でI/Oアドレス(\verb/p/)と値(\verb/v/)を指定しデータを出力します。
+out 関数のプロトタイプ宣言を次に示します。
+
+\begin{quote}
+\begin{verbatim}
+public void out(int p, int v);
+\end{verbatim}
+\end{quote}
+
+out 関数を使用して、
+シリアルポートへ1バイト出力するプログラムの例を次に示します。
+
+\begin{mylist}
+\begin{verbatim}
+void putsio(char c) {
+  while ((in(0x0001)&0x0080)==0)
+    ;
+  out(0x0000, c);
+}
+\end{verbatim}
+\end{mylist}
+
+\subsection{cls 関数}
+clear screen ルーチンです。
+\tac のビデオメモリをクリアして画面を真っ黒にします。
+また、カーソル位置を画面の左上に移動します。
+cls 関数のプロトタイプ宣言を次に示します。
+
+\begin{quote}
+\begin{verbatim}
+public void cls();
+\end{verbatim}
+\end{quote}
+
+なお cls 関数は、\pageref{app:ipl}ページで
+解説する同名の IPL ルーチンを呼び出しています。
+
+\subsection{putch 関数}
+
+put character ルーチンです。
+引数の１文字を \tac の画面に表示します。
+この関数はカーソル位置を管理し、行の折り返し、画面のスクロールを行います。
+putstr 関数等の他の画面表示関数は内部で putch 関数を呼び出して使用しています。
+putch 関数のプロトタイプ宣言を次に示します。
+
+\begin{quote}
+\begin{verbatim}
+public void putch(char c);
+\end{verbatim}
+\end{quote}
+
+
+次の表に示す制御文字を識別して画面の制御を行います。
+表にない制御文字は無視されます。
+
+\begin{quote}
+\begin{tabular}{l|l|l}
+\hline
+\multicolumn{1}{c|}{制御文字} & \multicolumn{1}{c|}{機能} &
+\multicolumn{1}{c}{説 明} \\
+\hline
+\verb/'\r'/  & 復帰 & カーソルを左端に移動             \\
+\verb/'\n'/  & 改行 & カーソルを次の行に移動           \\
+              &      & (復帰の機能も含む)               \\
+\verb/'\t'/  & タブ & カーソルを次のタブストップへ移動 \\
+              &      & (タブストップは8文字毎)          \\
+\verb/'\x08'/ & 後退 & カーソルを左に1文字移動          \\
+\end{tabular}
+\end{quote}
+
+なお putch 関数は、\pageref{app:ipl}ページで解説する
+同名の IPL ルーチンを呼び出しています。
+
+\subsection{putstr 関数}
+
+put string ルーチンです。
+引数の文字列(文字配列)を \tac の画面に表示します。
+putstr 関数のプロトタイプ宣言を次に示します。
+
+\begin{quote}
+\begin{verbatim}
+public void putstr(char[] str);
+\end{verbatim}
+\end{quote}
+
+なお putstr 関数は、\pageref{app:ipl}ページで解説する
+同名の IPL ルーチンを呼び出しています。
+
+\subsection{\ul puthex 関数}
+put hexadecimal ルーチンです。
+引数の整数を16進数4桁で \tac の画面に表示します。
+\ul puthex 関数のプロトタイプ宣言を次に示します。
+
+\begin{quote}
+\begin{verbatim}
+public void _puthex(int v);
+\end{verbatim}
+\end{quote}
+
+なお \ul puthex 関数は、\pageref{app:ipl}ページで解説する
+同名の IPL ルーチンを呼び出しています。
+
+\subsection{puthex 関数}
+put hexadecimal ルーチンです。
+こちらの方が前出のものより高機能です。
+指定された桁と、空白文字を使用しながら、
+引数の整数を 16進数で \tac の画面に表示します。
+puthex 関数のプロトタイプ宣言を次に示します。
+\verb/v/ が値、
+\verb/w/ が桁数、
+\verb/p/ が空白として使用する文字を表します。
+
+\begin{quote}
+\begin{verbatim}
+public void puthex(int v, int w, char p);
+\end{verbatim}
+\end{quote}
+
+次に\cmml プログラムから呼び出して使用する例を示します。
+
+\begin{mylist}
+\begin{verbatim}
+  puthex(0x0010, 4, ' ');   // "  10" と表示
+  puthex(0x0010, 4, '0');   // "0010" と表示
+\end{verbatim}
+\end{mylist}
+
+
+\subsection{putdec 関数}
+put decimal ルーチンです。
+指定された桁と、空白文字を使用しながら、
+引数の整数を 10進数で \tac の画面に表示します。
+putdec 関数のプロトタイプ宣言を次に示します。
+\verb/v/ が値、
+\verb/w/ が桁数、
+\verb/p/ が空白として使用する文字を表します。
+
+\begin{quote}
+\begin{verbatim}
+public void putdec(int v, int w, char p);
+\end{verbatim}
+\end{quote}
+
+次に\cmml プログラムから呼び出して使用する例を示します。
+
+\begin{mylist}
+\begin{verbatim}
+  putdec(10, 4, ' ');   // "  10" と表示
+  putdec(10, 4, '0');   // "0010" と表示
+\end{verbatim}
+\end{mylist}
+
+\subsection{printf 関数}
+機能限定版の printf 関数です。
+第1引数(フォーマット文字列)で指定された形式で
+\tac の画面にデータを表示します。
+printf 関数のプロトタイプ宣言を次に示します。
+
+\begin{quote}
+\begin{verbatim}
+public void printf(char[] fmt, ...);
+\end{verbatim}
+\end{quote}
+
+フォーマット文字列に指定できるのは、
+8進数(\verb/%o/)、
+10進数(\verb/%d/)、
+16進数(\verb/%x/)、
+文字(\verb/%c/)、
+文字列(\verb/%s/)、
+\verb/'%'/文字(\verb/%%/)です。
+数値の出力には桁数が指定できます。
+また、余った桁に \verb/' '/ を表示するか
+\verb/'0'/ を表示するかも指定できます。
+2009年4月現在、文字列(\verb/%s/)に桁数を指定することはできません。
+
+\begin{mylist}
+\begin{verbatim}
+  int x = 10, c = 'A';
+  char[] s = "abc";
+  printf("size = %d\n", x);   // "size = 10" と表示
+  printf("size = %4d\n", x);  // "size =   10" と表示
+  printf("size = %04d\n", x); // "size = 0010" と表示
+  printf("char = %c\n", c);   // "char = A" と表示
+  printf("str  = %s\n", s);   // "str  = abc" と表示
+\end{verbatim}
+\end{mylist}
+
+\subsection{readSect 関数}
+
+マイクロドライブの read sector ルーチンです。
+引数の二つの整数で32ビットのセクタ番号を指定し、
+\tac のマイクロドライブのセクタの内容を読み出します。
+readSect 関数のプロトタイプ宣言を次に示します。
+
+\begin{quote}
+\begin{verbatim}
+public void readSect(int labH, int labL, char[] buf);
+\end{verbatim}
+\end{quote}
+
+\verb/labH/ が32ビット整数の上位16ビット、
+\verb/labL/ が下位16ビットを表現します。
+マイクロドライブから入力したデータは buf 配列に格納します。
+1セクタは通常512バイトですので、\verb/buf/ には256ワードの領域を渡します。
+次に、マイクロドライブの MBR (セクタ0)を読み出すプログラム例を示します。
+
+\begin{mylist}
+\begin{verbatim}
+// マイクロドライブの MBR(第0セクタ) を読む
+char[] buf = array(256);
+readSect(0,0,buf);
+\end{verbatim}
+\end{mylist}
+
+マイクロドライブのバイト順と \verb/buf/ 配列の内容の対応に注意してください。
+第1バイトが \verb/buf[0]/ の下位8ビット、
+第2バイトが \verb/buf[0]/ の上位8ビットの順になります。
+そのため、上位8ビットと下位8ビットの交換処理が必要なことが多く、
+使いにくい仕様になってしまいました。
+これは、
+マイクロドライブのハードウェアによって決まった仕様です。
+次のようなマクロを準備してバイトの入れ換えを行うと便利です。
+
+\begin{mylist}
+\begin{verbatim}
+// 16ビットデータの上位下位バイトを入れ換える
+#define bswap(m) ((m) >> 8 & 0x00ff | (m) << 8)
+
+void main() {
+   int a = bswap(buf[0]);
+}
+\end{verbatim}
+\end{mylist}
+
+なお readSect 関数は、\pageref{app:ipl}ページで解説する
+同名の IPL ルーチンを呼び出しています。
+
+\section{メモリ管理関数}
+
+BSS セグメントの終端からスタックの約 2kW 手前までをヒープ領域として管理します。
+2009年4月現在、
+スタックポインタは IPL とブートプログラムにより
+0xf000 に初期化される仕様になっています。
+\pageref{app:memmap}ページに示すように 0xf000 はユーザ領域の最終番地です。
+現在のところ、
+スタックとヒープが重なってしまっても
+検出できないのでメモリの使用量に注意が必要です。
+
+\subsection{malloc 関数}
+
+ヒープ領域にメモリを割り当てます。
+引数によって領域の大きさを\underline{ワード単位}で指定します。
+malloc 関数のプロトタイプ宣言を次に示します。
+関数の値は \verb/void[]/ 型の参照なので、
+どのような参照型変数にも代入できます。
+malloc 関数の使用例は、
+これまでのプログラム例にいくつか含まれているので参照してください。
+
+\begin{quote}
+\begin{verbatim}
+public void[] malloc(int s);
+\end{verbatim}
+\end{quote}
+
+\subsection{free 関数}
+
+malloc によって割り当てた領域をシステムに返却します。
+割り当て領域のユーザから見えない場所にマジックナンバーが組み込んであり、
+malloc によって割り当てられた領域であるかチェックしています。
+free 関数のプロトタイプ宣言を次に示します。
+引数の型は \verb/void[]/ の参照なので、
+参照型ならどんな型でも渡すことができます。
+free 関数の使用例は、
+これまでのプログラム例にいくつか含まれているので参照してください。
+
+\begin{quote}
+\begin{verbatim}
+public void free(void[] p);
+\end{verbatim}
+\end{quote}
+
+\section{参照型(アドレス)操作関数}
+
+\cmml にはキャスティング演算や、ポインタ演算がありません。
+そこで、以下の関数で代用します。
+
+\subsection{\ul \ul ItoA 関数}
+\label{chap4:itoa}
+
+整数から参照へ型を変換する関数です。
+16ビット整数を引数に \verb/void[]/ 参照(16ビットのアドレス)を返します。
+\ul \ul ItoA 関数のプロトタイプ宣言を次に示します。
+関数の値は \verb/void[]/ 型の参照なので、
+どのような参照型変数にも代入できます。
+
+\begin{quote}
+\begin{verbatim}
+public void[] __ItoA(int a);
+\end{verbatim}
+\end{quote}
+
+\ul \ul ItoA 関数の応用例を次に示します。
+\pageref{app:memmap}ページに示すように
+F000H 番地は \tac のビデオメモリの開始番地です。
+このプログラムは、
+ビデオメモリを配列のようにアクセスし画面を文字 'A' で埋めつくします。
+
+\begin{mylist}
+\begin{verbatim}
+// ビデオ RAM を配列としてアクセスする
+char[] vRam = __ItoA(0xf000);
+for (int i=0; i<80*24; i=i+1)
+  vRam[i] = 'A';
+\end{verbatim}
+\end{mylist}
+
+\subsection{\ul \ul AtoI 関数}
+
+参照から整数へ型を変換する関数です。
+参照(16ビットアドレス)を引数に16ビットの整数を返します。
+\ul \ul AtoI 関数のプロトタイプ宣言を次に示します。
+引数の型は \verb/void[]/ なので、
+参照型ならどんな型でも渡すことができます。
+
+\begin{quote}
+\begin{verbatim}
+public int __AtoI(void[] a);
+\end{verbatim}
+\end{quote}
+
+\ul \ul AtoI 関数の応用例を次に示します。
+このプログラムは、\tac の IPL ルーチン(実物)の一部です。
+まず、指定セクタから読んだブートプログラムをメモリに格納します。
+次に、このプログラムの先頭アドレスにジャンプします。
+
+\begin{mylist}
+\begin{verbatim}
+// IPL の一部(ブートプログラムを読み込む)
+  char[] hBuf = malloc(256);          // マイクロドライブ用バッファ
+  int    sct = 23;                    // 23セクタから格納されている
+  readSct(0,sct,hBuf);                // 1セクタ読み出す
+  char[] mem = __ItoA(bswap(hBuf[0]));// 先頭ワードがロードアドレス
+  int    len = bswap(hBuf[1]);        // 第2ワードがプログラム長
+  int    idx = 2;                     // bswapは上/下位バイトを交換
+  int    offs = 0;
+  while(true) {
+     while (idx<256) {                // 1セクタ256ワードに付き
+       mem[offs] = bswap(hBuf[idx]);  // 機械語をメモリにコピー
+       offs = offs + 1;
+       idx  = idx  + 1;
+     }
+     if (offs>=len) break;            // プログラム長を超えたら終了
+     sct = sct + 1;                   // 次のセクタを読む
+     readSct(0,sct,hBuf);
+     idx = 0;
+  }
+  putstr("\n\nStart boot loader@0x");
+  puthex(__AtoI(mem));
+  putstr(" ...\n\n");
+  _jump(__AtoI(mem));                 // ロードしたプログラムに飛ぶ
+\end{verbatim}
+\end{mylist}
+
+\subsection{\ul \ul AddrAdd 関数}
+
+\cl のポインタ演算の代用にする関数です。
+参照(アドレス)と整数を引数に渡し、
+参照から整数ワード先の参照(アドレス)を返します。
+この関数は \verb/malloc/、\verb/free/ 関数の実現に使用されています。
+\ul \ul AddrAdd 関数のプロトタイプ宣言を次に示します。
+
+\begin{quote}
+\begin{verbatim}
+public void[] __AddrAdd(void[] a, int n);
+\end{verbatim}
+\end{quote}
+
+\subsection{\ul \ul acmp 関数}
+
+参照(アドレス)の大小比較を行う関数です。
+\cmml では参照の大小比較はできません。
+\javal でも参照の大小比較はできないので、通常はこの仕様で十分と考えられます。
+しかし、\verb/malloc/、\verb/free/ 関数等の実現には
+アドレスの大小比較が必要です。
+そこで、アドレスの大小比較をする \ul \ul acmp 関数を用意しました。
+\ul \ul acmp 関数のプロトタイプ宣言は下のようになります。
+\ul \ul acmp 関数は、\verb/a/ の方が大きい場合は 1 を、
+\verb/b/ の方が大きい場合は -1 を、
+\verb/a/ と \verb/b/ が等しい場合は 0 を返します。
+
+\begin{quote}
+\begin{verbatim}
+public int __acmp(void[] a, void[] b);
+\end{verbatim}
+\end{quote}
+
+\section{符号無し整数の操作関数}
+
+\cmml では、int 型も char 型も符号付き整数です。
+内部表現に2の補数表現を用いているので、
+ほとんどの操作は、
+符号付きと考えても符号無しと考えても同じ機械語命令列で処理できます。
+そのため、符号付き数を符号無し数の代用に使用することができます。
+しかし、大小比較は符号付きと符号無しで異なる機械語を必要とします。
+そこで、この部分だけ関数を使用した特別な比較方法を使います。
+
+\subsection{\ul \ul ucmp 関数}
+
+符号無し数の比較を行う関数です。
+\ul \ul ucmp 関数のプロトタイプ宣言を次に示します。
+\ul \ul ucmp 関数は、\verb/a/ の方が大きい場合は 1 を、
+\verb/b/ の方が大きい場合は -1 を、
+\verb/a/ と \verb/b/ が等しい場合は 0 を返します。
+
+\begin{quote}
+\begin{verbatim}
+public int __ucmp(int a, int b);
+\end{verbatim}
+\end{quote}
+
+次に \ul \ul ucmp 関数の応用例を示します。
+二つの符号無し数の大小関係によって3通りに場合分けしています。
+
+\begin{mylist}
+\begin{verbatim}
+  int a = 0xffff;
+  int b = 0x0000;
+  if (__ucmp(a,b)>0) {
+    ...                          // a > b の場合
+  } else if (__ucmp(a,b)==0) {
+    ...                          // a = b の場合
+  } else if (__ucmp(a,b)<0) {
+    ...                          // a < b の場合
+  }
+\end{verbatim}
+\end{mylist}
+
+\section{可変個引数関数のサポート関数}
+
+\cmml は引数の数が一定ではない可変個引数関数の宣言を認めますが、
+当該関数を記述するために必要な可変個引数へのアクセス方法を提供しません。
+そこで、サポート関数の力を借りて引数へアクセスする手段を提供します。
+
+\subsection{\ul \ul args 関数}
+\label{chap4:args}
+
+printf 関数のような可変個引数の関数を実現するために、
+可変個引数関数の内部で引数を配列としてアクセスできるようにする関数です。
+\ul \ul args 関数は \ul \ul args を呼び出した
+\cmm 関数の第2引数を添字 0 とする配列を返します。
+\ul \ul args 関数のプロトタイプ宣言を次に示します。
+
+\begin{quote}
+\begin{verbatim}
+public int[] __args();
+\end{verbatim}
+\end{quote}
+
+次に可変個引数関数の記述例として、
+printf 関数を記述したプログラムの一部を示します。
+
+\begin{mylist}
+\begin{verbatim}
+int printf(char[] fmt, ...) {      // ... は可変個引数の関数を表す
+  int[] args = __args();           // args配列は第2引数以降を格納
+  int n = 0;                       // 引数用のカウンタ
+  int arg = args[n];               // 第2引数から順に取り出す
+  for (i=0; fmt[i]!='\0'; i=i+1) { // 第1引数fmtは普通に使用できる
+    char c = fmt[i];               // 書式文字列から1文字取り出す
+    if (c=='%') {                  // 書式文字列に % 発見
+      c = fmt[i=i+1];              // % に続く文字を取り出す
+      ...
+      } else if (c=='c') {         // %c なら
+        putch(arg);                // 1文字出力
+        arg = args[n=n+1];         // arg を更新
+      } else if (c=='s') {         // %s なら
+        putstr(__ItoA(arg));       // 引数は文字配列参照のはず
+        arg = args[n=n+1];         // arg を更新
+      } else ...
+    ...
+\end{verbatim}
+\end{mylist}
+
+
+\section{32ビット演算関数}
+
+\cmml には32ビット整数型がありません。
+32ビットの四則演算をするための関数を用意しました。
+これらの関数では32ビットデータを要素数2の int 型配列で表現します。
+
+\subsection{\ul add32 関数}
+
+32ビットの加算ルーチンです。
+dst、src 二つの配列を渡し結果を dst 配列に格納します。
+また、関数値として dst 配列への参照を返します。
+つぎに、\ul add32 関数のプロトタイプ宣言を示します。
+
+\begin{quote}
+\begin{verbatim}
+public int[] _add32(int[] dst, int[] src);
+\end{verbatim}
+\end{quote}
+
+\ul add32 関数の使用例を次に示します。
+%最後の行は、\ul add32 関数が dst 配列への参照を返すことを利用して、
+%直前の2行と同じ処理をコンパクトに記述した例になっています。
+
+\begin{mylist}
+\begin{verbatim}
+int[] one = { 0, 1 };               // 32ビットの 1
+int[] two = { 0, 2 };               // 32ビットの 2
+int[] dat = array(2);
+
+dat[0] = dataH;                     // 32ビットデータ
+dat[1] = dataL;
+
+_add32(dat, one);                   // データに +1 する
+_add32(dat, two);                   // データに +2 する
+
+_add32(_add32(dat, one), two);      // 前の2行と同じ演算を短く記述
+
+printf("%04x%04x\n",dat[0],dat[1]); // 計算結果表示
+\end{verbatim}
+\end{mylist}
+
+\subsection{\ul sub32 関数}
+
+32ビットの減算ルーチンです。
+dst、src 二つの配列を渡し dst から src を引いた結果を dst 配列に格納します。
+また、関数値として dst 配列への参照を返します。
+つぎに、\ul sub32 関数のプロトタイプ宣言を示します。
+
+\begin{quote}
+\begin{verbatim}
+public int[] _sub32(int[] dst, int[] src);
+\end{verbatim}
+\end{quote}
+
+\subsection{\ul mul32 関数}
+
+32ビットの乗算ルーチンです。
+16ビットデータと16ビットデータの積を32ビットデータとして返します。
+一方の16ビットデータを dst 配列の2番目の要素(\verb/dst[1]/)に格納して、
+もう一方の16ビットデータを src として渡します。
+dst 配列の1番目の要素(\verb/dst[0]/)は計算に使用しません。
+計算結果は dst 配列に32ビットデータとして格納します。
+また、関数値として dst 配列への参照を返します。
+つぎに、\ul mul32 関数のプロトタイプ宣言を示します。
+
+\begin{quote}
+\begin{verbatim}
+public int[] _mul32(int[] dst, int src);
+\end{verbatim}
+\end{quote}
+
+\subsection{\ul div32 関数}
+
+32ビットの割算ルーチンです。
+32ビットデータを16ビットデータで割って、
+商と余りをそれぞれ16ビットで求めます。
+32ビットデータを dst 配列で、
+16ビットデータを src として渡します。
+計算結果は、商が \verb/dst[0]/ に、余りが \verb/dst[1]/ に、
+それぞれ16ビットデータとして格納されます。
+また、関数値として dst 配列への参照を返します。
+つぎに、\ul div32 関数のプロトタイプ宣言を示します。
+
+\begin{quote}
+\begin{verbatim}
+public int[] _div32(int[] dst, int src);
+\end{verbatim}
+\end{quote}
+
+\subsection{Ld32 マクロ}
+
+32ビットデータを初期化するためのマクロです。
+\verb/util.h/ ファイル中で次のように宣言されています。
+
+\begin{quote}
+\begin{verbatim}
+#define Ld32(dst,h,l) ((dst)[0]=(h),(dst)[1]=(l))
+\end{verbatim}
+\end{quote}
+
+使用例を示します。
+
+\begin{mylist}
+\begin{verbatim}
+int[] dat = array(2);
+
+Ld32(dat, dataH, dataL);            // 32ビットデータ
+
+_add32(dat, one);                   // データに +1 する
+\end{verbatim}
+\end{mylist}
+
+\section{バイトアクセス関数}
+
+Boot プログラム中でマイクロドライブの構造を解析する際に
+必要になった関数です。
+PC 等が書き込んだマイクロドライブ上のデータを TaC が読み込むと、
+\cmml の配列に次表のような順序で格納されます。
+このデータをバイト単位でアクセスできると便利です。
+
+\begin{center}
+{\bf マイクロドライブのデータを int 配列に格納した状態} \\
+\begin{tabular}{| r | c | c |}
+\hline
+\multicolumn{1}{|c|}{添字} & \multicolumn{2}{|c|}{内 容}          \\
+\hline
+0 & 第2バイト & 第1バイト \\
+\hline
+1 & 第4バイト & 第3バイト \\
+\hline
+2 & 第6バイト & 第5バイト \\
+\hline
+      &       &       \\
+\multicolumn{3}{|c|}{...}           \\
+      &       &       \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{byte 関数}
+
+byte 関数は、
+int 型配列 b に上記表の順にバイトデータが格納されているとみなし、
+第 x バイトを取り出します。
+第1バイトを取り出したいときは、x を 0 にします。
+次に byte 関数のプロトタイプ宣言を示します。
+
+\begin{quote}
+\begin{verbatim}
+public int byte(int[] b, int x); 
+\end{verbatim}
+\end{quote}
+
+\subsection{Word マクロ}
+
+バイト配列からバイト単位で位置を指定して、
+16ビットデータを取り出すマクロです。
+\verb/util.h/ ファイル中で次のように宣言されています。
+
+\begin{quote}
+\begin{verbatim}
+#define Word(buf, idx) ((byte((buf),(idx)+1)<<8) | byte((buf),(idx)))
+\end{verbatim}
+\end{quote}

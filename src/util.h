@@ -22,6 +22,7 @@
 /*
  * util.h : よく使う関数や定数の定義
  *
+ * 2016.03.01         : null の値を 0 から NULL に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合(strEndsWith 関数を追加)
  * 2015.08.07         : WMSK, BMSK に unsigned を追加
  * 2012.12.30         : error2 を追加
@@ -37,7 +38,7 @@
 #define boolean  int
 #define true     1
 #define false    0
-#define null     0
+#define null     NULL
 
 // ターゲットの有効ビット
 #define WMSK (((unsigned)1<<(NWORD-1)|(((unsigned)1<<(NWORD-1))-1))) // ワード

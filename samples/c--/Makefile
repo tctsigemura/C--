@@ -1,12 +1,12 @@
 #
-INCDIR=../../cmmInclude/
+INCDIR=/usr/local/cmmInclude/
 
 #CPFLAGS+=
 CFLAGS+=-Wno-parentheses-equality
 
 CPP=cc -E -std=c99 -nostdinc -I${INCDIR} ${CPFLAGS} - < 
 
-TRANS=../../src/c-c--
+TRANS=c-c--
 
 .SUFFIXES: .o .cmm .c
 

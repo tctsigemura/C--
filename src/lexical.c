@@ -22,6 +22,7 @@
 /*
  * lexical.c : C--コンパイラの字句解析ルーチン
  *
+ * 2016.02.24         : getSharp が str にもファイル名を記録するように変更
  * 2016.02.05 v3.0.0  : トランスレータと統合(LxFILE, LxTYPEDEF 追加)
  * 2016.01.28         : getCh() の始めて呼ばれた時の処理を改良
  * 2012.09.12         : 非公開関数、変数に static 宣言を追加
@@ -205,10 +206,10 @@ static int getSharp() {
   int i;
   for (i=0; i<=StrMAX; i=i+1) {                    // ファイル名を読み込む
     if (ch=='"' || ch=='\n' || ch==EOF) break;     // 終わったら break
-    fname[i] = ch;                                 // ファイル名を記憶
+    fname[i] = str[i] = ch;                        // ファイル名を記憶
     getCh();
   }
-  fname[i]='\0';                                   // ファイル名を完成する
+  fname[i] = str[i] = '\0';                        // ファイル名を完成する
   if (ch!='"') error("#の\"が閉じてないか長すぎる");
   skipToEol();                                     // 行末まで読み飛ばす
   return LxFILE;                                   // ファイル名を読んだ
