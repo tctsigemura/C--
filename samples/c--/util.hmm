@@ -22,6 +22,7 @@
 /*
  * util.hmm : よく使う関数や定数の定義
  *
+ * 2016.02.24         : subStr を追加
  * 2016.01.28         : C 言語から C-- 言語にコンパイラの記述言語を変更
  * 2012.12.30         : error2 を追加
  * 2012.08.14         : WMSK, BMSK の定義を追加
@@ -32,21 +33,20 @@
  *
  */
 
-/* コンパイラ通すためにとりあえずdefine */
-#define NWORD 8
-#define NBYTE 16
-#define VER   "1.0.0"
-#define ARC   "TaC"
-#define DATE  "2016"
+// public の綴りが長いので
+#define P public
 
 // ターゲットの有効ビット
 #define WMSK ((1<<(NWORD-1)|((1<<(NWORD-1))-1)))   // ワード
 #define BMSK ((1<<(NBYTE-1)|((1<<(NBYTE-1))-1)))   // バイト
 
 // 良く使う関数
-public boolean strEndsWith(char[] s1, char[] s2);  // 文字列の最後が一致してるか比較
-public void error(char[] s);                       // エラーメッセージを表示後終了
-public void error2(char[] s1, char[] s2);          // エラーメッセージを表示後終了
-public void[] ealloc(int s);                        // エラーチェックつきの malloc
-public boolean isDelim(char ch);                        // 区切り記号かテスト
-public boolean isOdigit(char ch);                       // 8進数字かテスト
+P boolean strEndsWith(char[] s1, char[] s2);  // 文字列の最後が一致してるか比較
+P void error(char[] s);                       // エラーメッセージを表示後終了
+P void error2(char[] s1, char[] s2);          // エラーメッセージを表示後終了
+P void[] ealloc(int s);                       // エラーチェックつきの malloc
+P boolean isDelim(char ch);                   // 区切り記号かテスト
+P boolean isOdigit(char ch);                  // 8進数字かテスト
+P char[] subStr(char[] str, int pos);         // 文字列の一部を切り出す
+
+#undef P

@@ -22,7 +22,9 @@
 /*
  * sytree.hmm : 構文木関係の外部仕様を定義
  *
- * 2016.02.06         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.24         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.05 v3.0.0  : トランスレータと統合
+ *                      (SyPOST, SyBYTE 削除, SyIDXx, SyDOT, SyVAR, SyBLK 追加)
  * 2010.07.20         : Subversion による管理を開始
  * 2010.04.06         : 初期化データを表現するために SyARRY, SyLIST を追加
  * 2010.03.30 v0.9.11 : ローカル変数と仮引数を区別するために SyARG を追加
@@ -33,11 +35,13 @@
  *
  */
 
+#define P public
+
 // 構文木表の本体
 #define SyMAX 3000                          // 表の大きさ
-public int[] syType;
-public int[] syLVal;
-public int[] syRVal;
+P int[] syType = array(SyMAX);
+P int[] syLVal = array(SyMAX);
+P int[] syRVal = array(SyMAX);
 
 // 構文木のノード(LVal, Rval)に格納される特殊な値
 #define SyNULL        9999                  // 構文木のNULLポインタ
@@ -71,8 +75,9 @@ public int[] syRVal;
 #define SyMUL         0x307                 // ２項演算 *
 #define SyDIV         0x308                 // ２項演算 /
 #define SyMOD         0x309                 // ２項演算 %
-#define SyPOST        0x30a                 // 後置演算子(配列([ ])、構造体(.))
-#define SyBYTE        0x30b                 // 後置演算子(char 型の配列([ ]))
+#define SyIDXW        0x30a                 // 後置演算子(ワード配列([ ]))
+#define SyIDXB        0x30b                 // 後置演算子(バイト配列([ ]))
+#define SyDOT         0x30c                 // 後置演算子(構造体(.))
 
 #define SyISCMP(c)    (((c)&0xf00)==0x400)  // 比較演算かどうか判定
 #define SyGT          0x404                 // ２項演算 >  (Greater Than)
@@ -98,6 +103,8 @@ public int[] syRVal;
 #define SyCNT         0x705                 // continue 文
 #define SyRET         0x706                 // return 文
 #define SySEMI        0x707                 // セミコロン
+#define SyVAR         0x708                 // ローカル変数宣言
+#define SyBLK         0x709                 // ブロック
 
 // 初期化データの表現用
 #define SyARRY        0x800                 // 非初期化配列(array)
@@ -106,10 +113,10 @@ public int[] syRVal;
 /*
  * 公開関数
  */
-public int syNewNode(int type, int lVal, int rVal); // 新しいノードを作る
-public int syCatNode(int lVal, int rVal);           // 二つのノードを "," で接続する
-public void syClear(int idx);                       // 表の idx 以下を捨てる
-public int syGetRoot();                             // 構文木のルートを取り出す
+P int syNewNode(int type, int lVal, int rVal); // 新しいノードを作る
+P int syCatNode(int lVal, int rVal);           // 二つのノードを "," で接続する
+P void syClear(int idx);                       // 表の idx 以下を捨てる
+P int syGetRoot();                             // 構文木のルートを取り出す
 
 #define syGetType(idx) (syType[idx])         // 構文木表からデータを取り出す
 #define syGetLVal(idx) (syLVal[idx])
@@ -119,5 +126,5 @@ public int syGetRoot();                             // 構文木のルートを�
 #define sySetLVal(idx,v) (syLVal[idx]=(v))
 #define sySetRVal(idx,v) (syRVal[idx]=(v))
 
-public void syPrintTree();                          // デバッグ用
-
+P void syPrintTree();                          // デバッグ用
+#undef P

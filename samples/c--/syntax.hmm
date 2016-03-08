@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2010 by
+ * Copyright (C) 2002-2016 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,11 +20,9 @@
  */
 
 /*
- * optree.hmm : 構文木最適化ルーチンの外部仕様を定義
+ * syntax.h : C--コンパイラの構文解析ルーチン
  *
- * 2016.02.06         : C 言語から C-- 言語にコンパイラの記述言語を変更
- * 2010.09.12 v1.0.0  : 最適化と外部変数の定数式による初期化ができる H8 統合版
- * 2010.09.05         : 初期バージョン
+ * 2016.02.03         : 新規作成
  *
  * $Id$
  *
@@ -32,6 +30,7 @@
 
 #define P public
 
-/* 公開関数 */
-P void optTree(int node);                   // 構文木を最適化する
+P void snGetSrc();                           // C-- プログラムを読む
+P void snSetOptFlag(boolean f);              // 最適化フラグを操作する
+P void snSetKrnFlag(boolean f);              // カーネルフラグを操作する
 #undef P

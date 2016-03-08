@@ -42,56 +42,59 @@
  *
  */
 
-public void vmName(int idx);              // 名前を表現するラベルを印刷する
-public void vmTmpLab(int lab);            // コンパイラが生成した番号のラベルを印刷する
-public void vmEntry(int depth, int idx);  // 関数の入口
-public void vmEntryK(int depth, int idx); // カーネル用、関数の入口
-public void vmRet();                      // 関数の出口
-public void vmEntryI(int depth, int idx); // 割り込み関数の入口
-public void vmRetI();                     // 割り込み関数の出口
-public void vmMReg();                     // スタックトップを返り値レジスタに移動する
-public void vmArg();                      // スタックトップを引数領域に移動する
-public void vmCallP(int n, int idx);      // 値を返さない関数を呼び出す
-public void vmCallF(int n, int idx);      // 値を返す関数を呼び出す
-public void vmJmp(int lab);               // 無条件ジャンプ
-public void vmJT(int lab);                // 論理値を取り出し true ならジャンプ
-public void vmJF(int lab);                // 論理値を取り出し false ならジャンプ
-public void vmLdCns(int c);               // 定数をスタックにロードする
-public void vmLdGlb(int idx);             // 大域変数の値をスタックに積む
-public void vmLdLoc(int n);               // n番目のローカル変数の値をスタックに積む
-public void vmLdArg(int n);               // n番目の引数の値をスタックに積む
-public void vmLdStr(int lab);             // 文字列のアドレスをスタックに積む
-public void vmLdLab(int idx);             // ラベルの値(アドレス)をスタックに積む
-public void vmLdWrd();                    // ワード配列からスタックに積む
-public void vmLdByt();                    // バイト配列からスタックに積む
-public void vmStGlb(int idx);             // 大域変数にストアする
-public void vmStLoc(int n);               // n番目のローカル変数にストアする
-public void vmStArg(int n);               // n番目の引数にストアする
-public void vmStWrd();                    // ワード配列にストアする
-public void vmStByt();                    // バイト配列にストアする
-public void vmNeg();                      // ２の補数を計算し結果をスタックに積む
-public void vmNot();                      // 論理の否定を計算し結果をスタックに積む
-public void vmBNot();                     // １の補数を計算し結果をスタックに積む
-public void vmChar();                     // 文字型のビット数だけ残しスタックに積む
-public void vmBool();                     // 最下位１ビットだけ残しスタックに積む
-public void vmAdd();                      // 和を計算し結果をスタックに積む
-public void vmSub();                      // 差を計算し結果をスタックに積む
-public void vmShl();                      // 左シフトし結果をスタックに積む
-public void vmShr();                      // 右シフトし結果をスタックに積む
-public void vmBAnd();                     // ビット毎の論理積をスタックに積む
-public void vmBXor();                     // ビット毎の排他的論理和をスタックに積む
-public void vmBOr();                      // ビット毎の論理和をスタックに積む
-public void vmMul();                      // 積を計算し結果をスタックに積む
-public void vmDiv();                      // 商を計算し結果をスタックに積む
-public void vmMod();                      // 余を計算し結果をスタックに積む
-public void vmScl();                      // 配列や添字の添字を相対アドレスに変換
-public void vmGt();                       // 比較(>)結果(論理値)をスタックに積む
-public void vmGe();                       // 比較(>=)結果(論理値)をスタックに積む
-public void vmLt();                       // 比較(<)結果(論理値)をスタックに積む
-public void vmLe();                       // 比較(<=)結果(論理値)をスタックに積む
-public void vmEq();                       // 比較(==)結果(論理値)をスタックに積む
-public void vmNe();                       // 比較(!=)結果(論理値)をスタックに積む
-public void vmPop();                      // スタックから値を一つ取り出し捨てる
+#define P public
+
+
+P void vmName(int idx);              // 名前を表現するラベルを印刷する
+P void vmTmpLab(int lab);            // コンパイラが生成した番号のラベルを印刷
+P void vmEntry(int depth, int idx);  // 関数の入口
+P void vmEntryK(int depth, int idx); // カーネル用、関数の入口
+P void vmRet();                      // 関数の出口
+P void vmEntryI(int depth, int idx); // 割り込み関数の入口
+P void vmRetI();                     // 割り込み関数の出口
+P void vmMReg();                     // スタックトップを返り値レジスタに移動する
+P void vmArg();                      // スタックトップを引数領域に移動する
+P void vmCallP(int n, int idx);      // 値を返さない関数を呼び出す
+P void vmCallF(int n, int idx);      // 値を返す関数を呼び出す
+P void vmJmp(int lab);               // 無条件ジャンプ
+P void vmJT(int lab);                // 論理値を取り出し true ならジャンプ
+P void vmJF(int lab);                // 論理値を取り出し false ならジャンプ
+P void vmLdCns(int c);               // 定数をスタックにロードする
+P void vmLdGlb(int idx);             // 大域変数の値をスタックに積む
+P void vmLdLoc(int n);               // n番目のローカル変数の値をスタックに積む
+P void vmLdArg(int n);               // n番目の引数の値をスタックに積む
+P void vmLdStr(int lab);             // 文字列のアドレスをスタックに積む
+P void vmLdLab(int idx);             // ラベルの値(アドレス)をスタックに積む
+P void vmLdWrd();                    // ワード配列からスタックに積む
+P void vmLdByt();                    // バイト配列からスタックに積む
+P void vmStGlb(int idx);             // 大域変数にストアする
+P void vmStLoc(int n);               // n番目のローカル変数にストアする
+P void vmStArg(int n);               // n番目の引数にストアする
+P void vmStWrd();                    // ワード配列にストアする
+P void vmStByt();                    // バイト配列にストアする
+P void vmNeg();                      // ２の補数を計算し結果をスタックに積む
+P void vmNot();                      // 論理の否定を計算し結果をスタックに積む
+P void vmBNot();                     // １の補数を計算し結果をスタックに積む
+P void vmChar();                     // 文字型のビット数だけ残しスタックに積む
+P void vmBool();                     // 最下位１ビットだけ残しスタックに積む
+P void vmAdd();                      // 和を計算し結果をスタックに積む
+P void vmSub();                      // 差を計算し結果をスタックに積む
+P void vmShl();                      // 左シフトし結果をスタックに積む
+P void vmShr();                      // 右シフトし結果をスタックに積む
+P void vmBAnd();                     // ビット毎の論理積をスタックに積む
+P void vmBXor();                     // ビット毎の排他的論理和をスタックに積む
+P void vmBOr();                      // ビット毎の論理和をスタックに積む
+P void vmMul();                      // 積を計算し結果をスタックに積む
+P void vmDiv();                      // 商を計算し結果をスタックに積む
+P void vmMod();                      // 余を計算し結果をスタックに積む
+P void vmScl();                      // 配列や添字の添字を相対アドレスに変換
+P void vmGt();                       // 比較(>)結果(論理値)をスタックに積む
+P void vmGe();                       // 比較(>=)結果(論理値)をスタックに積む
+P void vmLt();                       // 比較(<)結果(論理値)をスタックに積む
+P void vmLe();                       // 比較(<=)結果(論理値)をスタックに積む
+P void vmEq();                       // 比較(==)結果(論理値)をスタックに積む
+P void vmNe();                       // 比較(!=)結果(論理値)をスタックに積む
+P void vmPop();                      // スタックから値を一つ取り出し捨てる
 
 /*
  * || 論理式の最後で論理値を求めるマクロ命令
@@ -107,7 +110,7 @@ public void vmPop();                      // スタックから値を一つ取�
  *          LDC   0        |
  *    L3                   |
  */
-public void vmBoolOR(int L1, int L2, int L3);
+P void vmBoolOR(int L1, int L2, int L3);
 
 /*
  * && 論理式の最後で論理値を求めるマクロ命令
@@ -123,15 +126,16 @@ public void vmBoolOR(int L1, int L2, int L3);
  *          LDC   1        |
  *    L3                   |
  */
-public void vmBoolAND(int L1, int L2, int L3);
+P void vmBoolAND(int L1, int L2, int L3);
 
 /*
  *  データ生成用の疑似命令
  */
-public void vmDwName(int idx);            // 名前へのポインタを生成する
-public void vmDwLab(int lab);             // Ln ラベルへのポインタを生成する
-public void vmDwCns(int n);               // 1 ワードの整数データを生成する
-public void vmDbCns(int n);               // 1 バイトの整数データを生成する
-public void vmWs(int n);                  // n ワードの領域を生成する
-public void vmBs(int n);                  // n バイトの領域を生成する
-public void vmStr(char[] s);              // 文字列を生成する
+P void vmDwName(int idx);            // 名前へのポインタを生成する
+P void vmDwLab(int lab);             // Ln ラベルへのポインタを生成する
+P void vmDwCns(int n);               // 1 ワードの整数データを生成する
+P void vmDbCns(int n);               // 1 バイトの整数データを生成する
+P void vmWs(int n);                  // n ワードの領域を生成する
+P void vmBs(int n);                  // n バイトの領域を生成する
+P void vmStr(char[] s);              // 文字列を生成する
+#undef P

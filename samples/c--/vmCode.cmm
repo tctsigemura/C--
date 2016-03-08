@@ -64,6 +64,10 @@
 #include "sytree.hmm"
 #include "vm.hmm"
 
+
+
+
+
 // 大域データ
 int curLab = 0;                            // ラベル用のカウンタ
 int retLab;                                // return 時のジャンプ先
@@ -224,10 +228,9 @@ void gen1OpExpr(int node, Expr c) {
 boolean isCommutativeOp(int typ) {
   return                                          // 左辺と右辺を
     typ==SyADD  || typ==SyBAND || typ==SyBXOR ||  //   入れ換え可能な演算なら
-    typ==SyBOR  || typ==SyMUL  || typ==SyPOST ||  //     true を返す
-    typ==SyBYTE || typ==SyGT   || typ==SyGE   ||
-    typ==SyLT   || typ==SyLE   || typ==SyEQU  ||
-    typ==SyNEQ;
+    typ==SyBOR  || typ==SyMUL  || typ==SyGT   ||  //     true を返す
+    typ==SyGE   || typ==SyLT   || typ==SyLE   ||
+    typ==SyEQU  || typ==SyNEQ;
 }
 
 // node の演算に必要なスタックの深さ
@@ -293,18 +296,30 @@ void gen2OpExpr(int node, Expr c) {
   else error("バグ...gen2OpExpr");
 }
 
-// 後置演算
-void genPostExpr(int node, Expr c) {
-  int typ  = syGetType(node);                     // 演算の種類
+// 後置演算(配列アクセス)
+void genIdxExpr(int node, Expr c, int place) {
   int lval = syGetLVal(node);                     // 左辺
   int rval = syGetRVal(node);                     // 右辺
 
   genExpr(lval, c);                               // 左辺を評価し値をロード
   genExpr(rval, c);                               // 右辺を評価し値をロード
 
-  if      (typ==SyPOST) c.place = STKW;           // ワード配列の引数とアドレス
-  else if (typ==SyBYTE) c.place = STKB;           // バイト配列の引数とアドレス
-  else error("バグ...genPostExpr");
+  c.place = place;                                // ワード配列/バイト配列
+}
+
+// 後置演算(構造体アクセス)
+void genDotExpr(int node, Expr c) {
+  int lval = syGetLVal(node);                     // 構造体アドレス
+  int rval = syGetRVal(node);                     //   定数ノードに名前表の
+  int idx  = syGetLVal(rval);                     //     インデクスが入っている
+
+  genExpr(lval, c);                               // 左辺を評価し値をロード
+
+  // ２項演算に分類しているので式の体裁を整える
+  c.place = CNST;                                 // 定数値として
+  c.value = ntGetCnt(idx);                        //   フィールドオフセットを
+  load(c);                                        //     ロードする
+  c.place = STKW;                                 // ワード配列と同様な扱い
 }
 
 // 比較演算
@@ -448,8 +463,9 @@ void genBoolExpr(int node, Expr c) {
   else if (op==SyCOMM)   genCommExpr(node, c);    //   カンマ演算
   else if (SyISFACT(op)) genFactor(node, c);      //   因子
   else if (SyIS1OPR(op)) gen1OpExpr(node, c);     //   単項演算
-  else if (op==SyPOST)   genPostExpr(node, c);    //   後置演算
-  else if (op==SyBYTE)   genPostExpr(node, c);    //   バイト配列
+  else if (op==SyIDXW)   genIdxExpr(node,c,STKW); //   ワード配列アクセス
+  else if (op==SyIDXB)   genIdxExpr(node,c,STKB); //   バイト配列アクセス
+  else if (op==SyDOT)    genDotExpr(node, c);     //   構造体アクセス'.'
   else if (SyIS2OPR(op)) gen2OpExpr(node, c);     //   普通の二項演算
   else if (SyISCMP(op))  genCmpExpr(node, c);     //   比較演算
   else if (SyISLOPR(op)) genLOpExpr(node, c);     //   論理演算
@@ -614,14 +630,16 @@ void traceTree(int node) {
     else if (ty==SyBRK) genBrk(node);               // break 文
     else if (ty==SyCNT) genCnt(node);               // continue 文
     else if (ty==SyRET) genRet(node);               // retrun 文
-    else if (ty==SySEMI) {                          // セミコロン
+    else if (ty==SyBLK || ty==SySEMI) {             // ブロック
       traceTree(syGetLVal(node));                   //   先に左側をコード生成
       traceTree(syGetRVal(node));                   //   次に右側をコード生成
+    } else if (ty==SyVAR) {                         // ローカル変数宣言
+      ;                                             //   特にやることがない
     } else {                                        // 式文
-      Expr c = newExpr();                           //   式の状態を管理するデータ
-      genBoolExpr(node, c);                         //   式を処理する
-      pop(c);                                       //   スタックにあれば捨てる
-      free(c);                                      //   管理データを解放
+      Expr c = newExpr();                           //  式の状態を管理するデータ
+      genBoolExpr(node, c);                         //  式を処理する
+      pop(c);                                       //  スタックにあれば捨てる
+      free(c);                                      //  管理データを解放
     }
   }
 }    
@@ -780,3 +798,8 @@ public int genStr(char[] str) {
   vmStr(str);                                    //   .Ln STRING "xxxx" を出力
   return lab;                                    //   ラベル番号を返す
 }
+// トランスレータ版と統合のために形だけ準備（何もすることはない）
+public void genProto(int idx) {}                    // プロトタイプ宣言があった
+public void genStruc(int idx) {}                    // 構造体宣言があった
+public void genOn() {}                              // コード生成を許可する
+public void genOff(char[] hdr) {}                   // コード生成を禁止する
