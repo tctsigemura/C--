@@ -100,10 +100,10 @@ boolean krnFlag = false;     // カーネルコンパイルモード
 void getFile() {
   char[] fname = lxGetStr();                 // 現在のファイル
 
-  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
+  if (strStr(fname, CMMINC)>0 &&             // システムディレクトリの
       strEndsWith(fname, ".hmm"))  {         // ヘッダファイルなら
-    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
-    genOff(subStr(strrchr(fname,'/'),1));    // システムヘッダ内容は出力しない
+    fname[strLen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
+    genOff(subStr(fname,strRchr(fname,'/')+1));// システムヘッダ内容は出力しない
   } else {                                   // (代替のディレクティブを出力)
     genOn();                                 // システムヘッダ以外は出力する
   }

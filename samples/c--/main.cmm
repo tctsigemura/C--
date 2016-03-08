@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2016 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -60,27 +60,27 @@ public int main(int argc, char[][] argv) {
   int i = 1;
 
   if (argc>i &&
-      (strcmp(argv[i],"-v")==0 ||            //  "-v", "-h" で、使い方と
-       strcmp(argv[i],"-h")==0   ) ) {       //   バージョンを表示
+      (strCmp(argv[i],"-v")==0 ||            //  "-v", "-h" で、使い方と
+       strCmp(argv[i],"-h")==0   ) ) {       //   バージョンを表示
     usage(argv[0]);
     exit(0);
   }
 
   if (argc>i &&
-      (strcmp(argv[i],"-O")==0 ||
-       strcmp(argv[i],"-O1")==0)  ) {        //  "-O","-O1" で、最適化
+      (strCmp(argv[i],"-O")==0 ||
+       strCmp(argv[i],"-O1")==0)  ) {        //  "-O","-O1" で、最適化
     snSetOptFlag(true);
     i = i + 1;
   }
 
   if (argc>i &&
-      (strcmp(argv[i],"-O0")==0)) {          //  "-O0" で、最適化しない
+      (strCmp(argv[i],"-O0")==0)) {          //  "-O0" で、最適化しない
     snSetOptFlag(false);
     i = i + 1;
   }
 
   if (argc>i &&
-      (strcmp(argv[i],"-K")==0)) {           //  "-K" で、カーネルコンパイル
+      (strCmp(argv[i],"-K")==0)) {           //  "-K" で、カーネルコンパイル
     snSetKrnFlag(true);
     i = i + 1;
   }

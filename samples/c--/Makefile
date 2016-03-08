@@ -3,18 +3,18 @@ INCDIR=/usr/local/cmmInclude/
 VER=\"3.0.0\"
 DATE="\"`date`\""
 
-CPFLAGS+=-DNWORD=8 -DNBYTE=16 -DDATE=${DATE} -DVER=${VER} -DARC=\"C\"
+CPFLAGS+=-DNWORD=8 -DNBYTE=32 -DDATE=${DATE} -DVER=${VER} -DARC=\"C\"
 CFLAGS+=-Wno-parentheses-equality
 
 CPP=cc -E -std=c99 -nostdinc -I${INCDIR} ${CPFLAGS} - < 
 
-TRANS=../C--2C/trans
+TRANS=c-c--
 
 .SUFFIXES: .o .cmm
 
 # .cmm -> .c
 .cmm.c:
-	${CPP} $*.cmm | ${TRANS} -I${INCDIR} ${CMFLAGS} > $*.c
+	${CPP} $*.cmm | ${TRANS} ${CMFLAGS} > $*.c
 
 OBJS=syntax.o lexical.o namtbl.o optree.o sytree.o util.o vm2tac.o vmCode.o
 
