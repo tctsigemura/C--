@@ -22,7 +22,8 @@
 /*
  * lexical.hmm : 字句解析部の外部仕様を定義
  *
- * 2016.01.28         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.24         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.05 v3.0.0  : トランスレータ用と統合(LxTYPEDEF, LxFILE 追加)
  * 2011.01.12         : addr, refer 演算子を削除
  * 2010.12.15         : v2.0 に向けて ord, chr, bool, addr, refer 演算子等を追加
  * 2010.07.20         : Subversion による管理を開始
@@ -62,7 +63,8 @@
 #define LxORD       22         // ord
 #define LxCHR       23         // chr
 #define LxBOL       24         // bool
-#define LxRsvNUM    24         // 予約語の個数
+#define LxTYPEDEF   25         // typedef
+#define LxRsvNUM    25         // 予約語の個数
 
 #define LxOR        101        // '||'
 #define LxAND       102        // '&&'
@@ -82,14 +84,18 @@
 #define LxNAME      202        // 変数名、関数名
 #define LxSTRING    203        // "..."
 #define LxCHARACTER 204        // 文字
+#define LxFILE      205        // ファイル名を指示するディレクティブ
 
 #define LxEOF       255        // EOF
 #define LxNONTOK    256        // トークン値として表れない値
 
-public int     lxGetTok();            // 字句解析ルーチン
-public void    lxSetFname(char[] s);  // ファイル名を記憶させる
-public char[]  lxGetFname();          // 入力ファイル名を読み出す
-public int     lxGetLn();             // 行番号を返す
-public int     lxGetVal();            // 数値等を読んだときの値を返す
-public char[]  lxGetStr();            // 名前、文字列の綴を返す
-public void    lxSetFp(FILE p);       // fp をセットする
+#define P public
+
+P int     lxGetTok();            // 字句解析ルーチン
+P void    lxSetFname(char[] s);  // ファイル名を記憶させる
+P char[]  lxGetFname();          // 入力ファイル名を読み出す
+P int     lxGetLn();             // 行番号を返す
+P int     lxGetVal();            // 数値等を読んだときの値を返す
+P char[]  lxGetStr();            // 名前、文字列の綴を返す
+P void    lxSetFp(FILE p);       // fp をセットする
+#undef P

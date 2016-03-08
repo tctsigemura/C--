@@ -40,18 +40,20 @@
 #include "util.hmm"
 #include "namtbl.hmm"
 
-public char[][]  ntName  = array(NtMAX,NtMAX); // 名前のつづり
-public int[]     ntScope = array(NtMAX);       // スコープ(ScXXXX を格納する)
-public int[]     ntType  = array(NtMAX);       // 型(TyVOID、TyINT、TyCHAR、...、構造体型)
-public int[]     ntDim   = array(NtMAX);       // 配列変数の場合、配列の次元
-public int[]     ntCnt   = array(NtMAX);       // 局所変数、仮引数の場合は番号
-                                               //   関数、構造体の場合は、引数やフィールドの数
-public boolean[] ntPub = array(NtMAX);         // 名前が外部公開される
+// ヘッダファイルで初期化すると２重定義になるのでここで初期化する
+public char[][] ntName=array(NtMAX);  // 名前のつづり
+public int[]    ntScope=array(NtMAX); // スコープ(ScXXXX を格納する)
+public int[]    ntType=array(NtMAX);  // 型(TyVOID、TyINT、...、構造体型)
+public int[]    ntDim=array(NtMAX);   // 配列変数の場合、配列の次元
+public int[]    ntCnt=array(NtMAX);   // 局所変数、仮引数の場合は番号
+                                      //  関数、構造体の場合は、引数の数など
+public boolean[] ntPub=array(NtMAX);  // 名前が外部公開される
+
 // 定義済みの関数名、変数名、仮引数名を探す(getFactorから呼ばれる)
 public int ntSrcName(char[] str) {
   for (int i=ntNextIdx-1; i>=0; i=i-1)           // 表の最後(深いスコープ)から
     if (ntScope[i]>=ScPROT &&                    // 順に、関数名、大域変数、
-	strcmp(ntName[i], str)==0) return i;           // 局所変数、現在の関数の仮引
+	strcmp(ntName[i], str)==0) return i;     // 局所変数、現在の関数の仮引
   error2("未定義の名前", str);                   // 数から同じ名前のものを探す
   return -1;                                     // ここが実行されることはない
 }
@@ -89,7 +91,7 @@ int ntChkName(char[] str, int scope) {
       if (scope==ScSTRC||ntScope[i]==ScSTRC)     // 構造体名は他の全てと衝突
 	return i;
       if (scope>=ScLVAR)                         // 局所変数、仮引数、構造体
-	if (ntScope[i]==scope) return i;               // フィールド名はスコープが
+	if (ntScope[i]==scope) return i;         // フィールド名はスコープが
     }                                            // 同じものとだけ衝突
   }
   return -1;
@@ -100,7 +102,8 @@ int ntChkName(char[] str, int scope) {
 //curName         = name[nextIdx];               // 最後に登録した名前
 
 // 名前を登録する(getName, getParams から呼ばれる)
-public void ntDefName(char[] name, int scope, int type, int dim, int cnt, boolean pub){
+public void ntDefName(char[] name, int scope,
+                      int type, int dim, int cnt, boolean pub){
   if (ntNextIdx>=NtMAX) error("名前が多すぎる"); // 名前表がパンクした
   if (ntChkName(name, scope)>=0) error2("名前の２重定義", name);
   ntName[ntNextIdx]= ealloc(strlen(name)+1);     // 名前のために領域を割り当て
@@ -113,7 +116,7 @@ public void ntDefName(char[] name, int scope, int type, int dim, int cnt, boolea
   ntNextIdx = ntNextIdx + 1;
 }
 
-/* 名前表をもとに戻す */
+// 名前表をもとに戻す
 public void ntUndefName(int idx) {               // idx まで戻す
   for (int i=idx; i<ntNextIdx; i=i+1)            // 名前のつづり用の領域を順に
     free(ntName[i]);                             // 解放していく

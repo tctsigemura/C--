@@ -806,7 +806,7 @@ public void vmNe() {
 // スタックから値を一つ取り出し捨てる
 public void vmPop() {
   if (isAcc(stkPtr)) relAcc(topAux);            // スタックトップが Acc なら解放
-  //  else BUG(topSta!=RVAR, "vmPop");              // スタックトップがレジスタ以外
+  //  else BUG(topSta!=RVAR, "vmPop");          // スタックトップがレジスタ以外
   popStk(1);
 }
 

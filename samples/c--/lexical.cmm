@@ -22,7 +22,8 @@
 /*
  * lexical.cmm : C--コンパイラの字句解析ルーチン
  *
- * 2016.01.28         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.24         : C 言語から C-- 言語にコンパイラの記述言語を変更
+ * 2016.02.05 v3.0.0  : トランスレータと統合(LxFILE, LxTYPEDEF 追加)
  * 2012.09.12         : 非公開関数、変数に static 宣言を追加
  * 2011.01.12         : addr 演算子を削除, refer 演算子を ptr 演算子に変更
  * 2010.12.15         : v2.0 に向けて ord, chr, bool, addr, refer 演算子等を追加
@@ -68,7 +69,8 @@ RsvWord[] rsvWord = {
   { "true",      LxTRUE     }, { "false",     LxFALSE    },
   { "sizeof",    LxSIZEOF   }, { "addrof",    LxADDROF   },
   { "public",    LxPUBLIC   }, { "ord",       LxORD      },
-  { "chr",       LxCHR      }, { "bool",      LxBOL      }
+  { "chr",       LxCHR      }, { "bool",      LxBOL      },
+  { "typedef",   LxTYPEDEF  }
 };
 
 char nextch = '\n';                                // 次の文字
@@ -96,39 +98,6 @@ char getCh() {
   return ch;
 }
 
-// #ディレクティブの処理
-void skipSharp() {
-  getCh();                                         // '\n'を読み飛ばす
-  getCh();                                         // '#' を読み飛ばす
-  while(ch==' ' || ch=='\t') {                     // 空白(改行は含まない)の
-    getCh();                                       // 読み飛ばし
-  }
-  int x=0;
-  while (isdigit(ch)) {                            // 行番号の読み込み
-    x = x * 10 + ord(ch) - ord('0');
-    getCh();
-  }
-  while(ch==' ' || ch=='\t') {                     // 空白(改行は含まない)の
-    getCh();                                       // 読み飛ばし
-  }
-  if (ch!='"') {                                   // ファイル名は " で始まる
-    error("#にファイル名がない");
-  }
-  getCh();                                         // '"'を読み飛ばす
-  int i;
-  for (i=0; i<StrMAX; i=i+1) {                     // ファイル名を読み込む
-    if (ch=='"' || ch=='\n' || ch==EOF) break;     // 終わったら break
-    fname[i] = ch;                                 // ファイル名を記憶
-    getCh();
-  }
-  fname[i]='\0';                                   // ファイル名を完成する
-  if (ch!='"') error("#の\"が閉じてないか長すぎる");
-  while (ch!='\n' && ch!=EOF) {                    // 行末までスキップする
-    getCh();
-  }
-  ln2 = x;                                         // 現在行を指定行に変更
-}
-
 // Cタイプのコメントをスキップ
 void skipCom() {
   getCh();                                         // '/'を読み飛ばす
@@ -142,26 +111,32 @@ void skipCom() {
   getCh();                                         // '/'を読み飛ばす
 }
 
-// C++タイプのコメントをスキップ
+/* 改行以外の空白を読み飛ばす */
+void skipSpc() {
+    while(ch != '\n' && isspace(ch))               // 改行以外の空白文字の間
+      getCh();                                     // 1文字読み飛ばす
+}
+
+/* 行末まで読み飛ばす */
+void skipToEol() {
+    while(ch != '\n' && ch != EOF)                 // 改行かEOFがくるまで
+      getCh();                                     // 1文字読み飛ばす
+}
+
+/* C++タイプのコメントをスキップ */
 void skipCppCom() {
-  getCh();                                         // '/'を読み飛ばす
-  getCh();                                         // '/'を読み飛ばす
-  while(ch != '\n' && ch != EOF)                   // 改行かEOFがくるまで
-    getCh();                                       // 1文字読み飛ばす
+  skipToEol();                                     // 行末まで読み飛ばす
 }
 
 // 空白文字, コメント, # ディレクティブを読み飛ばす
 void skipSpace(){
   while(true) {
-    while(ch != '\n' && isspace(ch))               // 改行以外の空白文字の間
-      getCh();                                     // 1文字読み飛ばす
-    if(ch == '\n' && nextch == '#')                // # ディレクティブは
-      skipSharp();                                 // 行頭でなければならない
-    else if(ch == '/' && nextch == '*')            // "/*" ならコメント開始
+    skipSpc();                                     // 改行以外の空白をスキップ
+    if(ch == '/' && nextch == '*')                 // "/*" ならコメント開始
       skipCom();                                   // コメントを読み飛ばし
     else if(ch == '/' && nextch == '/')            // "//" ならコメント開始
       skipCppCom();                                // コメントを読み飛ばし
-    else if(ch == '\n')                            // 単なる改行だったなら
+    else if(ch == '\n' && nextch != '#')           // 単なる改行だったなら
       getCh();                                     // 読み飛ばす
     else break;                                    // '#', "/*", "//", '\n'の
   }                                                // どれでもなければ
@@ -203,7 +178,7 @@ int getDec() {
     val = val*10 + ord(ch) - ord('0');             // 値を計算
     getCh();                                       // 次の文字を読む
   }
-  return val;						// 10進数の値を返す
+  return val;						                           // 10進数の値を返す
 }
 
 // 数値を読み込む
@@ -219,6 +194,28 @@ int getDigit() {
     val = getDec();                                // 10進数を読み込む
   }
   return LxINTEGER;                                // tok=LxINTEGER, val=値
+}
+
+// #ディレクティブの処理
+int getSharp() {
+  getCh();                                         // '\n'を読み飛ばす
+  getCh();                                         // '#' を読み飛ばす
+  skipSpc();                                       // 改行以外の空白をスキップ
+  if (!isdigit(ch)) error("#に行番号がない");      // 行番号があるはず
+  ln2 = getDec();                                  // 行番号の読み込み
+  skipSpc();                                       // 改行以外の空白をスキップ
+  if (ch!='"') error("#にファイル名がない");       // ファイル名は " で始まる
+  getCh();                                         // '"'を読み飛ばす
+  int i;
+  for (i=0; i<=StrMAX; i=i+1) {                    // ファイル名を読み込む
+    if (ch=='"' || ch=='\n' || ch==EOF) break;     // 終わったら break
+    fname[i] = ch;                                 // ファイル名を記憶
+    getCh();
+  }
+  fname[i]='\0';                                   // ファイル名を完成する
+  if (ch!='"') error("#の\"が閉じてないか長すぎる");
+  skipToEol();                                     // 行末まで読み飛ばす
+  return LxFILE;                                   // ファイル名を読んだ
 }
 
 // 名前か予約語を読み込む
@@ -266,8 +263,8 @@ int getEsc() {
 
 // 文字列 "..." の読み込み
 int getStr(){
-  int i;
-  for (i=0;getCh()!='\"'&&ch!=EOF&&i<StrMAX;i=i+1){ // (")以外の間
+  int i = 0;
+  while (getCh()!='"' && ch!=EOF && i<=StrMAX){    // (")以外の間
     if (iscntrl(ch)) {                             // ch が制御文字なら
       break;                                       // 異常終了
     } else if (ch=='\\' && nextch=='"') {          // (\")はそのまま読み込み
@@ -278,6 +275,7 @@ int getStr(){
     } else {
       str[i] = ch;                                 // str に格納する
     }
+    i = i + 1;
   }
   if (ch!='\"') {                                  // 前のforが(")以外で終了
     error("文字列が正しく終わっていないか、長すぎる");
@@ -359,17 +357,19 @@ public int lxGetTok(){                             // トークンを取り出�
   ln = ln2;                                        // 現在の行番号を管理
   if(ch == EOF){                                   // ch が EOF なら
     tok = LxEOF;                                   // tok=EOF
-  }else if(isdigit(ch)){                           // ch が '0'〜'9'なら
+  } else if(ch == '\n' && nextch == '#') {         // # ディレクティブは
+    tok = getSharp();                              // 行頭でなければならない
+  } else if(isdigit(ch)){                          // ch が '0'〜'9'なら
     tok = getDigit();                              // 10進数の読み込み
-  }else if(isalpha(ch) || ch == '_'){              // chがアルファベットなら
+  } else if(isalpha(ch) || ch == '_'){             // chがアルファベットなら
     tok = getWord();                               // 予約語か名前を読み込む
     if (tok==LxTRUE) { tok=LxLOGICAL; val=1; }     // 予約語 trueとfalse は
     else if (tok==LxFALSE) {tok=LxLOGICAL; val=0;} // tok=LOGICAL, val=0/1
-  }else if(ch == '\"'){                            // ch が (") なら
+  } else if(ch == '\"'){                           // ch が (") なら
     tok = getStr();                                // 文字列を読み込む
-  }else if(ch == '\''){                            // ch が (') なら
+  } else if(ch == '\''){                           // ch が (') なら
     tok = getChar();                               // 文字定数を読み込む
-  }else{                                           // ch がそれ以外なら
+  } else{                                          // ch がそれ以外なら
     tok = getSign();                               // 記号を読み込む
   }
   return tok;                                      // トークン値を返す
@@ -393,27 +393,3 @@ public int lxGetVal() { return val; }          // 数値等を読んだときの
 public char[] lxGetStr() { return str; }       // 名前、文字列の綴を返す
 
 public void lxSetFp(FILE p) { fp = p; }        // fp をセットする
-
-//
-// デバッグ用テストドライバ
-//
-/*
-public int main() {
-  FILE f = fopen("a.cmm", "r");
-  if (f==null) {
-    perror("a.cmm");
-    exit(1);
-  }
-  lxSetFp(f);
-  int t = lxGetTok();
-  while(t != LxEOF){
-    if (isprint(chr(t))) 
-      printf("tok=%d(%c)\n",t,t);                      // トークン値表示
-    else
-      printf("tok=%d\n",t);                      // トークン値表示
-    t = lxGetTok();
-  }
-  fclose(f);
-  return 0;
-}
-*/
