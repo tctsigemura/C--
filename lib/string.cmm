@@ -22,6 +22,7 @@
 /*
  * lib/string.cmm : 文字列操作
  *
+ * 2016.03.08 : strStr のバグ訂正
  * 2016.02.26 : 新規作成
  *
  * $Id$
@@ -112,10 +113,10 @@ public int strRchr(char[] s, char c) {
 
 // 文字列を探す
 public int strStr(char[] s1, char[] s2) {
-  int d = strLen(s1) - strLen(s2);
-  int i;
-  for (i=0; i<d; i=i+1)
-    if (strCmp(subStr(s1,i),s2)==0) return i;
+  int l = strLen(s2);
+  int d = strLen(s1) - l;
+  for (int i=0; i<d; i=i+1)
+    if (strNcmp(subStr(s1,i),s2,l)==0) return i;
   return -1;
 }
 
