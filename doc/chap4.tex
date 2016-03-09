@@ -4,380 +4,579 @@
 \chapter{ライブラリ関数}
 
 \cmml で使用できる関数です。
-2016年2月現在、\tacos の高水準ファイルI/Oが完成していません。
-その代わり\tacos では、システムコールを使用した入出力ができます。
+必要最低限の関数が、\tac 版、\cl トランスレータ版で使用できます。
 
-\section{標準入出力}
+\section{標準入出力ライブラリ}
 
-\tac の OS カーネルやブートプログラムを作るために必要な特殊なルーチンです。
+\verb/#include <stdio.hmm>/を書いた後で使用します。
+トランスレータ版では\cl の高水準I/O関数の呼出しに変換されます。
+\tac 版でも入出力の自動的なバッファリングを行います。
+\tac 版ではバッファサイズは 128 バイトです。
+以下の関数が使用できます。
 
-\subsection{ipl 関数と \ul exit 関数}
-\tac のIPL ROMルーチンに戻り \tac を再起動します。
-この関数は呼び出し側に戻ってきません。
-ipl 関数と \underline{~~}exit 関数に違いはありません。
-``{\tt Kernel/*/*/kernel.cmm}''の \verb/main/ 関数を終了した場合は
-自動的に ipl 関数が呼び出されます。
+\subsection{printf 関数}
+標準出力ストリームに\verb/format/文字列を用いた変換付きで出力します。
+出力した文字数を関数の値として返します。
+トランスレータ版では\cl の\verb/printf/関数の呼出しに変換されます。
+\tac 版では簡易\verb/printf/関数を使用できます。
+
+\tac 版の簡易\verb/printf/関数では、
+\verb/format/文字列に以下のような変換を記述できます。
 
 \begin{quote}
 \begin{verbatim}
-public void ipl();
-public void _exit();
+%[-][数値]変換文字
 \end{verbatim}
 \end{quote}
 
-なお、ipl 関数は、\pageref{app:ipl}ページで解説する
-同名の IPL ルーチンを呼び出しています。
-
-\subsection{\ul jump 関数}
-
-引数の整数で指定したアドレスにジャンプします。
-ジャンプする前にスタックポインタは
-\tac 主記憶のユーザ領域の最終アドレスに初期化されます
-(\pageref{app:memmap}ページ、「メモリマップ」参照)。
-この関数は呼び出し側に戻ってきません。
+\verb/-/を書くと左詰めで表示します。
+数値は表示に使用するカラム数を表します。
+数値を\verb/0/で開始した場合は、
+数値の右づめ表示で空白の代わりに\verb/0/が用いられます。
+使用できる変換文字は次の表の通りです。
 
 \begin{quote}
-\begin{verbatim}
-public void _jump(int addr);
-\end{verbatim}
-\end{quote}
-
-\subsection{ei 関数}
-
-割込みを許可する関数です。
-TaC の \verb/EI/ 機械語命令を実行し
-CPU が割込みを受け付けるようにします。
-
-\begin{quote}
-\begin{verbatim}
-public void ei();
-\end{verbatim}
-\end{quote}
-
-\subsection{di 関数}
-
-割込みを禁止する関数です。
-TaC の \verb/DI/ 機械語命令を実行し
-CPU が割込みを受け付けないようにします。
-
-\begin{quote}
-\begin{verbatim}
-public void di();
-\end{verbatim}
-\end{quote}
-
-\section{入出力関数}
-
-\tac の I/O ポート、VGA 画面を制御するための関数です。
-
-\subsection{in 関数}
-
-引数の整数で指定したI/Oアドレス(\verb/p/)からデータを読み込みます。
-in 関数のプロトタイプ宣言を次に示します。
-入力した値が関数の値になります。
-
-\begin{quote}
-\begin{verbatim}
-public int in(int p);
-\end{verbatim}
-\end{quote}
-
-in 関数を使用して、
-シリアルポートから1バイト入力するプログラムの例を次に示します。
-\pageref{app:sio}ページで説明するように、
-I/O アドレス 0000H 番地と 0001H 番地で SIO を制御します。
-
-\begin{mylist}
-\begin{verbatim}
-int getsio() {
-  while ((in(0x0001)&0x0040)==0)
-    ;
-  return in(0x0000);
-}
-\end{verbatim}
-\end{mylist}
-
-\subsection{out 関数}
-
-引数の整数でI/Oアドレス(\verb/p/)と値(\verb/v/)を指定しデータを出力します。
-out 関数のプロトタイプ宣言を次に示します。
-
-\begin{quote}
-\begin{verbatim}
-public void out(int p, int v);
-\end{verbatim}
-\end{quote}
-
-out 関数を使用して、
-シリアルポートへ1バイト出力するプログラムの例を次に示します。
-
-\begin{mylist}
-\begin{verbatim}
-void putsio(char c) {
-  while ((in(0x0001)&0x0080)==0)
-    ;
-  out(0x0000, c);
-}
-\end{verbatim}
-\end{mylist}
-
-\subsection{cls 関数}
-clear screen ルーチンです。
-\tac のビデオメモリをクリアして画面を真っ黒にします。
-また、カーソル位置を画面の左上に移動します。
-cls 関数のプロトタイプ宣言を次に示します。
-
-\begin{quote}
-\begin{verbatim}
-public void cls();
-\end{verbatim}
-\end{quote}
-
-なお cls 関数は、\pageref{app:ipl}ページで
-解説する同名の IPL ルーチンを呼び出しています。
-
-\subsection{putch 関数}
-
-put character ルーチンです。
-引数の１文字を \tac の画面に表示します。
-この関数はカーソル位置を管理し、行の折り返し、画面のスクロールを行います。
-putstr 関数等の他の画面表示関数は内部で putch 関数を呼び出して使用しています。
-putch 関数のプロトタイプ宣言を次に示します。
-
-\begin{quote}
-\begin{verbatim}
-public void putch(char c);
-\end{verbatim}
-\end{quote}
-
-
-次の表に示す制御文字を識別して画面の制御を行います。
-表にない制御文字は無視されます。
-
-\begin{quote}
-\begin{tabular}{l|l|l}
-\hline
-\multicolumn{1}{c|}{制御文字} & \multicolumn{1}{c|}{機能} &
-\multicolumn{1}{c}{説 明} \\
-\hline
-\verb/'\r'/  & 復帰 & カーソルを左端に移動             \\
-\verb/'\n'/  & 改行 & カーソルを次の行に移動           \\
-              &      & (復帰の機能も含む)               \\
-\verb/'\t'/  & タブ & カーソルを次のタブストップへ移動 \\
-              &      & (タブストップは8文字毎)          \\
-\verb/'\x08'/ & 後退 & カーソルを左に1文字移動          \\
+\begin{tabular}{c|l}
+\multicolumn{1}{c|}{変換文字} & \multicolumn{1}{c}{意味} \\\hline
+\verb/o/ & 整数値を8進数で表示する \\
+\verb/d/ & 整数値を10進数で表示する \\
+\verb/x/ & 整数値を16進数で表示する \\
+\verb/c/ & ASCIIコードに対応する文字を表示する \\
+\verb/s/ & 文字列を表示する \\
+\verb/%/ & \verb/%/を表示する \\
 \end{tabular}
 \end{quote}
 
-なお putch 関数は、\pageref{app:ipl}ページで解説する
-同名の IPL ルーチンを呼び出しています。
+\subsection{puts関数}
 
-\subsection{putstr 関数}
-
-put string ルーチンです。
-引数の文字列(文字配列)を \tac の画面に表示します。
-putstr 関数のプロトタイプ宣言を次に示します。
+標準出力ストリームへ１行出力します。
+エラーが発生した場合は\verb/null/を、正常時には\verb/s/を返します。
 
 \begin{quote}
 \begin{verbatim}
-public void putstr(char[] str);
+public char[] puts(char[] s);
 \end{verbatim}
 \end{quote}
 
-なお putstr 関数は、\pageref{app:ipl}ページで解説する
-同名の IPL ルーチンを呼び出しています。
+\subsection{putchar関数}
 
-\subsection{\ul puthex 関数}
-put hexadecimal ルーチンです。
-引数の整数を16進数4桁で \tac の画面に表示します。
-\ul puthex 関数のプロトタイプ宣言を次に示します。
+標準出力ストリームへ１文字出力します。
+エラーが発生した場合は\verb/true/を、正常時には\verb/false/を返します。
 
 \begin{quote}
 \begin{verbatim}
-public void _puthex(int v);
+public boolean putchar(char c);
 \end{verbatim}
 \end{quote}
 
-なお \ul puthex 関数は、\pageref{app:ipl}ページで解説する
-同名の IPL ルーチンを呼び出しています。
+\subsection{getchar関数}
 
-\subsection{puthex 関数}
-put hexadecimal ルーチンです。
-こちらの方が前出のものより高機能です。
-指定された桁と、空白文字を使用しながら、
-引数の整数を 16進数で \tac の画面に表示します。
-puthex 関数のプロトタイプ宣言を次に示します。
-\verb/v/ が値、
-\verb/w/ が桁数、
-\verb/p/ が空白として使用する文字を表します。
+標準入力ストリームから１文字入力します。
+\cl の\verb/getchar/関数と異なり\verb/char/型なので EOF チェックができません。
+現在のところ、\tacos では標準入力を EOF にする方法は準備されていません。
 
 \begin{quote}
 \begin{verbatim}
-public void puthex(int v, int w, char p);
+public char getchar();
 \end{verbatim}
 \end{quote}
 
-次に\cmml プログラムから呼び出して使用する例を示します。
+\subsection{fopen関数}
+
+ファイルを開きます。
+\verb/path/引数はファイルへのパス、
+\verb/mode/引数はオープンのモードです。
+パスは``\verb;/;''区切りで表現します。
+\tacos にはカレントディレクトリはありません。
+\verb/fopen/は正常に\verb/FILE/構造体、
+エラー時に\verb/null/を返します。
+
+\begin{quote}
+\begin{verbatim}
+public FILE fopen(char[] path, char[] mode);
+\end{verbatim}
+\end{quote}
+
+\verb/mode/の意味は次の通りです。
+
+\begin{quote}
+\begin{tabular}{c|l}
+\multicolumn{1}{c|}{mode} & \multicolumn{1}{c}{意味} \\\hline
+\verb/r/ & 読み込みモードで開く \\
+\verb/w/ & 書き込みモードで開く（ファイルが無ければ作る） \\
+\verb/a/ & 追記モードで開く（ファイルが無ければ作る）
+\end{tabular}
+\end{quote}
+
+\subsection{fclose関数}
+
+ストリームをクローズします。
+\tacos では、
+標準入出力ストリーム（\verb/stdin/、\verb/stdout/、\verb/stderr/）を
+クローズすることはできません。
+\verb/fclose/は正常に\verb/false/、
+エラー時に\verb/true/を返します。
+
+\begin{quote}
+\begin{verbatim}
+public boolean fclose(FILE stream);
+\end{verbatim}
+\end{quote}
+
+\subsection{fprintf関数}
+
+出力ストリームを明示できる\verb/printf/関数です。
+\verb/stream/引数に出力先を指定します。
+出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/です。
+
+\begin{quote}
+\begin{verbatim}
+public int fprintf(FILE stream, char[] format, ...);
+\end{verbatim}
+\end{quote}
+
+\subsection{fputs関数}
+
+出力ストリームを明示できる\verb/puts/関数です。
+\verb/stream/引数に出力先を指定します。
+出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/です。
+
+\begin{quote}
+\begin{verbatim}
+public char[] fputs(char[] s, FILE stream);
+\end{verbatim}
+\end{quote}
+
+\subsection{fputc関数}
+
+出力ストリームを明示できる\verb/putchar/関数です。
+\verb/stream/引数に出力先を指定します。
+出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/です。
+
+\begin{quote}
+\begin{verbatim}
+public boolean fputc(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{fgets関数}
+
+任意の入力ストリームから１行入力します。
+入力は\verb/buf/に文字列として格納します。
+\verb/n/引数には\verb/buf/のサイズを渡します。
+通常、\verb/buf/には\verb/\n/も格納されます。
+\verb/fgets/は、EOFで\verb/null/を、
+正常時には\verb/buf/を返します。
+
+\begin{quote}
+\begin{verbatim}
+public char[] fgets(char[] buf, int n, FILE stream);
+\end{verbatim}
+\end{quote}
+
+\cmm では、\cl の\verb/gets/が使用できません。
+\verb/gets/はバッファオーバーフローの危険があるので\cmm には持込みませんでした。
+\cmm で、\verb/gets/を使用したい時は\verb/fgets/を使用して次のように書きます。
+
+\begin{quote}
+\begin{verbatim}
+while (fgets(buf, N, stdin)!=null) { ...
+\end{verbatim}
+\end{quote}
+
+
+\subsection{fgetc関数}
+
+任意の入力ストリームから１文字入力します。
+\cl の\verb/fgetc/関数と異なり\verb/char/型なので EOF チェックができません。
+\tac 版では安全のため、
+\verb/fgetc/関数がEOFに出会うと強制的にプログラムを終了する仕様になっています。
+\verb/fgetc/関数を実行する前に、必ず、
+\verb/feof/関数を用いて EOF チェックをする必要があります。
+
+\begin{quote}
+\begin{verbatim}
+public char fgetc(FILE stream);
+\end{verbatim}
+\end{quote}
+
+\subsection{feof関数}
+
+入力ストリームが EOF になっていると \verb/true/ を返します。
+\verb/fgetc/ を実行する前に EOF チェックのために使用します。
+
+\begin{quote}
+\begin{verbatim}
+public boolean feof(FILE stream);
+\end{verbatim}
+\end{quote}
+
+\subsection{ferror関数}
+
+ストリームがエラーを起こしていると \verb/true/ を返します。
+
+\begin{quote}
+\begin{verbatim}
+public boolean ferror(FILE stream);
+\end{verbatim}
+\end{quote}
+
+\subsection{fflush関数}
+
+出力ストリームのバッファをフラッシュします。
+入力ストリームをフラッシュすることはできません。
+正常時\verb/false/、エラー時\verb/true/ を返します。
+\verb/stderr/はバッファリングされていないので、
+フラッシュしても何も起きません。
+
+\begin{quote}
+\begin{verbatim}
+public boolean fflush(FILE stream);
+\end{verbatim}
+\end{quote}
+
+\subsection{perror関数}
+
+現在の\verb/errno/グローバル変数の値に応じたエラーメッセージを表示します。
+\verb/msg/はエラーメッセージの先頭に付け加えます。
+\verb/errno/はシステムコールやライブラリ関数がセットします。
+\tabref{chap4:err}に\tac 版のエラーとメッセージの一覧を示します。
+
+\begin{quote}
+\begin{verbatim}
+public void perror(char[] msg);
+\end{verbatim}
+\end{quote}
+
+\subsection{プログラム例}
+
+\cmml で記述した、標準入出力関数の使用例を以下に示します。
+
+\subsubsection{TacOS 専用版のプログラム例}
+
+\tacos では、\verb/errno/変数にセットされるエラー番号が負の値になっています。
+また、アプリケーションが負の終了コードで終わった場合、
+シェルがエラーメッセージを表示する仕様になっています。
+
+更にライブラリは、ユーザプログラムのバグが原因と考えられるエラーや、
+メモリ不足のような対処が難しいエラーが発生したとき、
+負の終了コードでプログラムを終了します。
+そこで、次のようなエラー処理を簡略化したプログラムを書くことができます。
+
+%このプログラムでは、
+%メモリ不足で\verb/FILE/構造体の割り付けができない場合は、
+%\verb/fopen/内部でエラー終了しシェルがエラーメッセージを表示します。
 
 \begin{mylist}
 \begin{verbatim}
-  puthex(0x0010, 4, ' ');   // "  10" と表示
-  puthex(0x0010, 4, '0');   // "0010" と表示
-\end{verbatim}
-\end{mylist}
-
-
-\subsection{putdec 関数}
-put decimal ルーチンです。
-指定された桁と、空白文字を使用しながら、
-引数の整数を 10進数で \tac の画面に表示します。
-putdec 関数のプロトタイプ宣言を次に示します。
-\verb/v/ が値、
-\verb/w/ が桁数、
-\verb/p/ が空白として使用する文字を表します。
-
-\begin{quote}
-\begin{verbatim}
-public void putdec(int v, int w, char p);
-\end{verbatim}
-\end{quote}
-
-次に\cmml プログラムから呼び出して使用する例を示します。
-
-\begin{mylist}
-\begin{verbatim}
-  putdec(10, 4, ' ');   // "  10" と表示
-  putdec(10, 4, '0');   // "0010" と表示
-\end{verbatim}
-\end{mylist}
-
-\subsection{printf 関数}
-機能限定版の printf 関数です。
-第1引数(フォーマット文字列)で指定された形式で
-\tac の画面にデータを表示します。
-printf 関数のプロトタイプ宣言を次に示します。
-
-\begin{quote}
-\begin{verbatim}
-public void printf(char[] fmt, ...);
-\end{verbatim}
-\end{quote}
-
-フォーマット文字列に指定できるのは、
-8進数(\verb/%o/)、
-10進数(\verb/%d/)、
-16進数(\verb/%x/)、
-文字(\verb/%c/)、
-文字列(\verb/%s/)、
-\verb/'%'/文字(\verb/%%/)です。
-数値の出力には桁数が指定できます。
-また、余った桁に \verb/' '/ を表示するか
-\verb/'0'/ を表示するかも指定できます。
-2009年4月現在、文字列(\verb/%s/)に桁数を指定することはできません。
-
-\begin{mylist}
-\begin{verbatim}
-  int x = 10, c = 'A';
-  char[] s = "abc";
-  printf("size = %d\n", x);   // "size = 10" と表示
-  printf("size = %4d\n", x);  // "size =   10" と表示
-  printf("size = %04d\n", x); // "size = 0010" と表示
-  printf("char = %c\n", c);   // "char = A" と表示
-  printf("str  = %s\n", s);   // "str  = abc" と表示
-\end{verbatim}
-\end{mylist}
-
-\subsection{readSect 関数}
-
-マイクロドライブの read sector ルーチンです。
-引数の二つの整数で32ビットのセクタ番号を指定し、
-\tac のマイクロドライブのセクタの内容を読み出します。
-readSect 関数のプロトタイプ宣言を次に示します。
-
-\begin{quote}
-\begin{verbatim}
-public void readSect(int labH, int labL, char[] buf);
-\end{verbatim}
-\end{quote}
-
-\verb/labH/ が32ビット整数の上位16ビット、
-\verb/labL/ が下位16ビットを表現します。
-マイクロドライブから入力したデータは buf 配列に格納します。
-1セクタは通常512バイトですので、\verb/buf/ には256ワードの領域を渡します。
-次に、マイクロドライブの MBR (セクタ0)を読み出すプログラム例を示します。
-
-\begin{mylist}
-\begin{verbatim}
-// マイクロドライブの MBR(第0セクタ) を読む
-char[] buf = array(256);
-readSect(0,0,buf);
-\end{verbatim}
-\end{mylist}
-
-マイクロドライブのバイト順と \verb/buf/ 配列の内容の対応に注意してください。
-第1バイトが \verb/buf[0]/ の下位8ビット、
-第2バイトが \verb/buf[0]/ の上位8ビットの順になります。
-そのため、上位8ビットと下位8ビットの交換処理が必要なことが多く、
-使いにくい仕様になってしまいました。
-これは、
-マイクロドライブのハードウェアによって決まった仕様です。
-次のようなマクロを準備してバイトの入れ換えを行うと便利です。
-
-\begin{mylist}
-\begin{verbatim}
-// 16ビットデータの上位下位バイトを入れ換える
-#define bswap(m) ((m) >> 8 & 0x00ff | (m) << 8)
-
-void main() {
-   int a = bswap(buf[0]);
+// ファイルの内容を表示するプログラム
+// （TacOS 専用バージョン）
+#include <stdio.hmm>
+#include <errno.hmm>
+public int main(int argc, char[][] argv) {
+  FILE fp = fopen("a.txt", "r");
+  if (fp==null) exit(errno);     // エラー表示をシェルに任せる
+  while (!feof(fp))
+    putchar(fgetc(fp));
+  fclose(fp);
+  return 0;
 }
 \end{verbatim}
 \end{mylist}
 
-なお readSect 関数は、\pageref{app:ipl}ページで解説する
-同名の IPL ルーチンを呼び出しています。
+\subsubsection{TacOS トランスレータ共通版のプログラム例}
 
-\section{メモリ管理関数}
+\cl プログラム風に記述することもできます。
+この例では、\verb/fopen/がエラーになったファイルの名前をエラーメッセージに
+含めることができます。
 
-BSS セグメントの終端からスタックの約 2kW 手前までをヒープ領域として管理します。
-2009年4月現在、
-スタックポインタは IPL とブートプログラムにより
-0xf000 に初期化される仕様になっています。
-\pageref{app:memmap}ページに示すように 0xf000 はユーザ領域の最終番地です。
-現在のところ、
-スタックとヒープが重なってしまっても
-検出できないのでメモリの使用量に注意が必要です。
+\begin{mylist}
+\begin{verbatim}
+// ファイルの内容を表示するプログラム
+// （トランスレータ、TacOS 共通バージョン）
+#include <stdio.hmm>
+public int main(int argc, char[][] argv) {
+  char fname = "a.txt";
+  FILE fp = fopen(fname, "r");
+  if (fp==null) {
+    perror(fname);     // エラー表示を自分で行う
+    return 1;
+  }
+  while (!feof(fp))
+    putchar(fgetc(fp));
+  fclose(fp);
+  return 0;
+}
+\end{verbatim}
+\end{mylist}
 
-\subsection{malloc 関数}
+\begin{mytable}{tbhp}{エラー一覧}{chap4:err}
+\begin{tabular}{l|l|l}
+\multicolumn{1}{c|}{記号名}
+ & \multicolumn{1}{c|}{メッセージ}
+ & \multicolumn{1}{c}{意味} \\\hline
+ENAME     & Invalid file name           & ファイル名が不正 \\
+ENOENT    & No such file or directrory  & ファイルが存在しない \\
+EEXIST    & File exists                 & 同名ファイルが存在する \\
+EOPEND    & File is opened              & 既にオープンされている \\
+ENFILE    & File table overflow         & システムのオープン超過 \\
+EBADF     & Bad file number             & ファイル記述子が不正 \\
+ENOSPC    & No space left on device     & デバイスに空き領域が不足 \\
+EPATH     & Bad path                    & パスが不正 \\
+EMODE     & Bad mode                    & モードが一致しない \\
+EFATTR    & Bad attribute               & ファイルの属性が不正 \\
+ENOTEMP   & Directory is not empty      & ディレクトリが空でない \\
+EINVAL    & Invalid argument            & 引数が不正 \\
+EMPROC    & Process table overflow      & プロセスが多すぎる \\
+ENOEXEC   & Bad EXE file                & EXE ファイルが不正 \\
+EMAGIC    & Bad MAGIC number            & 不正なマジック番号 \\
+EMFILE    & Too many open files         & プロセス毎のオープン超過 \\
+ECHILD    & No children                 & 子プロセスが存在しない \\
+ENOZOMBI  & No zombie children          & ゾンビの子が存在しない \\
+ENOMEM    & Not enough memory           & 十分な空き領域が無い \\
+ESYSNUM   & Invalid system call number  & システムコール番号が不正 \\
+EZERODIV  & Zero division               & ゼロ割り算 \\
+EPRIVVIO  & Privilege violation         & 特権違反 \\
+EILLINST  & Illegal instruction         & 不正命令 \\
+EUSTK     & Stack overflow              & スタックオーバーフロー \\
+EUMODE    & stdio: Bad open mode        & モードと使用方法が矛盾 \\
+EUBADF    & stdio: Bad file pointer     & 不正な fp が使用された \\
+EUEOF     & fgetc: EOF was ignored      & fgetc前にEOFチェック必要 \\
+EUNFILE   & fopen: Too many open files  & プロセス毎のオープン超過 \\
+EUSTDIO   & fclose: Standard i/o should & 標準ioはクローズできない \\
+          &  not be closed              &                          \\
+EUFMT     & fprintf: Invalid conversion & 書式文字列に不正な変換 \\
+EUNOMEM   & malloc: Insufficient memory & ヒープ領域が不足 \\
+EUBADA    & free: Bad address           & mallocした領域ではない \\
+\end{tabular}
+\end{mytable}
 
-ヒープ領域にメモリを割り当てます。
-引数によって領域の大きさを\underline{ワード単位}で指定します。
-malloc 関数のプロトタイプ宣言を次に示します。
-関数の値は \verb/void[]/ 型の参照なので、
-どのような参照型変数にも代入できます。
-malloc 関数の使用例は、
-これまでのプログラム例にいくつか含まれているので参照してください。
+\section{標準関数}
+
+\verb/#include <stdlib.hmm>/を書いた後で使用します。
+
+\subsection{malloc関数}
+
+ヒープ領域に引数の整数で指定バイト数のメモリ領域を確保し、
+領域を指す参照を返します。
+\verb/malloc/関数は\verb/void[]/型なので、
+領域を指す参照は全ての参照変数に代入できます。
+
+\tac 版では、ヒープ領域に十分な空きが見つからないとき
+終了コード\verb/EUNOMEM/でプログラムを終了します。
+トランスレータ版では、エラーメッセージを表示したあと
+終了コード\verb/1/でプログラムを終了します。
 
 \begin{quote}
 \begin{verbatim}
-public void[] malloc(int s);
+public void[] malloc(int size);
 \end{verbatim}
 \end{quote}
 
-\subsection{free 関数}
+\subsection{free関数}
 
-malloc によって割り当てた領域をシステムに返却します。
-割り当て領域のユーザから見えない場所にマジックナンバーが組み込んであり、
-malloc によって割り当てられた領域であるかチェックしています。
-free 関数のプロトタイプ宣言を次に示します。
-引数の型は \verb/void[]/ の参照なので、
-参照型ならどんな型でも渡すことができます。
-free 関数の使用例は、
-これまでのプログラム例にいくつか含まれているので参照してください。
+\verb/malloc/関数で割当てた領域を解放します。
+\tac 版では、領域が\verb/malloc/関数で割当てたものではない可能性がある場合
+（マジックナンバーが破壊されている、管理されている空き領域と重なる等）、
+終了コード\verb/EUBADA/でプログラムを終了します。
 
 \begin{quote}
 \begin{verbatim}
-public void free(void[] p);
+public void free(void[] mem);
+\end{verbatim}
+\end{quote}
+
+\subsection{atoi関数}
+
+\verb/atoi/関数は引数に渡した10進数文字列を解析して、
+それが表現する値を返します。
+
+\begin{quote}
+\begin{verbatim}
+public int atoi(char[] s);
+\end{verbatim}
+\end{quote}
+
+\subsection{srand関数}
+
+\verb/srand/関数は擬似乱数発生器を\verb/seed/で初期化します。
+
+\begin{quote}
+\begin{verbatim}
+public void srand(int seed);
+\end{verbatim}
+\end{quote}
+
+\subsection{rand関数}
+
+\verb/rand/関数は次の擬似乱数を発生します。
+
+\begin{quote}
+\begin{verbatim}
+public int rand();
+\end{verbatim}
+\end{quote}
+
+\subsection{exit関数}
+
+\verb/exit/関数はオープン済みのストリームをフラッシュしてから
+プログラムを終了します。
+
+\verb/status/は、親プロセスに返す終了コードです。
+\verb/0/が正常終了の意味、\verb/1/以上はユーザが決めた終了コード、
+負の値は\tabref{chap4:err}に示す記号名で定義されています。
+負の値を返すと親プロセスがシェルの場合、
+シェル側でエラーメッセージを表示してくれます。
+
+\begin{quote}
+\begin{verbatim}
+public void exit(int status);
+\end{verbatim}
+\end{quote}
+
+\section{文字列操作関数}
+
+\verb/#include <string.hmm>/を書いた後で使用します。
+
+\subsection{strCpy関数}
+
+\verb/s/文字列を文字配列\verb/d/にコピーし、
+\verb/d/を関数値として返します。
+トランスレータ版では\cl の\verb/strcpy/関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public char[] strCpy(char[] d, char[] s);
+\end{verbatim}
+\end{quote}
+
+\subsection{strNcpy関数}
+
+文字列\verb/s/の最大\verb/n/文字を文字配列\verb/d/にコピーし、
+\verb/d/を関数値として返します。
+文字配列の使用されない部分には\verb/'\0'/が書き込まれます。
+文字列の長さが\verb/n-1/より長い場合は、
+\verb/'\0'/が書き込まれないので注意して下さい。
+トランスレータ版では\cl の\verb/strncpy/関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public char[] strNcpy(char[] d, char[] s, int n);
+\end{verbatim}
+\end{quote}
+
+\subsection{strCat関数}
+
+文字列\verb/s/を文字配列\verb/d/に格納されている文字列の後ろに追加し、
+\verb/d/を関数値として返します。
+トランスレータ版では\cl の\verb/strcat/関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public char[] strCat(char[] d, char[] s);
+\end{verbatim}
+\end{quote}
+
+\subsection{strNcat関数}
+
+文字列\verb/s/の先頭\verb/n/文字未満を、
+文字配列\verb/d/に格納されている文字列の後ろに追加し、
+\verb/d/を関数値として返します。
+\verb/d/に格納された文字列の最後には\verb/'\0'/が書き込まれます。
+トランスレータ版では\cl の\verb/stnrcat/関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public char[] strNcat(char[] d, char[] s, int n);
+\end{verbatim}
+\end{quote}
+
+\subsection{strCmp関数}
+
+文字列\verb/s1/と文字列\verb/s2/を比較します。
+\verb/strCmp/関数は、アスキーコード順で\verb/s1/が大きいとき正の値、
+\verb/s1/が小さいとき負の値、同じ時\verb/0/を返します。
+トランスレータ版では\cl の\verb/strcmp/関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public int strCmp(char[] d, char[] s);
+\end{verbatim}
+\end{quote}
+
+\subsection{strNcmp関数}
+
+文字列\verb/s1/と文字列\verb/s2/の先頭\verb/n/文字を比較します。
+\verb/strNcmp/関数は、
+\verb/strcmp/関数同様にアスキーコード順で大小を判断します。
+トランスレータ版では\cl の\verb/strncmp/関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public int strNcmp(char[] d, char[] s, int n);
+\end{verbatim}
+\end{quote}
+
+\subsection{strLen関数}
+
+文字列\verb/s/の長さを返します。
+長さに\verb/'\0'/は含まれません。
+トランスレータ版では\cl の\verb/strlen/関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public int strLen(char[] s);
+\end{verbatim}
+\end{quote}
+
+\subsection{strChr関数}
+
+文字列\verb/s/の中で最初に文字\verb/c/が現れる位置を、
+\verb/s/文字配列の添字で返します。
+文字\verb/c/が含まれていない場合は\verb/-1/を返します。
+トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public int strChr(char[] s, char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{strRchr関数}
+
+文字列\verb/s/の中で最後に文字\verb/c/が現れる位置を、
+\verb/s/文字配列の添字で返します。
+文字\verb/c/が含まれていない場合は\verb/-1/を返します。
+トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public int strRchr(char[] s, char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{strStr関数}
+
+文字列\verb/s1/の中に文字列\verb/s2/が現れる位置を、
+\verb/s1/文字配列の添字で返します。
+文字列\verb/s2/が含まれていない場合は\verb/-1/を返します。
+トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public int strStr(char[] s1, char[] s2);
+\end{verbatim}
+\end{quote}
+
+\subsection{subStr関数}
+
+文字列\verb/s/の先頭\verb/pos/文字を省いた部分文字列を返します。
+返した文字列は\verb/s/とメモリ領域を共用していますので注意が必要です。
+トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
+
+\begin{quote}
+\begin{verbatim}
+public char[] subStr(char[] s, int pos);
 \end{verbatim}
 \end{quote}
 
