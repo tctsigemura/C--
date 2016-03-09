@@ -29,8 +29,8 @@
 
 // stdio, stdlib の関数は C 言語の名前をそのまま使用する
 // 一部は仕様を変更したので wrapper.c の関数を参照するようにする
-#define malloc(s) mAlloc(s)
-#define fopen(n,m) fOpen(n,m)
+#define malloc(s) _mAlloc(s)
+//#define fopen(n,m) _fOpen(n,m)
 
 
 // ctype, stringの関数は Lower Camel Case にする

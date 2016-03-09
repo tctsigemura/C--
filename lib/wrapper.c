@@ -50,7 +50,7 @@ void *_iToA(int i) {
 */
 
 // TaC 版ではエラーチェックして終了する
-void * mAlloc(int s) {
+void * _mAlloc(int s) {
   void *p = malloc(s);
   if (p==NULL) {
     perror("malloc");
@@ -59,7 +59,9 @@ void * mAlloc(int s) {
   return p;
 }
 
-FILE *fOpen(char *n, char *m) {
+/* TaC 版ではエラー原因により null を返すので、
+ * 以下では再現しきれていない
+FILE *_fOpen(char *n, char *m) {
   FILE *fp = fopen(n, m);
   if (fp==NULL) {
     perror("fopen");
@@ -67,6 +69,7 @@ FILE *fOpen(char *n, char *m) {
   }
   return fp;
 }
+*/
 
 // TaC 版では string.cmm に記述されている関数
 
