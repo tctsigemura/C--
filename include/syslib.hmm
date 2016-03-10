@@ -47,5 +47,5 @@ public int close(int fd);
 public int read(int fd, void[] buf, int len);
 public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
-public int conRead(void[] buf, int len);
-public int conWrite(void[] buf);
+public int conRead(char[] buf, int len);
+public int conWrite(char[] buf);
