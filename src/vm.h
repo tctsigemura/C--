@@ -83,7 +83,6 @@ void vmBOr(void);                  // ビット毎の論理和をスタックに
 void vmMul(void);                  // 積を計算し結果をスタックに積む
 void vmDiv(void);                  // 商を計算し結果をスタックに積む
 void vmMod(void);                  // 余を計算し結果をスタックに積む
-void vmScl(void);                  // 配列や添字の添字を相対アドレスに変換
 void vmGt(void);                   // 比較(>)結果(論理値)をスタックに積む
 void vmGe(void);                   // 比較(>=)結果(論理値)をスタックに積む
 void vmLt(void);                   // 比較(<)結果(論理値)をスタックに積む
