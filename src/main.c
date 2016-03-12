@@ -37,7 +37,8 @@
 
 // 使い方表示関数
 static void usage(char *name) {
-  fprintf(stderr, "使用方法 : %s [-h] [-v] [-O0] [-O] [-O1] [<source file>]\n",
+  fprintf(stderr,
+          "使用方法 : %s [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]\n",
 	  name);
   fprintf(stderr, "    <source file> は C--言語ソースコード\n");
   fprintf(stderr, "    <source file> 省略時は stdin から入力\n");
