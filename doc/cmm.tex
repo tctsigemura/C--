@@ -1,18 +1,11 @@
 %
-% C-- 言語 ver.2 の解説書
+% C-- 言語 ver.3 の解説書
 %
-% 2010.07.17 V.0.3.2 I/Oマップのバグ(ATA Status と Alternate Status)
-% 2010.06.18 V.0.3.1 cpp の使用例に -std=c99 オプションを追記
-% 2010.03.14 V.0.3.0 public 修飾子追加
-% 2009.11.05 V.0.2.0 addrof 演算子、interrupt 関数追加
-% 2009.07.23 V.0.1.1 IPLルーチン変数領域表に1箇所バグ
-%
+% 2016.03.12 V.3.0.0 : ver.3 用に改訂
 % 
 % $Id$
 %
-%\documentstyle[11pt,epsf,a4j,twoside,subfigure]{jbook}
 \documentclass[11pt,a4j,twoside,dvipdfmx]{jbook}
-%----------------------------------------------------------------------
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -25,18 +18,18 @@
 \usepackage{bigfoot}  % \footnote{} 中で \verb/../ が利用可能になる。
 %\usepackage{listings,jlisting}
 \usepackage{url}
+
 %----------------------------------------------------------------------
 % ハイパーリンク設定（印刷用では色使いに注意）
 \usepackage[colorlinks,linkcolor=blue,urlcolor=blue]{hyperref}  % PDF用
 \usepackage{hyperref}                                           % 印刷用
 \usepackage{pxjahyper}
+
 %----------------------------------------------------------------------
 \newcommand{\myfigure}[5]{
-%\begin{figure}[#1]
-\begin{figure}[tbp]
+\begin{figure}[#1]
+%\begin{figure}[tbp]
 \begin{center}
-%\epsfxsize=#2
-%\epsfbox{#3}
 \includegraphics[width=#2]{#3}
 \vspace{-.3cm}
 \caption{#4}
@@ -44,13 +37,12 @@
 \end{center}
 \end{figure}
 }
+
 %----------------------------------------------------------------------
 \newcommand{\myfigureA}[5]{
-%\begin{figure*}[#1]
-\begin{figure*}[tbp]
+\begin{figure*}[#1]
+%\begin{figure*}[tbp]
 \begin{center}
-%\epsfxsize=#2
-%\epsfbox{#3}
 \includegraphics[width=#2]{#3}
 \vspace{-.3cm}
 \caption{#4}
@@ -58,13 +50,16 @@
 \end{center}
 \end{figure*}
 }
+
 %----------------------------------------------------------------------
 \newcommand{\figref}[1]{図~\ref{fig:#1}}
 \newcommand{\tabref}[1]{表~\ref{tab:#1}}
-\newcommand{\ver}{Ver. 1.0.0}
+\newcommand{\ver}{Ver. 3.0.0}
 \newcommand{\cmm}{{\tt C--}}
 \newcommand{\cmml}{\cmm 言語}
 \newcommand{\cmmc}{{\tt c--}}
+\newcommand{\vcmmc}{{\tt vm-c--}}
+\newcommand{\ccmmc}{{\tt c-c--}}
 \newcommand{\cl}{{\tt C}言語}
 \newcommand{\javal}{{\tt Java}言語}
 \newcommand{\tac}{TaC}
@@ -75,38 +70,28 @@
 \newcommand{\objbin}{{\tt objbin--}}
 \newcommand{\objexe}{{\tt objexe--}}
 \newcommand{\size}{{\tt size--}}
-\newcommand{\ul}{\underline{~~}}
+%\newcommand{\ul}{\underline{~~}}
+\newcommand{\ul}{\_}
 \newcommand{\lw}[1]{\smash{\lower2.0ex\hbox{#1}}}
+
 %----------------------------------------------------------------------
-
 \newenvironment{mylist}
-{\vspace{0.3cm}
-\begin{tabular}{|c|}\hline\\\begin{minipage}{14.5cm}}
-{\end{minipage}\\\\\hline\end{tabular}\vspace{0.3cm}}
-%\begin{tabular}{|c|}\hline\\\begin{minipage}{14.5cm}\begin{quote}}
-%{\end{quote}\end{minipage}\\\\\hline\end{tabular}\vspace{0.3cm}}
+{%\vspace{0.3cm}
+\begin{center}\begin{tabular}{|c|}\hline\\\begin{minipage}{0.9\textwidth}}
+{\end{minipage}\\\\\hline\end{tabular}\end{center}%\vspace{0.3cm}
+}
 
+%----------------------------------------------------------------------
 \newenvironment{myminipage}
 {\begin{minipage}{14.5cm}\vspace{0.2cm}\begin{center}}
 {\end{center}\vspace{0.2cm}\end{minipage}}
 
+%----------------------------------------------------------------------
 \newenvironment{mytable}[3]
-%{\small\begin{table}[#1]\begin{center}\caption{#2}\vspace{0.2cm}\label{tab:#3}}
 {\small\begin{table}[tbp]\begin{center}\caption{#2}\vspace{0.2cm}\label{tab:#3}}
 {\end{center}\end{table}}
 
-\renewcommand{\topfraction}{.7}   %ページ上部をフロートが占められる最大割合 [t]
-\renewcommand{\dbltopfraction}{.7}    %2段組の場合の\topfraction
-\renewcommand{\bottomfraction}{.3}%ページ下部をフロートが占められる最大割合 [b]
-\renewcommand{\floatpagefraction}{.5} %フロートが1ページを占める最小割合 [p]
-\renewcommand{\dblfloatpagefraction}{.5}      %2段組の場合の \floatpagefraction
-\renewcommand{\textfraction}{.2}        %本文が1ページを占める最小割合
-\setcounter{topnumber}{2}           %ページ上部のフロート最大数 [t]
-\setcounter{bottomnumber}{1}      %ページ下部のフロート最大数 [b]
-%\setcounter{totalnumber}{3}          %1ページのフロート最大数
-\setcounter{totalnumber}{4}          %1ページのフロート最大数
-\setcounter{dbltopnumber}{4}        %2段組の場合の \topnumber
-
+%----------------------------------------------------------------------
 \begin{document}
 %\setlength{\textwidth}{14cm}
 %\setlength{\textheight}{22cm}
@@ -116,7 +101,9 @@
 %\setlength{\marginparsep}{15pt}
 %\setlength{\parskip}{0.3cm}
 \setlength{\headsep}{1cm}
+\frontmatter
 
+% 表紙
 \title{プログラミング言語 \cmm \\\ver}
 \author{徳山工業高等専門学校\\情報電子工学科}
 \date{}
@@ -125,16 +112,13 @@
 
 % 著作権表示
 \thispagestyle{empty}
-\onecolumn
 ~
 \vfill
-%\begin{minipage}[b]{13cm}
 \begin{flushleft}
-Copyright \copyright ~~ 2009 - 2010 by \\
+Copyright \copyright ~~ 2016 by \\
 Dept. of Computer Science and Electronic Engineering, \\
 Tokuyama College of Technology, JAPAN
 \end{flushleft}
-
 
 \vspace{0.8cm}
 
@@ -142,50 +126,32 @@ Tokuyama College of Technology, JAPAN
 関連機関・個人は本ドキュメントに関して，その適用可能性も含めて，いかなる保証
 も行わない．また，本ドキュメントの利用により直接的または間接的に生じたいかな
 る損害に関しても，その責任を負わない．
-%\end{minipage}
 \setcounter{page}{0}
 
-% 目次 -- ページ番号はローマ数字
-\newpage
-\pagenumbering{roman}
+% 目次
 \tableofcontents
 
-% ページ数の調整
-\onecolumn
-~
-\thispagestyle{empty}
-\setcounter{page}{0}
-
-% ページ番号をもとに戻す
-\newpage
-%\twocolumn
-\pagenumbering{arabic}
-
-\input{chap1} % はじめに
-\input{chap2} % 概要
-\input{chap3} % C-- 言語の仕様
-\input{chap4} % ライブラリの使いかた
+% 本文
+\mainmatter
+\include{chap1} % はじめに
+\include{chap2} % インストール
+\include{chap3} % C-- 言語の仕様
+\include{chap4} % ライブラリ関数
+\include{chap5} % システムコール
 
 \appendix
-\input{syntax}  % 付録 文法まとめ
-\input{command} % 付録 コマンドリファレンス
-\input{binfile} % 付録 ファイルフォーマット
-\input{memmap}  % 付録 メモリマップ
-\input{iomap}   % 付録 I/Oマップ
+\include{syntax}  % 付録 文法まとめ
+\include{command} % 付録 コマンドリファレンス
+\include{vm}      % 付録 中間言語
 
-% 発行元
+% 発行元など
+\backmatter
 \pagestyle{empty}
 \onecolumn
 ~
 \subsubsection{変更履歴}
 \begin{flushleft}
-2010年07月16日 Ver.0.3.2 I/Oマップのバグ(ATA Status と Alternate Status) \\
-2010年06月18日 Ver 0.3.1 cpp の使用例に -std=c99 オプションを追記\\
-2010年03月14日 Ver.0.3.0 public 修飾子を記載\\
-2009年11月05日 Ver.0.2.0 interrupt 関数と addrof 演算子を記載\\
-2009年05月13日 Ver.0.1.0 一応完成\\
-2009年05月08日 Ver.0.0.1(Birthday Version) \\
-2009年04月28日 執筆開始  \\
+2016年03月15日 \cmm V.3.0.0 用作成  \\
 \end{flushleft}
 
 \vfil
@@ -193,32 +159,26 @@ Tokuyama College of Technology, JAPAN
 \subsubsection{対応ソフトウェアのバージョン}
 \begin{tabular}{|l|l|}
 \hline
-{\tt IPL--}    & Ver.0.1.4 \\
+{\tt C--}      & Ver.3.0.0 \\
 \hline
-{\tt Kernel/8queen}    & Ver.0.0.3 \\
+{\tt AS--}     & Ver.2.1.1 \\
 \hline
-{\tt Kernel/SioEcho}   & Ver.0.1.3 \\
+{\tt LD--}     & Ver.2.0.0 \\
 \hline
-{\tt Boot}     & Ver.0.0.2 \\
+{\tt OBJBIN--} & Ver.2.0.0 \\
 \hline
-{\tt C--}      & Ver.0.9.10 \\
+{\tt SIZE--}   & Ver.2.0.0 \\
 \hline
-{\tt AS--}     & Ver.0.6.2 \\
-\hline
-{\tt LD--}     & Ver.0.0.3 \\
-\hline
-{\tt OBJBIN--} & Ver.0.6.2 \\
-\hline
-{\tt SIZE--}   & Ver.0.0.0 \\
+{\tt OBJEXE--} & Ver.1.0.0 \\
 \hline
 \end{tabular}
 
 \vfill\vfill
 \begin{center}
 \fbox{\parbox{10cm}{ \vspace{0.3cm}
-\large{\bf{　プログラミング言語 \cmm }} \\
+\large{\bf　プログラミング言語 \cmm} \\
 \\
-　発行年月　２０１０年７月　\ver \\
+　発行年月　２０１６年３月　\ver \\
 　発　　行　独立行政法人国立高等専門学校機構 \\
 　　　　　　徳山工業高等専門学校 \\
 　　　　　　情報電子工学科　重村哲至 \\

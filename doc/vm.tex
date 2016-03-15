@@ -1,0 +1,918 @@
+% 
+%  付録：中間言語
+%
+\chapter{中間言語}
+\label{app:vm}
+
+\cmm コンパイラに入力された\cmm プログラムは、
+一旦、以下で説明する中間言語に変換されます。
+その後、中間言語から仮想のスタックマシンや
+\tac のニーモニックに変換されます。
+なお、{\cl}トランスレータは構文木から直接{\cl}を生成するので、
+中間言語を用いません。
+
+\section{仮想スタックマシン}
+
+以下では中間言語を変換する先として仮想のスタックマシンを想定します。
+仮想スタックマシンの命令は、中間言語から、ほぼ、一対一に変換できます。
+仮想スタックマシンは、次のようなものです。
+
+\begin{itemize}
+\item 
+仮想スタックマシンが扱うデータは、基本的にワードデータ(16bit)です。
+{\cmml}の\verb/int/型、参照（アドレス）はワードデータにピッタリ格納されます。
+\verb/char/型はワードデータの下位8bit、
+\verb/boolean/型はワードデータの下位の1bitに格納されます。
+
+\item
+\verb/char/型と\verb/boolean/型の{\bf 配列要素だけ}、
+メモリ節約のためバイトデータ(8bit)です。
+\verb/LDB/命令、\verb/STB/命令がバイト配列のデータをアクセスします。
+
+\item
+仮想スタックマシンのプログラムは次の書式のニーモニックで記述します。
+
+\begin{quote}
+\begin{verbatim}
+[ラベル]    [命令   [オペランド[,オペランド]...]]
+\end{verbatim}
+\end{quote}
+
+\end{itemize}
+
+\section{書式}
+
+中間言語は次のような命令行で表現されます。
+
+\begin{quote}
+\begin{verbatim}
+命令([オペランド[,オペランド]...])
+
+例： vmLdCns(3)    // 定数３をスタックに積む
+\end{verbatim}
+\end{quote}
+
+\section{命令}
+
+中間言語の命令には「ラベル生成命令」、「マシン命令」、
+「マクロ命令」、「擬似命令」があります。
+
+\subsection{ラベル生成命令}
+
+プログラムのジャンプ先やデータのためにラベルを生成します。
+
+\subsubsection{vmName}
+
+名前を表現するラベルを宣言します。
+名前表の\verb/idx/番目に登録されている名前を
+ラベルとして定義するニーモニックを出力します。
+ラベルの先頭には\verb/'.'/または\verb/'_'/が付加されます。
+\cmml で\verb/public/修飾された名前に\verb/'_'/が付加されます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmName(idx)
+ニーモニック： ラベル
+
+変換例：vmName(3)  => .a     // 名前表の３番目に a があった場合
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmTmpLab}
+
+コンパイラが自動的に生成した番号で管理されるラベルを出力します。
+このラベルは\cmm プログラムソースには存在しない名前です。
+整数\verb/n/で区別できるラベル\verb/ln/をニーモニックに出力します。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmTmpLab(n)
+ニーモニック： ln
+
+変換例：vmTmpLab(3)  => .L3
+\end{verbatim}
+\end{quote}
+
+\subsection{マシン命令}
+
+スタックマシンの命令や\tac の機械語命令に変換されるべき、
+中間言語命令です。
+
+\subsubsection{vmEntry}
+
+関数の入口処理をする命令です。
+\verb/idx/は名前表で関数名が登録されている位置です。
+\verb/n/は関数の中で「{\bf 同時に使用される}ローカル変数の数」です。
+\verb/vmEntry/は、\verb/n/個のローカル変数領域を確保します。
+関数内でスコープが切り替わり
+同じ領域が複数のローカル変数で共用できる場合があるので、
+「{\bf 同時に使用される}ローカル変数の数」が指定されます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmEntry(n,idx)
+ニーモニック： ラベル  ENTRY   n
+
+変換例：vmEntry(1,3)  => .a  ENTRY  1
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmEntryK}
+
+カーネル関数の入口処理をする命令です。
+引数の意味は\verb/vmEntry/と同じです。
+\cmm コンパイラに\verb/-K/オプションを付けて実行した場合は、
+\verb/vmEntry/のかわりに\verb/vmEntryK/が使用されます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmEntryK(n,idx)
+ニーモニック： ラベル  ENTRYK  n
+
+変換例：vmEntryK(1,3) => .a  ENTRYK 1
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmRet}
+
+関数の出口処理をする命令です。
+ローカル変数を捨てて関数から戻ります。
+通常の関数、カーネル関数で共通に使用します。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmRet()
+ニーモニック： RET
+
+変換例：vmRet() => RET
+\end{verbatim}
+\end{quote}
+
+
+\subsubsection{vmEntryI}
+
+\verb/interrupt/型関数の入口処理をする命令です。
+引数の意味は\verb/vmEntry/と同じです。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmEntryI(n,idx)
+ニーモニック： ラベル  ENTRYI  n
+
+変換例：vmEntryI(1,3) => .a  ENTRYI 1
+\end{verbatim}
+\end{quote}
+
+\subsubsection{RETI}
+
+\verb/interrupt/関数の出口処理をする命令です。
+ローカル変数を捨てて\verb/interrupt/型関数から戻ります。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmRet()
+ニーモニック： RETI
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmMReg}
+
+スタックから関数の返り値を取り出し、
+返り値用のハードウェアレジスタに移動します。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmMReg()
+ニーモニック： MREG
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmArg}
+
+関数を呼出す前に、関数に渡す引数を準備します。
+スタックから値を取り出し引数領域にコピーします。
+複数の引数がある場合は、最後の引数から順に処理します。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmArg()
+ニーモニック： ARG
+\end{verbatim}
+\end{quote}
+
+以下に二つの引数を持つ関数\verb/f/を呼び出す例を示します。
+
+\begin{mylist}
+\begin{verbatim}
+// C-- ソース
+void f(int a, int b) { ... }
+void g() { f(1, 2); }
+
+// 関数 g の中間コード
+vmEntry(0,5)  // 名前表の５番目に g があるとする
+vmLdCns(2)
+vmArg()
+vmLdCns(1)
+vmArg()
+vmCallP(2,4)  // 名前表の４番目に f があるとする
+vmRet()
+
+// 関数 g のニーモニック
+.g
+        ENTRY   0
+        LDC     2
+        ARG
+        LDC     1
+        ARG
+        CALLP   2,.f
+        RET
+\end{verbatim}
+\end{mylist}
+
+\subsubsection{vmCallP}
+
+値を返さない関数を呼び出します。
+\verb/n/は関数引数の個数、
+\verb/idx/は名前表で関数名が登録されている位置です。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmCallP(n,idx)
+ニーモニック： CALLP n,ラベル
+
+変換例：vmCallP(2, 4) => CALLP 2,.f
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmCallF}
+
+値を返す関数を呼び出します。
+\verb/n/と\verb/idx/の意味は\verb/vmCallP/と同じです。
+\verb/vmCallF/は関数の実行が終了した時、
+返り値をハードウェアレジスタから取り出しスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmCallF(n,idx)
+ニーモニック： CALLF n,ラベル
+
+変換例：vmCallF(2, 4) => CALLF 2,.f
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmJmp}
+
+無条件ジャンプ命令です。
+整数\verb/n/はジャンプ先ラベルの番号を表します。
+ラベル\verb/ln/は\verb/vmTmpLab/で出力される\verb/n/番目のラベルです。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmJmp(n)
+ニーモニック： JMP   ln
+
+変換例：vmJmp(3) => JMP .L3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmJT}
+
+スタックから論理値を取り出し\verb/true/ならジャンプします。
+\verb/n/、\verb/ln/の意味は\verb/vmJmp/と同じです。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmJT(n)
+ニーモニック： JT   ln
+
+変換例：vmJT(3) => JT  .L3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmJF}
+
+スタックから論理値を取り出し\verb/false/ならジャンプします。
+\verb/n/、\verb/ln/の意味は\verb/vmJmp/と同じです。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmJF(n)
+ニーモニック： JF   ln
+
+変換例：vmJF(3) => JF  .L3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLdCns}
+
+定数\verb/c/をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLdCns(c)
+ニーモニック： LDC   c
+
+変換例：vmLdCns(3) => LDC  3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLdGlb}
+
+グローバル変数の値をスタックに積みます。
+\verb/idx/は名前表で変数名が登録されている位置です。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLdGlb(idx)
+ニーモニック： LDG   ラベル
+
+変換例：vmLdGlb(3) => LDG .a
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLdLoc}
+
+\verb/n/番目のローカル変数の値をスタックに積みます。
+ローカル変数の番号は\verb/1/から始まります。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLdLoc(n)
+ニーモニック： LDL  n   
+
+変換例：vmLdLoc(3) => LDL  3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLdArg}
+
+現在の関数の\verb/n/番目の引数の値をスタックに積みます。
+引数の番号は第１引数から順に、\verb/1/以上の番号が割り振られます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLdArg(n)
+ニーモニック： LDA  n   
+
+変換例：vmLdArg(3) => LDA  3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLdStr}
+
+文字列リテラルの参照をスタックに積みます。
+整数\verb/n/はラベルの番号を表します。
+ラベル\verb/ln/は\verb/vmTmpLab/で出力される\verb/n/番目のラベルです。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLdStr(n)
+ニーモニック： LDC  ln   
+
+変換例：vmLdStr(3) => LDC  .L3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLdLab}
+
+ラベルの値（アドレス）をスタックに積みます。
+\verb/idx/は名前表でラベルが登録されている位置です。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLdLab(idx)
+ニーモニック： LDC  ラベル
+
+変換例：vmLdLab(3) => LDC  .a
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLdWrd}
+
+ワード配列の要素を読み出すための命令です。
+まずスタックから、添字、ワード配列のアドレスの順に取り出します。
+次にワード配列の要素の内容をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLdWrd()
+ニーモニック： LDW
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLdByt}
+
+バイト配列の要素を読み出すための命令です。
+まずスタックから、添字、バイト配列のアドレスの順に取り出します。
+次にバイト配列の要素の内容をワードに変換してスタックに積みます。
+変換はバイトデータの上位に\verb/0/のビットを付け加えることで行います。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLdByt()
+ニーモニック： LDB
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmStGlb}
+
+スタックトップの値をグローバル変数にストアします。
+\verb/idx/は名前表で変数名が登録されている位置です。
+スタックをポップしません。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmStGlb(idx)
+ニーモニック： STG   ラベル
+
+変換例：vmStGlb(3) => STG .a
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmStLoc}
+
+スタックトップの値を\verb/n/番目のローカル変数にストアします。
+スタックをポップしません。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmStLoc(n)
+ニーモニック： STL   n
+
+変換例：vmStLoc(3) => STL 3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmStArg}
+
+スタックトップの値を\verb/n/番目の引数にストアします。
+スタックをポップしません。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmStArg(n)
+ニーモニック： STA  n   
+
+変換例：vmStArg(3) => STA  3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmStWrd}
+
+ワード配列の要素を書き換える命令です。
+まずスタックから、添字、ワード配列のアドレスの順に取り出します。
+次にスタックトップの値をワード配列の要素に書き込みます。
+後半ではスタックをポップしません。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmStWrd()
+ニーモニック： STW
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmStByt}
+
+バイト配列の要素を書き換える命令です。
+まずスタックから、添字、バイト配列のアドレスの順に取り出します。
+次にスタックトップの値をバイトデータに変換して配列に書き込みます。
+後半ではスタックをポップしません。
+変換はワードデータの下位8bitを取り出すことで行います。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmStByt()
+ニーモニック： STB
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmNeg}
+
+まず、スタックから整数を取り出し２の補数を計算します。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmNeg()
+ニーモニック： NEG
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmNot}
+
+まず、スタックから論理値を取り出し否定を計算します。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmNot()
+ニーモニック： NOT
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmBNot}
+
+まず、スタックから整数を取り出し１の補数を計算します。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmBNot()
+ニーモニック： BNOT
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmChar}
+
+まず、スタックから整数を取り出し下位8bitだけ残しマスクします。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmChar()
+ニーモニック： CHAR
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmBool}
+
+まず、スタックから整数を取り出し最下位ビットだけ残しマスクします。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmBool()
+ニーモニック： BOOL
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmAdd}
+
+まず、スタックから整数を二つ取り出し和を計算します。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmAdd()
+ニーモニック： ADD
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmSub}
+
+まず、スタックから整数を一つ取り出し$x$とします。
+次に、スタックから整数をもう一つ取り出し$y$とします。
+最後に、スタックに$x-y$を積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmSub()
+ニーモニック： SUB
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmShl}
+
+まず、スタックからシフトするビット数、シフトされるデータの順に取り出します。
+次に、左シフトを計算します。
+最後に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmShl()
+ニーモニック： SHL
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmShr}
+
+まず、スタックからシフトするビット数、シフトされるデータの順に取り出します。
+次に、{\bf 算術}右シフトを計算します。
+最後に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmShr()
+ニーモニック： SHR
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmBAnd}
+
+まず、スタックから整数を二つ取り出しビット毎の論理積を計算します。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmBAnd()
+ニーモニック： BAND
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmBXor}
+
+まず、スタックから整数を二つ取り出しビット毎の排他的論理和を計算します。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmBXor()
+ニーモニック： BXOR
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmBOr}
+
+まず、スタックから整数を二つ取り出しビット毎の論理和を計算します。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmBOr()
+ニーモニック： BOR
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmMul}
+
+まず、スタックから整数を二つ取り出し積を計算します。
+次に、計算結果をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmMul()
+ニーモニック： MUL
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmDiv}
+
+まず、スタックから整数を一つ取り出し$x$とします。
+次に、スタックから整数をもう一つ取り出し$y$とします。
+最後に、スタックに$x \div y$を積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmDiv()
+ニーモニック： DIV
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmMod}
+
+まず、スタックから整数を一つ取り出し$x$とします。
+次に、スタックから整数をもう一つ取り出し$y$とします。
+最後に、スタックに$x$を$y$で割った余りを積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmMod()
+ニーモニック： MOD
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmGt}
+
+まず、スタックから整数を一つ取り出し$x$とします。
+次に、スタックから整数をもう一つ取り出し$y$とします。
+最後に、比較($x > y$)の結果(論理値)をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmGt()
+ニーモニック： GT
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmGe}
+
+まず、スタックから整数を一つ取り出し$x$とします。
+次に、スタックから整数をもう一つ取り出し$y$とします。
+最後に、比較($x \ge y$)の結果(論理値)をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmGe()
+ニーモニック： GE
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLt}
+
+まず、スタックから整数を一つ取り出し$x$とします。
+次に、スタックから整数をもう一つ取り出し$y$とします。
+最後に、比較($x < y$)の結果(論理値)をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLt()
+ニーモニック： LT
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmLe}
+
+まず、スタックから整数を一つ取り出し$x$とします。
+次に、スタックから整数をもう一つ取り出し$y$とします。
+最後に、比較($x \le y$)の結果(論理値)をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmLe()
+ニーモニック： LE
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmEq}
+
+まず、スタックから整数を一つ取り出し$x$とします。
+次に、スタックから整数をもう一つ取り出し$y$とします。
+最後に、比較($x = y$)の結果(論理値)をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmEq()
+ニーモニック： EQ
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmNe}
+
+まず、スタックから整数を一つ取り出し$x$とします。
+次に、スタックから整数をもう一つ取り出し$y$とします。
+最後に、比較($x \neq y$)の結果(論理値)をスタックに積みます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmNe()
+ニーモニック： NE
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmPop}
+
+スタックから値を一つ取り出し捨てます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmPop()
+ニーモニック： POP
+\end{verbatim}
+\end{quote}
+
+\subsection{マクロ命令}
+
+コード生成にヒントを与えるために、
+ニーモニックに対応するレベルまで展開しないで、
+マクロ命令として中間コードを出力する場合があります。
+
+\subsubsection{vmBoolOR}
+
+論理OR式の最後で計算結果の論理値をスタックに積むマクロ命令です。
+整数\verb/n1/、\verb/n2/、\verb/n3/はラベルの番号を表します。
+論理式の途中から\verb/true/、\verb/false/が定まった時点で
+マクロを展開したニーモニック中の\verb/n1/、
+\verb/n2/ラベルにジャンプしてきます。
+\verb/n2/が\verb/-1/の場合は短く展開されます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmBoolOR(n1, n2, n3)
+ニーモニック： 以下のように展開されます
+
+vmBoolOR(1, 2, 3)  | vmBoolOR(1, -1, 3)
+-------------------+--------------------
+      JMP   .L3    |      JMP   .L3
+.L1                | .L1
+      LDC   1      |      LDC   1
+      JMP   .L3    | .L3
+.L2                |
+      LDC   0      |
+.L3                |
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmBoolAND}
+
+論理AND式の最後で計算結果の論理値をスタックに積むマクロ命令です。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmBoolAND(n1, n2, n3)
+ニーモニック： 以下のように展開されます
+
+vmBoolAND(1, 2, 3) | vmBoolAND(1, -1, 3)
+-------------------+--------------------
+      JMP   .L3    |      JMP   .L3
+.L1                | .L1
+      LDC   0      |      LDC   0
+      JMP   .L3    | .L3
+.L2                |
+      LDC   1      |
+.L3                |
+\end{verbatim}
+\end{quote}
+
+\subsection{擬似命令}
+
+データ生成用の疑似命令です。
+
+\subsubsection{vmDwName}
+
+名前へのポインタを生成します。
+\verb/idx/は名前表で名前が登録されている位置です。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmDwName(idx)
+ニーモニック： DW  ラベル
+
+変換例：vmDwName(3) => DW .a
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmDwLab}
+
+\verb/vmTmpLab/で出力されるラベルへのポインタを生成します。
+整数\verb/n/はラベルの番号を表します。
+ラベル\verb/ln/は\verb/vmTmpLab/で出力される\verb/n/番目のラベルです。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmDwLab(n)
+ニーモニック： DW  ln   
+
+変換例：vmDwLab(3) => DW  .L3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmDwCns}
+
+ワードデータを生成します。
+整数\verb/c/は生成するデータの値です。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmDwCns(c)
+ニーモニック： DW  c   
+
+変換例：vmDwCns(3) => DW  3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmDbCns}
+
+バイトデータを生成します。
+整数\verb/c/は生成するデータの値です。
+\verb/vmDbCns/はバイト配列の初期化で使用されます。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmDbCns(c)
+ニーモニック： DB  c   
+
+変換例：vmDbCns(3) => DB  3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmWs}
+
+ワードデータ領域（配列）を生成します。
+整数\verb/n/は生成するワードの数です。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmWs(n)
+ニーモニック： WS  n
+
+変換例：vmWs(3) => WS  3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmBs}
+
+バイトデータ領域（配列）を生成します。
+整数\verb/n/は生成するバイトの数です。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmBs(n)
+ニーモニック： BS  n
+
+変換例：vmWs(3) => BS  3
+\end{verbatim}
+\end{quote}
+
+\subsubsection{vmStr}
+
+文字列を生成します。
+整数\verb/str/は文字列です。
+
+\begin{quote}
+\begin{verbatim}
+中 間 言 語 ： vmStr(s)
+ニーモニック： STRING s
+
+変換例：vmStr("hello\n") => STRING "hello\n"
+\end{verbatim}
+\end{quote}

@@ -9,82 +9,31 @@
 
 \section{ユーティリティのインストール}
 
-\tac 用のプログラムを作成するために、まず、
-\cmm コンパイラ用ユーティリティをインストールする必要があります。
+{\tac}用のプログラムを作成するために、まず、
+{\cmm}コンパイラ用ユーティリティをインストールする必要があります。
 ソースコードは
 \url{https://github.com/tctsigemura/Util--/}から入手します。
-インストールの準備ができたらダウンロードした配布物を解凍し
-\verb/Util--/ディレクトリで以下のように操作します。
 
-\begin{mylist}
-\begin{verbatim}
-$ make
-...
-cc -std=c99  -DDATE="\"`date`\"" -DVER=\"2.1.1\" \
-	-o as-- syntax.c lexical.c util.c
-cc -std=c99 -DDATE="\"`date`\"" -DVER=\"2.0.0\" -DARC=\"TaC\"
-  -o ld-- ld.c
-cc -std=c99 -o objbin-- objbin.c
-cc -std=c99 -o size-- size.c
-cc -std=c99 -o objexe-- objexe.c
-$ sudo make install
-...
-install -d -m 755 /usr/local/bin
-install -m 755 as-- /usr/local/bin
-...
-$
-\end{verbatim}
-\end{mylist}
-
-以上で、\as 、\ld 、\objbin 、\objexe 、\size の五つのプログラムが
-\verb;/usr/local/bin;にインストールされました。
-
-\begin{itemize}
-\item {\as}は\tac 用のアセンブラです。
-アセンブラは{\cmmc}が出力したアセンブリ言語プログラムを、
-リロケータブルオブオブジェクトに変換します。
-リロケータブルオブジェクトは、
-機械語プログラム、名前表、再配置情報表からなるファイルです。
-詳しくは、「\util 解説書」で説明します。
-
-\item {\ld}は\tac 用のリンカです。
-リンカは複数のリロケータブルオブジェクトを入力して、
-一つのリロケータブルオブジェクトに結合します。
-
-\item {\objbin}は\tac 用のローダです。
-ローダはリロケータブルオブジェクトを入力して、
-ロードアドレスが決定された機械語を出力します。
-出力ファイルの形式については「\util 解説書」で説明します。
-ローダは、\tacos のカーネルを作成する時に使用されます。
-
-\item {\objexe}は\tacos のアプリケーションプログラムの
-実行形式ファイルを作ります。
-これはリロケータブルオブジェクトを入力して、
-シンボルテーブルなどリンカしか使用しない情報を取り除いたファイルを出力します。
-出力ファイルの形式については「\util 解説書」で説明します。
-
-\item {\size}は、
-リロケータブルオブジェクトのテキストセグメント、
-初期化データセグメント、
-非初期化データセグメントの大きさを表示します。
-完成したプログラムのメモリ使用量を見積もるために使用します。
-\end{itemize}
+ダウンロードした配布物を解凍し
+「{\util}解説書」（{\tt Util--/doc/umm.pdf}）の手順に従いインストールします。
+{\as}、{\ld}、{\objbin}、{\objexe}、{\size}の五つのプログラムが
+{\tt /usr/local/bin}にインストールされます。
 
 \section{コンパイラのインストール}
 
-\cmm コンパイラのソースコードは
+{\cmm}コンパイラのソースコードは
 \url{https://github.com/tctsigemura/C--/}から入手します。
 ダウンロードした配布物を解凍し以下の順にインストールします。
 
 \subsection{コンパイラ本体のインストール}
 
-コンパイラ本体をインストールします。
-\verb;C--/src;ディレクトリに移動し以下のように操作します。
+%コンパイラ本体をインストールします。
+{\tt C--/src}ディレクトリに移動し以下のように操作します。
 
 \begin{mylist}
 \begin{verbatim}
 $ make
-cc -std=c99 -Wall  -DDATE="\"`date`\"" -DVER=\"3.0.0\" -DARC=\"TaC\" \
+cc -std=c99 -Wall  -DDATE="\"`date`\"" -DVER=\"3.0.0\" ...
 ...
 $ sudo make install
 Password:
@@ -92,29 +41,28 @@ install -d -m 755 /usr/local/bin
 install -m 755 c-- /usr/local/bin
 install -m 755 vm-c-- /usr/local/bin
 install -m 755 c-c-- /usr/local/bin
-$
 \end{verbatim}
 \end{mylist}
 
-以上で、\cmmc 、{\tt vm-c--}、{\tt c-c--}の三つのプログラムが
+以上で、{\cmmc}、{\vcmmc}、{\ccmmc}の三つのプログラムが
 作成され\verb;/usr/local/bin;にインストールされました。
 
 \begin{itemize}
-\item {\cmmc}は、\tac 用の本物のコンパイラです。
-\tac のアセンブリ言語を出力します。
-\item {\tt vm-c--}は、コンパイラの勉強をしたい人のために、
-中間コードをそのまま出力して見せるコンパイラです。
-\item {\tt c-c--}は、\cmml を普通のパソコンやマイコンで試してみたい人のために、
-\cmml を \cl に変換するトランスレータです。
-変換された \cl プログラムは普通のパソコンで実行できるはずです。
+\item {\cmmc}は、{\tac}用の本物のコンパイラです。
+{\tac}のアセンブリ言語を出力します。
+\item {\vcmmc}は、コンパイラの勉強をしたい人のために、
+中間言語(\pageref{app:vm}ページ)をよく反映した、
+仮想スタックマシンのニーモニックを出力して見せるコンパイラです。
+\item {\ccmmc}は、{\cmml}を普通のパソコンやマイコンで試してみたい人のために、
+{\cmml}を{\cl}に変換するトランスレータです。
+変換された{\cl}プログラムは普通のパソコンで実行できるはずです。
 \end{itemize}
 
 \subsection{ヘッダファイルのインストール}
 
-\cmml プログラム用のヘッダファイルをインストールします。
+{\cmml}プログラム用のヘッダファイルをインストールします。
 \verb;C--/include;ディレクトリに移動し以下のように操作します。
 \verb;/usr/local/cmmInclude;にインストールされます。
-
 
 \begin{mylist}
 \begin{verbatim}
@@ -123,7 +71,6 @@ Password:
 install -d -m 755 /usr/local/cmmInclude
 rm -f /usr/local/cmmInclude/*.hmm
 install -m 644 *.hmm /usr/local/cmmInclude
-$
 \end{verbatim}
 \end{mylist}
 
@@ -140,14 +87,13 @@ cc -E -std=c99 -nostdinc  -I/usr/local/cmmInclude - < ctype.cmm |
   c--  > ctype.s
 as-- ctype.s
 ...
-ld-- libtac.o crt0.o ctype.o stdio.o stdlib.o string.o syslib.o ...
+ld-- libtac.o crt0.o ctype.o stdio.o stdlib.o string.o ...
 rm stdio.s string.s stdlib.s ctype.s
-$
 \end{verbatim}
 \end{mylist}
 
 以上で、\verb;libtac.o;が作成されました。
-これが、\tacos のアプリケーションプログラムにリンクされるライブラリです。
+これが、{\tacos}のアプリケーションプログラムにリンクされるライブラリです。
 次に、インストールします。操作は次の通りです。
 
 \begin{mylist}
@@ -158,17 +104,16 @@ install -d -m 755 /usr/local/cmmLib
 install -m 644 libtac.o /usr/local/cmmLib
 install -m 644 cfunc.hmm /usr/local/cmmLib
 install -m 644 wrapper.c /usr/local/cmmLib
-$
 \end{verbatim}
 \end{mylist}
 
 \verb;/usr/local/cmmLib;ディレクトリに、
 いくつかのファイルがインストールされました。
-\verb;libtac.o;は\cmml で記述した\tacos 用のライブラリ関数です。
-\verb;cfunc.hmm;は\cmm プログラムがパソコンで実行される際に
-\cmml ライブラリ関数の代用として使用される \cl ライブラリ関数を定義します。
-\verb;wrapper.c;は\cmm プログラムがパソコンで実行される際に使用される
-\cl で記述された \cmm ライブラリ関数です。
+\verb;libtac.o;は{\cmml}で記述した{\tacos}用のライブラリ関数です。
+\verb;cfunc.hmm;は{\cmm}プログラムがパソコンで実行される際に
+{\cmml}ライブラリ関数の代用として使用される{\cl}ライブラリ関数を定義します。
+\verb;wrapper.c;は{\cmm}プログラムがパソコンで実行される際に使用される
+{\cl}で記述された{\cmm}ライブラリ関数です。
 \verb;cfunc.hmm;による置き換えができない関数が記述してあります。
 
 \section{サンプルプログラムのコンパイル}
@@ -177,7 +122,7 @@ $
 {\tt hello.cmm}プログラムが準備してあります。
 これをコンパイルしてみましょう。
 なお、\verb;C--/samples/c--;ディレクトリには、
-\cmml で記述した\cmm コンパイラが置いてあります。
+{\cmml}で記述した{\cmm}コンパイラが置いてあります。
 後で、こちらのコンパイルにも挑戦してください。
 
 \subsection{コンパイル}
@@ -208,7 +153,6 @@ $
  6: as-- hello.s
  7: ld-- mod.o /usr/local/cmmLib/libtac.o hello.o > hello.sym
  8: objexe-- hello.exe mod.o 600 | sort --key=1 > hello.map
- 9: $
 \end{verbatim}
 \end{mylist}
 
@@ -220,6 +164,7 @@ $
 
 \item {\tt hello.cmm}は、
 \cmml のもっとも簡単なサンプルプログラムです。
+
 画面に、\verb/hello,world/と表示します。
 
 \begin{mylist}
@@ -248,7 +193,6 @@ public int main() {
 \begin{verbatim}
 $ ./hello 
 hello,world
-$
 \end{verbatim}
 \end{mylist}
 
@@ -291,9 +235,9 @@ _main   PUSH    FP
 \end{mylist}
 
 \item {\tt hello.v}は、
-\verb/hello.cmm/を{\tt vm-c--}により\cmm
-コンパイラの中間言語に変換したプログラムです。
-中間言語の詳細は、？？？？で紹介します。
+\verb/hello.cmm/を{\tt vm-c--}により
+仮想スタックマシンのニーモニックに変換したプログラムです。
+中間言語の詳細は、\pageref{app:vm}ページで紹介します。
 
 \begin{mylist}
 \begin{verbatim}
@@ -330,7 +274,7 @@ _main
 \verb;C--/samples/hello;ディレクトリには、
 先程の実行例で使用された{\tt Makefile}の他に、
 実際に使用する場合を想定したMacOS、UNIX 用の{\tt Makefile.unix}と、
-\tacos 用の{\tt Makefile.}が準備してあります。
+\tacos 用の{\tt Makefile.tac}が準備してあります。
 以下に後の二つのファイルの内容を掲載します。
 これらは、OSX 10.10 で動作するように調整してあります。
 これを参考に、自分の目的と環境に合った{\tt Makefile}を作ってください。

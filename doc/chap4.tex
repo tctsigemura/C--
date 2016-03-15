@@ -7,6 +7,7 @@
 必要最低限の関数が、\tac 版、\cl トランスレータ版で使用できます。
 
 \section{標準入出力ライブラリ}
+\label{chap4:stdio}
 
 \verb/#include <stdio.hmm>/を書いた後で使用します。
 トランスレータ版では\cl の高水準I/O関数の呼出しに変換されます。
@@ -15,11 +16,19 @@
 以下の関数が使用できます。
 
 \subsection{printf 関数}
+
 標準出力ストリームに\verb/format/文字列を用いた変換付きで出力します。
 出力した文字数を関数の値として返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <stdio.hmm>
+public int printf(char[] format, ...);
+\end{verbatim}
+\end{quote}
+
 トランスレータ版では\cl の\verb/printf/関数の呼出しに変換されます。
 \tac 版では簡易\verb/printf/関数を使用できます。
-
 \tac 版の簡易\verb/printf/関数では、
 \verb/format/文字列に以下のような変換を記述できます。
 
@@ -54,6 +63,7 @@
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public char[] puts(char[] s);
 \end{verbatim}
 \end{quote}
@@ -65,6 +75,7 @@ public char[] puts(char[] s);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public boolean putchar(char c);
 \end{verbatim}
 \end{quote}
@@ -77,6 +88,7 @@ public boolean putchar(char c);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public char getchar();
 \end{verbatim}
 \end{quote}
@@ -93,6 +105,7 @@ public char getchar();
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public FILE fopen(char[] path, char[] mode);
 \end{verbatim}
 \end{quote}
@@ -102,11 +115,15 @@ public FILE fopen(char[] path, char[] mode);
 \begin{quote}
 \begin{tabular}{c|l}
 \multicolumn{1}{c|}{mode} & \multicolumn{1}{c}{意味} \\\hline
-\verb/r/ & 読み込みモードで開く \\
-\verb/w/ & 書き込みモードで開く（ファイルが無ければ作る） \\
-\verb/a/ & 追記モードで開く（ファイルが無ければ作る）
+\verb/"r"/ & 読み込みモードで開く \\
+\verb/"w"/ & 書き込みモードで開く（ファイルが無ければ作る） \\
+\verb/"a"/ & 追記モードで開く（ファイルが無ければ作る）
 \end{tabular}
 \end{quote}
+
+\verb/fopen/は、
+書き込みモード、追記モードの時ファイルが存在しない場合、
+自動的にファイルを作成します。
 
 \subsection{fclose関数}
 
@@ -119,6 +136,7 @@ public FILE fopen(char[] path, char[] mode);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public boolean fclose(FILE stream);
 \end{verbatim}
 \end{quote}
@@ -131,6 +149,7 @@ public boolean fclose(FILE stream);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public int fprintf(FILE stream, char[] format, ...);
 \end{verbatim}
 \end{quote}
@@ -143,6 +162,7 @@ public int fprintf(FILE stream, char[] format, ...);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public char[] fputs(char[] s, FILE stream);
 \end{verbatim}
 \end{quote}
@@ -155,7 +175,8 @@ public char[] fputs(char[] s, FILE stream);
 
 \begin{quote}
 \begin{verbatim}
-public boolean fputc(char c);
+#include <stdio.hmm>
+public boolean fputc(char c, FILE stream);
 \end{verbatim}
 \end{quote}
 
@@ -170,6 +191,7 @@ public boolean fputc(char c);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public char[] fgets(char[] buf, int n, FILE stream);
 \end{verbatim}
 \end{quote}
@@ -196,6 +218,7 @@ while (fgets(buf, N, stdin)!=null) { ...
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public char fgetc(FILE stream);
 \end{verbatim}
 \end{quote}
@@ -207,6 +230,7 @@ public char fgetc(FILE stream);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public boolean feof(FILE stream);
 \end{verbatim}
 \end{quote}
@@ -217,6 +241,7 @@ public boolean feof(FILE stream);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public boolean ferror(FILE stream);
 \end{verbatim}
 \end{quote}
@@ -231,7 +256,34 @@ public boolean ferror(FILE stream);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
 public boolean fflush(FILE stream);
+\end{verbatim}
+\end{quote}
+
+\subsection{readDir関数}
+\label{chap4:readDir}
+
+ディレクトリファイルを読みます。
+{\tacos}版だけで使用できる関数です。
+\verb/fd/には\verb/open/システムコールでオープン済のファイル記述子を、
+\verb/dir/には\verb/Dir/構造体のインスタンスを渡します。
+\verb/Dir/構造体の\verb/name/メンバーは、
+大きさ12の文字配列で初期化されている必要があります。
+
+\verb/ls/プログラムのソースコードに使用例があります。
+
+\begin{quote}
+\begin{verbatim}
+#include <stdio.hmm>
+struct Dir {
+    char[] name;
+    int    attr;
+    int    clst;
+    int    lenH, lenL;
+};
+Dir dir = {"            ", 0, 0, 0, 0 };
+public int readDir(int fd, Dir dir);
 \end{verbatim}
 \end{quote}
 
@@ -239,11 +291,13 @@ public boolean fflush(FILE stream);
 
 現在の\verb/errno/グローバル変数の値に応じたエラーメッセージを表示します。
 \verb/msg/はエラーメッセージの先頭に付け加えます。
-\verb/errno/はシステムコールやライブラリ関数がセットします。
+\verb/errno/にはシステムコールやライブラリ関数がエラー番号をセットします。
 \tabref{chap4:err}に\tac 版のエラーとメッセージの一覧を示します。
 
 \begin{quote}
 \begin{verbatim}
+#include <stdio.hmm>
+#include <errno.hmm>
 public void perror(char[] msg);
 \end{verbatim}
 \end{quote}
@@ -319,7 +373,7 @@ ENAME     & Invalid file name           & ファイル名が不正 \\
 ENOENT    & No such file or directrory  & ファイルが存在しない \\
 EEXIST    & File exists                 & 同名ファイルが存在する \\
 EOPEND    & File is opened              & 既にオープンされている \\
-ENFILE    & File table overflow         & システムのオープン超過 \\
+ENFILE    & File table overflow         & システム全体のオープン数超過 \\
 EBADF     & Bad file number             & ファイル記述子が不正 \\
 ENOSPC    & No space left on device     & デバイスに空き領域が不足 \\
 EPATH     & Bad path                    & パスが不正 \\
@@ -330,9 +384,9 @@ EINVAL    & Invalid argument            & 引数が不正 \\
 EMPROC    & Process table overflow      & プロセスが多すぎる \\
 ENOEXEC   & Bad EXE file                & EXE ファイルが不正 \\
 EMAGIC    & Bad MAGIC number            & 不正なマジック番号 \\
-EMFILE    & Too many open files         & プロセス毎のオープン超過 \\
+EMFILE    & Too many open files         & プロセス毎のオープン数超過 \\
 ECHILD    & No children                 & 子プロセスが存在しない \\
-ENOZOMBI  & No zombie children          & ゾンビの子が存在しない \\
+ENOZOMBI  & No zombie children          & ゾンビ状態の子が存在しない \\
 ENOMEM    & Not enough memory           & 十分な空き領域が無い \\
 ESYSNUM   & Invalid system call number  & システムコール番号が不正 \\
 EZERODIV  & Zero division               & ゼロ割り算 \\
@@ -351,13 +405,13 @@ EUBADA    & free: Bad address           & mallocした領域ではない \\
 \end{tabular}
 \end{mytable}
 
-\section{標準関数}
+\section{標準ライブラリ}
 
 \verb/#include <stdlib.hmm>/を書いた後で使用します。
 
 \subsection{malloc関数}
 
-ヒープ領域に引数の整数で指定バイト数のメモリ領域を確保し、
+ヒープ領域に\verb/size/バイトのメモリ領域を確保し、
 領域を指す参照を返します。
 \verb/malloc/関数は\verb/void[]/型なので、
 領域を指す参照は全ての参照変数に代入できます。
@@ -369,6 +423,7 @@ EUBADA    & free: Bad address           & mallocした領域ではない \\
 
 \begin{quote}
 \begin{verbatim}
+#include <stdlib.hmm>
 public void[] malloc(int size);
 \end{verbatim}
 \end{quote}
@@ -382,6 +437,7 @@ public void[] malloc(int size);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdlib.hmm>
 public void free(void[] mem);
 \end{verbatim}
 \end{quote}
@@ -393,6 +449,7 @@ public void free(void[] mem);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdlib.hmm>
 public int atoi(char[] s);
 \end{verbatim}
 \end{quote}
@@ -403,6 +460,7 @@ public int atoi(char[] s);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdlib.hmm>
 public void srand(int seed);
 \end{verbatim}
 \end{quote}
@@ -413,6 +471,7 @@ public void srand(int seed);
 
 \begin{quote}
 \begin{verbatim}
+#include <stdlib.hmm>
 public int rand();
 \end{verbatim}
 \end{quote}
@@ -421,15 +480,17 @@ public int rand();
 
 \verb/exit/関数はオープン済みのストリームをフラッシュしてから
 プログラムを終了します。
-
 \verb/status/は、親プロセスに返す終了コードです。
-\verb/0/が正常終了の意味、\verb/1/以上はユーザが決めた終了コード、
-負の値は\tabref{chap4:err}に示す記号名で定義されています。
+\verb/0/が正常終了の意味、\verb/1/以上はユーザが決めた終了コードです。
+
+{\tacos}版では、負の終了コードが使用できます。
+使用できるコードは\tabref{chap4:err}に記号定数として定義されています。
 負の値を返すと親プロセスがシェルの場合、
 シェル側でエラーメッセージを表示してくれます。
 
 \begin{quote}
 \begin{verbatim}
+#include <stdlib.hmm>
 public void exit(int status);
 \end{verbatim}
 \end{quote}
@@ -440,12 +501,13 @@ public void exit(int status);
 
 \subsection{strCpy関数}
 
-\verb/s/文字列を文字配列\verb/d/にコピーし、
+文字列\verb/s/を文字配列\verb/d/にコピーし、
 \verb/d/を関数値として返します。
 トランスレータ版では\cl の\verb/strcpy/関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public char[] strCpy(char[] d, char[] s);
 \end{verbatim}
 \end{quote}
@@ -455,12 +517,13 @@ public char[] strCpy(char[] d, char[] s);
 文字列\verb/s/の最大\verb/n/文字を文字配列\verb/d/にコピーし、
 \verb/d/を関数値として返します。
 文字配列の使用されない部分には\verb/'\0'/が書き込まれます。
-文字列の長さが\verb/n-1/より長い場合は、
+文字列の長さが\verb/n/以上の場合は、
 \verb/'\0'/が書き込まれないので注意して下さい。
 トランスレータ版では\cl の\verb/strncpy/関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public char[] strNcpy(char[] d, char[] s, int n);
 \end{verbatim}
 \end{quote}
@@ -473,6 +536,7 @@ public char[] strNcpy(char[] d, char[] s, int n);
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public char[] strCat(char[] d, char[] s);
 \end{verbatim}
 \end{quote}
@@ -487,6 +551,7 @@ public char[] strCat(char[] d, char[] s);
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public char[] strNcat(char[] d, char[] s, int n);
 \end{verbatim}
 \end{quote}
@@ -500,7 +565,8 @@ public char[] strNcat(char[] d, char[] s, int n);
 
 \begin{quote}
 \begin{verbatim}
-public int strCmp(char[] d, char[] s);
+#include <string.hmm>
+public int strCmp(char[] s1, char[] s2);
 \end{verbatim}
 \end{quote}
 
@@ -513,6 +579,7 @@ public int strCmp(char[] d, char[] s);
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public int strNcmp(char[] d, char[] s, int n);
 \end{verbatim}
 \end{quote}
@@ -525,6 +592,7 @@ public int strNcmp(char[] d, char[] s, int n);
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public int strLen(char[] s);
 \end{verbatim}
 \end{quote}
@@ -538,6 +606,7 @@ public int strLen(char[] s);
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public int strChr(char[] s, char c);
 \end{verbatim}
 \end{quote}
@@ -551,6 +620,7 @@ public int strChr(char[] s, char c);
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public int strRchr(char[] s, char c);
 \end{verbatim}
 \end{quote}
@@ -564,6 +634,7 @@ public int strRchr(char[] s, char c);
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public int strStr(char[] s1, char[] s2);
 \end{verbatim}
 \end{quote}
@@ -576,374 +647,248 @@ public int strStr(char[] s1, char[] s2);
 
 \begin{quote}
 \begin{verbatim}
+#include <string.hmm>
 public char[] subStr(char[] s, int pos);
 \end{verbatim}
 \end{quote}
 
-\section{参照型(アドレス)操作関数}
+\section{文字クラス分類関数}
+
+\verb/#include <ctype.hmm>/を書いた後で使用します。
+
+\subsection{isAlpha関数}
+
+文字\verb/c/がアルファベットなら\verb/true/を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public boolean isAlpha(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{isDigit関数}
+
+文字\verb/c/が数字なら\verb/true/を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public boolean isDigit(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{isAlnum関数}
+
+文字\verb/c/がアルファベットか数字なら\verb/true/を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public boolean isAlnum(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{isPrint関数}
+
+文字\verb/c/が印刷可能文字なら\verb/true/を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public boolean isPrint(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{isLower関数}
+
+文字\verb/c/がアルファベット小文字なら\verb/true/を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public boolean isLower(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{isUpper関数}
+
+文字\verb/c/がアルファベット大文字なら\verb/true/を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public boolean isUpper(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{isXdigit関数}
+
+文字\verb/c/が16進数文字なら\verb/true/を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public boolean isXdigit(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{isSpace関数}
+
+文字\verb/c/が空白文字（\verb/'\t'/、\verb/'\n'/、\verb/'\v'/、
+\verb/'\f'/、\verb/'\r'/、\verb/' '/）なら\verb/true/を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public boolean isSpace(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{toLower関数}
+
+文字\verb/c/がアルファベット大文字なら小文字に変換して返します。
+文字\verb/c/がアルファベット大文字以外の場合は変換しないで返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public char toLower(char c);
+\end{verbatim}
+\end{quote}
+
+\subsection{toUpper関数}
+
+文字\verb/c/がアルファベット小文字なら大文字に変換して返します。
+文字\verb/c/がアルファベット小文字以外の場合は変換しないで返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <ctype.hmm>
+public char toUpper(char c);
+\end{verbatim}
+\end{quote}
+
+\section{特殊な関数}
 
 \cmml にはキャスティング演算や、ポインタ演算がありません。
-そこで、以下の関数で代用します。
+これらの代用となる関数が\verb/#include <crt0.hmm>/を書いた後で使用できます。
 
-\subsection{\ul \ul ItoA 関数}
+\subsection{{\ul}iToA関数}
 \label{chap4:itoa}
 
 整数から参照へ型を変換する関数です。
-16ビット整数を引数に \verb/void[]/ 参照(16ビットのアドレス)を返します。
-\ul \ul ItoA 関数のプロトタイプ宣言を次に示します。
+整数を引数に \verb/void[]/ 参照(アドレス)を返します。
+トランスレータ版で64bitの\cl 環境では、
+\verb/int/型とポインタ型のビット数が異なるので使用できません。
 関数の値は \verb/void[]/ 型の参照なので、
 どのような参照型変数にも代入できます。
 
 \begin{quote}
 \begin{verbatim}
-public void[] __ItoA(int a);
+#include <crt0.hmm>
+public void[] _iToA(int a);
 \end{verbatim}
 \end{quote}
 
-\ul \ul ItoA 関数の応用例を次に示します。
-\pageref{app:memmap}ページに示すように
-F000H 番地は \tac のビデオメモリの開始番地です。
-このプログラムは、
-ビデオメモリを配列のようにアクセスし画面を文字 'A' で埋めつくします。
-
-\begin{mylist}
-\begin{verbatim}
-// ビデオ RAM を配列としてアクセスする
-char[] vRam = __ItoA(0xf000);
-for (int i=0; i<80*24; i=i+1)
-  vRam[i] = 'A';
-\end{verbatim}
-\end{mylist}
-
-\subsection{\ul \ul AtoI 関数}
+\subsection{{\ul}aToI関数}
 
 参照から整数へ型を変換する関数です。
-参照(16ビットアドレス)を引数に16ビットの整数を返します。
-\ul \ul AtoI 関数のプロトタイプ宣言を次に示します。
+参照(アドレス)を引数に整数を返します。
+トランスレータ版で64bitの\cl 環境では、
+\verb/int/型とポインタ型のビット数が異なるので使用できません。
 引数の型は \verb/void[]/ なので、
 参照型ならどんな型でも渡すことができます。
 
 \begin{quote}
 \begin{verbatim}
-public int __AtoI(void[] a);
+#include <crt0.hmm>
+public int _aToI(void[] a);
 \end{verbatim}
 \end{quote}
 
-\ul \ul AtoI 関数の応用例を次に示します。
-このプログラムは、\tac の IPL ルーチン(実物)の一部です。
-まず、指定セクタから読んだブートプログラムをメモリに格納します。
-次に、このプログラムの先頭アドレスにジャンプします。
+\subsection{{\ul}aToA関数}
 
-\begin{mylist}
-\begin{verbatim}
-// IPL の一部(ブートプログラムを読み込む)
-  char[] hBuf = malloc(256);          // マイクロドライブ用バッファ
-  int    sct = 23;                    // 23セクタから格納されている
-  readSct(0,sct,hBuf);                // 1セクタ読み出す
-  char[] mem = __ItoA(bswap(hBuf[0]));// 先頭ワードがロードアドレス
-  int    len = bswap(hBuf[1]);        // 第2ワードがプログラム長
-  int    idx = 2;                     // bswapは上/下位バイトを交換
-  int    offs = 0;
-  while(true) {
-     while (idx<256) {                // 1セクタ256ワードに付き
-       mem[offs] = bswap(hBuf[idx]);  // 機械語をメモリにコピー
-       offs = offs + 1;
-       idx  = idx  + 1;
-     }
-     if (offs>=len) break;            // プログラム長を超えたら終了
-     sct = sct + 1;                   // 次のセクタを読む
-     readSct(0,sct,hBuf);
-     idx = 0;
-  }
-  putstr("\n\nStart boot loader@0x");
-  puthex(__AtoI(mem));
-  putstr(" ...\n\n");
-  _jump(__AtoI(mem));                 // ロードしたプログラムに飛ぶ
-\end{verbatim}
-\end{mylist}
-
-\subsection{\ul \ul AddrAdd 関数}
-
-\cl のポインタ演算の代用にする関数です。
-参照(アドレス)と整数を引数に渡し、
-参照から整数ワード先の参照(アドレス)を返します。
-この関数は \verb/malloc/、\verb/free/ 関数の実現に使用されています。
-\ul \ul AddrAdd 関数のプロトタイプ宣言を次に示します。
+参照から参照へ型を変換する関数です。
+異なる型の参照の間で代入をするために使用できます。
 
 \begin{quote}
 \begin{verbatim}
-public void[] __AddrAdd(void[] a, int n);
+#include <crt0.hmm>
+public void[] _aToA(void[] a);
 \end{verbatim}
 \end{quote}
 
-\subsection{\ul \ul acmp 関数}
+\subsection{{\ul}addrAdd関数}
+
+\cl のポインタ演算の代用にする関数です。
+参照(アドレス)と整数を引数に渡し、
+参照から整数バイト先の参照(アドレス)を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <crt0.hmm>
+public void[] _addrAdd(void[] a, int n);
+\end{verbatim}
+\end{quote}
+
+\subsection{{\ul}aCmp関数}
 
 参照(アドレス)の大小比較を行う関数です。
 \cmml では参照の大小比較はできません。
 \javal でも参照の大小比較はできないので、通常はこの仕様で十分と考えられます。
 しかし、\verb/malloc/、\verb/free/ 関数等の実現には
 アドレスの大小比較が必要です。
-そこで、アドレスの大小比較をする \ul \ul acmp 関数を用意しました。
-\ul \ul acmp 関数のプロトタイプ宣言は下のようになります。
-\ul \ul acmp 関数は、\verb/a/ の方が大きい場合は 1 を、
+そこで、アドレスの大小比較をする {\ul}aCmp 関数を用意しました。
+{\ul}aCmp 関数は、\verb/a/ の方が大きい場合は 1 を、
 \verb/b/ の方が大きい場合は -1 を、
 \verb/a/ と \verb/b/ が等しい場合は 0 を返します。
 
 \begin{quote}
 \begin{verbatim}
-public int __acmp(void[] a, void[] b);
+#include <crt0.hmm>
+public int _aCmp(void[] a, void[] b);
 \end{verbatim}
 \end{quote}
 
-\section{符号無し整数の操作関数}
-
-\cmml では、int 型も char 型も符号付き整数です。
-内部表現に2の補数表現を用いているので、
-ほとんどの操作は、
-符号付きと考えても符号無しと考えても同じ機械語命令列で処理できます。
-そのため、符号付き数を符号無し数の代用に使用することができます。
-しかし、大小比較は符号付きと符号無しで異なる機械語を必要とします。
-そこで、この部分だけ関数を使用した特別な比較方法を使います。
-
-\subsection{\ul \ul ucmp 関数}
+\subsection{{\ul}uCmp関数}
 
 符号無し数の比較を行う関数です。
-\ul \ul ucmp 関数のプロトタイプ宣言を次に示します。
-\ul \ul ucmp 関数は、\verb/a/ の方が大きい場合は 1 を、
+{\ul}uCmp 関数は、\verb/a/ の方が大きい場合は 1 を、
 \verb/b/ の方が大きい場合は -1 を、
 \verb/a/ と \verb/b/ が等しい場合は 0 を返します。
 
 \begin{quote}
 \begin{verbatim}
-public int __ucmp(int a, int b);
+#include <crt0.hmm>
+public int _uCmp(int a, int b);
 \end{verbatim}
 \end{quote}
 
-次に \ul \ul ucmp 関数の応用例を示します。
-二つの符号無し数の大小関係によって3通りに場合分けしています。
-
-\begin{mylist}
-\begin{verbatim}
-  int a = 0xffff;
-  int b = 0x0000;
-  if (__ucmp(a,b)>0) {
-    ...                          // a > b の場合
-  } else if (__ucmp(a,b)==0) {
-    ...                          // a = b の場合
-  } else if (__ucmp(a,b)<0) {
-    ...                          // a < b の場合
-  }
-\end{verbatim}
-\end{mylist}
-
-\section{可変個引数関数のサポート関数}
-
-\cmml は引数の数が一定ではない可変個引数関数の宣言を認めますが、
-当該関数を記述するために必要な可変個引数へのアクセス方法を提供しません。
-そこで、サポート関数の力を借りて引数へアクセスする手段を提供します。
-
-\subsection{\ul \ul args 関数}
+\subsection{{\ul}args関数}
 \label{chap4:args}
 
 printf 関数のような可変個引数の関数を実現するために、
 可変個引数関数の内部で引数を配列としてアクセスできるようにする関数です。
-\ul \ul args 関数は \ul \ul args を呼び出した
-\cmm 関数の第2引数を添字 0 とする配列を返します。
-\ul \ul args 関数のプロトタイプ宣言を次に示します。
+{\ul}args 関数は{\ul}args を呼び出した
+{\cmm}関数の第1引数を添字\verb/0/とする\verb/int/配列を返します。
+{\ul}args 関数は、{\cl}トランスレータ版では使用できません。
 
 \begin{quote}
 \begin{verbatim}
-public int[] __args();
+#include <crt0.hmm>
+public int[] _args();
 \end{verbatim}
 \end{quote}
 
-次に可変個引数関数の記述例として、
-printf 関数を記述したプログラムの一部を示します。
+次に可変個引数関数の記述例を示します。
 
 \begin{mylist}
 \begin{verbatim}
-int printf(char[] fmt, ...) {      // ... は可変個引数の関数を表す
-  int[] args = __args();           // args配列は第2引数以降を格納
-  int n = 0;                       // 引数用のカウンタ
-  int arg = args[n];               // 第2引数から順に取り出す
-  for (i=0; fmt[i]!='\0'; i=i+1) { // 第1引数fmtは普通に使用できる
-    char c = fmt[i];               // 書式文字列から1文字取り出す
-    if (c=='%') {                  // 書式文字列に % 発見
-      c = fmt[i=i+1];              // % に続く文字を取り出す
-      ...
-      } else if (c=='c') {         // %c なら
-        putch(arg);                // 1文字出力
-        arg = args[n=n+1];         // arg を更新
-      } else if (c=='s') {         // %s なら
-        putstr(__ItoA(arg));       // 引数は文字配列参照のはず
-        arg = args[n=n+1];         // arg を更新
-      } else ...
-    ...
+int f(char[] s, ...) {         // ... は可変個引数の関数を表す
+  int[] args = _args();        // args配列は引数配列を格納
+  printf("%s\n", args[0]);     // 引数 s のこと（第１引数）
+  printf("%d\n", args[1]);     // 引数 ... の最初に該当（第２引数）
+  printf("%d\n", args[2]);     // 引数 ... の２番に該当（第３引数）
 \end{verbatim}
 \end{mylist}
-
-
-\section{32ビット演算関数}
-
-\cmml には32ビット整数型がありません。
-32ビットの四則演算をするための関数を用意しました。
-これらの関数では32ビットデータを要素数2の int 型配列で表現します。
-
-\subsection{\ul add32 関数}
-
-32ビットの加算ルーチンです。
-dst、src 二つの配列を渡し結果を dst 配列に格納します。
-また、関数値として dst 配列への参照を返します。
-つぎに、\ul add32 関数のプロトタイプ宣言を示します。
-
-\begin{quote}
-\begin{verbatim}
-public int[] _add32(int[] dst, int[] src);
-\end{verbatim}
-\end{quote}
-
-\ul add32 関数の使用例を次に示します。
-%最後の行は、\ul add32 関数が dst 配列への参照を返すことを利用して、
-%直前の2行と同じ処理をコンパクトに記述した例になっています。
-
-\begin{mylist}
-\begin{verbatim}
-int[] one = { 0, 1 };               // 32ビットの 1
-int[] two = { 0, 2 };               // 32ビットの 2
-int[] dat = array(2);
-
-dat[0] = dataH;                     // 32ビットデータ
-dat[1] = dataL;
-
-_add32(dat, one);                   // データに +1 する
-_add32(dat, two);                   // データに +2 する
-
-_add32(_add32(dat, one), two);      // 前の2行と同じ演算を短く記述
-
-printf("%04x%04x\n",dat[0],dat[1]); // 計算結果表示
-\end{verbatim}
-\end{mylist}
-
-\subsection{\ul sub32 関数}
-
-32ビットの減算ルーチンです。
-dst、src 二つの配列を渡し dst から src を引いた結果を dst 配列に格納します。
-また、関数値として dst 配列への参照を返します。
-つぎに、\ul sub32 関数のプロトタイプ宣言を示します。
-
-\begin{quote}
-\begin{verbatim}
-public int[] _sub32(int[] dst, int[] src);
-\end{verbatim}
-\end{quote}
-
-\subsection{\ul mul32 関数}
-
-32ビットの乗算ルーチンです。
-16ビットデータと16ビットデータの積を32ビットデータとして返します。
-一方の16ビットデータを dst 配列の2番目の要素(\verb/dst[1]/)に格納して、
-もう一方の16ビットデータを src として渡します。
-dst 配列の1番目の要素(\verb/dst[0]/)は計算に使用しません。
-計算結果は dst 配列に32ビットデータとして格納します。
-また、関数値として dst 配列への参照を返します。
-つぎに、\ul mul32 関数のプロトタイプ宣言を示します。
-
-\begin{quote}
-\begin{verbatim}
-public int[] _mul32(int[] dst, int src);
-\end{verbatim}
-\end{quote}
-
-\subsection{\ul div32 関数}
-
-32ビットの割算ルーチンです。
-32ビットデータを16ビットデータで割って、
-商と余りをそれぞれ16ビットで求めます。
-32ビットデータを dst 配列で、
-16ビットデータを src として渡します。
-計算結果は、商が \verb/dst[0]/ に、余りが \verb/dst[1]/ に、
-それぞれ16ビットデータとして格納されます。
-また、関数値として dst 配列への参照を返します。
-つぎに、\ul div32 関数のプロトタイプ宣言を示します。
-
-\begin{quote}
-\begin{verbatim}
-public int[] _div32(int[] dst, int src);
-\end{verbatim}
-\end{quote}
-
-\subsection{Ld32 マクロ}
-
-32ビットデータを初期化するためのマクロです。
-\verb/util.h/ ファイル中で次のように宣言されています。
-
-\begin{quote}
-\begin{verbatim}
-#define Ld32(dst,h,l) ((dst)[0]=(h),(dst)[1]=(l))
-\end{verbatim}
-\end{quote}
-
-使用例を示します。
-
-\begin{mylist}
-\begin{verbatim}
-int[] dat = array(2);
-
-Ld32(dat, dataH, dataL);            // 32ビットデータ
-
-_add32(dat, one);                   // データに +1 する
-\end{verbatim}
-\end{mylist}
-
-\section{バイトアクセス関数}
-
-Boot プログラム中でマイクロドライブの構造を解析する際に
-必要になった関数です。
-PC 等が書き込んだマイクロドライブ上のデータを TaC が読み込むと、
-\cmml の配列に次表のような順序で格納されます。
-このデータをバイト単位でアクセスできると便利です。
-
-\begin{center}
-{\bf マイクロドライブのデータを int 配列に格納した状態} \\
-\begin{tabular}{| r | c | c |}
-\hline
-\multicolumn{1}{|c|}{添字} & \multicolumn{2}{|c|}{内 容}          \\
-\hline
-0 & 第2バイト & 第1バイト \\
-\hline
-1 & 第4バイト & 第3バイト \\
-\hline
-2 & 第6バイト & 第5バイト \\
-\hline
-      &       &       \\
-\multicolumn{3}{|c|}{...}           \\
-      &       &       \\
-\hline
-\end{tabular}
-\end{center}
-
-\subsection{byte 関数}
-
-byte 関数は、
-int 型配列 b に上記表の順にバイトデータが格納されているとみなし、
-第 x バイトを取り出します。
-第1バイトを取り出したいときは、x を 0 にします。
-次に byte 関数のプロトタイプ宣言を示します。
-
-\begin{quote}
-\begin{verbatim}
-public int byte(int[] b, int x); 
-\end{verbatim}
-\end{quote}
-
-\subsection{Word マクロ}
-
-バイト配列からバイト単位で位置を指定して、
-16ビットデータを取り出すマクロです。
-\verb/util.h/ ファイル中で次のように宣言されています。
-
-\begin{quote}
-\begin{verbatim}
-#define Word(buf, idx) ((byte((buf),(idx)+1)<<8) | byte((buf),(idx)))
-\end{verbatim}
-\end{quote}

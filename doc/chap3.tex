@@ -280,7 +280,7 @@ a[0] = b[9] + 1;
 \begin{mylist}
 \begin{verbatim}
 // 2次元配列の例
-int[][] a2, b2 = array(4,3);       // 一度に2次元配列の領域を割り付ける
+int[][] a2, b2 = array(4,3);       // 2次元配列の領域を割り付ける
 public int main() {
   a2 = malloc(sizeof(void[])*4);   // 参照の配列を割り付ける
   for (int i=0; i<4; i=i+1)
@@ -387,6 +387,26 @@ public int main() {
 \end{verbatim}
 \end{mylist}
 
+\subsubsection{だまし型}
+
+内容不明のまま参照型を宣言できます。
+他の言語で記述された関数を呼び出す場合など、
+単に参照型として扱うだけで十分な場合があります。
+\verb/typedef/の後に名前を書きます。
+以下に使用例を示します。
+
+\begin{mylist}
+\begin{verbatim}
+typedef FILE;   // FILE 型を定義する
+
+void f() {
+  FILE fp = fopen(...); // C言語の関数を呼び出す
+  fprintf(fp,...);      // C言語の関数を呼び出す
+  ...
+}
+\end{verbatim}
+\end{mylist}
+
 \section{関数}
 \label{chap3:func}
 \cmml でも、\cl 同様に関数を宣言して使用することができます。
@@ -414,20 +434,20 @@ public int main() {
 
 \begin{mylist}
 \begin{verbatim}
-#include <stdio.hmm>          // printf のプロトタイプ宣言が含まれる
-int f() {                     // 引数の無い関数
-  return 1;                   // void 型以外の関数は必ずreturnが必要
+#include <stdio.hmm>       // printf のプロトタイプ宣言が含まれる
+int f() {                  // 引数の無い関数
+  return 1;                // void 型以外の関数は必ずreturnが必要
 }
 
 void g(int x) {
-  x = x * x;                  // 仮引数は変数のように使用できる
-  printf("%04x\n", x);        // プロトタイプ宣言が必要
+  x = x * x;               // 仮引数は変数のように使用できる
+  printf("%04x\n", x);     // プロトタイプ宣言が必要
 }
 
 public int main() {
-  int x = f();                // 関数の呼び出し
-  g(x);                       // 引数の型と個数が一致する必要がある
-  return 0;                   // void 型以外の関数は必ずreturnが必要
+  int x = f();             // 関数の呼び出し
+  g(x);                    // 引数の型と個数が一致する必要がある
+  return 0;                // void 型以外の関数は必ずreturnが必要
 }
 \end{verbatim}
 \end{mylist}
@@ -612,8 +632,8 @@ x = -10 + 3 * 2;
 
 \subsection{比較演算}
 
-\underline{(1)整数型の大小比較と同値の判定}、
-\underline{(2)参照型、文字型、論理型の同値の判定}ができます。
+{\bf (1)整数型の大小比較と同値の判定}、
+{\bf (2)参照型、文字型、論理型の同値の判定}ができます。
 大小比較の演算子は、
 「\verb/>/」(より大きい)、
 「\verb/>=/」(以上)、
@@ -722,7 +742,6 @@ void f() {
   int[] b = a[0];           // 2次元配列の要素は1次元配列
   int   c = b[1];           // 1次元配列の要素は int 型
   int   d = a[0][1];        // c と d は同じ結果になる
-  ...
 }
 
 // 構造体リスト例
@@ -738,7 +757,6 @@ void g() {
   a.next = malloc(sizeof(List));  // リストの2番目ノードを作る
   a.next.val  = 2;
   a.next.next = null;             // 2番目ノードは参照の参照
-  ...
 }
 \end{verbatim}
 \end{mylist}
@@ -795,9 +813,9 @@ boolean型の場合は\verb/true=1/、\verb/false=0/となります。
 int型の ASCII コードから、char型の文字に変換します。
 
 \subsection{bool 演算}
-\label{chap3:chr}
+\label{chap3:bool}
 
-booelan型の値から、int型の値に変換します。
+int型の\verb/1/、\verb/0/から、boolean型の論理値に変換します。
 
 以下に、ord、chr、bool 演算子の使用例を示します。
 
@@ -979,7 +997,7 @@ for (i=0; i<10; i=i+1) { ... }
 n = i;                              // i をここで使用できる
 
 for (int j=0; j<10; j=j+1) { ... }
-n = j;                              // （エラー）この j は未定義になる
+n = j;                              // （エラー）j が未定義になる
 
 for (;;) { ... }                    // 無限に本文を繰り返す
 \end{verbatim}
