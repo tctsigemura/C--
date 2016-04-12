@@ -145,7 +145,7 @@ int lxGetTok(){
   }else{
     fscanf(fp, "\n");
   }
-  printf("%d : %d\n",ln ,tok);
+//  printf("%d : %d\n",ln ,tok);               // ### デバッグ用 ###
   return tok;
 }
 
@@ -211,7 +211,6 @@ static boolean isType(void) {
 
 // 型名と配列を表す '[]' を読み込む
 static void getType(void) {
-  printf("%d\n", tok);
   if (!isType()) error("型がない");              // 型かどうか調べる
   getTok();                                      // 型名を読み飛ばす
   for (curDim=0; isTok('['); curDim=curDim+1)    // 配列型なら次元を増やす
