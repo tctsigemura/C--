@@ -3,6 +3,7 @@ struct X{
   int val;
 };
 char[] str = array(127);
+char[] ss  = "te st test";
 int main(){
   int a = 100 + 10;
   a = a + 10;

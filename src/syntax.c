@@ -121,8 +121,19 @@ static int tok;                              // 次のトークン
 int lxGetTok(){
   int tok = LxNONTOK;
   fscanf(fp, "%d\t%d", &ln, &tok);
-  if(tok==LxNAME || tok == LxSTRING){
+  if(tok==LxNAME){
     fscanf(fp, "\t%s\n", str);
+  }else if(tok==LxSTRING){
+    int i=0;
+    char c;
+    fgetc(fp);                                // tabを読み捨てる
+    while((c=fgetc(fp))!='\n'){               // 改行がくるまで文字列
+      if(i>StrMAX)
+        error("文字列が長すぎる");
+      str[i] = c;
+      i = i+1;
+    }
+    str[i] = '\0';
   }else if(tok==LxFILE){
     fscanf(fp, "\t%s\n", str);
   }else if(tok==LxINTEGER){
