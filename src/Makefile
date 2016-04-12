@@ -68,6 +68,19 @@ c-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
 	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
 
+d-c-- : Makefile syntax.c syntax.h lxdef.h util.h util.c \
+	      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
+	      optree.h optree.c
+		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+		-DNWORD=16 -DNBYTE=8 -o d-c-- \
+		syntax.c namtbl.c util.c sytree.c \
+		vmCode.c vm2tac.c optree.c
+
+lx : Makefile lexical.c lexical.h util.h util.c
+ 	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+ 	-DNWORD=16 -DNBYTE=8 -o lx \
+ 	lexical.c util.c
+
 #h8300hn-c-- : Makefile syntax.c lexical.c lexical.h util.h util.c \
 #      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2h8300hn.c \
 #      optree.h optree.c
@@ -84,6 +97,5 @@ install : c-- vm-c-- c-c-- # h8300hn-c--
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+	rm -f c-- vm-c-- c-c-- d-c-- lx *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 #	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
-

@@ -1,0 +1,11 @@
+struct X{
+  char[] name;
+  int val;
+};
+char[] str = array(127);
+int main(){
+  int a = 100 + 10;
+  a = a + 10;
+  X x;
+  return 0;
+}

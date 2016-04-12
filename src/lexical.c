@@ -22,6 +22,7 @@
 /*
  * lexical.c : C--コンパイラの字句解析ルーチン
  *
+ * 2016.04.11         : 小さなメモリ上で動作させるために分割
  * 2016.02.24         : getSharp が str にもファイル名を記録するように変更
  * 2016.02.05 v3.0.0  : トランスレータと統合(LxFILE, LxTYPEDEF 追加)
  * 2016.01.28         : getCh() の始めて呼ばれた時の処理を改良
@@ -390,3 +391,35 @@ int lxGetVal() { return val; }                 // 数値等を読んだときの
 char *lxGetStr() { return str; }               // 名前、文字列の綴を返す
 
 void lxSetFp(FILE *p) { fp = p; }              // fp をセットする
+
+int main(int argc, char *argv[]){
+  FILE *fpin, *fpout;
+  int tok;
+  fpout = fopen("lx_sn.txt", "w");
+  if (argc==2) {                             // 引数としてソースファイルがある
+    if((fpin = fopen(argv[1],"r")) == NULL){ // ソースファイルをオープン
+      perror(argv[1]);                       // オープン失敗の場合は、メッ
+      exit(1);                               //   セージを出力して終了
+    }
+    lxSetFname(argv[1]);                     // error表示用にファイル名を登録
+  } else if (argc==1) {
+    fpin = stdin;
+    lxSetFname("STDIN");                     // error表示用にファイル名を登録
+  } else {
+    //usage(argv[0]);
+    exit(1);
+  }
+  lxSetFp(fpin);                               // 字句解析に fp を知らせる
+  fprintf(fpout, "%d\t%d\t%s\n", lxGetLn(), LxFILE, lxGetFname());
+  while ((tok = lxGetTok())!=EOF){                  // EOF になるまで読む
+    if(tok == LxNAME || tok == LxSTRING)
+      fprintf(fpout, "%d\t%d\t%s\n", lxGetLn(), tok, lxGetStr());
+    else if(tok == LxINTEGER)
+      fprintf(fpout, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
+    else if(tok == LxCHARACTER)
+      fprintf(fpout, "%d\t%d\t%c\n", lxGetLn(), tok, lxGetVal());
+    else
+      fprintf(fpout, "%d\t%d\n", lxGetLn(), tok);   // 中間ファイルに出力
+  }
+  return 0;
+}

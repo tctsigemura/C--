@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2016.04.12         : 字句解析部分を分離
  * 2016.02.05 v3.0.0  : main() 関数を main.c に分離して新規作成
  *                      トランスレータと統合
  * 2016.01.12         : 可変個引数関数の実引数にvoid型が来た時のバグ発見(未解決)
@@ -71,7 +72,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "util.h"                   // その他機能モジュール
-#include "lexical.h"                // 字句解析モジュール
+#include "lxdef.h"                  // トークン名の定義
 #include "optree.h"                 // 構文木最適化モジュール
 #include "code.h"                   // コード生成モジュール
 #include "namtbl.h"                 // 名前表モジュール
@@ -93,12 +94,18 @@ static int     funcIdx;             // 現在読込中の関数
 static boolean optFlag = true;      // 最適化を行う
 static boolean krnFlag = false;     // カーネルコンパイルモード
 
+#define StrMAX     128              // 名前の長さの上限
+static int  val;                    // 数値を返す場合、その値
+static char str[StrMAX + 1];        // 名前を返す場合、その綴
+static char fname[StrMAX + 1];      // 入力ファイル名
+static FILE * fp;                   // ソースコードファイル
+static int ln;                      // 行番号
+
 // (# 行番号 "path")ディレクティブの処理
 #define  CMMINC "/cmmInclude/"      // C--用システムヘッダファイルの目印
 
 static void getFile() {
   char * fname = lxGetStr();                 // 現在のファイル
-
   if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
       strEndsWith(fname, ".hmm"))  {         // ヘッダファイルなら
     fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
@@ -111,9 +118,49 @@ static void getFile() {
 // トークンの読み込み
 static int tok;                              // 次のトークン
 
+int lxGetTok(){
+  int tok = LxNONTOK;
+  fscanf(fp, "%d\t%d", &ln, &tok);
+  if(tok==LxNAME || tok == LxSTRING){
+    fscanf(fp, "\t%s\n", str);
+  }else if(tok==LxFILE){
+    fscanf(fp, "\t%s\n", str);
+  }else if(tok==LxINTEGER){
+    fscanf(fp, "\t%d\n", &val);
+  }else if(tok == LxCHARACTER){
+    char ch;
+    fscanf(fp, "\t%c\n", &ch);
+    val = ch;
+  }else{
+    fscanf(fp, "\n");
+  }
+  printf("%d : %d\n",ln ,tok);
+  return tok;
+}
+
+void lxSetFname(char s[]) {                    // 入力ファイル名をセットする
+  int i;
+  for (i=0; i<=StrMAX; i=i+1) {
+    fname[i] = s[i];
+    if (fname[i]=='\0') break;
+  }
+  if (fname[i]!='\0') error("ファイル名が長すぎる");
+}
+
+char *lxGetFname() { return fname; }           // 入力ファイル名を読み出す
+
+int lxGetLn() { return ln; }                   // 行番号を返す
+
+int lxGetVal() { return val; }                 // 数値等を読んだときの値を返す
+
+char *lxGetStr() { return str; }               // 名前、文字列の綴を返す
+
+void lxSetFp(FILE *p) { fp = p; }              // fp をセットする
+
 static int getTok() {
   tok = lxGetTok();                          // 次のトークンを入力する
   while (tok==LxFILE) {                      // ディレクティブなら
+    lxSetFname(lxGetStr());
     getFile();                               //   ディレクティブを処理する
     tok = lxGetTok();                        //   次のトークンを入力する
   }
@@ -153,6 +200,7 @@ static boolean isType(void) {
 
 // 型名と配列を表す '[]' を読み込む
 static void getType(void) {
+  printf("%d\n", tok);
   if (!isType()) error("型がない");              // 型かどうか調べる
   getTok();                                      // 型名を読み飛ばす
   for (curDim=0; isTok('['); curDim=curDim+1)    // 配列型なら次元を増やす
@@ -285,7 +333,7 @@ static void getPostOP(struct watch *w) {
     } else error("バグ...getPostOP");
     w->tree = syNewNode(stype, w->tree, rval); // 後置演算を構文木に追加
     w->lhs = true;                             // 演算結果は代入可
-    freeWatch(w2); 
+    freeWatch(w2);
   }
 }
 */
@@ -307,9 +355,9 @@ static void getIdxOP(struct watch *w) {
   else if (stype==TyBOOL)   stype = SyIDXB;    // boolean はバイト配列
   else error("バグ...getIdxOP");
 
-  w->tree = syNewNode(stype, w->tree, w2->tree);// 
+  w->tree = syNewNode(stype, w->tree, w2->tree);//
   w->lhs = true;                               // 演算結果は代入可
-  freeWatch(w2); 
+  freeWatch(w2);
 }
 
 // 後置演算子(構造体フィールド('.'))の処理
@@ -749,7 +797,7 @@ static int getIf(void) {
   }
   freeWatch(w);                                // w は役目を終えた
   return sta;
-}    
+}
 
 // WHILE文
 static int getWhile(void) {
@@ -764,7 +812,7 @@ static int getWhile(void) {
   sta =  syNewNode(SyWHL, w->tree, sta);       // while を完成
   freeWatch(w);                                // w は役目を終えた
   return sta;
-}    
+}
 
 // DO - WHILE文
 static int getDoWhile(void) {
@@ -781,7 +829,7 @@ static int getDoWhile(void) {
   sta = syNewNode(SyDO, sta, w->tree);        // 登録
   freeWatch(w);                                // w は役割を終えた
   return sta;
-}    
+}
 
 // FOR文
 static int getFor(void) {
@@ -836,12 +884,12 @@ static int getFor(void) {
   sta = syNewNode(SySEMI, sta, rini);          // 再初期化と本文
   sta = syNewNode(SyWHL, cnd, sta);            // while文相当部分
   sta = syNewNode(SyBLK, ini, sta);            // 初期化とwhile文でブロック
-  
+
   ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
   // curScope = curScope - 1;     // C言語と同じスコープルールにするなら
   return sta;
-}    
+}
 
 // break 文
 static int getBreak(void) {
@@ -1235,4 +1283,17 @@ void snGetSrc(void) {
   getTok();                                  // 最初の tok を読み込む
   while (tok!=EOF)                           // EOF になるまで
     getProg();                               //   C-- プログラムを処理
+}
+
+int main() {
+  FILE *fp;
+  if((fp = fopen("lx_sn.txt","r")) == NULL){   // ソースファイルをオープン
+      perror("lx_sn.txt");                     // オープン失敗の場合は、メッ
+      exit(1);                               //   セージを出力して終了
+  }
+
+  lxSetFp(fp);                               // 字句解析に fp を知らせる
+  snGetSrc();                                // fp からソースコードを入力して
+                                             //   stdout へ出力
+  return 0;
 }
