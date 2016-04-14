@@ -136,7 +136,7 @@ int lxGetTok(){
     str[i] = '\0';
   }else if(tok==LxFILE){
     fscanf(fp, "\t%s\n", str);
-  }else if(tok==LxINTEGER || tok==LxLOGICAL){
+  }else if(tok==LxINTEGER){
     fscanf(fp, "\t%d\n", &val);
   }else if(tok == LxCHARACTER){
     char ch;
@@ -1297,9 +1297,9 @@ void snGetSrc(void) {
 
 int main() {
   FILE *fp;
-  if((fp = fopen("lx_sn.txt","r")) == NULL){   // 中間ファイルをオープン
+  if((fp = fopen("lx_sn.txt","r")) == NULL){   // ソースファイルをオープン
       perror("lx_sn.txt");                     // オープン失敗の場合は、メッ
-      exit(1);                                 // セージを出力して終了
+      exit(1);                               //   セージを出力して終了
   }
 
   lxSetFp(fp);                               // 字句解析に fp を知らせる

@@ -414,12 +414,13 @@ int main(int argc, char *argv[]){
   while ((tok = lxGetTok())!=EOF){                  // EOF になるまで読む
     if(tok == LxNAME || tok == LxSTRING)
       fprintf(fpout, "%d\t%d\t%s\n", lxGetLn(), tok, lxGetStr());
-    else if(tok == LxINTEGER)
+    else if(tok == LxINTEGER || tok == LxLOGICAL)
       fprintf(fpout, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
     else if(tok == LxCHARACTER)
       fprintf(fpout, "%d\t%d\t%c\n", lxGetLn(), tok, lxGetVal());
     else
       fprintf(fpout, "%d\t%d\n", lxGetLn(), tok);   // 中間ファイルに出力
   }
+  fprintf(fpout, "%d\t%d\n", lxGetLn(), EOF);          // ファイル終わり
   return 0;
 }
