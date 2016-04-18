@@ -139,9 +139,9 @@ int lxGetTok(){
   }else if(tok==LxINTEGER || tok==LxLOGICAL){
     fscanf(fp, "\t%d\n", &val);
   }else if(tok == LxCHARACTER){
-    char ch;
-    fscanf(fp, "\t%c\n", &ch);
-    val = ch;
+    //char ch;
+    fscanf(fp, "\t%d\n", &val);
+    //val = ch;
   }else{
     fscanf(fp, "\n");
   }

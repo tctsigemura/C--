@@ -412,13 +412,25 @@ int main(int argc, char *argv[]){
   lxSetFp(fpin);                               // 字句解析に fp を知らせる
   fprintf(fpout, "%d\t%d\t%s\n", lxGetLn(), LxFILE, lxGetFname());
   while ((tok = lxGetTok())!=EOF){                  // EOF になるまで読む
-    if(tok == LxNAME || tok == LxSTRING)
-      fprintf(fpout, "%d\t%d\t%s\n", lxGetLn(), tok, lxGetStr());
-    else if(tok == LxINTEGER || tok == LxLOGICAL)
+    if(tok == LxNAME || tok == LxSTRING){
+        int i = 0;
+        fprintf(fpout, "%d\t%d\t", lxGetLn(), tok);
+        while(str[i]){
+          if(str[i]=='\n')
+            fprintf(fpout, "\\n");
+          else
+            fprintf(fpout, "%c", str[i]);
+          i = i+1;
+        }
+        fprintf(fpout, "\n");
+    }else if(tok == LxINTEGER || tok == LxLOGICAL)
       fprintf(fpout, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
-    else if(tok == LxCHARACTER)
-      fprintf(fpout, "%d\t%d\t%c\n", lxGetLn(), tok, lxGetVal());
-    else
+    else if(tok == LxCHARACTER){
+      //if(lxGetVal() == '\n')
+      //  fprintf(fpout, "%d\t%d\t\\n\n", lxGetLn(), tok);
+      //else
+        fprintf(fpout, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
+    }else
       fprintf(fpout, "%d\t%d\n", lxGetLn(), tok);   // 中間ファイルに出力
   }
   fprintf(fpout, "%d\t%d\n", lxGetLn(), EOF);          // ファイル終わり
