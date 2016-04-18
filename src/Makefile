@@ -76,10 +76,10 @@ d-c-- : Makefile syntax.c syntax.h lxdef.h util.h util.c \
 		syntax.c namtbl.c util.c sytree.c \
 		vmCode.c vm2tac.c optree.c
 
-lx : Makefile lexical.c lexical.h util.h util.c
- 	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
- 	-DNWORD=16 -DNBYTE=8 -o lx \
- 	lexical.c util.c
+lx : Makefile lexical.h lexical.c util.h util.c
+		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+		-DNWORD=16 -DNBYTE=8 -o lx \
+		lexical.c util.c
 
 #h8300hn-c-- : Makefile syntax.c lexical.c lexical.h util.h util.c \
 #      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2h8300hn.c \
