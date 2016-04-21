@@ -97,5 +97,5 @@ install : c-- vm-c-- c-c-- # h8300hn-c--
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- d-c-- lx *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+	rm -f c-- vm-c-- c-c-- d-c-- lx *.lx *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 #	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~

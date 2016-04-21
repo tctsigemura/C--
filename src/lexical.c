@@ -84,6 +84,7 @@ static int  val;                                   // 数値を返す場合、�
 static char str[StrMAX + 1];                       // 名前を返す場合、その綴
 static char fname[StrMAX + 1];                     // 入力ファイル名
 static FILE * fp;                                  // ソースコードファイル
+static char outfname[StrMAX +1] = "stdin";
 
 // 一文字を読み込む
 static int getCh() {
@@ -394,14 +395,21 @@ void lxSetFp(FILE *p) { fp = p; }              // fp をセットする
 
 int main(int argc, char *argv[]){
   FILE *fpin, *fpout;
-  int tok;
-  fpout = fopen("lx_sn.txt", "w");
+  int tok; 
   if (argc==2) {                             // 引数としてソースファイルがある
     if((fpin = fopen(argv[1],"r")) == NULL){ // ソースファイルをオープン
       perror(argv[1]);                       // オープン失敗の場合は、メッ
       exit(1);                               //   セージを出力して終了
     }
     lxSetFname(argv[1]);                     // error表示用にファイル名を登録
+    int i;
+    for(i=0; i<=StrMAX; i=i+1){
+      outfname[i] = argv[1][i];
+      if(outfname[i]=='\0') break;
+    }
+    if (outfname[i]!='\0') error("ファイル名が長すぎる");
+    if (strEndsWith(outfname, ".cmm"))
+      outfname[strlen(outfname) - 4]='\0';
   } else if (argc==1) {
     fpin = stdin;
     lxSetFname("STDIN");                     // error表示用にファイル名を登録
@@ -409,6 +417,8 @@ int main(int argc, char *argv[]){
     //usage(argv[0]);
     exit(1);
   }
+  sprintf(outfname,"%s.lx",outfname);
+  fpout = fopen(outfname, "w");
   lxSetFp(fpin);                               // 字句解析に fp を知らせる
   fprintf(fpout, "%d\t%d\t%s\n", lxGetLn(), LxFILE, lxGetFname());
   while ((tok = lxGetTok())!=EOF){                  // EOF になるまで読む

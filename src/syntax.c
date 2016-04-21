@@ -1293,13 +1293,18 @@ void snGetSrc(void) {
     getProg();                               //   C-- プログラムを処理
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   FILE *fp;
-  if((fp = fopen("lx_sn.txt","r")) == NULL){   // 中間ファイルをオープン
-      perror("lx_sn.txt");                     // オープン失敗の場合は、メッ
+  if (argc==2){
+    if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
+      perror(argv[1]);                     // オープン失敗の場合は、メッ
       exit(1);                                 // セージを出力して終了
+    }
+    lxSetFname(argv[1]);
+  }else{
+    fp = stdin;
+    lxSetFname("STDIN");
   }
-
   lxSetFp(fp);                               // 字句解析に fp を知らせる
   snGetSrc();                                // fp からソースコードを入力して
                                              //   stdout へ出力
