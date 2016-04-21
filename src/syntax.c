@@ -123,7 +123,7 @@ int lxGetTok(){
   fscanf(fp, "%d\t%d", &ln, &tok);
   if(tok==LxNAME){
     fscanf(fp, "\t%s\n", str);
-  }else if(tok==LxSTRING){
+  }else if(tok==LxSTRING || tok==LxFILE){
     int i=0;
     char c;
     fgetc(fp);                                // tabを読み捨てる
@@ -134,8 +134,6 @@ int lxGetTok(){
       i = i+1;
     }
     str[i] = '\0';
-  }else if(tok==LxFILE){
-    fscanf(fp, "\t%s\n", str);
   }else if(tok==LxINTEGER || tok==LxLOGICAL){
     fscanf(fp, "\t%d\n", &val);
   }else if(tok == LxCHARACTER){

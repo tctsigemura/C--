@@ -426,10 +426,9 @@ int main(int argc, char *argv[]){
     }else if(tok == LxINTEGER || tok == LxLOGICAL)
       fprintf(fpout, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
     else if(tok == LxCHARACTER){
-      //if(lxGetVal() == '\n')
-      //  fprintf(fpout, "%d\t%d\t\\n\n", lxGetLn(), tok);
-      //else
-        fprintf(fpout, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
+      fprintf(fpout, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
+    }else if(tok == LxFILE){
+      fprintf(fpout, "%d\t%d\t%s\n", lxGetLn(), tok, lxGetFname());
     }else
       fprintf(fpout, "%d\t%d\n", lxGetLn(), tok);   // 中間ファイルに出力
   }

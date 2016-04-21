@@ -1,0 +1,19 @@
+# 1 "a.cmm"
+# 1 "<built-in>" 1
+# 1 "<built-in>" 3
+# 328 "<built-in>" 3
+# 1 "<command line>" 1
+# 1 "<built-in>" 2
+# 1 "a.cmm" 2
+# 1 "./b.cmm" 1
+int b(){
+  return 4;
+}
+
+# 2 "a.cmm" 2
+
+int main(){
+  char a = b();
+  return 0;
+}
+
