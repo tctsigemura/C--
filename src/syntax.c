@@ -115,20 +115,17 @@ static void optTree(int node){
 // コード生成処理の記録
 // 関数１個分のコード生成
 static void genFunc(int funcIdx, int depth, boolean krnFlg) {
-  ntPrintTable(0);
   syPrintTree();
   fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
 }
 // 初期化データの生成
 static void genData(int idx) {
-  ntPrintTable(0);
   syPrintTree();
   fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
 }
 
 // 非初期化データの生成
 static void genBss(int idx) {
-  ntPrintTable(0);
   syPrintTree();
   fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
 }
@@ -212,25 +209,7 @@ int lxGetTok(){
   }else if(tok==LxINTEGER || tok==LxLOGICAL){
     val = getDec();
   }else if(tok == LxCHARACTER){
-    char ch;
-    ch = fgetc(fp);
-    if(ch=='\\'){
-      ch = fgetc(fp);
-      if(ch=='n'){
-        val = '\n';
-        fgetc(fp);
-      }else if(ch=='t'){
-        val = '\t';
-        fgetc(fp);
-      }else if(ch=='\n'){
-        val = '\\';
-      }else{
-        error("syntax読み取り バグ");
-      }
-    }else{
-      val = ch;
-      fgetc(fp);
-    }
+    val = getDec();
   }
   //printf("%d : %d\n",ln ,tok);               // ### デバッグ用 ###
   return tok;
@@ -1450,5 +1429,6 @@ int main(int argc, char *argv[]) {
   lxSetFp(fp);                               // 字句解析に fp を知らせる
   snGetSrc();                                // fp からソースコードを入力して
                                              //   stdout へ出力
+  ntPrintTable(outfname);                    // 最終的な名前表をファイル出力
   return 0;
 }

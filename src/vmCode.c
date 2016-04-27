@@ -111,7 +111,7 @@ static int newLabStr() {
                                                   //   参照する添字とアドレス
 #define LABL  9                                   // 大域ラベル(定数)
 
-// vm出力 0-21:引数1, 22-51:引数0, 52-56:引数2, 57-58:引数3, 59:Str, 60:ntDef
+// vm出力 0-21:引数1, 22-51:引数0, 52-56:引数2, 57-58:引数3, 59:Str
 static void vmName(int idx){              fprintf(fpout, "0 %d\n", idx); }
 static void vmTmpLab(int lab){            fprintf(fpout, "1 %d\n", lab); }
 static void vmTmpLabStr(int lab){         fprintf(fpout, "2 %d\n", lab); }
@@ -911,7 +911,7 @@ static int getDec() {
 }
 
 int main(int argc, char *argv[]){
-  int scp, type, dim, val, pub, lval, rval, idx, depth, krn;
+  int type, lval, rval, idx, depth, krn;
   char op;
   if (argc==2){
     if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
@@ -933,6 +933,8 @@ int main(int argc, char *argv[]){
   }else{
     exit(1);
   }
+  ntLoadTable(outfname);              // 名前表ファイルから名前表を作成
+  outfname[strlen(outfname) - 3]='\0';
   sprintf(outfname,"%s.vm",outfname);
   if((fpout = fopen(outfname, "w")) == NULL){
     perror(outfname);
@@ -944,23 +946,7 @@ int main(int argc, char *argv[]){
       return 0;
     op = fgetc(fp);
     fgetc(fp);      // 空白読み捨て
-    if(op=='P'){
-      int i=0;
-      char c;
-      while((c=fgetc(fp))!=' '){
-        if(i>StrMAX)
-          error("名前が長すぎる");
-        str[i] = c;
-        i = i+1;
-      }
-      str[i] = '\0';
-      scp  = getDec();
-      type = getDec();
-      dim  = getDec();
-      val  = getDec();
-      pub  = getDec();
-      ntDefName(str, scp, type, dim, val, pub);
-    }else if(op=='N'){
+    if(op=='N'){
       type = getDec();
       lval = getDec();
       rval = getDec();
@@ -969,17 +955,14 @@ int main(int argc, char *argv[]){
       idx   = getDec();
       depth = getDec();
       krn   = getDec();
-      ntPrintTable(60);
       genFunc(idx, depth, krn);
       syClear(0);
     }else if(op=='D'){
       idx = getDec();
-      ntPrintTable(60);
       genData(idx);
       syClear(0);
     }else if(op=='B'){
       idx = getDec();
-      ntPrintTable(60);
       genBss(idx);
     }else if(op=='S'){
       int i=0;

@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "util.h"
 #include "namtbl.h"
 #include "syntax.h"
@@ -118,10 +119,63 @@ void ntUndefName(int idx) {                      // idx まで戻す
   //fprintf(fpout, "%d U %d\n", lxGetLn(), idx);
 }
 
-static int i=0;
+// 10進数を読んで値を返す
+static int getDecf(FILE *fp) {
+  int v = 0;                                     // 初期値は 0
+  char ch = fgetc(fp);
+  boolean minusflg = false;
+  if(ch=='-'){
+    minusflg = true;
+    ch = fgetc(fp);
+  }
+  while (isdigit(ch)) {                          // 10進数字の間
+    v = v*10 + ch - '0';                         // 値を計算
+    ch = fgetc(fp);                              // 次の文字を読む
+  }
+  if(minusflg) return -v;
+  return v;                                      // 10進数の値を返す
+}
+
 /* 名前表の出力 */
-void ntPrintTable(int n){
-  for (; i<ntNextIdx; i=i+1)              // 表全体について
-    fprintf(fpout, "%d P %s %d %d %d %d %d\n"
-      , n, ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
+void ntPrintTable(char *name){
+  FILE *fp;
+  name[strlen(name) - 3]='\0';
+  sprintf(name, "%s.nt", name);
+  if((fp = fopen(name, "w")) == NULL){
+    perror(name);
+    exit(1);
+  }
+  for (int i=0; i<ntNextIdx; i=i+1)              // 表全体について
+    fprintf(fp, "%s %d %d %d %d %d\n"
+      , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
+}
+
+#define StrMAX 128
+/* 名前表の読み込み */
+void ntLoadTable(char *name){
+  FILE *fp;
+  int scp, type, dim, val, pub;
+  char c;
+  char str[StrMAX + 1];
+  sprintf(name, "%s.nt", name);
+  if((fp = fopen(name, "r")) == NULL){
+    perror(name);
+    exit(1);
+  }
+  while((c=fgetc(fp))!=EOF){
+    int i=0;
+    while(c!=' '){
+      if(i>StrMAX) error("名前が長すぎる");
+      str[i] = c;
+      i = i+1;
+      c = fgetc(fp);
+    }
+    str[i] = '\0';
+    scp  = getDecf(fp);
+    type = getDecf(fp);
+    dim  = getDecf(fp);
+    val  = getDecf(fp);
+    pub  = getDecf(fp);
+    ntDefName(str, scp, type, dim, val, pub);
+  }
 }

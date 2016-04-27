@@ -1007,17 +1007,28 @@ static void callfunc2(int op, int a1, int a2){
 
 int main(int argc, char *argv[]){
   int op;
+  char ntfn[] = "stdin";
   if (argc==2){
     if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
       perror(argv[1]);                       // オープン失敗の場合は、メッ
       exit(1);                               // セージを出力して終了
     }
+    int i;
+    for(i=0; i<=StrMAX; i=i+1){
+      ntfn[i] = argv[1][i];
+      if(ntfn[i]=='\0') break;
+    }
+    if (strEndsWith(ntfn, ".vm")){
+      ntfn[strlen(ntfn) - 3]='\0';
+    }else
+      error("入力ファイル形式が違うかファイル名が長すぎる");
   }else if(argc==1){
     fp = stdin;
   }else{
     exit(1);
   }
-    while(true){
+  ntLoadTable(ntfn);
+  while(true){
     op = getDec();
     if(op==EOF)
       return 0;
@@ -1036,24 +1047,6 @@ int main(int argc, char *argv[]){
       int a3 = getDec();
       if(op==57) vmBoolOR(a1, a2, a3);
       else       vmBoolAND(a1, a2, a3);
-    }else if(op==60){ // 名前表登録
-      fgetc(fp);  // P読み捨て
-      fgetc(fp);  // 空白読み捨て
-      int i=0;
-      char c;
-      while((c=fgetc(fp))!=' '){
-        if(i>StrMAX)
-          error("名前が長すぎる");
-        str[i] = c;
-        i = i+1;
-      }
-      str[i] = '\0';
-      int scp  = getDec();
-      int type = getDec();
-      int dim  = getDec();
-      int val  = getDec();
-      int pub  = getDec();
-      ntDefName(str, scp, type, dim, val, pub);
     }else if(op==59){
       int i=0;
       char ch;

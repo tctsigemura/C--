@@ -82,7 +82,7 @@ static int genStr(char *str) {
     i =i+1;
   }
   fprintf(fpout, "\n");
-  return lab;                                    //   ラベル番号を返す
+  return lab;                                    // ラベル番号を返す
 }
 
 
@@ -660,21 +660,18 @@ void optTree(int node) {
 // 関数１個分のコード生成
 static void genFunc(int funcIdx, int depth, boolean krnFlg) {
   optTree(syGetRoot());
-  ntPrintTable(0);
   syPrintTree();
   fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
 }
 // 初期化データの生成
 static void genData(int idx) {
   optTree(syGetRoot());
-  ntPrintTable(0);
   syPrintTree();
   fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
 }
 
 // 非初期化データの生成
 static void genBss(int idx) {
-  ntPrintTable(0);
   syPrintTree();
   fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
 }
@@ -699,7 +696,7 @@ static int getDec() {
 }
 
 int main(int argc, char *argv[]){
-  int scp, type, dim, val, pub, lval, rval, idx, depth, krn;
+  int type, lval, rval, idx, depth, krn;
   char op;
   if (argc==2){
     if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
@@ -721,34 +718,20 @@ int main(int argc, char *argv[]){
   }else{
     exit(1);
   }
+  ntLoadTable(outfname);              // 名前表ファイルから名前表を作成
+  outfname[strlen(outfname) - 3]='\0';
   sprintf(outfname,"%s.op",outfname);
   if((fpout = fopen(outfname, "w")) == NULL){
     perror(outfname);
     exit(1);
   }
   while(true){
-    ln = getDec();  
+    ln = getDec();
     if(ln==EOF)
       return 0;
     op = fgetc(fp);
     fgetc(fp);      // 空白読み捨て
-    if(op=='P'){
-      int i=0;
-      char c;
-      while((c=fgetc(fp))!=' '){
-        if(i>StrMAX)
-          error("名前が長すぎる");
-        str[i] = c;
-        i = i+1;
-      }
-      str[i] = '\0';
-      scp  = getDec();
-      type = getDec();
-      dim  = getDec();
-      val  = getDec();
-      pub  = getDec();
-      ntDefName(str, scp, type, dim, val, pub);
-    }else if(op=='N'){
+    if(op=='N'){
       type = getDec();
       lval = getDec();
       rval = getDec();
