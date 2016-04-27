@@ -442,8 +442,8 @@ static void moveLeft(int node);
 // 木を「たぐる」(右に広がった木を、なるべく左一直線にする)
 static void pullTree(int node) {
   while (needRight(node) &&                       // 右辺が存在する演算子なら
-	 canPull(syGetType(node),                 //    演算子を比較し
-		 syGetType(syGetRVal(node)))) {   //      たぐれる間たぐる  
+	 canPull(syGetType(node),                       //    演算子を比較し
+		 syGetType(syGetRVal(node)))) {               //      たぐれる間たぐる  
     int a = syGetLVal(node);                      //
     int b = syGetRVal(node);                      //    node     =>     node
     int c = syGetLVal(b);                         //    /  |            /  |
@@ -632,6 +632,11 @@ static void optBlk(int node) {
   optTree(syGetRVal(node));                       //   次に右側を最適化
 }
 
+// 初期化配列を最適化する
+static void optArr(int node) {
+  optBlk(syGetLVal(node));
+}
+
 // 構文木を最適化する
 void optTree(int node) {
   if (node==SyNULL) return;                       // 何も無い
@@ -645,9 +650,9 @@ void optTree(int node) {
   else if (ty==SyCNT)  optCnt(node);              // continue 文
   else if (ty==SyRET)  optRet(node);              // retrun 文
   else if (ty==SySEMI ||
-	   ty==SyBLK)  optBlk(node);              // ブロック
-  else if (ty==SyARRY) error("バグ...optTree1");  // 初期化では式個別の最適化
-  else if (ty==SyLIST) error("バグ...optTree2");  //   しか使用していないはず
+           ty==SyBLK)  optBlk(node);              // ブロック
+  else if (ty==SyARRY ||
+           ty==SyLIST) optArr(node);              // 初期化配列
   else                 optExp(node);              // 式文
 }
 
@@ -661,7 +666,7 @@ static void genFunc(int funcIdx, int depth, boolean krnFlg) {
 }
 // 初期化データの生成
 static void genData(int idx) {
-  //optTree(syGetRoot());
+  optTree(syGetRoot());
   ntPrintTable(0);
   syPrintTree();
   fprintf(fpout, "%d D %d\n", lxGetLn(), idx);

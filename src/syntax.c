@@ -1156,6 +1156,38 @@ static void getFunc(void) {
  */
 static int getGArrayInit(int dim);           // 再帰呼出があるので宣言必要
 
+static void checkLeft(int node);              // 再帰のため
+
+// この演算子は左辺式を必要とする
+static boolean needLeft(int node) {
+  int op = syGetType(node);
+  return SyIS1OPR(op)|| SyIS2OPR(op) || SyISCMP(op) || SyISLOPR(op) ||
+    op==SyASS || op==SyCOMM || op==SySEMI || op==SyBLK;
+}
+
+// この演算子は右辺式を必要とする
+static boolean needRight(int node) {
+  int op = syGetType(node);
+  return (op==SyFUNC && syGetRVal(node)!=SyNULL) ||
+    SyIS2OPR(op) || SyISCMP(op) || SyISLOPR(op) ||
+    op==SyASS || op==SyCOMM || op==SySEMI || op==SyBLK;
+}
+
+static void checkCnst(int node){
+  int ty = syGetType(node);
+  if (ty!=SyCNST && !SyIS1OPR(ty) && !SyIS2OPR(ty))
+    error("定数式が必要");
+}
+
+// 木を左からチェック
+static void checkLeft(int node){
+  if(needLeft(node))                        // 左辺が存在するなら
+    checkLeft(syGetLVal(node));             // 左に進み
+  if(needRight(node))                       // 右辺が存在するなら
+    checkLeft(syGetRVal(node));             // 右に進む
+  checkCnst(node);                          // 定数式かチェック
+}
+
 // 初期化に使用される定数式を読み込む
 static int getCnst(int typ) {
   struct watch *w = newWatch();
@@ -1163,10 +1195,13 @@ static int getCnst(int typ) {
   chkCmpat(w, typ, 0);                       // 初期化(代入)できるかチェック
   int tree = w->tree;                        // 定数式の木を取り出す
   freeWatch(w);                              // 式(w)は役目を終えた
-  optTree(tree);                             // 定数式を計算する
-  int ty = syGetType(tree);
+  /* optTree(tree);                             // 定数式を計算する
   if (ty!=SyCNST && ty!=SyLABL && ty!=SySTR)
     error("定数式が必要");
+  */
+  int ty = syGetType(tree);
+  if(ty!=SySTR && ty!=SyLABL)
+    checkLeft(tree);                         // 定数式かどうか木をチェック
   return tree;
 }
 
