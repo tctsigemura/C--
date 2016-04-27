@@ -51,3 +51,6 @@ void *ealloc(int s);                      // エラーチェックつきの mall
 int isDelim(int ch);                      // 区切り記号かテスト
 int isOdigit(int ch);                     // 8進数字かテスト
 boolean strEndsWith(char *s, char *sfx);  // 文字列最後の一致をテスト
+
+char *lxGetFname(void);        // 入力ファイル名を読み出す
+int   lxGetLn(void);           // 行番号を返す

@@ -29,5 +29,7 @@
  *
  */
 
+FILE * fpout;
+
 /* 公開関数 */
 void optTree(int node);                   // 構文木を最適化する

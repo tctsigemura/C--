@@ -34,6 +34,8 @@
  *
  */
 
+FILE * fpout;
+
 void genFunc(int funcIdx, int depth, boolean krnFlg); // 関数単位でコードを生成
 void genData(int idx);                                // 初期化データを生成
 void genBss(int idx);                                 // 非初期化データを生成

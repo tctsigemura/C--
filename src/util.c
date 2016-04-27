@@ -40,7 +40,6 @@
 #include <ctype.h>
 #include <strings.h>
 
-#include "lexical.h"
 #include "util.h"
 
 /* エラーメッセージを表示して終了する */

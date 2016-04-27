@@ -66,6 +66,7 @@ int     ntType[NtMAX];      // 型(TyVOID、TyINT、TyCHAR、...、構造体型)
 int     ntDim [NtMAX];      // 配列変数の場合、配列の次元
 int     ntCnt [NtMAX];      // 局所変数、仮引数の場合は番号
                             //   関数、構造体の場合は、引数やフィールドの数
+//int     ntLn[NtMAX];        // 行番号
 boolean ntPub [NtMAX];      // 名前が外部公開される
 
 /* 公開関数 */
@@ -77,6 +78,7 @@ void ntDefName(char *name,        // 新規登録
 	       int scope, int type, int dim, int val, boolean pub);
 
 void ntUndefName(int idx);        // 名前表をもとに戻す
+void ntPrintTable();
 
 #define ntGetSize()     (ntNextIdx)       // 名前表のサイズを返す
 

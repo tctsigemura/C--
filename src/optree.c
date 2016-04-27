@@ -42,9 +42,49 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include "util.h"
-#include "sytree.h"
 #include "optree.h"
+#include "namtbl.h"
+#include "sytree.h"
+
+#define StrMAX  128
+
+static char outfname[StrMAX + 1] = "stdin";
+static char str[StrMAX + 1];
+static int ln;
+static FILE *fp;
+
+static int curLab = 0;              // STRラベル用のカウンタ
+
+int lxGetLn(){ return ln; }
+char *lxGetFname() { return "ERROR lxGetFname"; } // optreeでは使われないはず
+
+// ラベルを割り当てる
+static int newLab() {
+  curLab = curLab + 1;
+  return curLab;
+}
+
+// 文字列を生成しラベル番号を返す
+static int genStr(char *str) {
+  int lab = newLab();                            // ラベルを割り付け
+  int i=0;
+  fprintf(fpout, "%d S ", lxGetLn());
+  while(str[i]){
+   /* if(str[i]=='\n')
+      fprintf(fpout, "\\n");
+    else if(str[i]=='\t')
+      fprintf(fpout, "\\t");
+    else */
+      fprintf(fpout, "%c", str[i]);
+    i =i+1;
+  }
+  fprintf(fpout, "\n");
+  return lab;                                    //   ラベル番号を返す
+}
+
 
 // ノードの内容を上書きする
 static void setNode(int node, int typ, int l, int r) {
@@ -609,4 +649,132 @@ void optTree(int node) {
   else if (ty==SyARRY) error("バグ...optTree1");  // 初期化では式個別の最適化
   else if (ty==SyLIST) error("バグ...optTree2");  //   しか使用していないはず
   else                 optExp(node);              // 式文
-}    
+}
+
+// コード生成処理の記録
+// 関数１個分のコード生成
+static void genFunc(int funcIdx, int depth, boolean krnFlg) {
+  optTree(syGetRoot());
+  ntPrintTable(0);
+  syPrintTree();
+  fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
+}
+// 初期化データの生成
+static void genData(int idx) {
+  //optTree(syGetRoot());
+  ntPrintTable(0);
+  syPrintTree();
+  fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
+}
+
+// 非初期化データの生成
+static void genBss(int idx) {
+  ntPrintTable(0);
+  syPrintTree();
+  fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
+}
+
+// 10進数を読んで値を返す
+static int getDec() {
+  int v = 0;                                     // 初期値は 0
+  char ch = fgetc(fp);
+  boolean minusflg = false;
+  if(ch==EOF)
+    return EOF;
+  else if(ch=='-'){
+    minusflg = true;
+    ch = fgetc(fp);
+  }
+  while (isdigit(ch)) {                          // 10進数字の間
+    v = v*10 + ch - '0';                         // 値を計算
+    ch = fgetc(fp);                              // 次の文字を読む
+  }
+  if(minusflg) return -v;
+  return v;                                      // 10進数の値を返す
+}
+
+int main(int argc, char *argv[]){
+  int scp, type, dim, val, pub, lval, rval, idx, depth, krn;
+  char op;
+  if (argc==2){
+    if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
+      perror(argv[1]);                       // オープン失敗の場合は、メッ
+      exit(1);                               // セージを出力して終了
+    }
+    int i;
+    for(i=0; i<=StrMAX; i=i+1){
+      outfname[i] = argv[1][i];
+      if(outfname[i]=='\0') break;
+    }
+    if (outfname[i]!='\0') error("ファイル名が長すぎる");
+    if (strEndsWith(outfname, ".sm")){
+      outfname[strlen(outfname) - 3]='\0';
+    }else
+      error("入力ファイル形式が違うかファイル名が長すぎる");
+  }else if (argc==1){
+    fp = stdin;
+  }else{
+    exit(1);
+  }
+  sprintf(outfname,"%s.op",outfname);
+  if((fpout = fopen(outfname, "w")) == NULL){
+    perror(outfname);
+    exit(1);
+  }
+  while(true){
+    ln = getDec();  
+    if(ln==EOF)
+      return 0;
+    op = fgetc(fp);
+    fgetc(fp);      // 空白読み捨て
+    if(op=='P'){
+      int i=0;
+      char c;
+      while((c=fgetc(fp))!=' '){
+        if(i>StrMAX)
+          error("名前が長すぎる");
+        str[i] = c;
+        i = i+1;
+      }
+      str[i] = '\0';
+      scp  = getDec();
+      type = getDec();
+      dim  = getDec();
+      val  = getDec();
+      pub  = getDec();
+      ntDefName(str, scp, type, dim, val, pub);
+    }else if(op=='N'){
+      type = getDec();
+      lval = getDec();
+      rval = getDec();
+      syNewNode(type, lval, rval);
+    }else if(op=='F'){
+      idx   = getDec();
+      depth = getDec();
+      krn   = getDec();
+      genFunc(idx, depth, krn);
+      syClear(0);
+    }else if(op=='D'){
+      idx = getDec();
+      genData(idx);
+      syClear(0);
+    }else if(op=='B'){
+      idx = getDec();
+      genBss(idx);
+    }else if(op=='S'){
+      int i=0;
+      char ch;
+      while((ch=fgetc(fp))!='\n'){               // 改行がくるまで文字列
+        if(i>StrMAX)
+          error("文字列が長すぎる");
+        str[i] = ch;
+        i = i+1;
+      }
+      str[i] = '\0';
+      genStr(str);
+    }else{
+      error("bug");
+    }
+  }
+  return 0;
+}

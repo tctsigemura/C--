@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include "sytree.h"
 #include "util.h"
+#include "syntax.h"
 
 // 構文木表
 static int syNextIdx = 0;                      // 次に登録する場所
@@ -48,15 +49,18 @@ static int syNextIdx = 0;                      // 次に登録する場所
 int syNewNode(int type, int lVal, int rVal) {
   int idx = syNextIdx;
   if (idx>=SyMAX) error("構文木が大き過ぎる");
-  sySetType(idx, type);
-  sySetLVal(idx, lVal);
-  sySetRVal(idx, rVal);
+  syLn[idx]   = lxGetLn();
+  syType[idx] = type;
+  syLVal[idx] = lVal;
+  syRVal[idx] = rVal;
   syNextIdx = syNextIdx + 1;
+  //fprintf(fpout, "%d N %d %d %d\n", lxGetLn(), type, lVal, rVal);
   return idx;
 }
 
 // 二つのノードを ',' で接続する
 int syCatNode(int lval, int rval) {
+  //fprintf(fpout, "%d C %d %d\n", lxGetLn(), lval, rval);
   if (lval!=SyNULL && rval!=SyNULL)            // ２つのノードが本当に存在する
     return syNewNode(SySEMI, lval, rval);      //   接続したものを返す
   if (lval!=SyNULL)                            // 左が存在する
@@ -66,6 +70,7 @@ int syCatNode(int lval, int rval) {
 
 // 構文木表の idx 以降を捨てる
 void syClear(int idx) {
+  //fprintf(fpout, "%d A %d\n", lxGetLn(), idx);
   syNextIdx = idx;
 }
 
@@ -74,8 +79,24 @@ int syGetRoot() {
   return syNextIdx - 1;
 }
 
+// 構文木表にデータを書き込む
+void sySetType(int idx, int v){
+  syType[idx] = v;
+ // fprintf(fpout, "%d T %d %d\n", lxGetLn(), idx, v);
+}
+
+void sySetLVal(int idx, int v){
+  syLVal[idx] = v;
+//  fprintf(fpout, "%d L %d %d\n", lxGetLn(), idx, v);
+}
+
+void sySetRVal(int idx, int v){
+  syRVal[idx] = v;
+ // fprintf(fpout, "%d R %d %d\n", lxGetLn(), idx, v);
+}
 // デバッグ用
 //#ifdef DEBUG
+/*
 struct D {char * a; int b; };
 static struct D d[] = {
   // 特別な値
@@ -135,23 +156,19 @@ static struct D d[] = {
   { "SyARRY", SyARRY},                 // 非初期化配列
   { "SyLIST", SyLIST}                  // 配列要素の初期化並び
 };
+*/
 
 void syPrintTree() {
   for (int i=0; i<syNextIdx; i=i+1) {
+    /*
     int n = -1;
     for (int j=0; j<sizeof(d)/sizeof(struct D); j++) {
       if (syGetType(i)==d[j].b) n = j;
-    }
     if (n==-1) error("sysPrintTree バグ");
-    fprintf(stderr,"%3d: (%-6s,", i, d[n].a);
-    if (syGetLVal(i)==SyNULL)
-      fprintf(stderr,"   -,");
-    else
-      fprintf(stderr,"%4d,", syGetLVal(i));
-    if (syGetRVal(i)==SyNULL)
-      fprintf(stderr,"   -)\n");
-    else
-      fprintf(stderr,"%4d)\n", syGetRVal(i));
+    */
+    fprintf(fpout,"%d N %d ", syLn[i], syType[i]);
+    fprintf(fpout,"%d ", syGetLVal(i));
+    fprintf(fpout,"%d\n", syGetRVal(i));
   }
 }
 //#endif

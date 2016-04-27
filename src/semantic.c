@@ -71,10 +71,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "util.h"                   // その他機能モジュール
 #include "lxdef.h"                  // トークン名の定義
-#include "optree.h"                 // 構文木最適化モジュール
-#include "code.h"                   // コード生成モジュール
 #include "namtbl.h"                 // 名前表モジュール
 #include "sytree.h"                 // 構文木モジュール
 #include "syntax.h"
@@ -99,10 +98,70 @@ static int  val;                    // 数値を返す場合、その値
 static char str[StrMAX + 1];        // 名前を返す場合、その綴
 static char fname[StrMAX + 1];      // 入力ファイル名
 static FILE * fp;                   // ソースコードファイル
-static int ln;                      // 行番号
+static char outfname[StrMAX + 1] = "stdin";
+static int ln = 0;                  // 行番号
+static int ln2;                     // EOF時に行番号を元に戻すため
+
+static int curLab = 0;              // STRラベル用のカウンタ
 
 // (# 行番号 "path")ディレクティブの処理
 #define  CMMINC "/cmmInclude/"      // C--用システムヘッダファイルの目印
+
+// 最適化処理の記録
+static void optTree(int node){
+  //fprintf(fpout, "%d O %d\n", lxGetLn(), node);
+}
+
+// コード生成処理の記録
+// 関数１個分のコード生成
+static void genFunc(int funcIdx, int depth, boolean krnFlg) {
+  ntPrintTable(0);
+  syPrintTree();
+  fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
+}
+// 初期化データの生成
+static void genData(int idx) {
+  ntPrintTable(0);
+  syPrintTree();
+  fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
+}
+
+// 非初期化データの生成
+static void genBss(int idx) {
+  ntPrintTable(0);
+  syPrintTree();
+  fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
+}
+
+// ラベルを割り当てる
+static int newLab() {
+  curLab = curLab + 1;
+  return curLab;
+}
+
+// 文字列を生成しラベル番号を返す
+static int genStr(char *str) {
+  int lab = newLab();                            // ラベルを割り付け
+  int i=0;
+  fprintf(fpout, "%d S ", lxGetLn());
+  while(str[i]){
+/*    if(str[i]=='\n')
+      fprintf(fpout, "\\n");
+    else if(str[i]=='\t')
+      fprintf(fpout, "\\t");
+    else */
+      fprintf(fpout, "%c", str[i]);
+    i =i+1;
+  }
+  fprintf(fpout, "\n");
+  return lab;                                    //   ラベル番号を返す
+}
+
+// トランスレータ版と統合のために形だけ準備（何もすることはない）
+static void genProto(int idx) {}                 // プロトタイプ宣言があった
+static void genStruc(int idx) {}                 // 構造体宣言があった
+static void genOn(void) {}                       // コード生成を許可する
+static void genOff(char *hdr) {}                 // コード生成を禁止する
 
 static void getFile() {
   char * fname = lxGetStr();                 // 現在のファイル
@@ -118,34 +177,62 @@ static void getFile() {
 // トークンの読み込み
 static int tok;                              // 次のトークン
 
+// 10進数を読んで値を返す
+static int getDec() {
+  int v = 0;                                     // 初期値は 0
+  char ch = fgetc(fp);
+  if(ch==EOF)
+    return EOF;
+  while (isdigit(ch)) {                          // 10進数字の間
+    v = v*10 + ch - '0';                         // 値を計算
+    ch = fgetc(fp);                              // 次の文字を読む
+  }
+  return v;                                      // 10進数の値を返す
+}
+
 int lxGetTok(){
   int tok = LxNONTOK;
-  fscanf(fp, "%d\t%d", &ln, &tok);
-  if(tok==LxNAME){
-    fscanf(fp, "\t%s\n", str);
-  }else if(tok==LxSTRING){
+  ln2 = ln;
+  ln = getDec();
+  if(ln==EOF){
+    ln = ln2;
+    return EOF;
+  }
+  tok = getDec();
+  if(tok==LxNAME || tok==LxSTRING || tok==LxFILE){
     int i=0;
     char c;
-    fgetc(fp);                                // tabを読み捨てる
     while((c=fgetc(fp))!='\n'){               // 改行がくるまで文字列
-      if(i>StrMAX)
+      if(i>=StrMAX)
         error("文字列が長すぎる");
       str[i] = c;
       i = i+1;
     }
     str[i] = '\0';
-  }else if(tok==LxFILE){
-    fscanf(fp, "\t%s\n", str);
-  }else if(tok==LxINTEGER){
-    fscanf(fp, "\t%d\n", &val);
+  }else if(tok==LxINTEGER || tok==LxLOGICAL){
+    val = getDec();
   }else if(tok == LxCHARACTER){
     char ch;
-    fscanf(fp, "\t%c\n", &ch);
-    val = ch;
-  }else{
-    fscanf(fp, "\n");
+    ch = fgetc(fp);
+    if(ch=='\\'){
+      ch = fgetc(fp);
+      if(ch=='n'){
+        val = '\n';
+        fgetc(fp);
+      }else if(ch=='t'){
+        val = '\t';
+        fgetc(fp);
+      }else if(ch=='\n'){
+        val = '\\';
+      }else{
+        error("syntax読み取り バグ");
+      }
+    }else{
+      val = ch;
+      fgetc(fp);
+    }
   }
-//  printf("%d : %d\n",ln ,tok);               // ### デバッグ用 ###
+  //printf("%d : %d\n",ln ,tok);               // ### デバッグ用 ###
   return tok;
 }
 
@@ -978,8 +1065,9 @@ static int getBlock(void) {
   chkTok('}', "ブロックが '}' で終了していない");
   ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
-  if (lval!=SyNULL && syGetType(lval)==SySEMI) // 意味のあるブロックなら
+  if (lval!=SyNULL && syGetType(lval)==SySEMI){// 意味のあるブロックなら
     sySetType(lval, SyBLK);                    //   リストを { } で括る
+  }
   return lval;
 }
 
@@ -1295,13 +1383,35 @@ void snGetSrc(void) {
     getProg();                               //   C-- プログラムを処理
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   FILE *fp;
-  if((fp = fopen("lx_sn.txt","r")) == NULL){   // ソースファイルをオープン
-      perror("lx_sn.txt");                     // オープン失敗の場合は、メッ
-      exit(1);                               //   セージを出力して終了
+  if (argc==2){
+    if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
+      perror(argv[1]);                       // オープン失敗の場合は、メッ
+      exit(1);                               // セージを出力して終了
+    }
+    lxSetFname(argv[1]);
+    int i;
+    for(i=0; i<=StrMAX; i=i+1){
+      outfname[i] = argv[1][i];
+      if(outfname[i]=='\0') break;
+    }
+    if (outfname[i]!='\0') error("ファイル名が長すぎる");
+    if (strEndsWith(outfname, ".lx")){
+      outfname[strlen(outfname) - 3]='\0';
+    }else
+      error("入力ファイル形式が違うかファイル名が長すぎる");
+  }else if (argc==1){
+    fp = stdin;
+    lxSetFname("STDIN");
+  }else{
+    exit(1);
   }
-
+  sprintf(outfname,"%s.sm",outfname);
+  if((fpout = fopen(outfname, "w")) == NULL){
+    perror(outfname);
+    exit(1);
+  }
   lxSetFp(fp);                               // 字句解析に fp を知らせる
   snGetSrc();                                // fp からソースコードを入力して
                                              //   stdout へ出力

@@ -39,6 +39,7 @@
 int syType[SyMAX];                           // ノードの種類
 int syLVal[SyMAX];                           // ノードの値１
 int syRVal[SyMAX];                           // ノードの値２
+int syLn[SyMAX];                             // 行番号
 
 // 構文木のノード(LVal, Rval)に格納される特殊な値
 #define SyNULL        9999                   // 構文木のNULLポインタ
@@ -119,8 +120,8 @@ int syGetRoot();                             // 構文木のルートを取り�
 #define syGetLVal(idx) (syLVal[idx])
 #define syGetRVal(idx) (syRVal[idx])
 
-#define sySetType(idx,v) (syType[idx]=(v))   // 構文木表にデータを書き込む
-#define sySetLVal(idx,v) (syLVal[idx]=(v))
-#define sySetRVal(idx,v) (syRVal[idx]=(v))
+void sySetType(int idx, int v);   // 構文木表にデータを書き込む
+void sySetLVal(int idx, int v);
+void sySetRVal(int idx, int v);
 
-void syPrintTree();                          // デバッグ用
+void syPrintTree();                          // 中間ファイル出力用

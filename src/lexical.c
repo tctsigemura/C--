@@ -426,9 +426,9 @@ int main(int argc, char *argv[]){
         int i = 0;
         fprintf(fpout, "%d\t%d\t", lxGetLn(), tok);
         while(str[i]){
-          if(str[i]=='\n')
+          /*if(str[i]=='\n')
             fprintf(fpout, "\\n");
-          else
+          else */
             fprintf(fpout, "%c", str[i]);
           i = i+1;
         }
@@ -442,6 +442,5 @@ int main(int argc, char *argv[]){
     }else
       fprintf(fpout, "%d\t%d\n", lxGetLn(), tok);   // 中間ファイルに出力
   }
-  fprintf(fpout, "%d\t%d\n", lxGetLn(), EOF);          // ファイル終わり
   return 0;
 }

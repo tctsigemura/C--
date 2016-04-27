@@ -45,8 +45,15 @@
 #include "namtbl.h"
 #include "vm.h"
 
+#define StrMAX  128
 #define BUG(c,msg) {if(c) {fprintf(stderr,"BUG..."); error(msg);}}
 //#define BUG(c,msg) {}
+
+// 大域データ
+static char str[StrMAX + 1];
+static FILE *fp;                                  // 入力ファイル
+int lxGetLn(){ return 0; }                        // vm2tacでは使われないはず
+char *lxGetFname() { return "ERROR lxGetFname"; } // vm2tacでは使われないはず
 
 /*
  * レジスタの一覧と使用目的
@@ -177,7 +184,7 @@ static void calReg(char *op, int r, int p) {
   } else if (sta==ARG) {                        // 関数引数なら
     printf("\t%s\t%s,%d,FP\n", op, reg, aux);   //   op Reg,n,FP
   } else if (sta==STR) {                        // 文字列のラベルなら
-    printf("\t%s\t%s,#.L%d\n", op, reg, aux);   //   op Reg,#.Ln
+    printf("\t%s\t%s,#.S%d\n", op, reg, aux);   //   op Reg,#.Sn
   } else if (sta==ADDR) {                       // グローバルラベルなら
     printf("\t%s\t%s,#%c%s\n", op, reg,         //   op Reg,#_name
 	   getPref(aux), ntGetName(aux));       //
@@ -187,7 +194,7 @@ static void calReg(char *op, int r, int p) {
   } else if (sta==BINDR) {                      // 間接バイトなら
     printf("\t%s\t%s,@%s\n",op,reg,regs[aux]);  //   op Reg,@Acc
   } else if (sta==ACC) {                        // Acc に値があるなら
-    printf("\t%s\t%s,%s\n",op,reg,regs[aux]);   //   op Reg,Acc
+    printf("\t%s\t%s,%s\n",op,reg,regs[aux]);   //   op reg,acc
   } else BUG(true, "calReg");                   // それ以外は直接演算できない
 }
 
@@ -297,6 +304,12 @@ void vmTmpLab(int lab) {
   printf(".L%d", lab);                          // .Ln
   if (inFunc) printf("\n");                     // 関数内部ではラベルが
 }                                               //   連続することがある
+
+// 番号で管理されるSTRING用ラベルを印刷する
+void vmTmpLabStr(int lab) {
+  printf(".S%d", lab);                          // .Sn
+  BUG(inFunc, "関数内でSTRING出力");            // 関数内部では呼ばれない
+}
 
 // スタックフレームを作る
 static void makeFrame(int depth) {
@@ -877,6 +890,11 @@ void vmDwLab(int lab) {
   printf("\tDW\t.L%d\n", lab);                  //    DW  .Ln
 }
 
+// DW .Sn       (STRING用ポインタデータの生成)
+void vmDwLabStr(int lab) {
+  printf("\tDW\t.S%d\n", lab);                  //    DW  .Sn
+}
+
 // DW N         (整数データの生成)
 void vmDwCns(int n) {
   printf("\tDW\t%d\n", n);                      //    DW  N
@@ -900,4 +918,156 @@ void vmBs(int n) {
 // STRING "..." (文字列データの生成)
 void vmStr(char *s) {
   printf("\tSTRING\t\"%s\"\n", s);              //    STRING "str"
+}
+
+// 10進数を読んで値を返す
+static int getDec() {
+  int v = 0;                                     // 初期値は 0
+  char ch = fgetc(fp);
+  boolean minusflg = false;
+  if(ch==EOF)
+    return EOF;
+  else if(ch=='-'){
+    minusflg = true;
+    ch = fgetc(fp);
+  }
+  while (isdigit(ch)) {                          // 10進数字の間
+    v = v*10 + ch - '0';                         // 値を計算
+    ch = fgetc(fp);                              // 次の文字を読む
+  }
+  if(minusflg) return -v;
+  return v;                                      // 10進数の値を返す
+}
+
+static void callfunc0(int op){
+       if(op==22) vmRet();
+  else if(op==23) vmRetI();
+  else if(op==24) vmMReg();
+  else if(op==25) vmArg();
+  else if(op==26) vmLdWrd();
+  else if(op==27) vmLdByt();
+  else if(op==28) vmStWrd();
+  else if(op==29) vmStByt();
+  else if(op==30) vmNeg();
+  else if(op==31) vmNot();
+  else if(op==32) vmBNot();
+  else if(op==33) vmChar();
+  else if(op==34) vmBool();
+  else if(op==35) vmAdd();
+  else if(op==36) vmSub();
+  else if(op==37) vmShl();
+  else if(op==38) vmShr();
+  else if(op==39) vmBAnd();
+  else if(op==40) vmBXor();
+  else if(op==41) vmBOr();
+  else if(op==42) vmMul();
+  else if(op==43) vmDiv();
+  else if(op==44) vmMod();
+  else if(op==45) vmGt();
+  else if(op==46) vmGe();
+  else if(op==47) vmLt();
+  else if(op==48) vmLe();
+  else if(op==49) vmEq();
+  else if(op==50) vmNe();
+  else if(op==51) vmPop();
+}
+
+static void callfunc1(int op, int a1){
+       if(op==0)  vmName(a1);
+  else if(op==1)  vmTmpLab(a1);
+  else if(op==2)  vmTmpLabStr(a1);
+  else if(op==3)  vmJmp(a1);
+  else if(op==4)  vmJT(a1);
+  else if(op==5)  vmJF(a1);
+  else if(op==6)  vmLdCns(a1);
+  else if(op==7)  vmLdGlb(a1);
+  else if(op==8)  vmLdLoc(a1);
+  else if(op==9)  vmLdArg(a1);
+  else if(op==10) vmLdStr(a1);
+  else if(op==11) vmLdLab(a1);
+  else if(op==12) vmStGlb(a1);
+  else if(op==13) vmStLoc(a1);
+  else if(op==14) vmStArg(a1);
+  else if(op==15) vmDwName(a1);
+  else if(op==16) vmDwLab(a1);
+  else if(op==17) vmDwLabStr(a1);
+  else if(op==18) vmDwCns(a1);
+  else if(op==19) vmDbCns(a1);
+  else if(op==20) vmWs(a1);
+  else if(op==21) vmBs(a1);
+}
+
+static void callfunc2(int op, int a1, int a2){
+       if(op==52)  vmEntry(a1, a2);
+  else if(op==53)  vmEntryK(a1, a2);
+  else if(op==54)  vmEntryI(a1, a2);
+  else if(op==55)  vmCallP(a1, a2);
+  else if(op==56)  vmCallF(a1, a2);
+}
+
+int main(int argc, char *argv[]){
+  int op;
+  if (argc==2){
+    if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
+      perror(argv[1]);                       // オープン失敗の場合は、メッ
+      exit(1);                               // セージを出力して終了
+    }
+  }else if(argc==1){
+    fp = stdin;
+  }else{
+    exit(1);
+  }
+    while(true){
+    op = getDec();
+    if(op==EOF)
+      return 0;
+    if(22<=op && op<=51){                    // 引数0の関数
+      callfunc0(op);
+    }else if(0<=op && op<=21){   // 引数1の関数
+      int a1 = getDec();
+      callfunc1(op, a1);
+    }else if(52<=op && op<=56){              // 引数2の関数
+      int a1 = getDec();
+      int a2 = getDec();
+      callfunc2(op, a1, a2);
+    }else if(op==57 || op==58){              // 引数3の関数
+      int a1 = getDec();
+      int a2 = getDec();
+      int a3 = getDec();
+      if(op==57) vmBoolOR(a1, a2, a3);
+      else       vmBoolAND(a1, a2, a3);
+    }else if(op==60){ // 名前表登録
+      fgetc(fp);  // P読み捨て
+      fgetc(fp);  // 空白読み捨て
+      int i=0;
+      char c;
+      while((c=fgetc(fp))!=' '){
+        if(i>StrMAX)
+          error("名前が長すぎる");
+        str[i] = c;
+        i = i+1;
+      }
+      str[i] = '\0';
+      int scp  = getDec();
+      int type = getDec();
+      int dim  = getDec();
+      int val  = getDec();
+      int pub  = getDec();
+      ntDefName(str, scp, type, dim, val, pub);
+    }else if(op==59){
+      int i=0;
+      char ch;
+      while((ch=fgetc(fp))!='\n'){               // 改行がくるまで文字列
+        if(i>StrMAX)
+          error("文字列が長すぎる");
+        str[i] = ch;
+        i = i+1;
+      }
+      str[i] = '\0';
+      vmStr(str);
+    }else{
+      error("bug");
+    }
+  }
+  return 0;
 }

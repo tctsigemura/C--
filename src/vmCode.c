@@ -62,22 +62,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "util.h"
 #include "code.h"
 #include "namtbl.h"
 #include "sytree.h"
-#include "vm.h"
+
+#define StrMAX  128
 
 // 大域データ
 static int curLab = 0;                            // ラベル用のカウンタ
+static int curLabStr = 0;                         // STRINGラベル用のカウンタ
 static int retLab;                                // return 時のジャンプ先
 static int brkLab;                                // break 時のジャンプ先
 static int cntLab;                                // continue 時のジャンプ先
+static char outfname[StrMAX + 1] = "stdin";
+static char str[StrMAX + 1];
+
+static int ln;
+static FILE *fp;                                  // 入力ファイル
+
+int lxGetLn(){ return ln; }
+char *lxGetFname() { return "ERROR lxGetFname"; } // vmCodeでは使われないはず
 
 // ラベルを割り当てる
 static int newLab() {
   curLab = curLab + 1;
   return curLab;
+}
+
+// STRING用ラベルを割り当てる
+static int newLabStr() {
+  curLabStr = curLabStr + 1;
+  return curLabStr;
 }
 
 // 値のある場所
@@ -93,6 +110,72 @@ static int newLab() {
 #define STKB  8                                   // スタックにバイト配列を
                                                   //   参照する添字とアドレス
 #define LABL  9                                   // 大域ラベル(定数)
+
+// vm出力 0-21:引数1, 22-51:引数0, 52-56:引数2, 57-58:引数3, 59:Str, 60:ntDef
+static void vmName(int idx){              fprintf(fpout, "0 %d\n", idx); }
+static void vmTmpLab(int lab){            fprintf(fpout, "1 %d\n", lab); }
+static void vmTmpLabStr(int lab){         fprintf(fpout, "2 %d\n", lab); }
+static void vmEntry(int depth, int idx){  fprintf(fpout, "52 %d %d\n", depth, idx); }
+static void vmEntryK(int depth, int idx){ fprintf(fpout, "53 %d %d\n", depth, idx); }
+static void vmRet(void){                  fprintf(fpout, "22\n"); }
+static void vmEntryI(int depth, int idx){ fprintf(fpout, "54 %d %d\n", depth, idx); }
+static void vmRetI(void){                 fprintf(fpout, "23\n"); }
+static void vmMReg(void){                 fprintf(fpout, "24\n"); }
+static void vmArg(void){                  fprintf(fpout, "25\n"); }
+static void vmCallP(int n, int idx){      fprintf(fpout, "55 %d %d\n", n, idx); }
+static void vmCallF(int n, int idx){      fprintf(fpout, "56 %d %d\n", n, idx); }
+static void vmJmp(int lab){               fprintf(fpout, "3 %d\n", lab); }
+static void vmJT(int lab){                fprintf(fpout, "4 %d\n", lab); }
+static void vmJF(int lab){                fprintf(fpout, "5 %d\n", lab); }
+static void vmLdCns(int c){               fprintf(fpout, "6 %d\n", c); }
+static void vmLdGlb(int idx){             fprintf(fpout, "7 %d\n", idx); }
+static void vmLdLoc(int n){               fprintf(fpout, "8 %d\n", n); }
+static void vmLdArg(int n){               fprintf(fpout, "9 %d\n", n); }
+static void vmLdStr(int lab){             fprintf(fpout, "10 %d\n", lab); }
+static void vmLdLab(int idx){             fprintf(fpout, "11 %d\n", idx); }
+static void vmLdWrd(void){                fprintf(fpout, "26\n"); }
+static void vmLdByt(void){                fprintf(fpout, "27\n"); }
+static void vmStGlb(int idx){             fprintf(fpout, "12 %d\n", idx); }
+static void vmStLoc(int n){               fprintf(fpout, "13 %d\n", n); }
+static void vmStArg(int n){               fprintf(fpout, "14 %d\n", n); }
+static void vmStWrd(void){                fprintf(fpout, "28\n"); }
+static void vmStByt(void){                fprintf(fpout, "29\n"); }
+static void vmNeg(void){                  fprintf(fpout, "30\n"); }
+static void vmNot(void){                  fprintf(fpout, "31\n"); }
+static void vmBNot(void){                 fprintf(fpout, "32\n"); }
+static void vmChar(void){                 fprintf(fpout, "33\n"); }
+static void vmBool(void){                 fprintf(fpout, "34\n"); }
+static void vmAdd(void){                  fprintf(fpout, "35\n"); }
+static void vmSub(void){                  fprintf(fpout, "36\n"); }
+static void vmShl(void){                  fprintf(fpout, "37\n"); }
+static void vmShr(void){                  fprintf(fpout, "38\n"); }
+static void vmBAnd(void){                 fprintf(fpout, "39\n"); }
+static void vmBXor(void){                 fprintf(fpout, "40\n"); }
+static void vmBOr(void){                  fprintf(fpout, "41\n"); }
+static void vmMul(void){                  fprintf(fpout, "42\n"); }
+static void vmDiv(void){                  fprintf(fpout, "43\n"); }
+static void vmMod(void){                  fprintf(fpout, "44\n"); }
+static void vmGt(void){                   fprintf(fpout, "45\n"); }
+static void vmGe(void){                   fprintf(fpout, "46\n"); }
+static void vmLt(void){                   fprintf(fpout, "47\n"); }
+static void vmLe(void){                   fprintf(fpout, "48\n"); }
+static void vmEq(void){                   fprintf(fpout, "49\n"); }
+static void vmNe(void){                   fprintf(fpout, "50\n"); }
+static void vmPop(void){                  fprintf(fpout, "51\n"); }
+
+static void vmBoolOR(int L1, int L2, int L3){
+  fprintf(fpout, "57 %d %d %d\n", L1, L2, L3); }
+static void vmBoolAND(int L1, int L2, int L3){
+  fprintf(fpout, "58 %d %d %d\n", L1, L2, L3); }
+
+static void vmDwName(int idx){   fprintf(fpout, "15 %d\n", idx); }
+static void vmDwLab(int lab){    fprintf(fpout, "16 %d\n", lab); } 
+static void vmDwLabStr(int lab){ fprintf(fpout, "17 %d\n", lab); }
+static void vmDwCns(int n){      fprintf(fpout, "18 %d\n", n); }   
+static void vmDbCns(int n){      fprintf(fpout, "19 %d\n", n); }   
+static void vmWs(int n){         fprintf(fpout, "20 %d\n", n); }      
+static void vmBs(int n){         fprintf(fpout, "21 %d\n", n); }      
+static void vmStr(char *s){      fprintf(fpout, "59 %s\n", s); }
 
 // 式の状態を表現する構造体
 struct Expr {
@@ -111,6 +194,11 @@ static struct Expr *newExpr(void) {
 // 番号で管理されるラベルを出力する
 static void printLab(int lab) {
   if (lab!=-1) vmTmpLab(lab);                     // -1 はラベル未割当てを表す
+}
+
+// 番号で管理されるSTRING用ラベルを出力する
+static void printLabStr(int lab) {
+  if (lab!=-1) vmTmpLabStr(lab);                     // -1 はラベル未割当てを表す
 }
 
 // 式の値をスタックにロードする
@@ -150,7 +238,7 @@ static void pop(struct Expr *c) {
     vmPop();                                      //   アドレスが残ることがある
     vmPop();
   }
-}                                                 
+}
 
 // 再帰の都合でプロトタイプ宣言
 static void genBoolExpr(int node, struct Expr* c);
@@ -260,7 +348,7 @@ static int evalDepth(int node) {
   int l = evalDepth(lval);                        //   左右の辺のスタック
   int r = evalDepth(rval);                        //     使用量を計算し
   if (l>r) return l;                              //   max(l, r+1) を返す
-  return r + 1;                                   //   
+  return r + 1;                                   //
 }
 
 // 二項演算の基本形 (数値演算に使用)
@@ -333,7 +421,7 @@ static void genCmpExpr(int node, struct Expr* c) {
     rval = tmp;
     swap = true;
   }
-    
+
   // 両辺を処理する
   genExpr(lval, c);                               // 左辺を評価し値をロード
   genExpr(rval, c);                               // 右辺を評価し値をロード
@@ -514,7 +602,7 @@ static void genIf(int node) {
   free(ifLab);
 }
 
-// 文、ブロックの最後が JMP 命令で終わるか	
+// 文、ブロックの最後が JMP 命令で終わるか
 static boolean jmpBlock(int node) {
   if (node==SyNULL) return false;                 // 本文が空の場合
   int typ = syGetType(node);
@@ -565,7 +653,7 @@ static void genWhl(int node) {
     printLab(cntLab);                             //   continue 時のジャンプ先
     traceTree(syGetRVal(sta));                    //   再初期化を解析
     jb = false;                                   //   再初期化はJMPで終わらない
-  } 
+  }
   if (!jb) vmJmp(loopLab);                        // 条件式に戻る
   printLab(brkLab);                               // break 時のジャンプ先
   cntLab = tmpLabC;
@@ -640,7 +728,7 @@ static void traceTree(int node) {
     pop(c);                                       //   スタックにあれば捨てる
     free(c);                                      //   管理データを解放
   }
-}    
+}
 
 // 関数１個分のコード生成
 void genFunc(int funcIdx, int depth, boolean krnFlg) {
@@ -677,7 +765,7 @@ static void genDW(int node) {
   if (typ==SyLIST || typ==SyARRY) {              // 配列・構造体へのポインタ
     vmDwLab(rVal);                               //   DW .Ln を出力
   } else if (typ==SySTR) {                       // 文字列
-    vmDwLab(lVal);                               //   DW .Ln を出力
+    vmDwLabStr(lVal);                            //   DW .Ln を出力
   } else {                                       // 初期化単純変数
     typ  = syGetType(node);                      //   計算後の状態へ変更
     lVal = syGetLVal(node);                      //
@@ -704,8 +792,8 @@ static int genArray0(int node, int n, int d) {
       if (lab==-1) lab = l;                      //     この次元の最初を記憶し
       printLab(l);                               //     .Ln1 DW .Ly1
       for (int j=0; j<cnt; j=j+1) {              //          DW .Ly1
-	vmDwLab(ln);                             //          ...
-	ln = ln + 1;                             //     を生成する
+        vmDwLab(ln);                             //          ...
+        ln = ln + 1;                             //     を生成する
       }
     }
   } else if (typ==SyCNST) {                      // 最後の次元なら
@@ -791,8 +879,8 @@ void genBss(int idx) {                           // 次のような出力をす�
 
 // 文字列を生成しラベル番号を返す
 int genStr(char *str) {
-  int lab = newLab();                            // ラベルを割り付け
-  printLab(lab);
+  int lab = newLabStr();                            // ラベルを割り付け
+  printLabStr(lab);
   vmStr(str);                                    //   .Ln STRING "xxxx" を出力
   return lab;                                    //   ラベル番号を返す
 }
@@ -802,3 +890,111 @@ void genProto(int idx) {}                        // プロトタイプ宣言が�
 void genStruc(int idx) {}                        // 構造体宣言があった
 void genOn(void) {}                              // コード生成を許可する
 void genOff(char *hdr) {}                        // コード生成を禁止する
+
+// 10進数を読んで値を返す
+static int getDec() {
+  int v = 0;                                     // 初期値は 0
+  char ch = fgetc(fp);
+  boolean minusflg = false;
+  if(ch==EOF)
+    return EOF;
+  else if(ch=='-'){
+    minusflg = true;
+    ch = fgetc(fp);
+  }
+  while (isdigit(ch)) {                          // 10進数字の間
+    v = v*10 + ch - '0';                         // 値を計算
+    ch = fgetc(fp);                              // 次の文字を読む
+  }
+  if(minusflg) return -v;
+  return v;                                      // 10進数の値を返す
+}
+
+int main(int argc, char *argv[]){
+  int scp, type, dim, val, pub, lval, rval, idx, depth, krn;
+  char op;
+  if (argc==2){
+    if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
+      perror(argv[1]);                       // オープン失敗の場合は、メッ
+      exit(1);                               // セージを出力して終了
+    }
+    int i;
+    for(i=0; i<=StrMAX; i=i+1){
+      outfname[i] = argv[1][i];
+      if(outfname[i]=='\0') break;
+    }
+    if (outfname[i]!='\0') error("ファイル名が長すぎる");
+    if (strEndsWith(outfname, ".op")){
+      outfname[strlen(outfname) - 3]='\0';
+    }else
+      error("入力ファイル形式が違うかファイル名が長すぎる");
+  }else if (argc==1){
+    fp = stdin;
+  }else{
+    exit(1);
+  }
+  sprintf(outfname,"%s.vm",outfname);
+  if((fpout = fopen(outfname, "w")) == NULL){
+    perror(outfname);
+    exit(1);
+  }
+  while(true){
+    ln = getDec();
+    if(ln==EOF)
+      return 0;
+    op = fgetc(fp);
+    fgetc(fp);      // 空白読み捨て
+    if(op=='P'){
+      int i=0;
+      char c;
+      while((c=fgetc(fp))!=' '){
+        if(i>StrMAX)
+          error("名前が長すぎる");
+        str[i] = c;
+        i = i+1;
+      }
+      str[i] = '\0';
+      scp  = getDec();
+      type = getDec();
+      dim  = getDec();
+      val  = getDec();
+      pub  = getDec();
+      ntDefName(str, scp, type, dim, val, pub);
+    }else if(op=='N'){
+      type = getDec();
+      lval = getDec();
+      rval = getDec();
+      syNewNode(type, lval, rval);
+    }else if(op=='F'){
+      idx   = getDec();
+      depth = getDec();
+      krn   = getDec();
+      ntPrintTable(60);
+      genFunc(idx, depth, krn);
+      syClear(0);
+    }else if(op=='D'){
+      idx = getDec();
+      ntPrintTable(60);
+      genData(idx);
+      syClear(0);
+    }else if(op=='B'){
+      idx = getDec();
+      ntPrintTable(60);
+      genBss(idx);
+    }else if(op=='S'){
+      int i=0;
+      char ch;
+      while((ch=fgetc(fp))!='\n'){               // 改行がくるまで文字列
+        if(i>StrMAX)
+          error("文字列が長すぎる");
+        str[i] = ch;
+        i = i+1;
+      }
+      str[i] = '\0';
+      genStr(str);
+    }else{
+      error("bug");
+    }
+  }
+  return 0;
+}

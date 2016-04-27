@@ -42,31 +42,7 @@ CC=cc -std=c99 -Wall
 VER=\"3.0.0\"
 DATE="\"`date`\""
 
-all : c-- vm-c-- c-c--
-
-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
-      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
-      optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
-	-DNWORD=16 -DNBYTE=8 -o c-- \
-	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
-	vmCode.c vm2tac.c optree.c
-
-vm-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
-         namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2vm.c \
-         optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"VM\" \
-	-DNWORD=16 -DNBYTE=8 -o vm-c-- \
-	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
-	vmCode.c vm2vm.c optree.c
-
-c-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
-        namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
-        optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"C\" \
-	-DNWORD=32 -DNBYTE=8 -o c-c-- \
-	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
-	cCode.c optree.c
+all : lx sn op vm tac
 
 d-c-- : Makefile syntax.c syntax.h lxdef.h util.h util.c \
 	      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
@@ -80,6 +56,29 @@ lx : Makefile lexical.h lexical.c util.h util.c
 		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
 		-DNWORD=16 -DNBYTE=8 -o lx \
 		lexical.c util.c
+
+sn : Makefile syntax.h syntax.c util.h util.c namtbl.h namtbl.c \
+     sytree.h sytree.c
+		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+		-DNWORD=16 -DNBYTE=8 -o sn \
+		syntax.c util.c namtbl.c sytree.c
+
+op : Makefile optree.h optree.c util.h util.c namtbl.h namtbl.c \
+     sytree.h sytree.c
+		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+		-DNWORD=16 -DNBYTE=8 -o op \
+		optree.c util.c namtbl.c sytree.c
+
+vm : Makefile vmCode.c util.h util.c namtbl.h namtbl.c \
+     sytree.h sytree.c code.h
+		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+		-DNWORD=16 -DNBYTE=8 -o vm \
+		vmCode.c util.c namtbl.c sytree.c
+
+tac : Makefile vm.h vm2tac.c util.h util.c namtbl.h namtbl.c
+		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+		-DNWORD=16 -DNBYTE=8 -o tac \
+		vm2tac.c util.c namtbl.c
 
 #h8300hn-c-- : Makefile syntax.c lexical.c lexical.h util.h util.c \
 #      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2h8300hn.c \
@@ -97,5 +96,5 @@ install : c-- vm-c-- c-c-- # h8300hn-c--
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- d-c-- lx *.lx *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+	rm -f c-- vm-c-- c-c-- lx sn op vm tac *.lx *.sm *.op *.vm *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 #	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
