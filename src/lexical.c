@@ -22,7 +22,6 @@
 /*
  * lexical.c : C--コンパイラの字句解析ルーチン
  *
- * 2016.04.11         : 小さなメモリ上で動作させるために分割
  * 2016.02.24         : getSharp が str にもファイル名を記録するように変更
  * 2016.02.05 v3.0.0  : トランスレータと統合(LxFILE, LxTYPEDEF 追加)
  * 2016.01.28         : getCh() の始めて呼ばれた時の処理を改良
@@ -77,14 +76,10 @@ static int  nextch = '\n';                         // 次の文字
 static int  ch     = 0;                            // 現在の文字
 static int  ln     = 1;                            // 現在の行
 static int  ln2    = 0;                            // 現在の行
-
-#define StrMAX     128                             // 名前の長さの上限
-
 static int  val;                                   // 数値を返す場合、その値
 static char str[StrMAX + 1];                       // 名前を返す場合、その綴
 static char fname[StrMAX + 1];                     // 入力ファイル名
 static FILE * fp;                                  // ソースコードファイル
-static char outfname[StrMAX +1] = "stdin";
 
 // 一文字を読み込む
 static int getCh() {
@@ -392,55 +387,3 @@ int lxGetVal() { return val; }                 // 数値等を読んだときの
 char *lxGetStr() { return str; }               // 名前、文字列の綴を返す
 
 void lxSetFp(FILE *p) { fp = p; }              // fp をセットする
-
-int main(int argc, char *argv[]){
-  FILE *fpin, *fpout;
-  int tok; 
-  if (argc==2) {                             // 引数としてソースファイルがある
-    if((fpin = fopen(argv[1],"r")) == NULL){ // ソースファイルをオープン
-      perror(argv[1]);                       // オープン失敗の場合は、メッ
-      exit(1);                               //   セージを出力して終了
-    }
-    lxSetFname(argv[1]);                     // error表示用にファイル名を登録
-    int i;
-    for(i=0; i<=StrMAX; i=i+1){
-      outfname[i] = argv[1][i];
-      if(outfname[i]=='\0') break;
-    }
-    if (outfname[i]!='\0') error("ファイル名が長すぎる");
-    if (strEndsWith(outfname, ".cmm"))
-      outfname[strlen(outfname) - 4]='\0';
-  } else if (argc==1) {
-    fpin = stdin;
-    lxSetFname("STDIN");                     // error表示用にファイル名を登録
-  } else {
-    //usage(argv[0]);
-    exit(1);
-  }
-  sprintf(outfname,"%s.lx",outfname);
-  fpout = fopen(outfname, "w");
-  lxSetFp(fpin);                               // 字句解析に fp を知らせる
-  fprintf(fpout, "%d\t%d\t%s\n", lxGetLn(), LxFILE, lxGetFname());
-  while ((tok = lxGetTok())!=EOF){                  // EOF になるまで読む
-    if(tok == LxNAME || tok == LxSTRING){
-        int i = 0;
-        fprintf(fpout, "%d\t%d\t", lxGetLn(), tok);
-        while(str[i]){
-          /*if(str[i]=='\n')
-            fprintf(fpout, "\\n");
-          else */
-            fprintf(fpout, "%c", str[i]);
-          i = i+1;
-        }
-        fprintf(fpout, "\n");
-    }else if(tok == LxINTEGER || tok == LxLOGICAL)
-      fprintf(fpout, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
-    else if(tok == LxCHARACTER){
-      fprintf(fpout, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
-    }else if(tok == LxFILE){
-      fprintf(fpout, "%d\t%d\t%s\n", lxGetLn(), tok, lxGetFname());
-    }else
-      fprintf(fpout, "%d\t%d\n", lxGetLn(), tok);   // 中間ファイルに出力
-  }
-  return 0;
-}
