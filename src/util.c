@@ -90,3 +90,33 @@ boolean strEndsWith(char *str, char *suffix){
       return false;
   return true;
 }
+
+/* エラーチェック付きの fopen */
+FILE *eOpen(char *fname, char *mod) {
+  FILE *fp = fopen(fname, mod);
+  if (fp==NULL) {
+    perror(fname);
+    exit(1);
+  }
+  return fp;
+}
+
+/* 入力ファイル名をもらって、拡張子を変更して書込みオープンする */
+static void tooLongFname() {
+  error("ファイル名が長すぎる");
+}
+
+FILE *openDstWithExt(char *srcName, char *ext) {
+  char dstName[StrMAX + 1];
+
+  if (strlen(srcName)>StrMAX) tooLongFname();
+  strcpy(dstName, srcName);
+  
+  char *lastDot = rindex(dstName, '.');
+  if (lastDot!=NULL) *lastDot='\0';
+
+  if (strlen(dstName)+strlen(ext)>StrMAX) tooLongFname();
+  strcat(dstName, ext);
+
+  return eOpen(dstName, "w");
+}
