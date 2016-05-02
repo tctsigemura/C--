@@ -139,12 +139,7 @@ static int getDecf(FILE *fp) {
 /* 名前表の出力 */
 void ntPrintTable(char *name){
   FILE *fp;
-  name[strlen(name) - 3]='\0';
-  sprintf(name, "%s.nt", name);
-  if((fp = fopen(name, "w")) == NULL){
-    perror(name);
-    exit(1);
-  }
+  fp = openDstWithExt(name, ".nt");              // 拡張子を".nt"にしてOpen
   for (int i=0; i<ntNextIdx; i=i+1)              // 表全体について
     fprintf(fp, "%s %d %d %d %d %d\n"
       , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
@@ -157,11 +152,13 @@ void ntLoadTable(char *name){
   int scp, type, dim, val, pub;
   char c;
   char str[StrMAX + 1];
-  sprintf(name, "%s.nt", name);
-  if((fp = fopen(name, "r")) == NULL){
-    perror(name);
-    exit(1);
-  }
+  char ntfName[StrMAX + 1];
+  strcpy(ntfName, name);
+  char *lastDot = rindex(ntfName, '.');
+  if(lastDot!=NULL) *lastDot='\0';
+  if (strlen(ntfName)+strlen(".nt")>StrMAX) error("ファイル名長い");
+  strcat(ntfName, ".nt");
+  fp = eOpen(ntfName, "r");
   while((c=fgetc(fp))!=EOF){
     int i=0;
     while(c!=' '){

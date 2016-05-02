@@ -76,7 +76,6 @@ static int curLabStr = 0;                         // STRINGラベル用のカウ
 static int retLab;                                // return 時のジャンプ先
 static int brkLab;                                // break 時のジャンプ先
 static int cntLab;                                // continue 時のジャンプ先
-static char outfname[StrMAX + 1] = "stdin";
 static char str[StrMAX + 1];
 
 static int ln;
@@ -913,33 +912,19 @@ static int getDec() {
 int main(int argc, char *argv[]){
   int type, lval, rval, idx, depth, krn;
   char op;
+  char *fn = "stdin";
   if (argc==2){
-    if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
-      perror(argv[1]);                       // オープン失敗の場合は、メッ
-      exit(1);                               // セージを出力して終了
-    }
-    int i;
-    for(i=0; i<=StrMAX; i=i+1){
-      outfname[i] = argv[1][i];
-      if(outfname[i]=='\0') break;
-    }
-    if (outfname[i]!='\0') error("ファイル名が長すぎる");
-    if (strEndsWith(outfname, ".op")){
-      outfname[strlen(outfname) - 3]='\0';
-    }else
-      error("入力ファイル形式が違うかファイル名が長すぎる");
+    if (!strEndsWith(argv[1], ".op")) error("入力ファイル形式が違う");
+    fp = eOpen(argv[1],"r");  // 中間ファイルをオープン
+    fn = argv[1];
   }else if (argc==1){
     fp = stdin;
   }else{
+    fprintf(stderr, "使用方法 : %s [<srcfile>]\n", argv[0]);
     exit(1);
   }
-  ntLoadTable(outfname);              // 名前表ファイルから名前表を作成
-  outfname[strlen(outfname) - 3]='\0';
-  sprintf(outfname,"%s.vm",outfname);
-  if((fpout = fopen(outfname, "w")) == NULL){
-    perror(outfname);
-    exit(1);
-  }
+  ntLoadTable(fn);                   // 名前表ファイルから名前表を作成
+  fpout = openDstWithExt(fn, ".vm"); // 拡張子を".vm"に変更してOpen
   while(true){
     ln = getDec();
     if(ln==EOF)

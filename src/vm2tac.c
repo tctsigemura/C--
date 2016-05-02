@@ -1007,27 +1007,18 @@ static void callfunc2(int op, int a1, int a2){
 
 int main(int argc, char *argv[]){
   int op;
-  char ntfn[] = "stdin";
+  char *fn = "stdin";
   if (argc==2){
-    if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
-      perror(argv[1]);                       // オープン失敗の場合は、メッ
-      exit(1);                               // セージを出力して終了
-    }
-    int i;
-    for(i=0; i<=StrMAX; i=i+1){
-      ntfn[i] = argv[1][i];
-      if(ntfn[i]=='\0') break;
-    }
-    if (strEndsWith(ntfn, ".vm")){
-      ntfn[strlen(ntfn) - 3]='\0';
-    }else
-      error("入力ファイル形式が違うかファイル名が長すぎる");
+    if (!strEndsWith(argv[1], ".vm")) error("入力ファイル形式が違う");
+    fp = eOpen(argv[1],"r");  // 中間ファイルをオープン
+    fn = argv[1];
   }else if(argc==1){
     fp = stdin;
   }else{
+    fprintf(stderr, "使用方法 : %s [<srcfile>]\n", argv[0]);
     exit(1);
   }
-  ntLoadTable(ntfn);
+  ntLoadTable(fn);                   // 名前表ファイルから名前表を作成
   while(true){
     op = getDec();
     if(op==EOF)

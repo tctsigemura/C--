@@ -98,7 +98,6 @@ static int  val;                    // 数値を返す場合、その値
 static char str[StrMAX + 1];        // 名前を返す場合、その綴
 static char fname[StrMAX + 1];      // 入力ファイル名
 static FILE * fp;                   // ソースコードファイル
-static char outfname[StrMAX + 1] = "stdin";
 static int ln = 0;                  // 行番号
 static int ln2;                     // EOF時に行番号を元に戻すため
 
@@ -1400,35 +1399,21 @@ void snGetSrc(void) {
 int main(int argc, char *argv[]) {
   FILE *fp;
   if (argc==2){
-    if((fp = fopen(argv[1],"r")) == NULL){   // 中間ファイルをオープン
-      perror(argv[1]);                       // オープン失敗の場合は、メッ
-      exit(1);                               // セージを出力して終了
-    }
+    if (!strEndsWith(argv[1], ".lx")) error("入力ファイル形式が違う");
+    fp = eOpen(argv[1],"r");                 // 中間ファイルをオープン
     lxSetFname(argv[1]);
-    int i;
-    for(i=0; i<=StrMAX; i=i+1){
-      outfname[i] = argv[1][i];
-      if(outfname[i]=='\0') break;
-    }
-    if (outfname[i]!='\0') error("ファイル名が長すぎる");
-    if (strEndsWith(outfname, ".lx")){
-      outfname[strlen(outfname) - 3]='\0';
-    }else
-      error("入力ファイル形式が違うかファイル名が長すぎる");
   }else if (argc==1){
     fp = stdin;
     lxSetFname("STDIN");
   }else{
+    fprintf(stderr, "使用方法 : %s [<srcfile>]\n", argv[0]);
     exit(1);
   }
-  sprintf(outfname,"%s.sm",outfname);
-  if((fpout = fopen(outfname, "w")) == NULL){
-    perror(outfname);
-    exit(1);
-  }
+  char *fn = lxGetFname();
+  fpout = openDstWithExt(lxGetFname(), ".sm");// 拡張子を".sm"に変更してOpen
   lxSetFp(fp);                               // 字句解析に fp を知らせる
   snGetSrc();                                // fp からソースコードを入力して
                                              //   stdout へ出力
-  ntPrintTable(outfname);                    // 最終的な名前表をファイル出力
+  ntPrintTable(fn);                          // 最終的な名前表をファイル出力
   return 0;
 }
