@@ -126,10 +126,10 @@
 	CALLF	1,.malloc
 	STL	3
 	POP
-	LDA	1
+	LDP	1
 	STL	4
 	POP
-	LDA	1
+	LDP	1
 	STL	5
 	POP
 	LDC	30

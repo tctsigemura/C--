@@ -7,12 +7,12 @@
 	POP
 .L2
 	LDL	1
-	LDA	2
+	LDP	2
 	LT
 	JF	.L3
 	LDL	1
 	ARG
-	LDA	1
+	LDP	1
 	ARG
 	CALLF	2,.__AddrAdd
 	STL	2
@@ -28,7 +28,7 @@
 	POP
 	LDL	3
 	ARG
-	LDA	3
+	LDP	3
 	ARG
 	CALLF	2,.__AddrAdd
 	STL	4
@@ -36,13 +36,13 @@
 	LDL	4
 	LDC	1
 	LDW
-	LDA	4
+	LDP	4
 	LDL	2
 	LDC	0
 	LDW
 	STW
 	POP
-	LDA	4
+	LDP	4
 	LDL	2
 	LDC	0
 	LDW

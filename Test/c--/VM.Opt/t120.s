@@ -13,7 +13,7 @@
 .f
 	ENTRY	0
 	LDG	.b
-	STA	1
+	STP	1
 	MREG
 	RET
 .L1

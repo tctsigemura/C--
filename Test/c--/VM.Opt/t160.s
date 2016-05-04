@@ -476,7 +476,7 @@
 	LDC	5
 	STW
 	LDG	.i
-	LDA	1
+	LDP	1
 	STW
 	LDG	.x
 	LDG	.i
@@ -494,8 +494,8 @@
 	CALLF	0,.f2
 	LDC	2
 	LDB
-	LDA	1
-	LDA	2
+	LDP	1
+	LDP	2
 	MUL
 	MUL
 	LDG	.x
@@ -503,7 +503,7 @@
 	LDW
 	MUL
 	LDW
-	STA	2
+	STP	2
 	POP
 	RET
 .z1
@@ -653,7 +653,7 @@
 	CALLF	1,.f7
 	LDC	1
 	LDW
-	STA	1
+	STP	1
 	POP
 	LDG	.z1
 	ARG
@@ -684,11 +684,11 @@
 	CALLP	3,.f10
 	LDL	1
 	ARG
-	LDA	1
+	LDP	1
 	ARG
 	LDL	1
 	ARG
-	LDA	1
+	LDP	1
 	ARG
 	LDL	1
 	ARG

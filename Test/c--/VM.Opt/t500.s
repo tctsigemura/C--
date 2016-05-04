@@ -1,6 +1,6 @@
 .h
 	ENTRY	0
-	LDA	1
+	LDP	1
 	ARG
 	CALLF	1,.g
 	MREG
