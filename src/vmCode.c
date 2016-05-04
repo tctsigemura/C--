@@ -22,6 +22,8 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
+ *                      vmLdArg, vmStArg を vmLdPrm, vmStPrm に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
  *                      (genProto, genStruc, genOn, genOff 関数追加)
  *                      (SyPOST,SyBYTE の代わりに SyIDXW,SyIDXB,SyDOT に対応)
@@ -85,7 +87,7 @@ static int newLab() {
 #define CNST  1                                   // 定数
 #define GVAR  2                                   // 大域変数
 #define LVAR  3                                   // ローカル変数
-#define ARG   4                                   // 仮引数
+#define PRM   4                                   // 仮引数
 #define STR   5                                   // 文字列ラベル
 #define STKD  6                                   // スタックに置かれたデータ
 #define STKW  7                                   // スタックにワード配列を
@@ -121,7 +123,7 @@ static void load(struct Expr *c) {
     if      (p == CNST) vmLdCns(v);               //   定数値をロード
     else if (p == GVAR) vmLdGlb(v);               //   大域変数の値をロード
     else if (p == LVAR) vmLdLoc(v);               //   ローカル変数の値をロード
-    else if (p == ARG)  vmLdArg(v);               //   仮引数の値をロード
+    else if (p == PRM)  vmLdPrm(v);               //   仮引数の値をロード
     else if (p == STR)  vmLdStr(v);               //   一時ラベル値をロード
     else if (p == LABL) vmLdLab(v);               //   通常ラベル値をロード
     else if (p == STKW) vmLdWrd();                //   ワード配列からロード
@@ -137,7 +139,7 @@ static void store(struct Expr *c) {
   int v = c->value;                               // 左辺式の値
   if      (p == GVAR) vmStGlb(v);                 // 大域変数へストア
   else if (p == LVAR) vmStLoc(v);                 // ローカル変数へストア
-  else if (p == ARG)  vmStArg(v);                 // 仮引数へストア
+  else if (p == PRM)  vmStPrm(v);                 // 仮引数へストア
   else if (p == STKW) vmStWrd();                  // ワード配列へストア
   else if (p == STKB) vmStByt();                  // バイト配列へストア
   else error("バグ...store");                     // その他はないはず
@@ -192,15 +194,15 @@ static void genFactor(int node, struct Expr* c) {
   } else if (typ == SyLOC) {                      // ローカル変数の場合
     c->place = LVAR;
     c->value = lVal;
-  } else if (typ == SyARG) {                      // 引数の場合
-    c->place = ARG;
+  } else if (typ == SyPRM) {                      // 仮引数の場合
+    c->place = PRM;
     c->value = lVal;
   } else if (typ == SySTR) {                      // 文字列ラベルの場合
     c->place = STR;
     c->value = lVal;
   } else if (typ == SyFUNC) {                     // 関数呼び出し
     int n = genArgs(syGetRVal(node), c);          //   引数の処理
-    if (ntGetType(lVal)!=TyVOID||ntGetDim(lVal)!=0 ) { //   void 型以外なら
+    if (ntGetType(lVal)!=TyVOID||ntGetDim(lVal)!=0) { //   void 型以外なら
       vmCallF(n, lVal);                           //     関数用の Call
       c->place = STKD;
     } else {                                      //   void 型なら

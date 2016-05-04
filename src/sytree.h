@@ -22,6 +22,7 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
+ * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
  *                      (SyPOST, SyBYTE 削除, SyIDXx, SyDOT, SyVAR, SyBLK 追加)
  * 2010.07.20         : Subversion による管理を開始
@@ -48,7 +49,7 @@ int syRVal[SyMAX];                           // ノードの値２
 #define SyISFACT(c)   (((c)&0xf00)==0x100)  // 因子かどうか判定
 #define SyCNST        0x102                 // 数値定数、文字定数、論理定数
 #define SyLOC         0x103                 // ローカル変数
-#define SyARG         0x104                 // 仮引数
+#define SyPRM         0x104                 // 仮引数
 #define SyGLB         0x105                 // グローバル変数
 #define SySTR         0x106                 // 文字列
 #define SyFUNC        0x107                 // 関数コール

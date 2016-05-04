@@ -23,6 +23,7 @@
  * vm2vm.c : 仮想マシンのコードから実際のコードを生成するプログラムのサンプル
  *           (このプログラムは仮想マシンのコードを出力する)
  *
+ * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK 追加
  * 2015.08.30         : vmStWrdのコメント誤り修正（バイト配列=>ワード配列）
  * 2012.09.08         : BOOLOR, BOORAND の位置が分かるようにコメントを出力
@@ -144,8 +145,8 @@ void vmLdLoc(int n) {
 }
 
 // n番目の引数の値をスタックに積む
-void vmLdArg(int n) {
-  printf("\tLDA\t%d\n", n);
+void vmLdPrm(int n) {
+  printf("\tLDP\t%d\n", n);
 }
 
 // 文字列のアドレスをスタックに積む
@@ -184,8 +185,8 @@ void vmStLoc(int n) {
 }
 
 // スタックトップの値をn番目の引数にストアする(POPはしない)
-void vmStArg(int n) {
-  printf("\tSTA\t%d\n", n);
+void vmStPrm(int n) {
+  printf("\tSTP\t%d\n", n);
 }
 
 // まず、スタックから添字とワード配列の番地を取り出す

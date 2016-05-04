@@ -22,6 +22,8 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2016.05.04         : 配列サイズが 1 以上かチェックするようにする
+ *                      SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : main() 関数を main.c に分離して新規作成
  *                      トランスレータと統合
  * 2016.01.12         : 可変個引数関数の実引数にvoid型が来た時のバグ発見(未解決)
@@ -285,7 +287,7 @@ static void getPostOP(struct watch *w) {
     } else error("バグ...getPostOP");
     w->tree = syNewNode(stype, w->tree, rval); // 後置演算を構文木に追加
     w->lhs = true;                             // 演算結果は代入可
-    freeWatch(w2); 
+    freeWatch(w2);
   }
 }
 */
@@ -307,9 +309,9 @@ static void getIdxOP(struct watch *w) {
   else if (stype==TyBOOL)   stype = SyIDXB;    // boolean はバイト配列
   else error("バグ...getIdxOP");
 
-  w->tree = syNewNode(stype, w->tree, w2->tree);// 
+  w->tree = syNewNode(stype, w->tree, w2->tree);//
   w->lhs = true;                               // 演算結果は代入可
-  freeWatch(w2); 
+  freeWatch(w2);
 }
 
 // 後置演算子(構造体フィールド('.'))の処理
@@ -450,7 +452,7 @@ static void getIdent(struct watch* w) {
       int a = syNewNode(SyLOC, c, SyNULL);    //     局所変数のノード
       setWatch(w, t, d, true, a);             //     式(w)が局所変数になる
     } else {                                  //   c<0 なら仮引数
-      int a = syNewNode(SyARG,-c, SyNULL);    //     仮引数のノード
+      int a = syNewNode(SyPRM,-c, SyNULL);    //     仮引数のノード
       setWatch(w, t, d, true, a);             //     式(w)が仮引数になる
     }
   } else error("バグ...getIdent");            // それ以外の名前はあり得ない
@@ -749,7 +751,7 @@ static int getIf(void) {
   }
   freeWatch(w);                                // w は役目を終えた
   return sta;
-}    
+}
 
 // WHILE文
 static int getWhile(void) {
@@ -764,7 +766,7 @@ static int getWhile(void) {
   sta =  syNewNode(SyWHL, w->tree, sta);       // while を完成
   freeWatch(w);                                // w は役目を終えた
   return sta;
-}    
+}
 
 // DO - WHILE文
 static int getDoWhile(void) {
@@ -781,7 +783,7 @@ static int getDoWhile(void) {
   sta = syNewNode(SyDO, sta, w->tree);        // 登録
   freeWatch(w);                                // w は役割を終えた
   return sta;
-}    
+}
 
 // FOR文
 static int getFor(void) {
@@ -836,12 +838,12 @@ static int getFor(void) {
   sta = syNewNode(SySEMI, sta, rini);          // 再初期化と本文
   sta = syNewNode(SyWHL, cnd, sta);            // while文相当部分
   sta = syNewNode(SyBLK, ini, sta);            // 初期化とwhile文でブロック
-  
+
   ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
   // curScope = curScope - 1;     // C言語と同じスコープルールにするなら
   return sta;
-}    
+}
 
 // break 文
 static int getBreak(void) {
@@ -1028,6 +1030,8 @@ static int getCnst(int typ) {
 static int getArray0(int dim) {
   if (dim<=0) error("array の次元が配列の次元を超える");
   int node = getCnst(TyINT);                 // 整数定数式を読み込む
+  if (syGetLVal(node)<=0)
+    error("配列のサイズは正であるべき");
   if (isTok(',')) {                          // ',' が続くなら
     int lVal = getArray0(dim - 1);           //   ','の右側を先に読み
     node = syCatNode(lVal, node);            //   リストの左につなぐ
