@@ -344,17 +344,17 @@ vmRet()
 \end{verbatim}
 \end{quote}
 
-\subsubsection{vmLdArg}
+\subsubsection{vmLdPrm}
 
 現在の関数の\verb/n/番目の引数の値をスタックに積みます。
 引数の番号は第１引数から順に、\verb/1/以上の番号が割り振られます。
 
 \begin{quote}
 \begin{verbatim}
-中 間 言 語 ： vmLdArg(n)
-ニーモニック： LDA  n   
+中 間 言 語 ： vmLdPrm(n)
+ニーモニック： LDP  n   
 
-変換例：vmLdArg(3) => LDA  3
+変換例：vmLdPrm(3) => LDP  3
 \end{verbatim}
 \end{quote}
 
@@ -443,17 +443,17 @@ vmRet()
 \end{verbatim}
 \end{quote}
 
-\subsubsection{vmStArg}
+\subsubsection{vmStPrm}
 
 スタックトップの値を\verb/n/番目の引数にストアします。
 スタックをポップしません。
 
 \begin{quote}
 \begin{verbatim}
-中 間 言 語 ： vmStArg(n)
-ニーモニック： STA  n   
+中 間 言 語 ： vmStPrm(n)
+ニーモニック： STP  n   
 
-変換例：vmStArg(3) => STA  3
+変換例：vmStPrm(3) => STP  3
 \end{verbatim}
 \end{quote}
 
