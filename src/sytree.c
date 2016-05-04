@@ -22,6 +22,7 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
+ * 2016.05.05         : syGetRoot() が構文木が存在しない時 SyNULL を返す
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
  *                      (SyPOST, SyBYTE 削除、SyIDXx, SyDOT, SyVAR, SyBLK 追加)
@@ -72,7 +73,9 @@ void syClear(int idx) {
 
 // 構文木のルートを取り出す
 int syGetRoot() {
-  return syNextIdx - 1;
+  int root = syNextIdx - 1;            // 最後に登録されたノードがルート
+  if (root<0) root = SyNULL;           // 木が存在しないなら null を返す
+  return root;
 }
 
 // デバッグ用
