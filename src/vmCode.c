@@ -22,6 +22,7 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2016.05.05         : genBoolExpr() にバグチェックの error() 追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  *                      vmLdArg, vmStArg を vmLdPrm, vmStPrm に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
@@ -470,6 +471,7 @@ static void genBoolExpr(int node, struct Expr* c) {
   else if (SyIS2OPR(op)) gen2OpExpr(node, c);     //   普通の二項演算
   else if (SyISCMP(op))  genCmpExpr(node, c);     //   比較演算
   else if (SyISLOPR(op)) genLOpExpr(node, c);     //   論理演算
+  else error("バグ...genBoolExpr");
 }
 
 // 式のコード生成 (結果を必ずスタックにロードする)
