@@ -22,6 +22,11 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2016.05.10         : トランスレータ用のディレクティブ処理を改良
+ *                      ただし、ディレクティブは、宣言、定義の外でしか使えない
+ *                      int f() {
+ *                      #include "xxx.hmm"   // 関数定義の途中では使用できない
+ *                      }
  * 2016.05.04         : 配列サイズが 1 以上かチェックするようにする
  *                      SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : main() 関数を main.c に分離して新規作成
@@ -95,30 +100,11 @@ static int     funcIdx;             // 現在読込中の関数
 static boolean optFlag = true;      // 最適化を行う
 static boolean krnFlag = false;     // カーネルコンパイルモード
 
-// (# 行番号 "path")ディレクティブの処理
-#define  CMMINC "/cmmInclude/"      // C--用システムヘッダファイルの目印
-
-static void getFile() {
-  char * fname = lxGetStr();                 // 現在のファイル
-
-  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
-      strEndsWith(fname, ".hmm"))  {         // ヘッダファイルなら
-    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
-    genOff(strrchr(fname,'/')+1);            // システムヘッダ内容は出力しない
-  } else {                                   // (代替のディレクティブを出力)
-    genOn();                                 // システムヘッダ以外は出力する
-  }
-}
-
 // トークンの読み込み
 static int tok;                              // 次のトークン
 
 static int getTok() {
   tok = lxGetTok();                          // 次のトークンを入力する
-  while (tok==LxFILE) {                      // ディレクティブなら
-    getFile();                               //   ディレクティブを処理する
-    tok = lxGetTok();                        //   次のトークンを入力する
-  }
   return tok;
 }
 
@@ -1233,10 +1219,32 @@ static void getProg(void) {
 void snSetOptFlag(boolean f) { optFlag = f; };
 void snSetKrnFlag(boolean f) { krnFlag = f; };
 
+// (# 行番号 "path")ディレクティブの処理
+#define  CMMINC "/cmmInclude/"      // C--用システムヘッダファイルの目印
+ 
+static void getDirective() {                 // # 行番号 "ファイル名" の処理
+  char * fname = lxGetStr();                 // 現在のファイル名
+  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
+      strEndsWith(fname, ".hmm")) {          // ヘッダファイルなら
+    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
+    if (lxGetVal()==1)                       //   内容は出力しないで
+      genOff(strrchr(fname,'/')+1);          //     "#include <ファイル名>"
+    else                                     //   ２回以降なら
+      genOff(null);                          //     単に内容は出力しない
+  } else {                                   //
+    genOn();                                 // システムヘッダ以外は出力する
+  }
+  getTok();
+}
+
 // ソースプログラムを読む
 void snGetSrc(void) {
   genOn();                                   // コード生成を許可する
   getTok();                                  // 最初の tok を読み込む
-  while (tok!=EOF)                           // EOF になるまで
-    getProg();                               //   C-- プログラムを処理
+  while (tok!=EOF) {                         // EOF になるまで
+    if (tok==LxFILE)                         //   ディレクティブなら
+      getDirective();                        //     ディレクティブを処理する
+    else
+      getProg();                             //   C-- プログラムを処理
+  }
 }
