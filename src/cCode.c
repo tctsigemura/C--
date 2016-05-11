@@ -395,6 +395,7 @@ static void printArray(int node, int idx){
   printf("=");                                      // "="
   printTmpLab(ln);                                  // "_cmm_%dT;
   printf(";\n");
+  sySetRVal(node, ln);                              // SyARRAY にラベル番号記録
 }
 
 // 初期値のリストを出力
@@ -406,7 +407,7 @@ static void printList2(int node, int dim) {
     printList2(lVal, dim);                          // 左辺を処理
     printf(",");                                    // ","
     printList2(rVal, dim);                          // 右辺を処理
-  } else if (typ==SyLIST) {
+  } else if (typ==SyLIST || typ==SyARRY) {
     if (dim<=0) printf("&");                        // "&" (構造体の初期化)
     printTmpLab(rVal);                              // "_cmm_%dT"
   } else if (typ==SyCNST) {
@@ -427,7 +428,10 @@ static void printList1(int vType, int dim, int node) {
     printList1(vType, dim, rVal);                   //   右辺の内部を探す
   } else if (typ==SyLIST) {                         // 内部の SyLIST なら
     printList0(vType, dim, node);                   //   printList0() を実行
-  } else if (typ!=SyCNST && typ!=SySTR) error("バグ...printList1");
+  } else if (typ==SyARRY) {                         // 内部の SyARRY なら
+    printArray0(vType, dim, lVal, 1);               //   printArray0() を実行
+} else if (typ!=SyCNST && typ!=SySTR)
+    error("バグ...printList1");
 }
 
 // 初期化データを出力
