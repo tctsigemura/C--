@@ -388,7 +388,7 @@ static int printArray0(int vType, int dim, int node, int cnt) {
 static void printArray(int node, int idx){
   int lVal = syGetLVal(node);                       // SyARRAY の左辺
   int typ = ntGetType(idx);                         // 配列のデータ型
-  int dim = ntGetDim(idx) - 1;                     // インスタンスの次元数
+  int dim = ntGetDim(idx) - 1;                      // インスタンスの次元数
 
   int ln = printArray0(typ, dim, lVal, 1);          // 配列インスタンス出力
   printGlobDcl(idx);                                // "[static]型名[*...]名前"
