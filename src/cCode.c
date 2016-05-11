@@ -258,7 +258,7 @@ static void printVAR(int node){
   int rVal = syGetRVal(node);
   int typ  = syGetLVal(rVal);                       // 型
   int dim  = syGetRVal(rVal);                       // 次元
-  printType(true, typ, dim);                        // "型名[*...]"
+  printType(false, typ, dim);                       // "型名[*...]"
   printLocVar(syGetLVal(node));                     // "_cmm_%dL"
   printf(";\n");                                    // ";"
 }
