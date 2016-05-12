@@ -38,10 +38,10 @@ static int ****_cmm_18T[]={_cmm_17T,0};
 static int *****pq=_cmm_18T;
 #define _cmm_2S "abc"
 static void f0(){
-static int _cmm_1L;
+int _cmm_1L;
 (_cmm_1L=1);
-static int ****_cmm_2L;
-static char *_cmm_3L;
+int ****_cmm_2L;
+char *_cmm_3L;
 (_cmm_3L=_cmm_2S);
 (h[1]=1);
 (_cmm_2L[0][1][1][3]=2);
@@ -85,11 +85,11 @@ static char *_cmm_45T[]={_cmm_43T,_cmm_44T};
 static char **_cmm_46T[]={_cmm_42T,_cmm_2T};
 static char ***v=_cmm_46T;
 static int f1(char _cmm_1P,int _cmm_2P){
-static int _cmm_1L;
+int _cmm_1L;
 (_cmm_1L=1);
-static int _cmm_2L;
-static int _cmm_3L;
-static int *_cmm_4L;
+int _cmm_2L;
+int _cmm_3L;
+int *_cmm_4L;
 (_cmm_4L=malloc(40));
 if ((_cmm_4L[0]==0))(_cmm_4L[1]=1);
 else (_cmm_4L[1]=0);
@@ -107,7 +107,7 @@ else {
 }
 while((_cmm_1L==0)){
 {
-static int _cmm_5L;
+int _cmm_5L;
 (_cmm_5L=1);
 (_cmm_5L=(_cmm_5L+1));
 }
@@ -136,9 +136,9 @@ static char _cmm_48T[]={3,4};
 static char *_cmm_49T[]={_cmm_47T,_cmm_48T};
 static char **ab=_cmm_49T;
 static char *f2(){
-static int _cmm_1L;
+int _cmm_1L;
 (_cmm_1L=1);
-static int _cmm_2L;
+int _cmm_2L;
 (_cmm_2L=2);
 f1(((_cmm_1L==1)&&(_cmm_2L==1)),_cmm_2L);
 return ab[1];
@@ -150,9 +150,9 @@ while(1){
 }
 }
 static void f4(){
-static int _cmm_1L;
+int _cmm_1L;
 (_cmm_1L=0);
-static int _cmm_2L;
+int _cmm_2L;
 (_cmm_2L=1);
 while((_cmm_1L<10)){
 (_cmm_1L=((_cmm_2L+1)*2));
@@ -225,7 +225,7 @@ static void f10(char *_cmm_1P,...);
 #define _cmm_10S "aaa"
 #define _cmm_11S "bbb"
 static void f11(int _cmm_1P,...){
-static int _cmm_1L;
+int _cmm_1L;
 (z1=f7(1));
 (_cmm_1P=f7(1)->b);
 (z1=f8(z1)[1]);
@@ -237,9 +237,9 @@ f11(_cmm_1L,_cmm_1P,_cmm_1L,_cmm_1P,_cmm_1L);
 (z6[1]=(z6[2]=z6[3]));
 ((y[1]=y[2])[1]=1);
 {
-static int _cmm_2L;
+int _cmm_2L;
 (_cmm_2L=0);
-static int _cmm_3L;
+int _cmm_3L;
 (_cmm_3L=0);
 while((_cmm_2L==_cmm_3L)){
 (_cmm_3L=(_cmm_3L+1));
@@ -250,19 +250,19 @@ while((_cmm_2L==_cmm_3L)){
 #define _cmm_12S "aaa"
 static char *ss=_cmm_12S;
 static void f12(){
-static int *_cmm_1L;
+int *_cmm_1L;
 (_cmm_1L=malloc(16));
 free(_cmm_1L);
-static char _cmm_2L;
+char _cmm_2L;
 (_cmm_2L=1);
 }
 static void f13(){
-static void *_cmm_1L;
-static int _cmm_2L;
+void *_cmm_1L;
+int _cmm_2L;
 (_cmm_2L=10);
-static int _cmm_3L;
+int _cmm_3L;
 (_cmm_3L=18);
-static int _cmm_4L;
+int _cmm_4L;
 (_cmm_4L=99);
 (_cmm_1L=ss);
 (z1=_cmm_1L);

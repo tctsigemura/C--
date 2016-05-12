@@ -1,15 +1,15 @@
 static void main(){
-static int _cmm_1L;
-static int _cmm_2L;
-static int _cmm_3L;
-static int _cmm_4L;
-static int _cmm_5L;
-static int _cmm_6L;
-static int _cmm_7L;
-static int _cmm_8L;
-static int _cmm_9L;
-static int _cmm_10L;
-static int _cmm_11L;
+int _cmm_1L;
+int _cmm_2L;
+int _cmm_3L;
+int _cmm_4L;
+int _cmm_5L;
+int _cmm_6L;
+int _cmm_7L;
+int _cmm_8L;
+int _cmm_9L;
+int _cmm_10L;
+int _cmm_11L;
 (_cmm_1L=1);
 (_cmm_2L=2);
 (_cmm_3L=3);

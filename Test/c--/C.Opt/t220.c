@@ -1,6 +1,6 @@
 static void main(){
-static int _cmm_1L;
-static int _cmm_2L;
+int _cmm_1L;
+int _cmm_2L;
 while(1){
 {
 continue;

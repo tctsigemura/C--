@@ -15,7 +15,7 @@ static void main(){
 (a=x);
 (b=y);
 {
-static int _cmm_1L;
+int _cmm_1L;
 (_cmm_1L=a);
 while((_cmm_1L<b)){
 (c=((a+b)+f((_cmm_1L*_cmm_1L),_cmm_0S)));

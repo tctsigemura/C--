@@ -395,7 +395,6 @@ static void printArray(int node, int idx){
   printf("=");                                      // "="
   printTmpLab(ln);                                  // "_cmm_%dT;
   printf(";\n");
-  sySetRVal(node, ln);                              // SyARRAY にラベル番号記録
 }
 
 // 初期値のリストを出力
@@ -429,7 +428,8 @@ static void printList1(int vType, int dim, int node) {
   } else if (typ==SyLIST) {                         // 内部の SyLIST なら
     printList0(vType, dim, node);                   //   printList0() を実行
   } else if (typ==SyARRY) {                         // 内部の SyARRY なら
-    printArray0(vType, dim, lVal, 1);               //   printArray0() を実行
+    int ln = printArray0(vType, dim, lVal, 1);      //   printArray0() を実行
+    sySetRVal(node, ln);                            // SyARRAY にラベル番号記録
 } else if (typ!=SyCNST && typ!=SySTR)
     error("バグ...printList1");
 }

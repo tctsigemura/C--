@@ -5,9 +5,9 @@ int a;
 int b;
 };
 static void main(){
-static int _cmm_1L;
-static int _cmm_2L;
-static struct X *_cmm_3L;
+int _cmm_1L;
+int _cmm_2L;
+struct X *_cmm_3L;
 (_cmm_1L=_cmm_1L);
 (_cmm_1L=(_cmm_1L+1));
 (_cmm_2L=_cmm_2L);

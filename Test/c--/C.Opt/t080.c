@@ -39,7 +39,7 @@ while((b==1)){
 }
 }
 {
-static int _cmm_1L;
+int _cmm_1L;
 (_cmm_1L=0);
 while((_cmm_1L==10)){
 (_cmm_1L=(_cmm_1L+1));

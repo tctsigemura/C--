@@ -13,8 +13,8 @@ static struct X _cmm_3T={-1,1};
 static struct X *_cmm_4T[]={&_cmm_2T,&_cmm_3T};
 static struct X **e=_cmm_4T;
 static void main(){
-static int _cmm_1L;
+int _cmm_1L;
 (_cmm_1L=1);
-static int _cmm_2L;
+int _cmm_2L;
 (_cmm_2L=-1);
 }

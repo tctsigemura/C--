@@ -13,6 +13,6 @@ static void task2(){
 }
 static char boole;
 void main(){
-static int *_cmm_1L;
+int *_cmm_1L;
 (_cmm_1L=__ItoA(65024));
 (tcbs[0]->pc=

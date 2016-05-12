@@ -1,11 +1,11 @@
 static void main(){
-static int _cmm_1L;
+int _cmm_1L;
 {
 while(1){
 {
 continue;
 {
-static int _cmm_2L;
+int _cmm_2L;
 (_cmm_2L=0);
 while((_cmm_2L<100)){
 {
