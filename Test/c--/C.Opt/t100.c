@@ -1,8 +1,8 @@
 static int a=5;
 static int b=3;
 static int c=2;
-static void f(int _cmm_1P,char *_cmm_2P);
-#define _cmm_0S "abc"
+static void f(int _cmm_1P,unsigned char *_cmm_2P);
+#define _cmm_0S ((unsigned char*)"abc")
 static void main(){
 int _cmm_1L;
 (_cmm_1L=a);

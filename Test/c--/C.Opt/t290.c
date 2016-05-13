@@ -1,4 +1,4 @@
 static void main(){
-char _cmm_1L;
+unsigned char _cmm_1L;
 (_cmm_1L=0);
 }

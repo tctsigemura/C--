@@ -3,11 +3,11 @@ static int b;
 static int c;
 static int d;
 static int e;
-static char s;
-static char t;
-static char u;
-static char v;
-static char w;
+static unsigned char s;
+static unsigned char t;
+static unsigned char u;
+static unsigned char v;
+static unsigned char w;
 static void f(){
 if (((((a>b)==(b>c))&&(c>d))||((a>b)&&(b>c))))(a=1);
 else (a=2);

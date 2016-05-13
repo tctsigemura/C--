@@ -1,5 +1,5 @@
-static char b;
+static unsigned char b;
 static void main(){
-char _cmm_1L;
+unsigned char _cmm_1L;
 (_cmm_1L=(b=1));
 }
