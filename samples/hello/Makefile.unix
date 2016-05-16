@@ -4,7 +4,7 @@
 INCDIR=/usr/local/cmmInclude
 LIBDIR=/usr/local/cmmLib
 
-CFLAGS+=-Wno-parentheses-equality
+CFLAGS+=-Wno-parentheses-equality -Wno-pointer-sign
 CPP=cc -E -DC -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < 
 
 .SUFFIXES: .o .cmm .c

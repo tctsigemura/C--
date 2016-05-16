@@ -4,7 +4,7 @@ VER=\"3.0.0\"
 DATE="\"`date`\""
 
 CPFLAGS+=-DNWORD=8 -DNBYTE=32 -DDATE=${DATE} -DVER=${VER} -DARC=\"C\"
-CFLAGS+=-Wno-parentheses-equality
+CFLAGS+=-Wno-parentheses-equality -Wno-pointer-sign
 
 CPP=cc -E -std=c99 -nostdinc -I${INCDIR} ${CPFLAGS} - < 
 
