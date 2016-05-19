@@ -8,5 +8,5 @@ for i in $*; do
     n=`expr ${j} : '\([^\.]*\)'`
     echo '[!!!' "${n}.cmm => ${n}.c" '!!!]'
    cc -E -DC -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < ${i} |
-   ../../../src/c-c-- -O > ${i}.c
+   ../../../src/c-c-- -O > ${n}.c
 done

@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2016.05.20         : トランスレータ用のディレクティブ処理のバグ
  * 2016.05.10         : トランスレータ用のディレクティブ処理を改良
  *                      ただし、ディレクティブは、宣言、定義の外でしか使えない
  *                      int f() {
@@ -100,34 +101,39 @@ static int     funcIdx;             // 現在読込中の関数
 static boolean optFlag = true;      // 最適化を行う
 static boolean krnFlag = false;     // カーネルコンパイルモード
 
-// トークンの読み込み
+//-----------------------------------------------------------------------------
+// トークンの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
+//-----------------------------------------------------------------------------
+#ifndef _C_
+// コンパイラ版はディレクティブに興味がないので
+// ディレクティブは getTok() が読み飛ばす。
+#define _tok tok                             // _tok と tok の区別はない
 static int tok;                              // 次のトークン
+static void getTok() {                       // 
+  tok = lxGetTok();                          // 次のトークンを入力する  
+  while (tok==LxFILE)                        // トークン入力時に
+    tok = lxGetTok();                        //     ディレクティブを読み飛ばす
+}
+//-----------------------------------------------------------------------------
+#else
+// トランスレータ版ではディレクティブも処理対象になる場合がある。
+// ディレクティブを処理したい時は _tok を使用する。
+// ディレクティブに興味がない処理は tok を使用する。
+// tok を使用すると _getTok() が呼ばれディレクティブを読み飛ばす。
 
-// (# 行番号 "path")ディレクティブの処理
-#define  CMMINC "/cmmInclude/"               // システムヘッダファイルの目印
-
-static void getDirective() {                 // # 行番号 "ファイル名" の処理
-  char * fname = lxGetStr();                 // 現在のファイル
-  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
-      strEndsWith(fname, ".hmm"))  {         // ヘッダファイルなら
-    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
-    if (lxGetVal()==1)                       //   内容は出力しないで
-      genOff(strrchr(fname,'/')+1);          //     "#include <ファイル名>"
-    else                                     //   ２回以降なら
-      genOff(null);                          //     単に内容は出力しない
-  } else {                                   // (代替のディレクティブを出力)
-    genOn();                                 // システムヘッダ以外は出力する
-  }
+static int _tok;                             // 次のトークン
+static void getTok() {                       // 次のトークンを入力する
+  _tok = lxGetTok();                         //   ディレクティブも入力する
 }
 
-static int getTok() {
-  tok = lxGetTok();                          // 次のトークンを入力する
-  while (tok==LxFILE) {                      // ディレクティブなら
-    getDirective();                          //   ディレクティブを処理する
-    tok = lxGetTok();                        //   次のトークンを入力する
-  }
-  return tok;
+#define tok _getTok()                        // tok 使用は、_getTok() に置換え
+static int _getTok() {                       // tok 使用時に
+  while (_tok==LxFILE)                       //   ディレクティブを読み飛ばす
+    _tok = lxGetTok();                       //   ディレクティブを
+  return _tok;
 }
+//-----------------------------------------------------------------------------
+#endif
 
 /*
  * 構文解析
@@ -1244,13 +1250,26 @@ void snSetKrnFlag(boolean f) { krnFlag = f; };
 #define  CMMINC "/cmmInclude/"      // C--用システムヘッダファイルの目印
  
 static void getDirective() {                 // # 行番号 "ファイル名" の処理
+  char * fname = lxGetStr();                 // 現在のファイル名
+  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
+      strEndsWith(fname, ".hmm")) {          // ヘッダファイルなら
+    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
+    if (lxGetVal()==1)                       //   内容は出力しないで
+      genOff(strrchr(fname,'/')+1);          //     "#include <ファイル名>"
+    else                                     //   ２回以降なら
+      genOff(null);                          //     単に内容は出力しない
+  } else {                                   //
+    genOn();                                 // システムヘッダ以外は出力する
+  }
+  getTok();
+}
 
 // ソースプログラムを読む
 void snGetSrc(void) {
   genOn();                                   // コード生成を許可する
   getTok();                                  // 最初の tok を読み込む
-  while (tok!=EOF) {                         // EOF になるまで
-    if (tok==LxFILE)                         //   ディレクティブなら
+  while (_tok!=EOF) {                        // EOF になるまで
+    if (_tok==LxFILE)                        //   ディレクティブなら
       getDirective();                        //     ディレクティブを処理する
     else
       getProg();                             //   C-- プログラムを処理

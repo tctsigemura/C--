@@ -19,6 +19,7 @@
 #
 # Makefile : c-- の makefile
 #
+# 2015.05.20         : トランスレータ版では _C_ を定義するように変更
 # 2016.02.05 v3.0.0  : トランスレータと統合
 # 2016.01.18 v2.1.2  : vm2tac.cmm の vmPop() の意味の無い式に関するバグ修正
 # 2015.12.16 v2.1.1  : void以外の関数の return チェックに関するバグ修正
@@ -63,7 +64,7 @@ vm-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
 c-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"C\" \
+	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"C\" -D_C_=1 \
 	-DNWORD=32 -DNBYTE=8 -o c-c-- \
 	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
