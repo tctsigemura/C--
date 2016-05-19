@@ -4,7 +4,7 @@ static int _cmm_0T[]={1,-1,-10};
 static int *c=_cmm_0T;
 struct X {
 int x;
-unsigned char y;
+char y;
 };
 static struct X _cmm_1T={-1,1};
 static struct X *d=&_cmm_1T;

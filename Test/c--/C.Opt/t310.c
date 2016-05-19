@@ -11,7 +11,7 @@ static void task1(){
 }
 static void task2(){
 }
-static unsigned char boole;
+static char boole;
 void main(){
 int *_cmm_1L;
 (_cmm_1L=__ItoA(65024));

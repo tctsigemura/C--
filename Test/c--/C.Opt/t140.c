@@ -1,11 +1,11 @@
-static int printf(unsigned char *_cmm_1P);
-static void putch(unsigned char _cmm_1P);
-#define _cmm_0S ((unsigned char*)"/* */")
-#define _cmm_1S ((unsigned char*)"//")
-#define _cmm_2S ((unsigned char*)"/*")
-#define _cmm_3S ((unsigned char*)"/*")
-#define _cmm_4S ((unsigned char*)"abcde\"fghi")
-#define _cmm_5S ((unsigned char*)"\"")
+static int printf(char *_cmm_1P);
+static void putch(char _cmm_1P);
+#define _cmm_0S "/* */"
+#define _cmm_1S "//"
+#define _cmm_2S "/*"
+#define _cmm_3S "/*"
+#define _cmm_4S "abcde\"fghi"
+#define _cmm_5S "\""
 static void main(){
 printf(_cmm_0S);
 printf(_cmm_1S);

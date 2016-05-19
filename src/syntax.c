@@ -103,8 +103,29 @@ static boolean krnFlag = false;     // カーネルコンパイルモード
 // トークンの読み込み
 static int tok;                              // 次のトークン
 
+// (# 行番号 "path")ディレクティブの処理
+#define  CMMINC "/cmmInclude/"               // システムヘッダファイルの目印
+
+static void getDirective() {                 // # 行番号 "ファイル名" の処理
+  char * fname = lxGetStr();                 // 現在のファイル
+  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
+      strEndsWith(fname, ".hmm"))  {         // ヘッダファイルなら
+    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
+    if (lxGetVal()==1)                       //   内容は出力しないで
+      genOff(strrchr(fname,'/')+1);          //     "#include <ファイル名>"
+    else                                     //   ２回以降なら
+      genOff(null);                          //     単に内容は出力しない
+  } else {                                   // (代替のディレクティブを出力)
+    genOn();                                 // システムヘッダ以外は出力する
+  }
+}
+
 static int getTok() {
   tok = lxGetTok();                          // 次のトークンを入力する
+  while (tok==LxFILE) {                      // ディレクティブなら
+    getDirective();                          //   ディレクティブを処理する
+    tok = lxGetTok();                        //   次のトークンを入力する
+  }
   return tok;
 }
 
@@ -1223,19 +1244,6 @@ void snSetKrnFlag(boolean f) { krnFlag = f; };
 #define  CMMINC "/cmmInclude/"      // C--用システムヘッダファイルの目印
  
 static void getDirective() {                 // # 行番号 "ファイル名" の処理
-  char * fname = lxGetStr();                 // 現在のファイル名
-  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
-      strEndsWith(fname, ".hmm")) {          // ヘッダファイルなら
-    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
-    if (lxGetVal()==1)                       //   内容は出力しないで
-      genOff(strrchr(fname,'/')+1);          //     "#include <ファイル名>"
-    else                                     //   ２回以降なら
-      genOff(null);                          //     単に内容は出力しない
-  } else {                                   //
-    genOn();                                 // システムヘッダ以外は出力する
-  }
-  getTok();
-}
 
 // ソースプログラムを読む
 void snGetSrc(void) {

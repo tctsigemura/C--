@@ -1,6 +1,6 @@
 static int a;
-static unsigned char b;
-static unsigned char c;
+static char b;
+static char c;
 static int d;
 static int e;
 static int f=10;
@@ -23,12 +23,12 @@ static int _cmm_9T[]={9};
 static int *_cmm_10T[]={_cmm_7T,_cmm_8T,_cmm_9T};
 static int **_cmm_11T[]={_cmm_6T,_cmm_10T};
 static int ***m=_cmm_11T;
-#define _cmm_0S ((unsigned char*)"aaaa")
-static unsigned char *n=_cmm_0S;
-#define _cmm_1S ((unsigned char*)"abc")
-static unsigned char _cmm_12T[]={97,98,0};
-static unsigned char *_cmm_13T[]={_cmm_1S,_cmm_12T};
-static unsigned char **o=_cmm_13T;
+#define _cmm_0S "aaaa"
+static char *n=_cmm_0S;
+#define _cmm_1S "abc"
+static char _cmm_12T[]={97,98,0};
+static char *_cmm_13T[]={_cmm_1S,_cmm_12T};
+static char **o=_cmm_13T;
 static int *_cmm_14T[10];
 static int _cmm_15T[]={6};
 static int _cmm_16T[]={7,8};
@@ -41,14 +41,14 @@ static void f1(){
 int _cmm_1L;
 (_cmm_1L=1);
 }
-#define _cmm_2S ((unsigned char*)"ab")
-#define _cmm_3S ((unsigned char*)"cd")
-static unsigned char *_cmm_20T[]={_cmm_2S,_cmm_3S};
-static unsigned char *_cmm_21T[3];
-static unsigned char **_cmm_22T[]={_cmm_20T,_cmm_21T};
-static unsigned char ***q=_cmm_22T;
+#define _cmm_2S "ab"
+#define _cmm_3S "cd"
+static char *_cmm_20T[]={_cmm_2S,_cmm_3S};
+static char *_cmm_21T[3];
+static char **_cmm_22T[]={_cmm_20T,_cmm_21T};
+static char ***q=_cmm_22T;
 static void *malloc(int _cmm_1P);
-#define _cmm_4S ((unsigned char*)"ABCDE")
+#define _cmm_4S "ABCDE"
 static int f2(int _cmm_1P,int _cmm_2P){
 int _cmm_1L;
 int _cmm_2L;
@@ -62,7 +62,7 @@ int _cmm_5L;
 }
 int _cmm_4L;
 (_cmm_4L=30);
-unsigned char *_cmm_5L;
+char *_cmm_5L;
 (_cmm_5L=_cmm_4S);
 (_cmm_1L=10);
 (b=(0xff&_cmm_1L));
@@ -76,8 +76,8 @@ unsigned char *_cmm_5L;
 (l[i[5]][i[_cmm_1L]]=(i[_cmm_1L]=20));
 return _cmm_1L;
 }
-static unsigned char f3(){
-unsigned char _cmm_1L;
+static char f3(){
+char _cmm_1L;
 (_cmm_1L=1);
 return _cmm_1L;
 }
@@ -88,17 +88,17 @@ int _cmm_2L;
 (_cmm_2L=((a*b)^2));
 int _cmm_3L;
 (_cmm_3L=(a&b));
-unsigned char _cmm_4L;
+char _cmm_4L;
 (_cmm_4L=(a==b));
-unsigned char _cmm_5L;
+char _cmm_5L;
 (_cmm_5L=((0xff&a)!=b));
-unsigned char _cmm_6L;
+char _cmm_6L;
 (_cmm_6L=(a<b));
-unsigned char _cmm_7L;
+char _cmm_7L;
 (_cmm_7L=(a<=b));
-unsigned char _cmm_8L;
+char _cmm_8L;
 (_cmm_8L=(a>b));
-unsigned char _cmm_9L;
+char _cmm_9L;
 (_cmm_9L=(a>=b));
 int _cmm_10L;
 (_cmm_10L=(a<<b));
@@ -118,13 +118,13 @@ int _cmm_17L;
 (_cmm_17L=(-a));
 int _cmm_18L;
 (_cmm_18L=a);
-unsigned char _cmm_19L;
+char _cmm_19L;
 (_cmm_19L=(!_cmm_4L));
 int _cmm_20L;
 (_cmm_20L=(~a));
 int _cmm_21L;
 (_cmm_21L=(((a*b)+6)+(c*d)));
-unsigned char _cmm_22L;
+char _cmm_22L;
 (_cmm_22L=(_cmm_4L&&_cmm_5L));
 (pq[2]=2);
 }

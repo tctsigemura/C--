@@ -60,8 +60,8 @@ static void printParam(int num) {
 static void printTypeName(int typ) {
   if (typ==TyVOID) printf("void ");                 // "void "
   else if (typ==TyINT) printf("int ");              // "int "
-  else if (typ==TyBOOL) printf("unsigned char ");   // boolean なら "uchar "
-  else if (typ==TyCHAR) printf("unsigned char ");   // "char "
+  else if (typ==TyBOOL) printf("char ");            // boolean なら "char "
+  else if (typ==TyCHAR) printf("char ");            // "char "
   else if (typ==TyINTR) error("interrupt使用禁止"); // エラー
   else if (typ==TyDOTDOTDOT) printf("...");         // "..."
   else if (typ <= 0 && ntGetType(-typ) == TySTRUC)  // 構造体なら
@@ -501,7 +501,7 @@ int genStr(char *str){
   int lab = newStrLab();                            // ラベルを割り付ける
   printf("#define ");
   printStrLab(lab);                                 // ラベルを印刷
-  printf(" ((unsigned char*)\"%s\")\n", str);       // 文字列を出力
+  printf(" \"%s\"\n", str);                         // 文字列を出力
   return lab;                                       // ラベル番号を返す
 }
 

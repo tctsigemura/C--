@@ -4,7 +4,7 @@ struct X {
 int a;
 int b;
 };
-static unsigned char f(){
+static char f(){
 int _cmm_1L;
 int _cmm_2L;
 struct X *_cmm_3L;
