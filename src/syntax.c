@@ -22,7 +22,8 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
- * 2016.05.20         : トランスレータ用のディレクティブ処理のバグ
+ * 2016.05.20         : トランスレータ用のディレクティブ処理を改良
+ *                      宣言、定義の途中で使用されたディレクティブを無視する
  * 2016.05.10         : トランスレータ用のディレクティブ処理を改良
  *                      ただし、ディレクティブは、宣言、定義の外でしか使えない
  *                      int f() {
@@ -77,7 +78,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "util.h"                   // その他機能モジュール
 #include "lexical.h"                // 字句解析モジュール
 #include "optree.h"                 // 構文木最適化モジュール
@@ -109,10 +109,11 @@ static boolean krnFlag = false;     // カーネルコンパイルモード
 // ディレクティブは getTok() が読み飛ばす。
 #define _tok tok                             // _tok と tok の区別はない
 static int tok;                              // 次のトークン
-static void getTok() {                       // 
-  tok = lxGetTok();                          // 次のトークンを入力する  
-  while (tok==LxFILE)                        // トークン入力時に
-    tok = lxGetTok();                        //     ディレクティブを読み飛ばす
+
+static void getTok() {                       // ディレクティブ以外を入力する
+  do {                                       //
+    tok = lxGetTok();                        // 次のトークンを入力する
+  } while (tok==LxFILE);                     // ディレクティブならやり直し
 }
 //-----------------------------------------------------------------------------
 #else
@@ -120,8 +121,8 @@ static void getTok() {                       //
 // ディレクティブを処理したい時は _tok を使用する。
 // ディレクティブに興味がない処理は tok を使用する。
 // tok を使用すると _getTok() が呼ばれディレクティブを読み飛ばす。
-
 static int _tok;                             // 次のトークン
+
 static void getTok() {                       // 次のトークンを入力する
   _tok = lxGetTok();                         //   ディレクティブも入力する
 }
@@ -216,8 +217,10 @@ static void getStruct(void) {
   for (int i=structIdx; i<ntGetSize(); i=i+1)  // 名前の衝突チェックが終わった
     ntSetScope(i, ScVOID);                     //   のでフィールドのscopeに変更
   ntSetCnt(structIdx-1,ntGetSize()-structIdx); // フィールド数を表に記録
+#ifdef _C_
   genStruc(structIdx-1);                       // 構造体宣言を出力
-}                                              // (トランスレータ版だけで必要)
+#endif                                         // (トランスレータ版だけで必要)
+}
 
 /*
  * 式の処理
@@ -1009,8 +1012,10 @@ static void getFunc(void) {
     syClear(0);                              // コード生成終了で木を消去する
   } else {                                   // プロトタイプ宣言の場合
     chkTok(';', "プロトタイプ宣言が ';' で終わっていない");
+#ifdef _C_
     genProto(funcIdx);                       // プロトタイプ宣言を出力
-  }                                          // (トランスレータ版だけで必要)
+#endif                                       // (トランスレータ版だけで必要)
+  }
   if (idx>=0) {                              // 既に名前表にあれば
     ntUndefName(funcIdx);                    //   全体を削除
   } else {                                   // そうでなければ
@@ -1246,32 +1251,28 @@ static void getProg(void) {
 void snSetOptFlag(boolean f) { optFlag = f; };
 void snSetKrnFlag(boolean f) { krnFlag = f; };
 
-// (# 行番号 "path")ディレクティブの処理
-#define  CMMINC "/cmmInclude/"      // C--用システムヘッダファイルの目印
- 
-static void getDirective() {                 // # 行番号 "ファイル名" の処理
-  char * fname = lxGetStr();                 // 現在のファイル名
-  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
-      strEndsWith(fname, ".hmm")) {          // ヘッダファイルなら
-    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
-    if (lxGetVal()==1)                       //   内容は出力しないで
-      genOff(strrchr(fname,'/')+1);          //     "#include <ファイル名>"
-    else                                     //   ２回以降なら
-      genOff(null);                          //     単に内容は出力しない
-  } else {                                   //
-    genOn();                                 // システムヘッダ以外は出力する
-  }
-  getTok();
-}
-
-// ソースプログラムを読む
+//-----------------------------------------------------------------------------
+// ソースの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
+//-----------------------------------------------------------------------------
+#ifndef _C_
+// コンパイラ版はディレクティブに興味がないので getProg() を繰り返すだけ
 void snGetSrc(void) {
-  genOn();                                   // コード生成を許可する
+  getTok();                                  // 最初の tok を読み込む
+  while (_tok!=EOF)                          // EOF になるまで
+    getProg();                               //   C-- プログラムを処理
+}
+//-----------------------------------------------------------------------------
+#else
+// トランスレータ版はディレクティブの処理と getProg() を繰り返す
+void snGetSrc(void) {
   getTok();                                  // 最初の tok を読み込む
   while (_tok!=EOF) {                        // EOF になるまで
-    if (_tok==LxFILE)                        //   ディレクティブなら
-      getDirective();                        //     ディレクティブを処理する
-    else
+    if (_tok==LxFILE) {                      //  ディレクティブなら
+      genDirect(lxGetVal(), lxGetStr());     //   # 行番号 "ファイル名" の処理
+      getTok();
+    } else {                                 //  ディレクティブ以外なら
       getProg();                             //   C-- プログラムを処理
+    }
   }
 }
+#endif

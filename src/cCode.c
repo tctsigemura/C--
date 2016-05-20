@@ -28,6 +28,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "util.h"
 #include "code.h"
 #include "namtbl.h"
@@ -520,13 +521,20 @@ void genStruc(int idx){
   printf("};\n");                                   // "};"
 }
 
-// 出力許可
-void genOn() {
-  inhibitOut = false;
-}
-
 // インクルードディレクティブを印刷して以降の出力禁止
-void genOff(char *hdr){
-  if (hdr!=null) printf("#include <%s>\n", hdr);
-  inhibitOut = true;
+// (# 行番号 "path")ディレクティブの処理
+#define  CMMINC "/cmmInclude/"               // C--用システムヘッダの目印
+ 
+void genDirect(int ln, char *fname) {        // # 行番号 "ファイル名" の処理
+  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
+      strEndsWith(fname, ".hmm")) {          // ヘッダファイルなら
+    if (ln==1) {                             //  そのファイルが初めてのとき
+      fname[strlen(fname)-2]='\0';           //    ".hmm" を ".h" に改変し
+      fname = strrchr(fname,'/')+1;          //     basename を切り出し
+      printf("#include <%s>\n", fname);      //     "#include <ファイル名>"
+    }
+    inhibitOut = true;                       //  システムヘッダ内部は出力しない
+  } else {
+    inhibitOut = false;                      // システムヘッダ以外は出力する
+  }
 }

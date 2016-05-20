@@ -22,6 +22,7 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2016.05.20         : genProto, genStruc, genOn, genOff 関数廃止
  * 2016.05.05         : genBoolExpr() にバグチェックの error() 追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  *                      vmLdArg, vmStArg を vmLdPrm, vmStPrm に変更
@@ -770,10 +771,6 @@ static void genList(int node, int dim) {         // 開始位置と配列の次�
   }
 }
 
-/*
- *   外部から呼び出される関数
- */
-
 // 初期化データの生成
 void genData(int idx) {
   int root = syGetRoot();
@@ -800,9 +797,3 @@ int genStr(char *str) {
   vmStr(str);                                    //   .Ln STRING "xxxx" を出力
   return lab;                                    //   ラベル番号を返す
 }
-
-// トランスレータ版と統合のために形だけ準備（何もすることはない）
-void genProto(int idx) {}                        // プロトタイプ宣言があった
-void genStruc(int idx) {}                        // 構造体宣言があった
-void genOn(void) {}                              // コード生成を許可する
-void genOff(char *hdr) {}                        // コード生成を禁止する

@@ -22,6 +22,7 @@
 /*
  * code.h : コード生成関係の外部仕様を定義
  *
+ * 2016.05.20         : genOn, genOff を廃止し genDirect を追加
  * 2016.02.03 v3.0.0  : トランスレータと統合
  *                      (genProto, genStruc, genOn, genOff 関数追加)
  * 2015.08.31 v2.1.0  : カーネルコンパイル用のフラグを genFunc に追加
@@ -40,8 +41,8 @@ void genBss(int idx);                                 // 非初期化データ�
 int  genStr(char *s);                                 // 文字列を生成し
                                                       //   ラベル番号を返す
 // 以下はトランスレータのみで必要
+#ifdef _C_
 void genProto(int idx);                               // プロトタイプ宣言を出力
 void genStruc(int idx);                               // 構造体宣言を出力
-void genOn(void);                                     // コード生成を許可する
-void genOff(char *hdr);                               // コード生成を禁止する
-                                                      // (代替の#includeを出力)
+void genDirect(int ln, char *fname);                  // ディレクティブを出力
+#endif
