@@ -1,0 +1,20 @@
+/*
+ * t600.cmm : 文字型の変換についてテスト(2016.05.21 追加)
+ */
+#include <stdio.hmm>
+
+public int main() {
+  int a = ord('\377');
+  int b = ord('\377')+1;
+  char c = '\0377';
+  int d = ord(c);
+  char[] e = "\377\376";
+  int f = ord(e[1]);
+
+  printf("a=%04x(00ff)\n", a);
+  printf("b=%04x(0100)\n", b);
+  printf("c=%04x(00ff)\n", ord(c));
+  printf("d=%04x(00ff)\n", d);
+  printf("f=%04x(00fe)\n", f);
+  return 0;
+}
