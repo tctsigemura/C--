@@ -22,7 +22,7 @@
 /*
  * syntax.c : C--トランスレータのコード生成部
  *
- * 2016.05.04 v3.0.0  : デバッグ完了バージョン(重村)
+ * 2016.05.04 v3.0.0  : デバッグ開始(重村)
  * 2014.04.29 v2.1.0  : 初期バージョン(柳くん)
  *
  */
@@ -273,10 +273,10 @@ static void printBLK(int node){
 }
 
 static void traceTree(int node){
-  if (node==SyNULL) return;                         // 何も無い
+  if (node==SyNULL) { printf(";\n"); return; }      // 何も無い ";"
   int typ = syGetType(node);
-  if (typ==SyCNST) return;                          // 最適化で消えた文
-  else if (typ==SyIF) printIf(node);                // if 文
+  if (typ==SyCNST) printf(";\n");                   // 最適化で消えた文
+  else if (typ==SyIF)  printIf(node);               // if 文
   else if (typ==SyELS) printEls(node);              // if-else 文
   else if (typ==SyWHL) printWhl(node);              // while 文
   else if (typ==SyDO)  printDo(node);               // do-while 文

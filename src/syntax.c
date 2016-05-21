@@ -104,7 +104,7 @@ static boolean krnFlag = false;     // カーネルコンパイルモード
 //-----------------------------------------------------------------------------
 // トークンの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
 //-----------------------------------------------------------------------------
-#ifndef _C_
+#ifndef C
 // コンパイラ版はディレクティブに興味がないので
 // ディレクティブは getTok() が読み飛ばす。
 #define _tok tok                             // _tok と tok の区別はない
@@ -217,7 +217,7 @@ static void getStruct(void) {
   for (int i=structIdx; i<ntGetSize(); i=i+1)  // 名前の衝突チェックが終わった
     ntSetScope(i, ScVOID);                     //   のでフィールドのscopeに変更
   ntSetCnt(structIdx-1,ntGetSize()-structIdx); // フィールド数を表に記録
-#ifdef _C_
+#ifdef C
   genStruc(structIdx-1);                       // 構造体宣言を出力
 #endif                                         // (トランスレータ版だけで必要)
 }
@@ -1012,7 +1012,7 @@ static void getFunc(void) {
     syClear(0);                              // コード生成終了で木を消去する
   } else {                                   // プロトタイプ宣言の場合
     chkTok(';', "プロトタイプ宣言が ';' で終わっていない");
-#ifdef _C_
+#ifdef C
     genProto(funcIdx);                       // プロトタイプ宣言を出力
 #endif                                       // (トランスレータ版だけで必要)
   }
@@ -1254,7 +1254,7 @@ void snSetKrnFlag(boolean f) { krnFlag = f; };
 //-----------------------------------------------------------------------------
 // ソースの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
 //-----------------------------------------------------------------------------
-#ifndef _C_
+#ifndef C
 // コンパイラ版はディレクティブに興味がないので getProg() を繰り返すだけ
 void snGetSrc(void) {
   getTok();                                  // 最初の tok を読み込む

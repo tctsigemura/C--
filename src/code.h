@@ -41,7 +41,7 @@ void genBss(int idx);                                 // 非初期化データ�
 int  genStr(char *s);                                 // 文字列を生成し
                                                       //   ラベル番号を返す
 // 以下はトランスレータのみで必要
-#ifdef _C_
+#ifdef C
 void genProto(int idx);                               // プロトタイプ宣言を出力
 void genStruc(int idx);                               // 構造体宣言を出力
 void genDirect(int ln, char *fname);                  // ディレクティブを出力
