@@ -1,8 +1,8 @@
-static char a;
-static char b;
-char f();
+static unsigned char a;
+static unsigned char b;
+unsigned char f();
 int main(){
-char _cmm_1L;
+unsigned char _cmm_1L;
 (_cmm_1L=((a!=b)&&((a==b)==f())));
 return 0;
 }

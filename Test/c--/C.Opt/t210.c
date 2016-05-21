@@ -1,6 +1,7 @@
 int main(){
 int _cmm_1L;
 {
+;
 while(1){
 {
 continue;
@@ -18,6 +19,7 @@ if ((_cmm_2L<0))break;
 }
 break;
 }
+;
 }
 }
 return 0;

@@ -8,7 +8,7 @@ struct Symbol {
 int type_sidx;
 int val;
 };
-#define _cmm_0S "reloc: %04x -> %04x (%04x) | %04x\n"
+#define _cmm_0S ((unsigned char*)"reloc: %04x -> %04x (%04x) | %04x\n")
 static int relocateSegment(int *_cmm_1P,int _cmm_2P,int *_cmm_3P,int *_cmm_4P){
 {
 int _cmm_1L;
