@@ -2,7 +2,7 @@
 	WS	10
 .a
 	DW	.L1
-.main
+_main
 	ENTRY	3
 	LDL	1
 	STL	1
@@ -40,4 +40,6 @@
 	LDW
 	STL	2
 	POP
+	LDC	0
+	MREG
 	RET

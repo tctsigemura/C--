@@ -2,7 +2,7 @@
 .b	DW	3
 .c	DW	2
 .L1	STRING	"abc"
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	PUSH	G3
 	CALL	__stkChk
@@ -15,13 +15,14 @@
 	LD	G0,G3
 	MUL	G0,G3
 	PUSH	G0
-	CALL	.f
+	CALL	_f
 	ADD	SP,#4
 	LD	G0,G3
 	ADD	G0,.c
 	LD	G3,G0
 	JMP	.L2
 .L3
+	LD	G0,#0
 	POP	G3
 	POP	FP
 	RET

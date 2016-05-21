@@ -3,8 +3,8 @@
  *  スタックの動きチェック
  */
 
-int f1();
-int[] f2();
+public int f1();
+public int[] f2();
 int a=1;
 int b=2;
 int[] c;

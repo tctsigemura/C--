@@ -4,13 +4,13 @@
 	WS	1
 .e
 	WS	1
-.main
+_main
 	ENTRY	0
-	CALLF	0,.x
+	CALLF	0,_x
 	LDG	.a
 	LDC	3
 	LDW
-	CALLF	0,.y
+	CALLF	0,_y
 	LDG	.c
 	LDC	4
 	LDW
@@ -25,4 +25,6 @@
 	ADD
 	STB
 	POP
+	LDC	0
+	MREG
 	RET

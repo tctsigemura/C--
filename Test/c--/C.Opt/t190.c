@@ -4,7 +4,7 @@ struct X {
 int a;
 int b;
 };
-static void main(){
+int main(){
 int _cmm_1L;
 int _cmm_2L;
 struct X *_cmm_3L;
@@ -16,4 +16,5 @@ struct X *_cmm_3L;
 (_cmm_2L=a[1]);
 (_cmm_1L=_cmm_3L->a);
 (_cmm_2L=_cmm_3L->b);
+return 0;
 }

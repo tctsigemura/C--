@@ -1,5 +1,5 @@
-static int f1();
-static int *f2();
+int f1();
+int *f2();
 static int a=1;
 static int b=2;
 static int *c;

@@ -1,4 +1,4 @@
-static int f1();
+int f1();
 static int a=1;
 static int b=2;
 static int c=3;

@@ -6,7 +6,7 @@
 	DW	.L1
 .m
 	WS	1
-.main
+_main
 	ENTRY	2
 	LDG	.n
 	LDG	.n
@@ -42,4 +42,6 @@
 	LDW
 	STL	2
 	POP
+	LDC	0
+	MREG
 	RET

@@ -1,16 +1,16 @@
 .a	WS	1
 .c	WS	1
 .e	WS	1
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	CALL	__stkChk
-	CALL	.x
+	CALL	_x
 	LD	G1,.a
 	ADDS	G1,#3
 	PUSH	G0
 	LD	G1,0,G1
 	PUSH	G1
-	CALL	.y
+	CALL	_y
 	LD	G1,.c
 	ADDS	G1,#4
 	LD	G1,0,G1
@@ -24,5 +24,6 @@
 	ADD	G1,G0
 	POP	G0
 	ST	G0,@G1
+	LD	G0,#0
 	POP	FP
 	RET

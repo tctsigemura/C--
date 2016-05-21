@@ -13,7 +13,7 @@
 	DW	.L4
 .t
 	WS	1
-.main
+_main
 	ENTRY	0
 	LDC	2
 	LDG	.a
@@ -39,14 +39,16 @@
 	STW
 	POP
 	LDC	1
-	CALLF	0,.f
+	CALLF	0,_f
 	LDC	2
 	STW
 	POP
 	LDC	2
-	CALLF	0,.f
+	CALLF	0,_f
 	STG	.b
 	LDC	4
 	STW
 	POP
+	LDC	0
+	MREG
 	RET

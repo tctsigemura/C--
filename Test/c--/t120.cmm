@@ -18,9 +18,10 @@ int f(int a, char[] s) { return a=b;}
 
 int f(int n, char[] s);
 
-void main() {
+public int main() {
   a=x;
   b=y;
   for (int x=a; x<b; x=x+c)
     c=a+b+f(x*x, "abc\r\n");
+  return 0;
 }

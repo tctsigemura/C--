@@ -7,7 +7,7 @@ static char f;
 static char g;
 static char h;
 static char i;
-static void main(){
+int main(){
 (a=0);
 (b=1);
 (c=0);
@@ -15,4 +15,5 @@ static void main(){
 (e=0);
 (f=0);
 (g=0);
+return 0;
 }

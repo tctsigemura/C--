@@ -12,9 +12,10 @@ static struct X _cmm_2T={1,0};
 static struct X _cmm_3T={-1,1};
 static struct X *_cmm_4T[]={&_cmm_2T,&_cmm_3T};
 static struct X **e=_cmm_4T;
-static void main(){
+int main(){
 int _cmm_1L;
 (_cmm_1L=1);
 int _cmm_2L;
 (_cmm_2L=-1);
+return 0;
 }

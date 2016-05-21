@@ -16,7 +16,7 @@
 	ADDS	G0,G1
 	LD	G0,0,G0
 	PUSH	G0
-	CALL	.f1
+	CALL	_f1
 	LD	G1,.c
 	ADDS	G1,#4
 	LD	G1,0,G1

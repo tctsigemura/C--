@@ -47,7 +47,7 @@ static char *_cmm_20T[]={_cmm_2S,_cmm_3S};
 static char *_cmm_21T[3];
 static char **_cmm_22T[]={_cmm_20T,_cmm_21T};
 static char ***q=_cmm_22T;
-static void *malloc(int _cmm_1P);
+#include <stdlib.h>
 #define _cmm_4S "ABCDE"
 static int f2(int _cmm_1P,int _cmm_2P){
 int _cmm_1L;

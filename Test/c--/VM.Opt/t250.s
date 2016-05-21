@@ -16,7 +16,7 @@
 	WS	1
 .i
 	WS	1
-.main
+_main
 	ENTRY	0
 	LDC	0
 	STG	.a
@@ -39,4 +39,6 @@
 	LDC	0
 	STG	.g
 	POP
+	LDC	0
+	MREG
 	RET

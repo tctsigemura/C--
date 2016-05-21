@@ -1,4 +1,4 @@
-static void main(){
+int main(){
 int _cmm_1L;
 int _cmm_2L;
 while(1){
@@ -14,4 +14,5 @@ if ((_cmm_2L<0))break;
 break;
 }
 }
+return 0;
 }

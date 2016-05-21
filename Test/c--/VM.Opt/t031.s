@@ -11,7 +11,7 @@
 .f3
 	ENTRY	0
 	LDG	.d
-	CALLF	0,.f2
+	CALLF	0,_f2
 	LDC	3
 	LDG	.a
 	ADD
@@ -19,7 +19,7 @@
 	LDC	2
 	ADD
 	LDW
-	CALLF	0,.f1
+	CALLF	0,_f1
 	LDG	.c
 	LDC	4
 	LDW

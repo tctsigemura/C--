@@ -1,4 +1,4 @@
-static void main(){
+int main(){
 int _cmm_1L;
 {
 while(1){
@@ -20,4 +20,5 @@ break;
 }
 }
 }
+return 0;
 }

@@ -6,9 +6,10 @@ char[][]a;
 int[]   c;
 int     e;
 
-char    x();
-int     y();
+public char    x();
+public int     y();
 
-void main() {
+public int main() {
  a[2+1][c[4]+5+c[6]+y()+e]=x();
+ return 0;
 }

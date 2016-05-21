@@ -1,7 +1,7 @@
 static int a;
 static int c;
-static int d();
-static int e(int _cmm_1P,int _cmm_2P);
+int d();
+int e(int _cmm_1P,int _cmm_2P);
 static void f(){
 int _cmm_1L;
 (_cmm_1L=((3+(3*a))*56));

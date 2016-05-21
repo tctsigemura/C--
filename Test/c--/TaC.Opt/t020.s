@@ -21,7 +21,7 @@
 	ADDS	G0,#1
 	LD	G0,0,G0
 	PUSH	G0
-	CALL	.f1
+	CALL	_f1
 	MUL	G0,.c
 	LD	G1,.a
 	MUL	G1,.b

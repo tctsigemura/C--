@@ -45,7 +45,7 @@ int f4() {
 
 boolean boole;
 
-public void main() {
+public int main() {
   // 割込みベクタの初期化例
   int[] vect = __ItoA(0xfe00);
   //vect[0] = addrof(f5);
@@ -56,4 +56,6 @@ public void main() {
 
   // 変数のアドレスを見つける例
   int b = addrof(boole) + 10;
+
+  return 0;
 }

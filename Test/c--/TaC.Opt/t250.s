@@ -7,7 +7,7 @@
 .g	WS	1
 .h	WS	1
 .i	WS	1
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	CALL	__stkChk
 	LD	G0,#0
@@ -24,5 +24,6 @@
 	ST	G0,.f
 	LD	G0,#0
 	ST	G0,.g
+	LD	G0,#0
 	POP	FP
 	RET

@@ -24,7 +24,7 @@
 	DW	.L4
 .e
 	DW	.L5
-.main
+_main
 	ENTRY	2
 	LDC	1
 	STL	1
@@ -32,4 +32,6 @@
 	LDC	65535
 	STL	2
 	POP
+	LDC	0
+	MREG
 	RET

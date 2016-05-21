@@ -3,7 +3,7 @@
 	DW	10
 .n	DW	.L1
 .m	WS	1
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	PUSH	G3
 	PUSH	G4
@@ -30,6 +30,7 @@
 	LD	G0,G3
 	ADDS	G0,#2
 	LD	G4,0,G0
+	LD	G0,#0
 	POP	G4
 	POP	G3
 	POP	FP

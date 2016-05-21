@@ -10,11 +10,12 @@ int *a;
 struct T *b;
 };
 static struct T *t;
-static int *f();
-static void main(){
+int *f();
+int main(){
 (a[1][2]=2);
 (t->a[1]=2);
 (t->b->b->x=2);
 (f()[2]=1);
 ((b=f())[4]=2);
+return 0;
 }

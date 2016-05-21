@@ -14,13 +14,14 @@
 .L5	DW	.L3
 	DW	.L4
 .e	DW	.L5
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	PUSH	G3
 	PUSH	G4
 	CALL	__stkChk
 	LD	G3,#1
 	LD	G4,#65535
+	LD	G0,#0
 	POP	G4
 	POP	G3
 	POP	FP

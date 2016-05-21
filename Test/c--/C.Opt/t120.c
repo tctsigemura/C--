@@ -11,7 +11,7 @@ return (_cmm_1P=b);
 }
 static int f(int _cmm_1P,char *_cmm_2P);
 #define _cmm_0S "abc\r\n"
-static void main(){
+int main(){
 (a=x);
 (b=y);
 {
@@ -22,4 +22,5 @@ while((_cmm_1L<b)){
 (_cmm_1L=(_cmm_1L+c));
 }
 }
+return 0;
 }

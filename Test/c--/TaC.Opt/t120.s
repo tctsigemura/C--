@@ -12,7 +12,7 @@
 	POP	FP
 	RET
 .L1	STRING	"abc\r\n"
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	PUSH	G3
 	CALL	__stkChk
@@ -40,6 +40,7 @@
 	LD	G3,G0
 	JMP	.L2
 .L3
+	LD	G0,#0
 	POP	G3
 	POP	FP
 	RET

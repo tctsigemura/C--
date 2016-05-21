@@ -2,7 +2,7 @@
 	WS	1
 .L1
 	STRING	"ABC"
-.main
+_main
 	ENTRY	0
 	LDC	.L1
 	LDG	.i
@@ -10,5 +10,7 @@
 	ADD
 	LDB
 	ARG
-	CALLP	1,.putchar
+	CALLP	1,_putchar
+	LDC	0
+	MREG
 	RET

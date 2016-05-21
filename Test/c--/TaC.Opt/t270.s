@@ -1,6 +1,6 @@
 .i	WS	1
 .L1	STRING	"ABC"
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	CALL	__stkChk
 	LD	G0,.i
@@ -8,7 +8,8 @@
 	ADD	G0,#.L1
 	LD	G0,@G0
 	PUSH	G0
-	CALL	.putchar
+	CALL	_putchar
 	ADD	SP,#2
+	LD	G0,#0
 	POP	FP
 	RET

@@ -1,4 +1,4 @@
-static int f1(int _cmm_1P);
+int f1(int _cmm_1P);
 static void f2(){
 int _cmm_1L;
 do{

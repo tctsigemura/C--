@@ -1,4 +1,4 @@
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	SUB	SP,#4
 	PUSH	G3
@@ -24,6 +24,7 @@
 	ST	G0,-2,FP
 	LD	G0,#11
 	ST	G0,-4,FP
+	LD	G0,#0
 	POP	G11
 	POP	G10
 	POP	G9

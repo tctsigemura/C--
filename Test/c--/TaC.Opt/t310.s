@@ -40,6 +40,7 @@ _main	PUSH	FP
 	LD	G0,#.boole
 	ADD	G0,#10
 	LD	G4,G0
+	LD	G0,#0
 	POP	G4
 	POP	G3
 	POP	FP

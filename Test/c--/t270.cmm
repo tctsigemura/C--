@@ -4,9 +4,9 @@
 //
 
 int i;
-void putchar(char a);
+public void putchar(char a);
 
-void main() {
+public int main() {
   putchar("ABC"[i-1]);
-
+  return 0;
 }

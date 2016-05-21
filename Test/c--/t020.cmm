@@ -3,7 +3,7 @@
  * 整数を返す関数
  */
 
-int f1();
+public int f1();
 
 int a=1;
 int b=2;

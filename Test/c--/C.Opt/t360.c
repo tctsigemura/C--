@@ -1,5 +1,5 @@
-static void *__AddrAdd(void *_cmm_1P,int _cmm_2P);
-static int printf(char *_cmm_1P,...);
+void *__AddrAdd(void *_cmm_1P,int _cmm_2P);
+#include <stdio.h>
 struct Reloc {
 int addr;
 int type_idx;

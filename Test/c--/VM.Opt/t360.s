@@ -1,3 +1,9 @@
+_stdin
+	WS	1
+_stdout
+	WS	1
+_stderr
+	WS	1
 .L1
 	STRING	"reloc: %04x -> %04x (%04x) | %04x\n"
 .relocateSegment
@@ -14,7 +20,7 @@
 	ARG
 	LDP	1
 	ARG
-	CALLF	2,.__AddrAdd
+	CALLF	2,___AddrAdd
 	STL	2
 	POP
 	LDL	2
@@ -30,7 +36,7 @@
 	ARG
 	LDP	3
 	ARG
-	CALLF	2,.__AddrAdd
+	CALLF	2,___AddrAdd
 	STL	4
 	POP
 	LDL	4
@@ -60,7 +66,7 @@
 	ARG
 	LDC	.L1
 	ARG
-	CALLF	5,.printf
+	CALLF	5,_printf
 	POP
 	LDL	1
 	LDC	4

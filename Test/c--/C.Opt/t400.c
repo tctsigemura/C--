@@ -1,4 +1,4 @@
-static void main(){
+int main(){
 int _cmm_1L;
 int _cmm_2L;
 int _cmm_3L;
@@ -21,4 +21,5 @@ int _cmm_11L;
 (_cmm_9L=9);
 (_cmm_10L=10);
 (_cmm_11L=11);
+return 0;
 }

@@ -3,7 +3,7 @@
 // while,と break, continue
 //
 
-void main() {
+public int main() {
   int a,i;
   while (true) {
     if (1>0) continue;
@@ -14,4 +14,5 @@ void main() {
     }
     if (1>0) break;
   }
+  return 0;
 }

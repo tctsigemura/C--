@@ -6,7 +6,7 @@
 .f3	PUSH	FP
 	LD	FP,SP
 	CALL	__stkChk
-	CALL	.f2
+	CALL	_f2
 	LD	G1,#3
 	ADD	G1,.a
 	ADDS	G0,G1
@@ -16,7 +16,7 @@
 	ADDS	G1,G0
 	LD	G1,0,G1
 	PUSH	G1
-	CALL	.f1
+	CALL	_f1
 	LD	G1,.c
 	ADDS	G1,#4
 	LD	G1,0,G1

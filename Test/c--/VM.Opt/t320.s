@@ -1,7 +1,9 @@
 _main
 	ENTRY	1
-	CALLP	0,.p
-	CALLP	0,.p
-	CALLP	0,.p
-	CALLP	0,.p
+	CALLP	0,_p
+	CALLP	0,_p
+	CALLP	0,_p
+	CALLP	0,_p
+	LDC	0
+	MREG
 	RET

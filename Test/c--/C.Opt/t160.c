@@ -1,5 +1,4 @@
-static void *malloc(int _cmm_1P);
-static void free(void *_cmm_1P);
+#include <stdlib.h>
 static int a;
 static char b=48;
 static int d;
@@ -217,10 +216,10 @@ free(z1);
 (z8[1][1]->a=1);
 free(z8);
 }
-static struct X *f7(int _cmm_1P);
-static struct X **f8(struct X *_cmm_1P);
-static struct X **f9(struct X **_cmm_1P);
-static void f10(char *_cmm_1P,...);
+struct X *f7(int _cmm_1P);
+struct X **f8(struct X *_cmm_1P);
+struct X **f9(struct X **_cmm_1P);
+void f10(char *_cmm_1P,...);
 #define _cmm_9S "aaa"
 #define _cmm_10S "aaa"
 #define _cmm_11S "bbb"

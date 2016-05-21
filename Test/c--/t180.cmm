@@ -5,9 +5,10 @@
 
 int a;
 
-void main() {
+public int main() {
     if (1>2 && !(1>2) && true)
       a = 1;
     else
       a = 2;
+    return 0;
 }
