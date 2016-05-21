@@ -22,6 +22,7 @@
 /*
  * optree.c : C--コンパイラの構文木最適化ルーチン
  * 
+ * 2016.05.22         : SySIZE に対応する
  * 2016.02.05 v3.0.0  : トランスレータと統合(SyBLK, SyIDXW, SyIDXB, SyDOT対応)
  * 2015.08.31 v2.1.0  : copyNode の型を void に変更(int ではバグ)
  * 2012.09.08         : a % 1 は 0 に置き換える
@@ -151,6 +152,10 @@ static void optBool(int node, int l) {
   if (syGetType(l)==SyCNST)                       // 対象が定数なら
     setBool(node, getBool(l));                    //   計算結果を格納する
 }
+
+// sizeof 演算を最適化する
+//static void optSIZE(int node, int l) {          // やることがない
+//}
 
 // 定数の足算を最適化する
 static void optAdd(int node, int l, int r) {
@@ -352,6 +357,7 @@ static void calExp(int node) {
   else if (ty==SyBNOT) optBNot(node, l);          // 単項演算'~'最適化を試みる
   else if (ty==SyCHAR) optChar(node, l);          // 単項演算chr最適化を試みる
   else if (ty==SyBOOL) optBool(node, l);          // 単項演算bool最適化を試みる
+  //else if (ty==SySIZE) optSize(node, l);       // 単項演算sizeof最適化を試みる
   else if (ty==SyADD)  optAdd(node, l, r);        // 足算の最適化を試みる
   else if (ty==SySUB)  optSub(node, l, r);        // 引算の最適化を試みる
   else if (ty==SySHL)  optShl(node, l, r);        // 左シフトの最適化を試みる

@@ -89,7 +89,7 @@ int _cmm_1L;
 int _cmm_2L;
 int _cmm_3L;
 int *_cmm_4L;
-(_cmm_4L=malloc(40));
+(_cmm_4L=malloc((sizeof(int )*10)));
 if ((_cmm_4L[0]==0))(_cmm_4L[1]=1);
 else (_cmm_4L[1]=0);
 if ((_cmm_4L[0]==1))(_cmm_4L[1]=1);
@@ -214,13 +214,13 @@ static struct Y **_cmm_68T[2];
 static struct Y ***z9=_cmm_68T;
 static void f6(){
 (z1=z2);
-(z1=malloc(12));
+(z1=malloc(sizeof(struct X )));
 free(z1);
 (z1=z3[3]);
 (a=z3[3]->a);
 (z1=z3[3]->c[1]);
 (a=z2->c[1]->c[1]->a);
-(z8[1][1]=malloc(12));
+(z8[1][1]=malloc(sizeof(struct Y )));
 (z8[1][1]->a=1);
 free(z8);
 }
@@ -258,7 +258,7 @@ while((_cmm_2L==_cmm_3L)){
 static unsigned char *ss=_cmm_12S;
 static void f12(){
 int *_cmm_1L;
-(_cmm_1L=malloc(16));
+(_cmm_1L=malloc((sizeof(int )*4)));
 free(_cmm_1L);
 unsigned char _cmm_2L;
 (_cmm_2L=1);

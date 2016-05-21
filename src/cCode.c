@@ -177,6 +177,11 @@ static void printExp(int node){
     printf("(0x01&");                               //   念のため1でマスク
     printExp(lVal);                                 //   "(0x01 & 式)"
     printf(")");                                    //
+  } else if(typ==SySIZE) {                          // sizeof() なら
+    if (lVal<=0) rVal = rVal - 1;                   //   参照型は*を１つ減らす
+    printf("sizeof(");                              //
+    printType(false, lVal, rVal);                   //   "sizeof(型)"
+    printf(")");                                    //
   } else if (SyIS1OPR(typ)) {                       // 後置以外の単項演算なら
     printf("(");                                    //   "(演算子 式)"
     printOP(typ);                                   //

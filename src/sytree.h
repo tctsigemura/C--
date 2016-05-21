@@ -22,6 +22,7 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
+ * 2016.05.22         : SySIZE を追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
  *                      (SyPOST, SyBYTE 削除, SyIDXx, SyDOT, SyVAR, SyBLK 追加)
@@ -61,6 +62,7 @@ int syRVal[SyMAX];                           // ノードの値２
 #define SyBNOT        0x202                 // 単項演算 ~(ビット毎のNOT)
 #define SyCHAR        0x203                 // chr 演算子(型変換)
 #define SyBOOL        0x204                 // bool 演算子(型変換)
+#define SySIZE        0x205                 // sizeof 演算子
 
 #define SyIS2OPR(c)   (((c)&0xf00)==0x300)  // 普通の２項演算子かどうか判定
 #define SyADD         0x300                 // ２項演算 +

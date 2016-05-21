@@ -22,6 +22,7 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
+ * 2016.05.22         : SySIZE を追加
  * 2016.05.05         : syGetRoot() が構文木が存在しない時 SyNULL を返す
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
@@ -84,6 +85,7 @@ struct D {char * a; int b; };
 static struct D d[] = {
   // 特別な値
   {"SyNULL",  SyNULL},
+
   // 構文木のノードの Type
   { "SyCNST", SyCNST},                 // 数値定数、文字定数、論理定数
   { "SyLOC",  SyLOC},                  // ローカル変数、仮引数
@@ -98,6 +100,7 @@ static struct D d[] = {
   { "SyBNOT", SyBNOT},                 // 単項演算 ~(ビット毎のNOT)
   { "SyCHAR", SyCHAR},                 // 文字型へ変換する演算子
   { "SyBOOL", SyBOOL},                 // 文字型へ変換する演算子
+  { "SySIZE", SySIZE},                 // データ型のサイズを求める演算子
 
   { "SyADD",  SyADD},                  // ２項演算 +
   { "SySUB",  SySUB},                  // ２項演算 -

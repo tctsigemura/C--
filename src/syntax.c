@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2016.05.22         : トランスレータは sizeof を計算しないで木に残す
  * 2016.05.20         : トランスレータ用のディレクティブ処理を改良
  *                      宣言、定義の途中で使用されたディレクティブを無視する
  * 2016.05.10         : トランスレータ用のディレクティブ処理を改良
@@ -389,18 +390,24 @@ static void getSizeof(struct watch* w) {
   chkTok('(', "sizeof に '(' が続かない");
   int ty=curType, dm=curDim;                  // getType が壊すので保存し、
   getType();                                  // 型を読む
-  int s = NWORD / 8;                          // INT またはポインタのサイズ
-  if (curDim==0) {                            // 配列以外で
-    if (curType<=0)                           //   構造体の場合は
-      s = s * ntGetCnt(-curType);             //     フィールド数×INTのサイズ
+  if (curType<=0&&ntGetType(-curType)==TyREF) // typedef なら
+    error("typedefされた型はsizeofで使用できない");
+#ifdef C                                      // トランスレータは sizeof を
+  int a = syNewNode(SySIZE, curType, curDim); //   C言語ソースに出力する
+#else                                         // コンパイラは sizeof を計算する
+  int s = NWORD / 8;                          //   INT またはポインタのサイズ
+  if (curDim==0) {                            //   配列以外で
+    if (curType<=0)                           //     構造体の場合は
+      s = s * ntGetCnt(-curType);             //       フィールド数×INTのサイズ
     else if (curType==TyCHAR ||
-	     curType==TyBOOL)                 //   char, boolean なら
-      s = NBYTE / 8;                          //     バイトのサイズ
+	     curType==TyBOOL)                 //     char, boolean なら
+      s = NBYTE / 8;                          //       バイトのサイズ
   }
+  int a = syNewNode(SyCNST, s, SyNULL);       //   サイズを格納するノード
+#endif
   curType=ty;                                 // 保存したものをもとに戻す
   curDim = dm;
   chkTok(')', "sizeof が ')' で終わらない");
-  int a = syNewNode(SyCNST, s, SyNULL);       // サイズを格納するノード
   setWatch(w, TyINT, 0, false, a);            // sizeof は整数型の定数
 }
 
@@ -1039,7 +1046,7 @@ static int getCnst(int typ) {
   freeWatch(w);                              // 式(w)は役目を終えた
   optTree(tree);                             // 定数式を計算する
   int ty = syGetType(tree);
-  if (ty!=SyCNST && ty!=SyLABL && ty!=SySTR)
+  if (ty!=SyCNST && ty!=SyLABL && ty!=SySTR && ty!=SySIZE)
     error("定数式が必要");
   return tree;
 }
