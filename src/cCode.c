@@ -275,7 +275,8 @@ static void printBLK(int node){
 static void traceTree(int node){
   if (node==SyNULL) return;                         // 何も無い
   int typ = syGetType(node);
-  if (typ==SyIF) printIf(node);                     // if 文
+  if (typ==SyCNST) return;                          // 最適化で消えた文
+  else if (typ==SyIF) printIf(node);                // if 文
   else if (typ==SyELS) printEls(node);              // if-else 文
   else if (typ==SyWHL) printWhl(node);              // while 文
   else if (typ==SyDO)  printDo(node);               // do-while 文
