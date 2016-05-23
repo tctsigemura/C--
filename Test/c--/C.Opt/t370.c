@@ -28,7 +28,7 @@ int _cmm_1L;
 (_cmm_1L=_cmm_1L);
 (_cmm_1L=_cmm_1L);
 (_cmm_1L=0);
-unsigned char _cmm_2L;
+char _cmm_2L;
 (_cmm_2L=1);
 (_cmm_2L=_cmm_2L);
 (_cmm_2L=_cmm_2L);
@@ -43,7 +43,7 @@ while((a<c)){
 }
 (_cmm_2L=(0x01&a));
 {
-unsigned char _cmm_3L;
+char _cmm_3L;
 (_cmm_3L=0);
 while((_cmm_3L==97)){
 ;
@@ -51,7 +51,7 @@ while((_cmm_3L==97)){
 }
 }
 {
-unsigned char _cmm_3L;
+char _cmm_3L;
 (_cmm_3L=0);
 while((_cmm_3L==1)){
 ;

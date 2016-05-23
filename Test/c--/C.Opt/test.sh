@@ -11,8 +11,9 @@ for i in $*; do
    cc -E -DC -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < ${i} |
    ../../../src/c-c-- -O > $$.c
    diff ${n}.c $$.c
-   cc -S -Wno-parentheses-equality -Wno-tautological-compare -Wno-pointer-sign\
-   -Wno-int-conversion -Wno-unused-value -Wno-unsequenced $$.c 
+   cc -S -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare  \
+     -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
+     $$.c 
 done
 
 rm $$.c $$.s

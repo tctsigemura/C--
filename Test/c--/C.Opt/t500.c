@@ -3,8 +3,8 @@ FILE *g(FILE *_cmm_1P);
 static FILE *h(FILE *_cmm_1P){
 return g(_cmm_1P);
 }
-#define _cmm_0S ((unsigned char*)"aaa.txt")
-#define _cmm_1S ((unsigned char*)"r")
+#define _cmm_0S "aaa.txt"
+#define _cmm_1S "r"
 void f(){
 FILE *_cmm_1L;
 FILE *_cmm_2L;
