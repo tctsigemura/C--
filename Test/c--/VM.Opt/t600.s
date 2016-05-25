@@ -15,6 +15,8 @@ _stderr
 .L5
 	STRING	"d=%04x(00ff)\n"
 .L6
+	STRING	"e[1]=%04x(00fe)\n"
+.L7
 	STRING	"f=%04x(00fe)\n"
 _main
 	ENTRY	6
@@ -62,9 +64,17 @@ _main
 	ARG
 	CALLF	2,_printf
 	POP
-	LDL	6
+	LDL	5
+	LDC	1
+	LDB
 	ARG
 	LDC	.L6
+	ARG
+	CALLF	2,_printf
+	POP
+	LDL	6
+	ARG
+	LDC	.L7
 	ARG
 	CALLF	2,_printf
 	POP
