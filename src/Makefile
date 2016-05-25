@@ -19,7 +19,8 @@
 #
 # Makefile : c-- の makefile
 #
-# 2015.05.20         : トランスレータ版では C を定義するように変更
+# 2016.05.24         : cm2c, cm2e, cm2v を追加
+# 2016.05.20         : トランスレータ版では C を定義するように変更
 # 2016.02.05 v3.0.0  : トランスレータと統合
 # 2016.01.18 v2.1.2  : vm2tac.cmm の vmPop() の意味の無い式に関するバグ修正
 # 2015.12.16 v2.1.1  : void以外の関数の return チェックに関するバグ修正
@@ -82,6 +83,9 @@ install : c-- vm-c-- c-c-- # h8300hn-c--
 	install -m 755 c-- /usr/local/bin
 	install -m 755 vm-c-- /usr/local/bin
 	install -m 755 c-c-- /usr/local/bin
+	install -m 755 cm2c /usr/local/bin
+	install -m 755 cm2e /usr/local/bin
+	install -m 755 cm2v /usr/local/bin
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :

@@ -1,0 +1,43 @@
+#!/bin/sh
+
+INCDIR=/usr/local/cmmInclude
+LIBDIR=/usr/local/cmmLib
+
+myname=`basename $0`
+sflag="no"
+cflag="no"
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -*) echo  "\"${myname}\" is the C-- compiler driver."     1>&2
+            echo  "syntax: ${myname} [switches] <c-- source> ..." 1>&2
+            echo  "     switches are :"                           1>&2
+            echo  "       -h       print this message"            1>&2
+            exit 1;;
+        *)  break;;     # terminate while loop
+    esac
+done
+
+if [ $# -le 0 ]; then
+    echo "${myname} : no input files." 1>&2
+    exit 1
+fi
+
+
+for i in $*; do
+
+    j=`basename ${i}`
+    name=`expr "${j}" : '\(.*\)\.[^.]*'`
+    ext=`expr "${j}" : '.*\(\.[^.]*\)'`
+
+    if [ "${ext}" != ".cmm" ]; then
+	echo "${myname} : ${i} : extension must be \".cmm\"." 1>&2
+	exit 1
+    fi
+
+    cc -E -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < ${i} |
+    vm-c-- -O > ${name}.v
+
+done
+
+exit 0

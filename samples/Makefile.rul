@@ -19,38 +19,23 @@
 #
 # Makefile.rul : ユーザプログラム用の Makefile.rul
 #
+# 2016.05.24   : cm2e を使用するようにする
 # 2016.01.07   : 初期バージョン
 #
 # $Id$
 #
 
-# プリプロセッサ
-CPP=cc -E -std=c99 -nostdinc ${CPFLAGS} -I/usr/local/cmmInclude - < 
-
-# ユーザライブラリ
-LIB=/usr/local/cmmLib/libtac.o
-
-# ユーザプロセスのスタック＋ヒープサイズ
-STKSIZ=600
-
 # make するソースのサフィックス（拡張子） の一覧
 .SUFFIXES: .o .cmm .s
 
-# .s -> .o
-.s.o:
-	as-- $*.s
+# .cmm -> .o
+.cmm.o:
+	cm2e -c $*.cmm
 
-# .cmm -> .s
-.cmm.s:
-	${CPP} $*.cmm| c-- > $*.s
-
-# .o ファイルを結合して mod.o ファイルを生成する
-mod.o : ${LIB} ${OBJS}
-	ld-- mod.o ${LIB} ${OBJS} > mod.sym
-
-# mod.o を objexe-- で変換して .exe ファイルを生成する
-${NAME}.exe : mod.o
-	objexe-- ${NAME}.exe  mod.o ${STKSIZ} | sort --key=1 > ${NAME}.map
+# .o から .exe ファイルを生成する
+${NAME}.exe : ${OBJS}
+	cm2e -o ${NAME} ${OBJS}
+	rm ${OBJS}
 
 clean :
 	rm -f *.o *.lst *.sym *.exe *.map *~

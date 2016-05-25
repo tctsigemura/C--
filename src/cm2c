@@ -1,0 +1,75 @@
+#!/bin/sh
+
+INCDIR=/usr/local/cmmInclude
+LIBDIR=/usr/local/cmmLib
+
+CFLAGS+="-funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
+   -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced"
+
+myname=`basename $0`
+exefile="a.out"
+sflag="no"
+cflag="no"
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+	-o) exefile=$2;  shift; shift;;
+        -S) sflag="yes"; shift;;
+        -c) cflag="yes"; shift;;
+        -*) echo  "\"${myname}\" is the C-- compiler driver."     1>&2
+            echo  "syntax: ${myname} [switches] <c-- source> ..." 1>&2
+            echo  "     switches are :"                           1>&2
+            echo  "       -o exec  executable file name"          1>&2
+            echo  "       -S       leave .c file"                 1>&2
+            echo  "       -c       leave .o file"                 1>&2
+            echo  "       -h       print this message"            1>&2
+            exit 1;;
+        *)  break;;     # terminate while loop
+    esac
+done
+
+if [ $# -le 0 ]; then
+    echo "${myname} : no input files." 1>&2
+    exit 1
+fi
+
+objs=""
+tmps=""
+for i in $*; do
+
+    j=`basename ${i}`
+    name=`expr "${j}" : '\(.*\)\.[^.]*'`
+    ext=`expr "${j}" : '.*\(\.[^.]*\)'`
+
+    case "${ext}" in
+        *.cmm)
+            cc -E -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < ${i} |
+            c-c-- -O > ${name}.c
+            if [ "${sflag}" != "yes" ]; then
+                cc -c ${CFLAGS} ${name}.c;
+                rm -f ${name}.c
+                objs="${objs} ${name}.o"
+                tmps="${tmps} ${name}.o"
+            fi ;;
+        *.c)
+            if [ "${sflag}" != "yes" ]; then
+                cc -c ${CFLAGS} ${name}.c;
+                objs="${objs} ${name}.o"
+                tmps="${tmps} ${name}.o"
+            fi ;;
+        *.o)
+            objs="${objs} ${name}.o" ;;
+        *)
+            echo "${myname} : ${i} : illegal extension." 1>&2
+            rm -f ${tmps}
+            exit 1;;
+    esac
+
+done
+
+if [ "${sflag}" != "yes" -a "${cflag}" != "yes" ]; then
+    cc -o ${exefile} ${objs} ${LIBDIR}/wrapper.c
+    rm -f ${tmps}
+fi
+
+exit 0

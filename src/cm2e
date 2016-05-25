@@ -1,0 +1,100 @@
+#!/bin/sh
+
+INCDIR=/usr/local/cmmInclude
+LIBDIR=/usr/local/cmmLib
+
+myname=`basename $0`
+exefile="a.exe"
+stksize=600
+sflag="no"
+cflag="no"
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+	-o) exefile=$2;  shift; shift;;
+	-s) stksize=$2;  shift; shift;;
+        -S) sflag="yes"; shift;;
+        -c) cflag="yes"; shift;;
+        -*) echo  "\"${myname}\" is the C-- compiler driver."     1>&2
+            echo  "syntax: ${myname} [switches] <c-- source> ..." 1>&2
+            echo  "     switches are :"                           1>&2
+            echo  "       -o exec  executable file name"          1>&2
+            echo  "       -s ###   stack size (default=600)"      1>&2
+            echo  "       -S       leave .s file"                 1>&2
+            echo  "       -c       leave .o file"                 1>&2
+            echo  "       -h       print this message"            1>&2
+            exit 1;;
+        *)  break;;     # terminate while loop
+    esac
+done
+
+expr "${stksize}" + 1 > /dev/null 2>&1
+if [ $? -eq 2 ]; then
+    echo "${myname} : ${stksize} : invalid stack size."           1>&2
+    exit 1
+fi
+
+if [ "${stksize}" -lt 100 ]; then
+    echo "${myname} : ${stksize} : too small stack size."         1>&2
+    exit 1
+fi
+
+if [ $# -le 0 ]; then
+    echo "${myname} : no input files."                            1>&2
+    exit 1
+fi
+
+exeext=`expr "${exefile}" : '.*\(\.[^./]*\)$'`
+if [ "${exeext}" = "" ]; then
+    exefile="${exefile}.exe"
+    exeext=".exe"
+fi
+
+if [ "${exeext}" != ".exe" ]; then
+    echo "${myname} : ${exefile} : extension must be \".exe\"."   1>&2
+    exit 1
+fi
+
+objs=""
+tmps=""
+for i in $*; do
+
+    j=`basename ${i}`
+    name=`expr "${j}" : '\(.*\)\.[^.]*'`
+    ext=`expr "${j}" : '.*\(\.[^.]*\)'`
+
+    case "${ext}" in
+	*.cmm)
+	    cc -E -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < ${i} |
+	    c-- -O > ${name}.s
+	    if [ "${sflag}" != "yes" ]; then
+		as-- ${name}.s;
+		rm -f ${name}.s ${name}.lst
+		objs="${objs} ${name}.o"
+		tmps="${tmps} ${name}.o"
+	    fi ;;
+	*.s)
+	    if [ "${sflag}" != "yes" ]; then
+		as-- ${name}.s;
+		rm -f ${name}.lst
+		objs="${objs} ${name}.o"
+		tmps="${tmps} ${name}.o"
+	    fi ;;
+	*.o)
+	    objs="${objs} ${name}.o" ;;
+        *)
+	    echo "${myname} : ${i} : illegal extension." 1>&2
+	    rm -f ${tmps}
+	    exit 1;;
+    esac
+
+done
+
+exename=`expr "${exefile}" : '\(.*\)\.[^./]*$'`
+if [ "${sflag}" != "yes" -a "${cflag}" != "yes" ]; then
+  ld-- $$.o  ${LIBDIR}/libtac.o ${objs} > /dev/null
+  objexe-- ${exefile} $$.o ${stksize} | sort --key=1 > ${exename}.map
+  rm -f ${tmps} $$.o
+fi
+
+exit 0
