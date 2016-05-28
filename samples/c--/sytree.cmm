@@ -44,6 +44,9 @@
 
 // 構文木表
 int syNextIdx = 0;                      // 次に登録する場所
+public int[] syType = array(SyMAX);
+public int[] syLVal = array(SyMAX);
+public int[] syRVal = array(SyMAX);
 
 // 構文木表に新しいノードを作る
 public int syNewNode(int type, int lVal, int rVal) {

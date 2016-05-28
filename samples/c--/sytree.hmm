@@ -39,9 +39,9 @@
 
 // 構文木表の本体
 #define SyMAX 3000                          // 表の大きさ
-P int[] syType = array(SyMAX);
-P int[] syLVal = array(SyMAX);
-P int[] syRVal = array(SyMAX);
+P int[] syType;
+P int[] syLVal;
+P int[] syRVal;
 
 // 構文木のノード(LVal, Rval)に格納される特殊な値
 #define SyNULL        9999                  // 構文木のNULLポインタ

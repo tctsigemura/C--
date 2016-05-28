@@ -1,28 +1,25 @@
 #
 INCDIR=/usr/local/cmmInclude/
 LIBDIR=/usr/local/cmmLib/
-VER=\"3.0.0\"
-DATE="\"`date`\""
+VER=3.0.0
+DATE=`date`
 
-CPFLAGS+=-DNWORD=8 -DNBYTE=32 -DDATE=${DATE} -DVER=${VER} -DARC=\"C\"
-CFLAGS+=-Wno-parentheses-equality -Wno-pointer-sign
-
-CPP=cc -E -std=c99 -nostdinc -DC -I${INCDIR} -I${LIBDIR} ${CPFLAGS} - < 
-
-TRANS=c-c--
+CPFLAGS+=-DNWORD=8 -DNBYTE=32
+CPFLAGS+="-DDATE=\"${DATE}\"" "-DVER=\"${VER}\"" "-DARC=\"C\""
 
 .SUFFIXES: .o .cmm
 
-# .cmm -> .c
-.cmm.c:
-	${CPP} $*.cmm | ${TRANS} ${CMFLAGS} > $*.c
+# .cmm -> .o
+.cmm.o:
+	cm2c -c ${CPFLAGS} $*.cmm >$*.c
 
-OBJS=syntax.o lexical.o namtbl.o optree.o sytree.o util.o vm2tac.o vmCode.o
+OBJS=main.o syntax.o lexical.o namtbl.o optree.o sytree.o util.o \
+    vm2tac.o vmCode.o
 
 all: c-c--
 
 c-c--: ${OBJS}
-	cc -o c-c-- ${CFLAGS} ${OBJS}
+	cm2c -o c-c-- ${OBJS}
 
 clean:
 	rm -f ${OBJS} *.cmm~ *.hmm~ Makefile~ c-c--
