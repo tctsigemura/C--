@@ -19,6 +19,8 @@
 #
 # lib/Makefile : makefile
 #
+# 2016.05.26 : cm2e を使用するように変更
+#              wrapper.h 追加
 # 2016.02.27 : 初期バージョン
 #
 
@@ -26,18 +28,16 @@
 #CPFLAGS+=-DDEBUG
 #CMFLAGS+=-K
 
-CPP=cc -E -std=c99 -nostdinc ${CPFLAGS} -I/usr/local/cmmInclude - <
-
 # make するソースのサフィックス（拡張子） の一覧
 .SUFFIXES: .o .cmm .s
 
-# .s -> .o
+# .cmm -> .o
 .s.o:
 	as-- $*.s
 
-# .cmm -> .s
-.cmm.s:
-	${CPP} $*.cmm| c-- ${CMFLAGS} > $*.s
+# .cmm -> .o
+.cmm.o:
+	cm2e -c  $*.cmm
 
 OBJS= crt0.o ctype.o stdio.o printf.o stdlib.o string.o syslib.o
 
@@ -51,6 +51,7 @@ install: libtac.o
 	install -m 644 libtac.o /usr/local/cmmLib
 	install -m 644 cfunc.hmm /usr/local/cmmLib
 	install -m 644 wrapper.c /usr/local/cmmLib
+	install -m 644 wrapper.h /usr/local/cmmLib
 
 clean:
 	rm -f *.o *.lst libtac.sym *~
