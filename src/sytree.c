@@ -21,7 +21,7 @@
 
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
- *
+ * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
  *                      (SyPOST, SyBYTE 削除、SyIDXx, SyDOT, SyVAR, SyBLK 追加)
  * 2012.09.12         : 外部非公開の関数、変数に static を付ける
@@ -76,7 +76,9 @@ void syClear(int idx) {
 
 // 構文木のルートを取り出す
 int syGetRoot() {
-  return syNextIdx - 1;
+  int root = syNextIdx - 1;   // 最後に登録されたノードがルート
+  if (root<0) root = SyNULL;  // 木が存在しない場合はNULL
+  return root;
 }
 
 // 構文木表にデータを書き込む
@@ -104,7 +106,7 @@ static struct D d[] = {
   // 構文木のノードの Type
   { "SyCNST", SyCNST},                 // 数値定数、文字定数、論理定数
   { "SyLOC",  SyLOC},                  // ローカル変数、仮引数
-  { "SyARG",  SyARG},                  // ローカル変数、仮引数
+  { "SyPRM",  SyPRM},                  // ローカル変数、仮引数
   { "SyGLB",  SyGLB},                  // グローバル変数
   { "SySTR",  SySTR},                  // 文字列
   { "SyFUNC", SyFUNC},                 // 関数コール

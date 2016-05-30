@@ -21,7 +21,8 @@
 
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
- *
+ * 2016.05.04         : 配列サイズが 1 以上かチェックするようにする
+ *                      SyARG を SyPRM(パラメータ)に変更
  * 2016.04.12         : 字句解析部分を分離
  * 2016.02.05 v3.0.0  : main() 関数を main.c に分離して新規作成
  *                      トランスレータと統合
@@ -573,7 +574,7 @@ static void getIdent(struct watch* w) {
       int a = syNewNode(SyLOC, c, SyNULL);    //     局所変数のノード
       setWatch(w, t, d, true, a);             //     式(w)が局所変数になる
     } else {                                  //   c<0 なら仮引数
-      int a = syNewNode(SyARG,-c, SyNULL);    //     仮引数のノード
+      int a = syNewNode(SyPRM,-c, SyNULL);    //     仮引数のノード
       setWatch(w, t, d, true, a);             //     式(w)が仮引数になる
     }
   } else error("バグ...getIdent");            // それ以外の名前はあり得ない
@@ -1186,6 +1187,8 @@ static int getCnst(int typ) {
 // array(n1 [, n2] ...) を読み込む */
 static int getArray0(int dim) {
   if (dim<=0) error("array の次元が配列の次元を超える");
+  if(syGetLVal(node)<=0)
+    error("配列のサイズは正であるべき");
   int node = getCnst(TyINT);                 // 整数定数式を読み込む
   if (isTok(',')) {                          // ',' が続くなら
     int lVal = getArray0(dim - 1);           //   ','の右側を先に読み

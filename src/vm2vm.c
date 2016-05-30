@@ -144,8 +144,8 @@ void vmLdLoc(int n) {
 }
 
 // n番目の引数の値をスタックに積む
-void vmLdArg(int n) {
-  printf("\tLDA\t%d\n", n);
+void vmLdPrm(int n) {
+  printf("\tLDP\t%d\n", n);
 }
 
 // 文字列のアドレスをスタックに積む
@@ -184,8 +184,8 @@ void vmStLoc(int n) {
 }
 
 // スタックトップの値をn番目の引数にストアする(POPはしない)
-void vmStArg(int n) {
-  printf("\tSTA\t%d\n", n);
+void vmStPrm(int n) {
+  printf("\tSTP\t%d\n", n);
 }
 
 // まず、スタックから添字とワード配列の番地を取り出す

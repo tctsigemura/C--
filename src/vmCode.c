@@ -101,7 +101,7 @@ static int newLabStr() {
 #define CNST  1                                   // 定数
 #define GVAR  2                                   // 大域変数
 #define LVAR  3                                   // ローカル変数
-#define ARG   4                                   // 仮引数
+#define PRM   4                                   // 仮引数
 #define STR   5                                   // 文字列ラベル
 #define STKD  6                                   // スタックに置かれたデータ
 #define STKW  7                                   // スタックにワード配列を
@@ -129,14 +129,14 @@ static void vmJF(int lab){                fprintf(fpout, "5 %d\n", lab); }
 static void vmLdCns(int c){               fprintf(fpout, "6 %d\n", c); }
 static void vmLdGlb(int idx){             fprintf(fpout, "7 %d\n", idx); }
 static void vmLdLoc(int n){               fprintf(fpout, "8 %d\n", n); }
-static void vmLdArg(int n){               fprintf(fpout, "9 %d\n", n); }
+static void vmLdPrm(int n){               fprintf(fpout, "9 %d\n", n); }
 static void vmLdStr(int lab){             fprintf(fpout, "10 %d\n", lab); }
 static void vmLdLab(int idx){             fprintf(fpout, "11 %d\n", idx); }
 static void vmLdWrd(void){                fprintf(fpout, "26\n"); }
 static void vmLdByt(void){                fprintf(fpout, "27\n"); }
 static void vmStGlb(int idx){             fprintf(fpout, "12 %d\n", idx); }
 static void vmStLoc(int n){               fprintf(fpout, "13 %d\n", n); }
-static void vmStArg(int n){               fprintf(fpout, "14 %d\n", n); }
+static void vmStPrm(int n){               fprintf(fpout, "14 %d\n", n); }
 static void vmStWrd(void){                fprintf(fpout, "28\n"); }
 static void vmStByt(void){                fprintf(fpout, "29\n"); }
 static void vmNeg(void){                  fprintf(fpout, "30\n"); }
@@ -208,7 +208,7 @@ static void load(struct Expr *c) {
     if      (p == CNST) vmLdCns(v);               //   定数値をロード
     else if (p == GVAR) vmLdGlb(v);               //   大域変数の値をロード
     else if (p == LVAR) vmLdLoc(v);               //   ローカル変数の値をロード
-    else if (p == ARG)  vmLdArg(v);               //   仮引数の値をロード
+    else if (p == PRM)  vmLdPrm(v);               //   仮引数の値をロード
     else if (p == STR)  vmLdStr(v);               //   一時ラベル値をロード
     else if (p == LABL) vmLdLab(v);               //   通常ラベル値をロード
     else if (p == STKW) vmLdWrd();                //   ワード配列からロード
@@ -224,7 +224,7 @@ static void store(struct Expr *c) {
   int v = c->value;                               // 左辺式の値
   if      (p == GVAR) vmStGlb(v);                 // 大域変数へストア
   else if (p == LVAR) vmStLoc(v);                 // ローカル変数へストア
-  else if (p == ARG)  vmStArg(v);                 // 仮引数へストア
+  else if (p == PRM)  vmStPrm(v);                 // 仮引数へストア
   else if (p == STKW) vmStWrd();                  // ワード配列へストア
   else if (p == STKB) vmStByt();                  // バイト配列へストア
   else error("バグ...store");                     // その他はないはず
@@ -279,15 +279,15 @@ static void genFactor(int node, struct Expr* c) {
   } else if (typ == SyLOC) {                      // ローカル変数の場合
     c->place = LVAR;
     c->value = lVal;
-  } else if (typ == SyARG) {                      // 引数の場合
-    c->place = ARG;
+  } else if (typ == SyPRM) {                      // 引数の場合
+    c->place = PRM;
     c->value = lVal;
   } else if (typ == SySTR) {                      // 文字列ラベルの場合
     c->place = STR;
     c->value = lVal;
   } else if (typ == SyFUNC) {                     // 関数呼び出し
     int n = genArgs(syGetRVal(node), c);          //   引数の処理
-    if (ntGetType(lVal)!=TyVOID||ntGetDim(lVal)!=0 ) { //   void 型以外なら
+    if (ntGetType(lVal)!=TyVOID||ntGetDim(lVal)!=0) { //   void 型以外なら
       vmCallF(n, lVal);                           //     関数用の Call
       c->place = STKD;
     } else {                                      //   void 型なら

@@ -119,7 +119,7 @@ char*   jcc[] = { "JLT", "JLE", "JZ", "JGE", "JGT", "JNZ"};
 #define GVAR  2                                 // グローバル変数  (未ロード)
 #define LVAR  3                                 // ローカル変数    (未ロード)
 #define RVAR  4                                 // レジスタ変数    (未ロード)
-#define ARG   5                                 // 引数            (未ロード)
+#define PRM   5                                 // 仮引            (未ロード)
 #define STR   6                                 // 文字列のラベル  (未ロード)
 #define ADDR  7                                 // アドレス(ラベル)(未ロード)
 #define WINDR 8                                 // ワードデータの間接アドレス
@@ -181,7 +181,7 @@ static void calReg(char *op, int r, int p) {
     printf("\t%s\t%s,-%d,FP\n", op, reg, aux);  //   op Reg,-n,FP
   } else if (sta==RVAR) {                       // レジスタ変数なら
     printf("\t%s\t%s,%s\n", op,reg,regs[aux]);  //   op Reg,RVar
-  } else if (sta==ARG) {                        // 関数引数なら
+  } else if (sta==PRM) {                        // 仮引数なら
     printf("\t%s\t%s,%d,FP\n", op, reg, aux);   //   op Reg,n,FP
   } else if (sta==STR) {                        // 文字列のラベルなら
     printf("\t%s\t%s,#.S%d\n", op, reg, aux);   //   op Reg,#.Sn
@@ -471,9 +471,9 @@ void vmLdLoc(int n) {                           // n はローカル変数番号
     pushStk(LVAR, (n-RVarSIZ)*2);               //   仮想スタックに (LVAR,offs)
 }                                               //   (offs は FP からの距離)
 
-// n番目の引数の値をスタックに積む
-void vmLdArg(int n) {                           // n は引数番号(n>=1)
-  pushStk(ARG, (n+1)*2);                        // 仮想スタックに (ARG,offs)
+// n番目の仮引数の値をスタックに積む
+void vmLdPrm(int n) {                           // n は仮引数番号(n>=1)
+  pushStk(PRM, (n+1)*2);                        // 仮想スタックに (PRM,offs)
 }                                               //   (offs は FP からの距離)
 
 // 文字列のアドレスをスタックに積む
@@ -511,8 +511,8 @@ void vmStLoc(int n) {                           // n はローカル変数番号
   }
 }
 
-// スタックトップの値をn番目の引数にストアする(POPはしない)
-void vmStArg(int n) {                           // n は引数番号(n>=1)
+// スタックトップの値をn番目の仮引数にストアする(POPはしない)
+void vmStPrm(int n) {                           // n は仮引数番号(n>=1)
   if (topSta!=RVAR) loadStk(0);                 // レジスタにロードし
   printf("\tST\t%s,%d,FP\n",                    // 引数へストアする
 	 regs[topAux], (n+1)*2);                //   ST Acc,n,FP
@@ -760,7 +760,7 @@ static void cmp(int jcc) {
   } else {                                      // Src, Dst の両方が定数 0 以外
     if ((topSta==ACC || topSta==RVAR) &&        //   Src がどれかレジスタにあり
 	secSta!=ACC && secSta!=RVAR &&          //   Dst がメモリオペランドなら
-	secSta!=STK && secSta!=FLAG ) {         //   (CNST,GVAR,LVAR,ARG,...)
+	secSta!=STK && secSta!=FLAG ) {         //   (CNST,GVAR,LVAR,PRM,...)
       jcc = swapJcc(jcc);                       //   条件を逆にし
       SwapInt(topSta, secSta);                  //    Dst と Src を入れ替える
       SwapInt(topAux, secAux);
@@ -982,12 +982,12 @@ static void callfunc1(int op, int a1){
   else if(op==6)  vmLdCns(a1);
   else if(op==7)  vmLdGlb(a1);
   else if(op==8)  vmLdLoc(a1);
-  else if(op==9)  vmLdArg(a1);
+  else if(op==9)  vmLdPrm(a1);
   else if(op==10) vmLdStr(a1);
   else if(op==11) vmLdLab(a1);
   else if(op==12) vmStGlb(a1);
   else if(op==13) vmStLoc(a1);
-  else if(op==14) vmStArg(a1);
+  else if(op==14) vmStPrm(a1);
   else if(op==15) vmDwName(a1);
   else if(op==16) vmDwLab(a1);
   else if(op==17) vmDwLabStr(a1);
