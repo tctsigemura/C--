@@ -9,6 +9,7 @@ stksize=600
 sflag="no"
 cflag="no"
 eflag="no"
+kflag=""
 while [ $# -gt 0 ]; do
     case "$1" in
 	-o) exefile=$2;  shift; shift;;
@@ -16,6 +17,7 @@ while [ $# -gt 0 ]; do
         -S) sflag="yes"; shift;;
         -c) cflag="yes"; shift;;
         -E) eflag="yes"; shift;;
+        -K) kflag="-K"; shift;;
 	-D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
 	    CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
         -*) echo  "\"${myname}\" is the C-- compiler driver."     1>&2
@@ -26,6 +28,7 @@ while [ $# -gt 0 ]; do
             echo  "       -S       leave .s file"                 1>&2
             echo  "       -c       leave .o file"                 1>&2
             echo  "       -E       run the preprocessor stage"    1>&2
+            echo  "       -K       kernel mode"                   1>&2
             echo  "       -Dxx=yy  define xx as yy"               1>&2
             echo  "       -h       print this message"            1>&2
             exit 1;;
@@ -72,7 +75,7 @@ while [ $# -gt 0 ]; do
 		eval cc -E ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} - < $1
 	    else
 		eval cc -E ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} - < $1 |
-		c-- -O > ${name}.s
+		c-- -O ${kflag} > ${name}.s
 		if [ "${sflag}" != "yes" ]; then
                     as-- ${name}.s;
                     rm -f ${name}.s ${name}.lst
