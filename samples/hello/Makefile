@@ -1,5 +1,5 @@
 #
-# C-- 言語から .exe ファイルと a.out ファイルを作る手順
+# C-- 言語から a.out、.exe、 .v ファイルを作る手順
 #
 
 all: hello hello.exe hello.v
