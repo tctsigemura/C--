@@ -19,6 +19,7 @@
 #
 # lib/Makefile : makefile
 #
+# 2016.06.01 : シンボリックリンク crt0.h を追加
 # 2016.05.26 : cm2e を使用するように変更
 #              wrapper.h 追加
 # 2016.02.27 : 初期バージョン
@@ -52,6 +53,7 @@ install: libtac.o
 	install -m 644 cfunc.hmm /usr/local/cmmLib
 	install -m 644 wrapper.c /usr/local/cmmLib
 	install -m 644 wrapper.h /usr/local/cmmLib
+	ln -fs wrapper.h /usr/local/cmmLib/crt0.h
 
 clean:
 	rm -f *.o *.lst libtac.sym *~

@@ -5,7 +5,7 @@ LIBDIR=/usr/local/cmmLib
 
 CFLAGS="-funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
-   -Wno-dangling-else"
+   -Wno-dangling-else -include ${LIBDIR}/wrapper.h"
 
 CPPFLAGS="-std=c99 -nostdinc -DC"
 
@@ -56,7 +56,7 @@ while [ $# -gt 0 ]; do
 		eval cc -E ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} - < $1 |
 		c-c-- -O > ${name}.c
 		if [ "${sflag}" != "yes" ]; then
-                    cc -c ${CFLAGS} -include ${LIBDIR}/wrapper.h ${name}.c;
+                    cc -c ${CFLAGS} -I${LIBDIR} ${name}.c;
                     rm -f ${name}.c
                     objs="${objs} ${name}.o"
                     tmps="${tmps} ${name}.o"
@@ -64,7 +64,7 @@ while [ $# -gt 0 ]; do
 	    fi ;;
         *.c)
             if [ "${eflag}" != "yes" -a "${sflag}" != "yes" ]; then
-                cc -c ${CFLAGS} -include ${LIBDIR}/wrapper.h ${name}.c;
+                cc -c ${CFLAGS} -I${LIBDIR} ${name}.c;
                 objs="${objs} ${name}.o"
                 tmps="${tmps} ${name}.o"
             fi ;;
