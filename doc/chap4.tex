@@ -131,7 +131,7 @@ public FILE fopen(char[] path, char[] mode);
 \tacos では、
 標準入出力ストリーム（\verb/stdin/、\verb/stdout/、\verb/stderr/）を
 クローズすることはできません。
-\verb/fclose/は正常に\verb/false/、
+\verb/fclose/は正常時に\verb/false/、
 エラー時に\verb/true/を返します。
 
 \begin{quote}
@@ -145,7 +145,8 @@ public boolean fclose(FILE stream);
 
 出力ストリームを明示できる\verb/printf/関数です。
 \verb/stream/引数に出力先を指定します。
-出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/です。
+出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/、
+\verb/stderr/です。
 
 \begin{quote}
 \begin{verbatim}
@@ -158,7 +159,8 @@ public int fprintf(FILE stream, char[] format, ...);
 
 出力ストリームを明示できる\verb/puts/関数です。
 \verb/stream/引数に出力先を指定します。
-出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/です。
+出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/、
+\verb/stderr/です。
 
 \begin{quote}
 \begin{verbatim}
@@ -171,7 +173,8 @@ public char[] fputs(char[] s, FILE stream);
 
 出力ストリームを明示できる\verb/putchar/関数です。
 \verb/stream/引数に出力先を指定します。
-出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/です。
+出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/、
+\verb/stderr/です。
 
 \begin{quote}
 \begin{verbatim}
@@ -211,15 +214,25 @@ while (fgets(buf, N, stdin)!=null) { ...
 
 任意の入力ストリームから１文字入力します。
 \cl の\verb/fgetc/関数と異なり\verb/char/型なので EOF チェックができません。
-\tac 版では安全のため、
-\verb/fgetc/関数がEOFに出会うと強制的にプログラムを終了する仕様になっています。
-\verb/fgetc/関数を実行する前に、必ず、
-\verb/feof/関数を用いて EOF チェックをする必要があります。
+EOFチェックは\verb/feof/関数を用いて行います。
 
 \begin{quote}
 \begin{verbatim}
 #include <stdio.hmm>
 public char fgetc(FILE stream);
+\end{verbatim}
+\end{quote}
+
+\tac 版では安全のため、
+\verb/fgetc/関数がEOFに出会うと強制的にプログラムを終了する仕様になっています。
+\verb/fgetc/関数を実行する前に、必ず、
+\verb/feof/関数を用いて EOF チェックをする必要があります。
+\verb/cat/プログラムのソースコードに使用例があります。
+
+\begin{quote}
+\begin{verbatim}
+while (!feof(fp))
+  putchar(fgetc(fp));
 \end{verbatim}
 \end{quote}
 
@@ -310,16 +323,27 @@ public void perror(char[] msg);
 
 \tacos では、\verb/errno/変数にセットされるエラー番号が負の値になっています。
 また、アプリケーションが負の終了コードで終わった場合、
-シェルがエラーメッセージを表示する仕様になっています。
+シェルが終了コードを\verb/errno/とみなし
+エラーメッセージを表示する仕様になっています。
 
 更にライブラリは、ユーザプログラムのバグが原因と考えられるエラーや、
 メモリ不足のような対処が難しいエラーが発生したとき、
 負の終了コードでプログラムを終了します。
-そこで、次のようなエラー処理を簡略化したプログラムを書くことができます。
+そこで、以下のようなエラー処理を簡略化したプログラムを書くことができます。
 
-%このプログラムでは、
-%メモリ不足で\verb/FILE/構造体の割り付けができない場合は、
-%\verb/fopen/内部でエラー終了しシェルがエラーメッセージを表示します。
+このプログラムは、
+メモリ不足で\verb/FILE/構造体の割り付けができないような
+対処が難しいエラーの場合に、
+\verb/fopen/内部で自動的に\verb/errno/を終了コードにして終了します。
+プログラムの終了コードによりシェルがエラーメッセージを表示します。
+
+ファイルが見つからないなどプログラムに知らせた方が良いエラーの場合は、
+\verb/fopen/がエラーを示す戻り値(\verb/null/)を持って返ります。
+可能なら{\cmm}プログラムがエラー回復を試みるべきです。
+下のプログラムはエラー回復を試みることなく
+\verb/errno/を終了コードとして終了した例になっています。
+エラーメッセージの表示をプログラム中で行っていませんが、
+シェルが\verb/errno/に対応したエラーメッセージを表示します。
 
 \begin{mylist}
 \begin{verbatim}
@@ -341,8 +365,13 @@ public int main(int argc, char[][] argv) {
 \subsubsection{TacOS トランスレータ共通版のプログラム例}
 
 \cl プログラム風に記述することもできます。
-この例では、\verb/fopen/がエラーになったファイルの名前をエラーメッセージに
-含めることができます。
+前の例ではシェルがエラーメッセージを表示したので、
+エラーメッセージの内容をプログラムから細かく指定することができませんでした。
+次の例ではプログラムが自力でエラーメッセージを表示するので、
+エラーになったファイルの名前をエラーメッセージに含めることができます。
+
+エラー表示を行ったプログラムは終了コード\verb/1/で終わります。
+終了コードが正なので、シェルはエラーメッセージを表示しません。
 
 \begin{mylist}
 \begin{verbatim}
@@ -600,7 +629,7 @@ public int strLen(char[] s);
 \subsection{strChr関数}
 
 文字列\verb/s/の中で最初に文字\verb/c/が現れる位置を、
-\verb/s/文字配列の添字で返します。
+{\bf\verb/s/文字配列の添字}で返します。
 文字\verb/c/が含まれていない場合は\verb/-1/を返します。
 トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
 
@@ -614,7 +643,7 @@ public int strChr(char[] s, char c);
 \subsection{strRchr関数}
 
 文字列\verb/s/の中で最後に文字\verb/c/が現れる位置を、
-\verb/s/文字配列の添字で返します。
+{\bf\verb/s/文字配列の添字}で返します。
 文字\verb/c/が含まれていない場合は\verb/-1/を返します。
 トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
 
@@ -628,7 +657,7 @@ public int strRchr(char[] s, char c);
 \subsection{strStr関数}
 
 文字列\verb/s1/の中に文字列\verb/s2/が現れる位置を、
-\verb/s1/文字配列の添字で返します。
+{\bf\verb/s1/文字配列の添字}で返します。
 文字列\verb/s2/が含まれていない場合は\verb/-1/を返します。
 トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
 
@@ -780,7 +809,8 @@ public char toUpper(char c);
 整数から参照へ型を変換する関数です。
 整数を引数に \verb/void[]/ 参照(アドレス)を返します。
 トランスレータ版で64bitの\cl 環境では、
-\verb/int/型とポインタ型のビット数が異なるので使用できません。
+\verb/int/型とポインタ型のビット数が異なるので危険です。
+そこで、トランスレータ版では使用禁止になっています。
 関数の値は \verb/void[]/ 型の参照なので、
 どのような参照型変数にも代入できます。
 
@@ -796,7 +826,8 @@ public void[] _iToA(int a);
 参照から整数へ型を変換する関数です。
 参照(アドレス)を引数に整数を返します。
 トランスレータ版で64bitの\cl 環境では、
-\verb/int/型とポインタ型のビット数が異なるので使用できません。
+\verb/int/型とポインタ型のビット数が異なるので危険です。
+そこで、トランスレータ版では使用禁止になっています。
 引数の型は \verb/void[]/ なので、
 参照型ならどんな型でも渡すことができます。
 
