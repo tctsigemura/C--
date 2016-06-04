@@ -22,6 +22,8 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
+ * 2016.06.04         : syGetSize() を追加
+ *                      syClear() を sySetSize() に名前変更
  * 2016.05.22         : SySIZE を追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
@@ -115,7 +117,8 @@ int syRVal[SyMAX];                           // ノードの値２
  */
 int syNewNode(int type, int lVal, int rVal); // 新しいノードを作る
 int syCatNode(int lVal, int rVal);           // 二つのノードを "," で接続する
-void syClear(int idx);                       // 表の idx 以下を捨てる
+int syGetSize();                             // 表の現在のサイズを返す
+void sySetSize(int n);                       // 表の n1 以下を捨てる
 int syGetRoot();                             // 構文木のルートを取り出す
 
 #define syGetType(idx) (syType[idx])         // 構文木表からデータを取り出す

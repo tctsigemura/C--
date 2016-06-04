@@ -1016,7 +1016,7 @@ static void getFunc(void) {
     if (optFlag) optTree(syGetRoot());       // 木を最適化する
     //syPrintTree();                         // ### デバッグ用 ###
     genFunc(funcIdx, maxCnt, krnFlag);       //   コード生成
-    syClear(0);                              // コード生成終了で木を消去する
+    sySetSize(0);                            // コード生成終了で木を消去する
   } else {                                   // プロトタイプ宣言の場合
     chkTok(';', "プロトタイプ宣言が ';' で終わっていない");
 #ifdef C
@@ -1186,7 +1186,7 @@ static void getGVar(void) {
       getStructInit();                       //   構造体の初期化部分 '{ ... }'
     } else error("バグ...getGVar");
     genData(curIdx);                         // 初期化済みデータを生成
-    syClear(0);                              // データ生成終了で木を消去する
+    sySetSize(0);                            // データ生成終了で木を消去する
     if (idx>=0) {                            // 既に登録されていた場合
       if (ntGetScope(idx)!=ScCOMM) error("2重定義"); // コモン以外は2重定義
       ntSetScope(idx, ScGVAR);               // 初期化済データに変更
