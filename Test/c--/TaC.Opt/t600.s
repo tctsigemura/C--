@@ -6,7 +6,8 @@ _stderr	WS	1
 .L3	STRING	"b=%04x(0100)\n"
 .L4	STRING	"c=%04x(00ff)\n"
 .L5	STRING	"d=%04x(00ff)\n"
-.L6	STRING	"f=%04x(00fe)\n"
+.L6	STRING	"e[1]=%04x(00fe)\n"
+.L7	STRING	"f=%04x(00fe)\n"
 _main	PUSH	FP
 	LD	FP,SP
 	PUSH	G3
@@ -44,8 +45,16 @@ _main	PUSH	FP
 	PUSH	G0
 	CALL	_printf
 	ADD	SP,#4
-	PUSH	G8
+	LD	G0,G7
+	ADD	G0,#1
+	LD	G0,@G0
+	PUSH	G0
 	LD	G0,#.L6
+	PUSH	G0
+	CALL	_printf
+	ADD	SP,#4
+	PUSH	G8
+	LD	G0,#.L7
 	PUSH	G0
 	CALL	_printf
 	ADD	SP,#4

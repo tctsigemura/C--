@@ -5,4 +5,4 @@ asm:
 	./asm.sh ../t[0-9][0-9][0-9].cmm
 
 clean:
-	rm *~
+	rm -f *~
