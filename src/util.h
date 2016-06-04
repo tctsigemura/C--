@@ -22,6 +22,7 @@
 /*
  * util.h : よく使う関数や定数の定義
  *
+ * 2016.06.04         : StrMAX, eOpen() を追加
  * 2016.03.01         : null の値を 0 から NULL に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合(strEndsWith 関数を追加)
  * 2015.08.07         : WMSK, BMSK に unsigned を追加
@@ -54,3 +55,4 @@ void *ealloc(int s);                      // エラーチェックつきの mall
 int isDelim(int ch);                      // 区切り記号かテスト
 int isOdigit(int ch);                     // 8進数字かテスト
 boolean strEndsWith(char *s, char *sfx);  // 文字列最後の一致をテスト
+FILE *eOpen(char *fname, char *mod);      // エラーチェック付きの fopen
