@@ -77,9 +77,6 @@ static int  nextch = '\n';                         // 次の文字
 static int  ch     = 0;                            // 現在の文字
 static int  ln     = 1;                            // 現在の行
 static int  ln2    = 0;                            // 現在の行
-
-#define StrMAX     128                             // 名前の長さの上限
-
 static int  val;                                   // 数値を返す場合、その値
 static char str[StrMAX + 1];                       // 名前を返す場合、その綴
 static char fname[StrMAX + 1];                     // 入力ファイル名

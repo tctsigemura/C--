@@ -34,6 +34,9 @@
  *
  */
 
+// バッファサイズ等
+#define StrMAX      128        // 文字列、名前の最大長
+
 // C-- 風に C 言語で記述するための定義
 #define boolean  int
 #define true     1
