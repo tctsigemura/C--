@@ -22,6 +22,7 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
+ * 2016.06.06         : syNewNode() が行番号も記録するように変更
  * 2016.06.04         : syGetSize() を追加
  *                      syClear() を sySetSize() に名前変更
  * 2016.05.22         : SySIZE を追加
@@ -44,6 +45,7 @@
 
 #include <stdio.h>
 #include "sytree.h"
+#include "lexical.h"
 #include "util.h"
 
 // 構文木表
@@ -56,6 +58,7 @@ int syNewNode(int type, int lVal, int rVal) {
   sySetType(idx, type);
   sySetLVal(idx, lVal);
   sySetRVal(idx, rVal);
+  sySetLn(idx, lxGetLn());                     //  ソースの行番号も記録
   syNextIdx = syNextIdx + 1;
   return idx;
 }
