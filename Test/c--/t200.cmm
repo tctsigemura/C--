@@ -2,9 +2,9 @@
 // t200.cmm
 // 掛算、割算
 
-int f();
+public int f();
 
-void main() {
+public int main() {
   int i,j,k;
   i = j * k;
   i = j / k;
@@ -15,4 +15,5 @@ void main() {
   i = j * f();
   i = j / f();
   i = j % f();
+  return 0;
 }

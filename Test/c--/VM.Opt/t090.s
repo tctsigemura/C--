@@ -38,7 +38,7 @@
 	LDC	0
 	LT
 	JF	.L10
-	LDA	1
+	LDP	1
 ; BOOLAND .L10,.L-1,.L9
 	JMP	.L9
 .L10
@@ -47,7 +47,7 @@
 ; ----
 	STG	.b
 	POP
-	LDA	1
+	LDP	1
 	JF	.L12
 	LDG	.a
 	LDC	0

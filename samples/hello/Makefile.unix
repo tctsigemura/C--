@@ -1,20 +1,9 @@
 #
 # Makefile.unix : C--言語からMacOSやUNIXの実行形式に変換する手順
 #
-INCDIR=/usr/local/cmmInclude
-LIBDIR=/usr/local/cmmLib
 
-CFLAGS+=-Wno-parentheses-equality
-CPP=cc -E -DC -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < 
-
-.SUFFIXES: .o .cmm .c
-.cmm.c:
-	${CPP} $*.cmm | c-c-- > $*.c
-
-OBJS=hello.o
-
-hello: ${OBJS}
-	cc -o hello ${CFLAGS} ${OBJS} ${LIBDIR}/wrapper.c
+hello: hello.cmm
+	cm2c -o hello hello.cmm
 
 clean:
-	rm -f hello ${OBJS}
+	rm -f hello

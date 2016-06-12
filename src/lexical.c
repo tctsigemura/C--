@@ -22,6 +22,7 @@
 /*
  * lexical.c : C--コンパイラの字句解析ルーチン
  *
+ * 2016.05.10         : getSharp が val にも行番号を記録するように変更
  * 2016.02.24         : getSharp が str にもファイル名を記録するように変更
  * 2016.02.05 v3.0.0  : トランスレータと統合(LxFILE, LxTYPEDEF 追加)
  * 2016.01.28         : getCh() の始めて呼ばれた時の処理を改良
@@ -76,9 +77,6 @@ static int  nextch = '\n';                         // 次の文字
 static int  ch     = 0;                            // 現在の文字
 static int  ln     = 1;                            // 現在の行
 static int  ln2    = 0;                            // 現在の行
-
-#define StrMAX     128                             // 名前の長さの上限
-
 static int  val;                                   // 数値を返す場合、その値
 static char str[StrMAX + 1];                       // 名前を返す場合、その綴
 static char fname[StrMAX + 1];                     // 入力ファイル名
@@ -199,7 +197,7 @@ static int getSharp() {
   getCh();                                         // '#' を読み飛ばす
   skipSpc();                                       // 改行以外の空白をスキップ
   if (!isdigit(ch)) error("#に行番号がない");      // 行番号があるはず
-  ln2 = getDec();                                  // 行番号の読み込み
+  val = ln2 = getDec();                            // 行番号の読み込み
   skipSpc();                                       // 改行以外の空白をスキップ
   if (ch!='"') error("#にファイル名がない");       // ファイル名は " で始まる
   getCh();                                         // '"'を読み飛ばす

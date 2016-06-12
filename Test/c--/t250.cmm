@@ -3,7 +3,7 @@
 //
 boolean a,b,c,d,e,f,g,h,i;
 
-void main() {
+public int main() {
   a = true && false && true;
   b = true || false || true;
   c = 1>1 && 2>2 && 3>3;
@@ -11,4 +11,5 @@ void main() {
   e = 1>1 || 2>2 || 3>3 && 4>4 && 5>5;
   f = 1>1 && 2>2 && 3>3 || 4>4 || 5>5;
   g = 1>1 || 2>2 && 3>3 && 4>4 || 5>5;
+  return 0;
 }

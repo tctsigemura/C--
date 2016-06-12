@@ -3,6 +3,7 @@
 // 論理式の最後で論理値が Acc 以外にある
 //
 
-void main() {
+public int main() {
   boolean s = true && false;
+  return 0;
 }

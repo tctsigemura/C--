@@ -2,7 +2,7 @@
  * 400.cmm : ローカル変数が多い場合(2015.08.31 追加)
  */
 
-void main() {
+public int main() {
   int a,b,c,d,e,f,g,h,i,j,k;
   a = 1;
   b = 2;
@@ -15,4 +15,6 @@ void main() {
   i = 9;
   j = 10;
   k = 11;
+
+  return 0;
 }

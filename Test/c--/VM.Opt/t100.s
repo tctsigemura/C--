@@ -6,7 +6,7 @@
 	DW	2
 .L1
 	STRING	"abc"
-.main
+_main
 	ENTRY	1
 	LDG	.a
 	STL	1
@@ -22,7 +22,7 @@
 	LDL	1
 	MUL
 	ARG
-	CALLP	2,.f
+	CALLP	2,_f
 	LDL	1
 	LDG	.c
 	ADD
@@ -30,4 +30,6 @@
 	POP
 	JMP	.L2
 .L3
+	LDC	0
+	MREG
 	RET

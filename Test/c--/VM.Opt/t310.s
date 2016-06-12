@@ -45,4 +45,6 @@ _main
 	ADD
 	STL	2
 	POP
+	LDC	0
+	MREG
 	RET

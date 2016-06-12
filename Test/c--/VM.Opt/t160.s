@@ -1,3 +1,5 @@
+__alcAddr
+	WS	1
 .a
 	WS	1
 .b
@@ -216,7 +218,7 @@
 	POP
 	LDC	20
 	ARG
-	CALLF	1,.malloc
+	CALLF	1,_malloc
 	STL	4
 	POP
 	LDL	4
@@ -368,7 +370,7 @@
 .L69
 	LDL	4
 	ARG
-	CALLP	1,.free
+	CALLP	1,_free
 	LDL	3
 	MREG
 	RET
@@ -476,7 +478,7 @@
 	LDC	5
 	STW
 	LDG	.i
-	LDA	1
+	LDP	1
 	STW
 	LDG	.x
 	LDG	.i
@@ -494,8 +496,8 @@
 	CALLF	0,.f2
 	LDC	2
 	LDB
-	LDA	1
-	LDA	2
+	LDP	1
+	LDP	2
 	MUL
 	MUL
 	LDG	.x
@@ -503,7 +505,7 @@
 	LDW
 	MUL
 	LDW
-	STA	2
+	STP	2
 	POP
 	RET
 .z1
@@ -573,12 +575,12 @@
 	POP
 	LDC	6
 	ARG
-	CALLF	1,.malloc
+	CALLF	1,_malloc
 	STG	.z1
 	POP
 	LDG	.z1
 	ARG
-	CALLP	1,.free
+	CALLP	1,_free
 	LDG	.z3
 	LDC	3
 	LDW
@@ -615,7 +617,7 @@
 	POP
 	LDC	6
 	ARG
-	CALLF	1,.malloc
+	CALLF	1,_malloc
 	LDG	.z8
 	LDC	1
 	LDW
@@ -633,7 +635,7 @@
 	POP
 	LDG	.z8
 	ARG
-	CALLP	1,.free
+	CALLP	1,_free
 	RET
 .L104
 	STRING	"aaa"
@@ -645,26 +647,26 @@
 	ENTRY	3
 	LDC	1
 	ARG
-	CALLF	1,.f7
+	CALLF	1,_f7
 	STG	.z1
 	POP
 	LDC	1
 	ARG
-	CALLF	1,.f7
+	CALLF	1,_f7
 	LDC	1
 	LDW
-	STA	1
+	STP	1
 	POP
 	LDG	.z1
 	ARG
-	CALLF	1,.f8
+	CALLF	1,_f8
 	LDC	1
 	LDW
 	STG	.z1
 	POP
 	LDG	.z3
 	ARG
-	CALLF	1,.f9
+	CALLF	1,_f9
 	LDC	1
 	LDW
 	STG	.z1
@@ -674,21 +676,21 @@
 	POP
 	LDC	.L104
 	ARG
-	CALLP	1,.f10
+	CALLP	1,_f10
 	LDC	.L106
 	ARG
 	LDC	2
 	ARG
 	LDC	.L105
 	ARG
-	CALLP	3,.f10
+	CALLP	3,_f10
 	LDL	1
 	ARG
-	LDA	1
+	LDP	1
 	ARG
 	LDL	1
 	ARG
-	LDA	1
+	LDP	1
 	ARG
 	LDL	1
 	ARG
@@ -745,12 +747,12 @@
 	ENTRY	2
 	LDC	8
 	ARG
-	CALLF	1,.malloc
+	CALLF	1,_malloc
 	STL	1
 	POP
 	LDL	1
 	ARG
-	CALLP	1,.free
+	CALLP	1,_free
 	LDC	1
 	STL	2
 	POP

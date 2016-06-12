@@ -5,9 +5,10 @@
 
 int a = 5, b = 3, c = 2;
 
-void f(int n, char[] s);
+public void f(int n, char[] s);
 
-void main() {
+public int main() {
   for (int x=a; x<b; x=x+c)
     f(x*x, "abc");
+  return 0;
 }

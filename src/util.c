@@ -22,6 +22,7 @@
 /*
  * util.c : 良く使う関数
  *
+ * 2016.06.04         : eOpen() を追加
  * 2016.03.01         : NULL を null に書き換え
  * 2016.02.24         : strEndsWith 関数のバグ訂正
  * 2016.02.05 v3.0.0  : トランスレータと統合(strEndsWith 関数を追加)
@@ -90,4 +91,14 @@ boolean strEndsWith(char *str, char *suffix){
     if(str[len1-i]!=suffix[len2-i])
       return false;
   return true;
+}
+
+/* エラーチェック付きの fopen */
+FILE *eOpen(char *fname, char *mod) {
+  FILE *fp = fopen(fname, mod);
+  if (fp==NULL) {
+    perror(fname);
+    exit(1);
+  }
+  return fp;
 }

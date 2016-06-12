@@ -1,13 +1,27 @@
+_stdin
+	WS	1
+_stdout
+	WS	1
+_stderr
+	WS	1
 .h
 	ENTRY	0
-	LDA	1
+	LDP	1
 	ARG
-	CALLF	1,.g
+	CALLF	1,_g
 	MREG
 	RET
-.f
+.L1
+	STRING	"aaa.txt"
+.L2
+	STRING	"r"
+_f
 	ENTRY	2
-	CALLF	0,.fopen
+	LDC	.L2
+	ARG
+	LDC	.L1
+	ARG
+	CALLF	2,_fopen
 	STL	2
 	POP
 	LDL	2
@@ -15,7 +29,7 @@
 	POP
 	LDL	2
 	ARG
-	CALLF	1,.g
+	CALLF	1,.h
 	STL	1
 	POP
 	RET

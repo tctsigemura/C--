@@ -5,6 +5,7 @@
 
 \cmml を体験するために、自分のパソコンで\cmm コンパイラを
 使用できるようにしましょう。
+{\bf 以下の順番で}作業し、開発環境をインストールしてください。
 
 
 \section{ユーティリティのインストール}
@@ -14,16 +15,17 @@
 ソースコードは
 \url{https://github.com/tctsigemura/Util--/}から入手します。
 
-ダウンロードした配布物を解凍し
+ダウンロードした配布物を展開し
 「{\util}解説書」（{\tt Util--/doc/umm.pdf}）の手順に従いインストールします。
 {\as}、{\ld}、{\objbin}、{\objexe}、{\size}の五つのプログラムが
 {\tt /usr/local/bin}にインストールされます。
 
 \section{コンパイラのインストール}
+\label{chap2:compilerl}
 
 {\cmm}コンパイラのソースコードは
 \url{https://github.com/tctsigemura/C--/}から入手します。
-ダウンロードした配布物を解凍し以下の順にインストールします。
+ダウンロードした配布物を展開し以下の順にインストールします。
 
 \subsection{コンパイラ本体のインストール}
 
@@ -33,30 +35,46 @@
 \begin{mylist}
 \begin{verbatim}
 $ make
-cc -std=c99 -Wall  -DDATE="\"`date`\"" -DVER=\"3.0.0\" ...
+cc -std=c99 -Wall  -DDATE="\"`date`\"" -DVER=\"3.1.0\" ...
 ...
 $ sudo make install
 Password:
 install -d -m 755 /usr/local/bin
 install -m 755 c-- /usr/local/bin
 install -m 755 vm-c-- /usr/local/bin
-install -m 755 c-c-- /usr/local/bin
+...
 \end{verbatim}
 \end{mylist}
 
-以上で、{\cmmc}、{\vcmmc}、{\ccmmc}の三つのプログラムが
-作成され\verb;/usr/local/bin;にインストールされました。
+以上で、{\cme}、{\cmc}、{\cmv}、{\cmmc}、{\vcmmc}、{\ccmmc}の
+六つのプログラムが作成され\verb;/usr/local/bin;にインストールされました。
+{\cme}、{\cmc}、{\cmv}は、
+{\cmml}をコンパイルするために使用するシェルスクリプトです。
+これらのシェルスクリプトは、
+与えられたファイルの拡張子から処理するべき手順を判断し、
+コンパイラやユーティリティを自動的に実行します。
 
 \begin{itemize}
-\item {\cmmc}は、{\tac}用の本物のコンパイラです。
-{\tac}のアセンブリ言語を出力します。
+\item {\cme}は、
+{\cmm}プログラムを{\tac}で実行できる「{\tt .exe}」ファイルに変換します。
+\item {\cmc}は、
+{\cmm}プログラムをUNIXやMacで実行できるファイルに変換します。
+\item {\cmv}は、
+{\cmm}プログラムをスタックマシンのニーモニックに変換します。
+\item {\cmmc}は、{\tac}用の{\cmml}コンパイラ本体です。
+{\cmm}プログラムを{\tac}のアセンブリ言語に変換します。
+通常{\cme}から呼び出され、ユーザが直接使用することはありません。
+\item {\ccmmc}は、{\cmm}プログラムを{\cl}に変換するトランスレータです。
+変換された{\cl}プログラムはUNIXやMacで実行できます。
+通常{\cmc}から呼び出され、ユーザが直接使用することはありません。
 \item {\vcmmc}は、コンパイラの勉強をしたい人のために、
 中間言語(\pageref{app:vm}ページ)をよく反映した、
 仮想スタックマシンのニーモニックを出力して見せるコンパイラです。
-\item {\ccmmc}は、{\cmml}を普通のパソコンやマイコンで試してみたい人のために、
-{\cmml}を{\cl}に変換するトランスレータです。
-変換された{\cl}プログラムは普通のパソコンで実行できるはずです。
+通常{\cmv}から呼び出され、ユーザが直接使用することはありません。
 \end{itemize}
+
+なお、これら六つののプログラムの使用方法は、
+コマンドリファレンス(\pageref{app:command}ページ)で紹介します。
 
 \subsection{ヘッダファイルのインストール}
 
@@ -83,12 +101,13 @@ install -m 644 *.hmm /usr/local/cmmInclude
 \begin{verbatim}
 $ make
 as-- crt0.s
-cc -E -std=c99 -nostdinc  -I/usr/local/cmmInclude - < ctype.cmm |
-  c--  > ctype.s
-as-- ctype.s
-...
-ld-- libtac.o crt0.o ctype.o stdio.o stdlib.o string.o ...
-rm stdio.s string.s stdlib.s ctype.s
+cm2e -c  ctype.cmm
+cm2e -c  stdio.cmm
+cm2e -c  printf.cmm
+cm2e -c  stdlib.cmm
+cm2e -c  string.cmm
+as-- syslib.s
+ld-- libtac.o crt0.o ctype.o stdio.o printf.o stdlib.o string.o ...
 \end{verbatim}
 \end{mylist}
 
@@ -104,6 +123,8 @@ install -d -m 755 /usr/local/cmmLib
 install -m 644 libtac.o /usr/local/cmmLib
 install -m 644 cfunc.hmm /usr/local/cmmLib
 install -m 644 wrapper.c /usr/local/cmmLib
+install -m 644 wrapper.h /usr/local/cmmLib
+ln -fs wrapper.h /usr/local/cmmLib/crt0.h
 \end{verbatim}
 \end{mylist}
 
@@ -120,52 +141,8 @@ install -m 644 wrapper.c /usr/local/cmmLib
 
 \verb;C--/samples/hello;ディレクトリに移動します。
 {\tt hello.cmm}プログラムが準備してあります。
-これをコンパイルしてみましょう。
-なお、\verb;C--/samples/c--;ディレクトリには、
-{\cmml}で記述した{\cmm}コンパイラが置いてあります。
-後で、こちらのコンパイルにも挑戦してください。
-
-\subsection{コンパイル}
-
-このディレクトリで make コマンドを実行します。
-下に示す実行例のように{\tt hello.cmm}が自動的にコンパイルされ、
-{\tt hello.exe}、{\tt hello}、{\tt hello.c}、{\tt hello.s}、{\tt hello.v}の
-五つのファイルができます。
-
-実行例2行は{\tt hello.cmm}から{\tt hello.c}を作る手順を示しています。
-実行例3行は{\tt hello.c}から{\tt hello}を作る手順を示しています。
-実行例4行は{\tt hello.cmm}から{\tt hello.v}を作る手順を示しています。
-実行例5行は{\tt hello.cmm}から{\tt hello.s}を作る手順を示しています。
-実行例6〜8行は{\tt hello.s}から{\tt hello.exe}を作る手順を示しています。
-実行例を参考に、自分の目的に必要な操作法方法を確認してください。
-
-\begin{mylist}
-\begin{verbatim}
- 1: $ make
- 2: cc -E -DC -std=c99 -nostdinc -I/usr/local/cmmInclude
-    -I/usr/local/cmmLib - <  hello.cmm | c-c-- > hello.c
- 3: cc -o hello -Wno-parentheses-equality hello.c
-    /usr/local/cmmLib/wrapper.c
- 4: cc -E  -std=c99 -nostdinc -I/usr/local/cmmInclude
-    -I/usr/local/cmmLib - <  hello.cmm | vm-c-- > hello.v
- 5: cc -E  -std=c99 -nostdinc -I/usr/local/cmmInclude
-    -I/usr/local/cmmLib - <  hello.cmm | c-- > hello.s
- 6: as-- hello.s
- 7: ld-- mod.o /usr/local/cmmLib/libtac.o hello.o > hello.sym
- 8: objexe-- hello.exe mod.o 600 | sort --key=1 > hello.map
-\end{verbatim}
-\end{mylist}
-
-\subsection{関連ファイル}
-
-上の実行例で、使用したり作成されたりしたファイルの主なものを紹介します。
-
-\begin{itemize}
-
-\item {\tt hello.cmm}は、
-\cmml のもっとも簡単なサンプルプログラムです。
-
-画面に、\verb/hello,world/と表示します。
+これをコンパイルして実行してみましょう。
+{\tt hello.cmm}プログラムは以下のような{\cmml}プログラムです。
 
 \begin{mylist}
 \begin{verbatim}
@@ -181,39 +158,76 @@ public int main() {
 \end{verbatim}
 \end{mylist}
 
-\item {\tt hello.exe}は、
-\verb/hello.cmm/をコンパイルした\tacos 用の実行形式ファイルです。
-\tac の実機で実行できます。
+\subsection{コンパイルしてPCで実行}
 
-\item {\tt hello}は、
-\verb/hello.cmm/をコンパイルしたパソコン用の実行形式のファイルです。
-次のようにパソコンで実行できます。
+\verb;C--/samples/hello;ディレクトリで以下のように操作すると、
+{\tt hello.cmm}プログラムをコンパイルしてPCで実行することができます。
+なお、{\cmc}は、「\ref{chap2:compilerl} コンパイラのインストール」で
+インストールしたシェルスクリプトです。
+コンパイラとユーティリティを自動的に起動して、
+{\cmml}プログラムをPCで実行可能なプログラムに変換します。
 
 \begin{mylist}
 \begin{verbatim}
-$ ./hello 
+$ cm2c -o hello hello.cmm 
+$ ./hello
 hello,world
 \end{verbatim}
 \end{mylist}
 
-\item {\tt hello.c}は、
-\verb/hello.cmm/を{\tt c-c--} で\cl に変換したプログラムです。
-上記の{\tt hello}は{\tt hello.c}を\cl コンパイラでコンパイルしたものです。
+\subsection{コンパイルしてTaCで実行}
+
+\verb;C--/samples/hello;ディレクトリで以下のように操作すると、
+{\tt hello.cmm}プログラムをコンパイルして{\tac}で実行可能な
+{\tt hello.exe}を作ることができます。
+なお、{\cme}は、「\ref{chap2:compilerl} コンパイラのインストール」で
+インストールしたシェルスクリプトです。
+コンパイラとユーティリティを自動的に起動して、
+{\cmml}プログラムを{\tac}で実行可能なプログラムに変換します。
+{\tt hello.exe}をメモリカードにコピーすると{\tac}で実行できます。
 
 \begin{mylist}
 \begin{verbatim}
+$ cm2e -o hello hello.cmm 
+$ ls -l
+...
+-rw-r--r--  1 sigemura  staff   138 May  5 01:03 hello.cmm
+-rw-r--r--  1 sigemura  staff  8164 May 28 23:28 hello.exe
+-rw-r--r--  1 sigemura  staff  5862 May 28 23:28 hello.map
+\end{verbatim}
+\end{mylist}
+
+\subsection{いろいろな中間ファイル}
+
+上の例で示した他に、{\tt hello.cmm}から数種類のファイルを作ることができます。
+
+\begin{itemize}
+
+\item {\tt hello.c}は、
+{\cmc}を{\tt -S}オプション付きで実行して
+{\tt hello.cmm}を変換した{\cl}ファイルです。
+「\verb/$ cm2c -S hello.cmm/」のように実行します。
+上記の{\tt hello}は、これを{\cl}コンパイラでコンパイルしたものです。
+
+\begin{mylist}
+\begin{verbatim}
+// hello.c
 #include <stdio.h>
-#define _cmm_str_L0 "hello,world\n"
+#define _cmm_0S "hello,world\n"
 int main(){
-printf(_cmm_str_L0);
+printf(_cmm_0S);
+return 0;
 }
 \end{verbatim}
 \end{mylist}
 
 \item {\tt hello.s}は、
-\verb/hello.cmm/を\cmmc で\tac のアセンブリ言語に変換したプログラムです。
-上記の{\tt hello.exe}ファイルは、
-このファイルから\cmm コンパイラ用ユーティリティ(\util)を用いて作成されました。
+{\cme}を{\tt -S}オプション付きで実行して
+{\tt hello.cmm}を変換した{\tac}のアセンブリ言語プログラムです。
+「\verb/$ cm2e -S hello.cmm/」のように実行します。
+上記の{\tt hello.exe}は、
+このファイルから{\cmm}コンパイラ用のユーティリティ({\tt Util--})を
+用いて作成されました。
 
 \begin{mylist}
 \begin{verbatim}
@@ -234,10 +248,11 @@ _main   PUSH    FP
 \end{verbatim}
 \end{mylist}
 
-\item {\tt hello.v}は、
-\verb/hello.cmm/を{\tt vm-c--}により
+\item {\tt hello.v}は、{\tt hello.cmm}を{\cmv}により
 仮想スタックマシンのニーモニックに変換したプログラムです。
-中間言語の詳細は、\pageref{app:vm}ページで紹介します。
+「\verb/$ cm2v hello.cmm/」のように実行します。
+仮想スタックマシンのニーモニックの詳細は、
+\pageref{app:vm}ページで紹介します。
 
 \begin{mylist}
 \begin{verbatim}
@@ -260,66 +275,65 @@ _main
         RET
 \end{verbatim}
 \end{mylist}
+\end{itemize}
 
-\item {\tt Makefile}は、
+\subsection{Makefileファイル}
+
+{\tt Makefile}は、
 コンパイル手順を記述したファイルです。
-これまでの実行例で、{\tt make}コマンドで自動的にコンパイルができたのは、
-このファイルのおかげです。
-\cmm プログラムは、
-コンパイル前にプリプロセッサで処理する必要があります。
-コンパイルする度に
-プリプロセッサやコンパイラを順に手動で起動するのは面倒なので、
-{\tt Makefile}を準備した方が良いと思います。
+数種類の例を示しますので参考にしてください。
 
-\verb;C--/samples/hello;ディレクトリには、
-先程の実行例で使用された{\tt Makefile}の他に、
-実際に使用する場合を想定したMacOS、UNIX 用の{\tt Makefile.unix}と、
-\tacos 用の{\tt Makefile.tac}が準備してあります。
-以下に後の二つのファイルの内容を掲載します。
-これらは、OSX 10.10 で動作するように調整してあります。
-これを参考に、自分の目的と環境に合った{\tt Makefile}を作ってください。
+\begin{mylist}
+\begin{verbatim}
+#
+# Makefile.tac : C--言語からTacの実行形式に変換する手順
+#
+
+hello.exe: hello.cmm
+        cm2e -o hello hello.cmm
+
+clean:
+        rm -f hello.exe hello.map
+\end{verbatim}
+\end{mylist}
 
 \begin{mylist}
 \begin{verbatim}
 #
 # Makefile.unix : C--言語からMacOSやUNIXの実行形式に変換する手順
 #
-INCDIR=/usr/local/cmmInclude
-LIBDIR=/usr/local/cmmLib
-CFLAGS+=-Wno-parentheses-equality
-CPP=cc -E -DC -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < 
-.SUFFIXES: .o .cmm .c
-.cmm.c:
-        ${CPP} $*.cmm | c-c-- > $*.c
-OBJS=hello.o
-hello: ${OBJS}
-        cc -o hello ${CFLAGS} ${OBJS} ${LIBDIR}/wrapper.c
+
+hello: hello.cmm
+        cm2c -o hello hello.cmm
+
 clean:
-        rm -f hello ${OBJS}
+        rm -f hello
 \end{verbatim}
 \end{mylist}
 
 \begin{mylist}
 \begin{verbatim}
 #
-# Makefile.tac : C-- 言語からTacOSの実行形式に変換する手順
+# C-- 言語から a.out、.exe、 .v ファイルを作る手順
 #
-INCDIR=/usr/local/cmmInclude
-LIBDIR=/usr/local/cmmLib
-CFLAGS+=-Wno-parentheses-equality
-CPP=cc -E -std=c99 -nostdinc -I${INCDIR} - < 
-.SUFFIXES: .o .cmm .s
-.cmm.s:
-        ${CPP} $*.cmm | c-- > $*.s
-.s.o:
-        as-- $*.s
-OBJS=hello.o
-hello.exe: ${OBJS}
-        ld-- mod.o ${LIBDIR}/libtac.o ${OBJS} > hello.sym
-        objexe-- hello.exe mod.o 600 | sort --key=1 > hello.map
+
+all: hello hello.exe hello.v
+
+# UNIX, Mac の a.out へ変換
+hello: hello.cmm
+        cm2c -o hello hello.cmm
+
+# TacOS の実行形式を作る
+hello.exe: hello.cmm
+        cm2e -o hello.exe hello.cmm
+
+# C--コンパイラの中間言語に変換する
+hello.v: hello.cmm
+        cm2v hello.cmm
+
 clean:
-        rm -f hello.exe mod.o ${OBJS} *.sym *.lst *.map
+        rm -f hello hello.c hello.s hello.v *.lst *.sym *.map \
+	*.o *.exe *~
+
 \end{verbatim}
 \end{mylist}
-
-\end{itemize}

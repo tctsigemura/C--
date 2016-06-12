@@ -3,7 +3,7 @@
  *  do - while 文
  */
 
-int f1(int a);
+public int f1(int a);
 
 void f2() {
   int a;

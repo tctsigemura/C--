@@ -1,3 +1,6 @@
+_stdin	WS	1
+_stdout	WS	1
+_stderr	WS	1
 .L1	STRING	"reloc: %04x -> %04x (%04x) | %04x\n"
 .relocateSegment	PUSH	FP
 	LD	FP,SP
@@ -13,7 +16,7 @@
 	PUSH	G3
 	LD	G0,4,FP
 	PUSH	G0
-	CALL	.__AddrAdd
+	CALL	___AddrAdd
 	ADD	SP,#4
 	LD	G4,G0
 	LD	G0,G4
@@ -25,7 +28,7 @@
 	PUSH	G5
 	LD	G0,8,FP
 	PUSH	G0
-	CALL	.__AddrAdd
+	CALL	___AddrAdd
 	ADD	SP,#4
 	LD	G6,G0
 	LD	G0,G6
@@ -47,7 +50,7 @@
 	PUSH	G0
 	LD	G0,#.L1
 	PUSH	G0
-	CALL	.printf
+	CALL	_printf
 	ADD	SP,#10
 	LD	G0,G3
 	ADD	G0,#4

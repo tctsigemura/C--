@@ -1,4 +1,4 @@
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	PUSH	G3
 	PUSH	G4
@@ -26,6 +26,7 @@
 .L3
 	JMP	.L7
 .L7
+	LD	G0,#0
 	POP	G4
 	POP	G3
 	POP	FP

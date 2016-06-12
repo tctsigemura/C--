@@ -21,7 +21,8 @@ void f1() {
 }
 
 char[][][] q = { {"ab","cd"}, array(3)};
-void[] malloc(int n);
+//void[] malloc(int n);
+#include <stdlib.hmm>
 
 int f2(int x, int y) {
   int la;

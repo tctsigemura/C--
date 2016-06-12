@@ -1,4 +1,4 @@
-.main
+_main
 	ENTRY	2
 .L1
 	JMP	.L1
@@ -26,4 +26,6 @@
 .L3
 	JMP	.L6
 .L6
+	LDC	0
+	MREG
 	RET

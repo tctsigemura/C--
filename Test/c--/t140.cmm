@@ -2,10 +2,9 @@
  *  t140.cmm
  *  コメントとコートに関するテスト
  */
+#include <stdio.hmm>
 
-int printf(char[]a);
-void putch(char c);
-void main() {
+public int main() {
        printf("/* */");  /* */
        printf("//");  // /* */
        printf(//);
@@ -16,6 +15,7 @@ void main() {
          "/*");
        printf("abcde\"fghi");
        printf("\"");
-       putch('\n');
-       putch('\'');
+       putchar('\n');
+       putchar('\'');
+       return 0;
 }

@@ -5,7 +5,7 @@
 .L1
 	LD	G0,#1
 	PUSH	G0
-	CALL	.f1
+	CALL	_f1
 	ADD	SP,#2
 	LD	G3,G0
 	CMP	G3,#10

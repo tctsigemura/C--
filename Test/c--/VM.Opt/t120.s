@@ -13,12 +13,12 @@
 .f
 	ENTRY	0
 	LDG	.b
-	STA	1
+	STP	1
 	MREG
 	RET
 .L1
 	STRING	"abc\r\n"
-.main
+_main
 	ENTRY	1
 	LDG	.x
 	STG	.a
@@ -54,4 +54,6 @@
 	POP
 	JMP	.L2
 .L3
+	LDC	0
+	MREG
 	RET

@@ -3,12 +3,14 @@
 // void 型の関数呼び出し
 //
 
-void p();
+public void p();
 
-public void main() {
+public int main() {
   int a;
   p();
   p(),p(),p();
   a;
   a,a,a;
+
+  return 0;
 }

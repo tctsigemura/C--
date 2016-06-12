@@ -19,6 +19,9 @@
 #
 # Makefile : c-- の makefile
 #
+# 2016.06.12 v3.1.0  : トランスレータが正常に使用できる
+# 2016.05.24         : cm2c, cm2e, cm2v を追加
+# 2016.05.20         : トランスレータ版では C を定義するように変更
 # 2016.02.05 v3.0.0  : トランスレータと統合
 # 2016.01.18 v2.1.2  : vm2tac.cmm の vmPop() の意味の無い式に関するバグ修正
 # 2015.12.16 v2.1.1  : void以外の関数の return チェックに関するバグ修正
@@ -39,7 +42,7 @@
 #
 
 CC=cc -std=c99 -Wall
-VER=\"3.0.0\"
+VER=\"3.1.0\"
 DATE="\"`date`\""
 
 all : c-- vm-c-- c-c--
@@ -63,7 +66,7 @@ vm-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
 c-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"C\" \
+	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"C\" -DC \
 	-DNWORD=32 -DNBYTE=8 -o c-c-- \
 	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
@@ -81,6 +84,9 @@ install : c-- vm-c-- c-c-- # h8300hn-c--
 	install -m 755 c-- /usr/local/bin
 	install -m 755 vm-c-- /usr/local/bin
 	install -m 755 c-c-- /usr/local/bin
+	install -m 755 cm2c /usr/local/bin
+	install -m 755 cm2e /usr/local/bin
+	install -m 755 cm2v /usr/local/bin
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :

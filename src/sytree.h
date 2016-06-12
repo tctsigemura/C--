@@ -22,6 +22,11 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
+ * 2016.06.06         : syLn[], syGetLn(), sySetLn() を追加
+ * 2016.06.04         : syGetSize() を追加
+ *                      syClear() を sySetSize() に名前変更
+ * 2016.05.22         : SySIZE を追加
+ * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
  *                      (SyPOST, SyBYTE 削除, SyIDXx, SyDOT, SyVAR, SyBLK 追加)
  * 2010.07.20         : Subversion による管理を開始
@@ -39,6 +44,7 @@
 int syType[SyMAX];                           // ノードの種類
 int syLVal[SyMAX];                           // ノードの値１
 int syRVal[SyMAX];                           // ノードの値２
+int syLn[SyMAX];                             // 対応するソースの行番号
 
 // 構文木のノード(LVal, Rval)に格納される特殊な値
 #define SyNULL        9999                   // 構文木のNULLポインタ
@@ -48,7 +54,7 @@ int syRVal[SyMAX];                           // ノードの値２
 #define SyISFACT(c)   (((c)&0xf00)==0x100)  // 因子かどうか判定
 #define SyCNST        0x102                 // 数値定数、文字定数、論理定数
 #define SyLOC         0x103                 // ローカル変数
-#define SyARG         0x104                 // 仮引数
+#define SyPRM         0x104                 // 仮引数
 #define SyGLB         0x105                 // グローバル変数
 #define SySTR         0x106                 // 文字列
 #define SyFUNC        0x107                 // 関数コール
@@ -60,6 +66,7 @@ int syRVal[SyMAX];                           // ノードの値２
 #define SyBNOT        0x202                 // 単項演算 ~(ビット毎のNOT)
 #define SyCHAR        0x203                 // chr 演算子(型変換)
 #define SyBOOL        0x204                 // bool 演算子(型変換)
+#define SySIZE        0x205                 // sizeof 演算子
 
 #define SyIS2OPR(c)   (((c)&0xf00)==0x300)  // 普通の２項演算子かどうか判定
 #define SyADD         0x300                 // ２項演算 +
@@ -112,15 +119,18 @@ int syRVal[SyMAX];                           // ノードの値２
  */
 int syNewNode(int type, int lVal, int rVal); // 新しいノードを作る
 int syCatNode(int lVal, int rVal);           // 二つのノードを "," で接続する
-void syClear(int idx);                       // 表の idx 以下を捨てる
+int syGetSize();                             // 表の現在のサイズを返す
+void sySetSize(int n);                       // 表の n1 以下を捨てる
 int syGetRoot();                             // 構文木のルートを取り出す
 
 #define syGetType(idx) (syType[idx])         // 構文木表からデータを取り出す
 #define syGetLVal(idx) (syLVal[idx])
 #define syGetRVal(idx) (syRVal[idx])
+#define syGetLn(idx)   (syLn[idx])
 
 #define sySetType(idx,v) (syType[idx]=(v))   // 構文木表にデータを書き込む
 #define sySetLVal(idx,v) (syLVal[idx]=(v))
 #define sySetRVal(idx,v) (syRVal[idx]=(v))
+#define sySetLn(idx,v)   (syLn[idx]=(v))
 
 void syPrintTree();                          // デバッグ用

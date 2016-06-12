@@ -22,6 +22,12 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
+ * 2016.06.06         : syNewNode() が行番号も記録するように変更
+ * 2016.06.04         : syGetSize() を追加
+ *                      syClear() を sySetSize() に名前変更
+ * 2016.05.22         : SySIZE を追加
+ * 2016.05.05         : syGetRoot() が構文木が存在しない時 SyNULL を返す
+ * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
  *                      (SyPOST, SyBYTE 削除、SyIDXx, SyDOT, SyVAR, SyBLK 追加)
  * 2012.09.12         : 外部非公開の関数、変数に static を付ける
@@ -39,6 +45,7 @@
 
 #include <stdio.h>
 #include "sytree.h"
+#include "lexical.h"
 #include "util.h"
 
 // 構文木表
@@ -51,6 +58,7 @@ int syNewNode(int type, int lVal, int rVal) {
   sySetType(idx, type);
   sySetLVal(idx, lVal);
   sySetRVal(idx, rVal);
+  sySetLn(idx, lxGetLn());                     //  ソースの行番号も記録
   syNextIdx = syNextIdx + 1;
   return idx;
 }
@@ -64,14 +72,21 @@ int syCatNode(int lval, int rval) {
   return rval;                                 // どちらでもなければ右を返す
 }
 
-// 構文木表の idx 以降を捨てる
-void syClear(int idx) {
-  syNextIdx = idx;
+// 構文木表の現在のサイズを返す
+int syGetSize() {
+  return syNextIdx;
+}
+
+// 構文木表の n 以降を捨てる
+void sySetSize(int n) {
+  syNextIdx = n;
 }
 
 // 構文木のルートを取り出す
 int syGetRoot() {
-  return syNextIdx - 1;
+  int root = syNextIdx - 1;            // 最後に登録されたノードがルート
+  if (root<0) root = SyNULL;           // 木が存在しないなら null を返す
+  return root;
 }
 
 // デバッグ用
@@ -80,10 +95,11 @@ struct D {char * a; int b; };
 static struct D d[] = {
   // 特別な値
   {"SyNULL",  SyNULL},
+
   // 構文木のノードの Type
   { "SyCNST", SyCNST},                 // 数値定数、文字定数、論理定数
   { "SyLOC",  SyLOC},                  // ローカル変数、仮引数
-  { "SyARG",  SyARG},                  // ローカル変数、仮引数
+  { "SyPRM",  SyPRM},                  // ローカル変数、仮引数
   { "SyGLB",  SyGLB},                  // グローバル変数
   { "SySTR",  SySTR},                  // 文字列
   { "SyFUNC", SyFUNC},                 // 関数コール
@@ -94,6 +110,7 @@ static struct D d[] = {
   { "SyBNOT", SyBNOT},                 // 単項演算 ~(ビット毎のNOT)
   { "SyCHAR", SyCHAR},                 // 文字型へ変換する演算子
   { "SyBOOL", SyBOOL},                 // 文字型へ変換する演算子
+  { "SySIZE", SySIZE},                 // データ型のサイズを求める演算子
 
   { "SyADD",  SyADD},                  // ２項演算 +
   { "SySUB",  SySUB},                  // ２項演算 -

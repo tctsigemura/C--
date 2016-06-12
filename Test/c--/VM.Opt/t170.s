@@ -117,19 +117,21 @@
 	DW	.L26
 .q
 	DW	.L27
+__alcAddr
+	WS	1
 .L28
 	STRING	"ABCDE"
 .f2
 	ENTRY	5
 	LDC	10
 	ARG
-	CALLF	1,.malloc
+	CALLF	1,_malloc
 	STL	3
 	POP
-	LDA	1
+	LDP	1
 	STL	4
 	POP
-	LDA	1
+	LDP	1
 	STL	5
 	POP
 	LDC	30

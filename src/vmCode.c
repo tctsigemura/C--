@@ -22,6 +22,10 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2016.05.20         : genProto, genStruc, genOn, genOff 関数廃止
+ * 2016.05.05         : genBoolExpr() にバグチェックの error() 追加
+ * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
+ *                      vmLdArg, vmStArg を vmLdPrm, vmStPrm に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
  *                      (genProto, genStruc, genOn, genOff 関数追加)
  *                      (SyPOST,SyBYTE の代わりに SyIDXW,SyIDXB,SyDOT に対応)
@@ -85,7 +89,7 @@ static int newLab() {
 #define CNST  1                                   // 定数
 #define GVAR  2                                   // 大域変数
 #define LVAR  3                                   // ローカル変数
-#define ARG   4                                   // 仮引数
+#define PRM   4                                   // 仮引数
 #define STR   5                                   // 文字列ラベル
 #define STKD  6                                   // スタックに置かれたデータ
 #define STKW  7                                   // スタックにワード配列を
@@ -121,7 +125,7 @@ static void load(struct Expr *c) {
     if      (p == CNST) vmLdCns(v);               //   定数値をロード
     else if (p == GVAR) vmLdGlb(v);               //   大域変数の値をロード
     else if (p == LVAR) vmLdLoc(v);               //   ローカル変数の値をロード
-    else if (p == ARG)  vmLdArg(v);               //   仮引数の値をロード
+    else if (p == PRM)  vmLdPrm(v);               //   仮引数の値をロード
     else if (p == STR)  vmLdStr(v);               //   一時ラベル値をロード
     else if (p == LABL) vmLdLab(v);               //   通常ラベル値をロード
     else if (p == STKW) vmLdWrd();                //   ワード配列からロード
@@ -137,7 +141,7 @@ static void store(struct Expr *c) {
   int v = c->value;                               // 左辺式の値
   if      (p == GVAR) vmStGlb(v);                 // 大域変数へストア
   else if (p == LVAR) vmStLoc(v);                 // ローカル変数へストア
-  else if (p == ARG)  vmStArg(v);                 // 仮引数へストア
+  else if (p == PRM)  vmStPrm(v);                 // 仮引数へストア
   else if (p == STKW) vmStWrd();                  // ワード配列へストア
   else if (p == STKB) vmStByt();                  // バイト配列へストア
   else error("バグ...store");                     // その他はないはず
@@ -192,15 +196,15 @@ static void genFactor(int node, struct Expr* c) {
   } else if (typ == SyLOC) {                      // ローカル変数の場合
     c->place = LVAR;
     c->value = lVal;
-  } else if (typ == SyARG) {                      // 引数の場合
-    c->place = ARG;
+  } else if (typ == SyPRM) {                      // 仮引数の場合
+    c->place = PRM;
     c->value = lVal;
   } else if (typ == SySTR) {                      // 文字列ラベルの場合
     c->place = STR;
     c->value = lVal;
   } else if (typ == SyFUNC) {                     // 関数呼び出し
     int n = genArgs(syGetRVal(node), c);          //   引数の処理
-    if (ntGetType(lVal)!=TyVOID||ntGetDim(lVal)!=0 ) { //   void 型以外なら
+    if (ntGetType(lVal)!=TyVOID||ntGetDim(lVal)!=0) { //   void 型以外なら
       vmCallF(n, lVal);                           //     関数用の Call
       c->place = STKD;
     } else {                                      //   void 型なら
@@ -468,6 +472,7 @@ static void genBoolExpr(int node, struct Expr* c) {
   else if (SyIS2OPR(op)) gen2OpExpr(node, c);     //   普通の二項演算
   else if (SyISCMP(op))  genCmpExpr(node, c);     //   比較演算
   else if (SyISLOPR(op)) genLOpExpr(node, c);     //   論理演算
+  else error("バグ...genBoolExpr");
 }
 
 // 式のコード生成 (結果を必ずスタックにロードする)
@@ -766,10 +771,6 @@ static void genList(int node, int dim) {         // 開始位置と配列の次�
   }
 }
 
-/*
- *   外部から呼び出される関数
- */
-
 // 初期化データの生成
 void genData(int idx) {
   int root = syGetRoot();
@@ -796,9 +797,3 @@ int genStr(char *str) {
   vmStr(str);                                    //   .Ln STRING "xxxx" を出力
   return lab;                                    //   ラベル番号を返す
 }
-
-// トランスレータ版と統合のために形だけ準備（何もすることはない）
-void genProto(int idx) {}                        // プロトタイプ宣言があった
-void genStruc(int idx) {}                        // 構造体宣言があった
-void genOn(void) {}                              // コード生成を許可する
-void genOff(char *hdr) {}                        // コード生成を禁止する

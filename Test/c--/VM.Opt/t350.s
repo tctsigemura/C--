@@ -2,13 +2,13 @@
 	WS	1
 .b
 	WS	1
-.main
+_main
 	ENTRY	1
 	LDG	.a
 	LDG	.b
 	NE
 	JF	.L2
-	CALLF	0,.f
+	CALLF	0,_f
 	LDG	.a
 	LDG	.b
 	EQ
@@ -21,4 +21,6 @@
 ; ----
 	STL	1
 	POP
+	LDC	0
+	MREG
 	RET

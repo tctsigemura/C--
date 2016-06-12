@@ -1,4 +1,4 @@
-.main
+_main
 	ENTRY	11
 	LDC	1
 	STL	1
@@ -33,4 +33,6 @@
 	LDC	11
 	STL	11
 	POP
+	LDC	0
+	MREG
 	RET
