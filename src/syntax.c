@@ -366,7 +366,8 @@ static void getArgs(struct watch* w, int func) {   // funcは表の現在の関�
       if (ntGetType(idx)!=TyDOTDOTDOT) {           // 可変個引数ではないなら
 	chkCmpat(w,ntGetType(idx),ntGetDim(idx));  //     型チェックしてから
 	idx=idx+1;                                 //     インデクスを進める
-      }
+      } else if (w->type==TyVOID && w->dim==0)     // 可変個引数でも
+	error("void型の関数は引数にできない");     //     void関数は使用不可
     } while (isTok(','));                          // ','が続く間繰り返す
   }
   chkTok(')', "関数呼出に ')' がない");
