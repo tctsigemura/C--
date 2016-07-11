@@ -38,8 +38,10 @@
 #include <string.h>
 #include <ctype.h>
 #include "util.h"
+#include "StepByStep/util.h"
 #include "namtbl.h"
-#include "syntax.h"
+
+#define StrMAX 128
 
 // 定義済みの関数名、変数名、仮引数名を探す(getFactorから呼ばれる)
 int ntSrcName(char *str) {
@@ -104,11 +106,7 @@ void ntDefName(char *name, int scope, int type, int dim, int cnt, boolean pub){
   ntDim[ntNextIdx]   = dim;                      // 次元を登録する
   ntCnt[ntNextIdx]   = cnt;                      // 値を登録する
   ntPub[ntNextIdx]   = pub;                      // 外部名
-  //ntLn[ntNextIdx]    = lxGetLn();
   ntNextIdx = ntNextIdx + 1;
- // if(scope!=ScLVAR)                              // ローカル変数の名前は不要
- //   fprintf(fpout, "%d D %s %d %d %d %d %d\n"
- //     , lxGetLn(), name, scope, type, dim, cnt, pub);
 }
 
 /* 名前表をもとに戻す */
@@ -116,9 +114,13 @@ void ntUndefName(int idx) {                      // idx まで戻す
   for (int i=idx; i<ntNextIdx; i=i+1)            // 名前のつづり用の領域を順に
     free(ntName[i]);                            // 解放していく
   ntNextIdx = idx;                               // nextIdx を戻せば完成
-  //fprintf(fpout, "%d U %d\n", lxGetLn(), idx);
 }
 
+//---------------------------------------------------------------------------
+// STEP BY STEPの場合は以下の関数が必要
+//---------------------------------------------------------------------------
+
+#ifdef STEPBY
 // 10進数を読んで値を返す
 static int getDecf(FILE *fp) {
   int v = 0;                                     // 初期値は 0
@@ -145,7 +147,6 @@ void ntPrintTable(char *name){
       , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
 }
 
-#define StrMAX 128
 /* 名前表の読み込み */
 void ntLoadTable(char *name){
   FILE *fp;
@@ -176,3 +177,6 @@ void ntLoadTable(char *name){
     ntDefName(str, scp, type, dim, val, pub);
   }
 }
+#else
+
+#endif    // STEPBY

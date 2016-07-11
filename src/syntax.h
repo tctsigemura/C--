@@ -31,11 +31,3 @@
 void snGetSrc(void);                       // C-- プログラムを読む
 void snSetOptFlag(boolean f);              // 最適化フラグを操作する
 void snSetKrnFlag(boolean f);              // カーネルフラグを操作する
-
-FILE * fpout;                // 出力ファイル
-
-int   lxGetTok(void);          // 字句解析ルーチン
-void  lxSetFname(char *s);     // ファイル名を記憶させる
-int   lxGetVal(void);          // 数値等を読んだときの値を返す
-char *lxGetStr(void);          // 名前、文字列の綴を返す
-void  lxSetFp(FILE *p);        // fp をセットする

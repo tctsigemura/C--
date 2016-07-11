@@ -23,6 +23,8 @@
  * vm.h : 仮想マシンのコードから実際のコードを生成するプログラムで準備
  *        すべき関数のプロトタイプ
  *
+ * 2016.17.10         : vmTmpLabStr, vmDwLabStrを追加
+ * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK を追加
  * 2010.12.23         : 仮想マシンのニーモニックを大幅に変更
  *                      変更(JNZ=>JT,JZ=>JF,DC=>DW,DS=>WS)
@@ -43,6 +45,7 @@
 
 void vmName(int idx);              // 名前を表現するラベルを印刷する
 void vmTmpLab(int lab);            // コンパイラが生成した番号のラベルを印刷する
+void vmTmpLabStr(int lab);
 void vmEntry(int depth, int idx);  // 関数の入口
 void vmEntryK(int depth, int idx); // カーネル用、関数の入口
 void vmRet(void);                  // 関数の出口
@@ -128,6 +131,7 @@ void vmBoolAND(int L1, int L2, int L3);
  */
 void vmDwName(int idx);            // 名前へのポインタを生成する
 void vmDwLab(int lab);             // Ln ラベルへのポインタを生成する
+void vmDwLabStr(int lab);
 void vmDwCns(int n);               // 1 ワードの整数データを生成する
 void vmDbCns(int n);               // 1 バイトの整数データを生成する
 void vmWs(int n);                  // n ワードの領域を生成する

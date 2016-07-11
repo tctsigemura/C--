@@ -21,9 +21,17 @@
 
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
+ *
+ * 2016.05.22         : トランスレータは sizeof を計算しないで木に残す
+ * 2016.05.20         : トランスレータ用のディレクティブ処理を改良
+ *                      宣言、定義の途中で使用されたディレクティブを無視する
+ * 2016.05.10         : トランスレータ用のディレクティブ処理を改良
+ *                      ただし、ディレクティブは、宣言、定義の外でしか使えない
+ *                      int f() {
+ *                      #include "xxx.hmm"   // 関数定義の途中では使用できない
+ *                      }
  * 2016.05.04         : 配列サイズが 1 以上かチェックするようにする
  *                      SyARG を SyPRM(パラメータ)に変更
- * 2016.04.12         : 字句解析部分を分離
  * 2016.02.05 v3.0.0  : main() 関数を main.c に分離して新規作成
  *                      トランスレータと統合
  * 2016.01.12         : 可変個引数関数の実引数にvoid型が来た時のバグ発見(未解決)
@@ -71,10 +79,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include "util.h"                   // その他機能モジュール
-#include "lxdef.h"                  // トークン名の定義
+#include "lexical.h"                // 字句解析モジュール
+#include "optree.h"                 // 構文木最適化モジュール
+#include "code.h"                   // コード生成モジュール
 #include "namtbl.h"                 // 名前表モジュール
 #include "sytree.h"                 // 構文木モジュール
 #include "syntax.h"
@@ -94,155 +102,40 @@ static int     funcIdx;             // 現在読込中の関数
 static boolean optFlag = true;      // 最適化を行う
 static boolean krnFlag = false;     // カーネルコンパイルモード
 
-#define StrMAX     128              // 名前の長さの上限
-static int  val;                    // 数値を返す場合、その値
-static char str[StrMAX + 1];        // 名前を返す場合、その綴
-static char fname[StrMAX + 1];      // 入力ファイル名
-static FILE * fp;                   // ソースコードファイル
-static int ln = 0;                  // 行番号
-static int ln2;                     // EOF時に行番号を元に戻すため
-
-static int curLab = 0;              // STRラベル用のカウンタ
-
-// (# 行番号 "path")ディレクティブの処理
-#define  CMMINC "/cmmInclude/"      // C--用システムヘッダファイルの目印
-
-// 最適化処理の記録
-static void optTree(int node){
-  //fprintf(fpout, "%d O %d\n", lxGetLn(), node);
-}
-
-// コード生成処理の記録
-// 関数１個分のコード生成
-static void genFunc(int funcIdx, int depth, boolean krnFlg) {
-  syPrintTree();
-  fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
-}
-// 初期化データの生成
-static void genData(int idx) {
-  syPrintTree();
-  fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
-}
-
-// 非初期化データの生成
-static void genBss(int idx) {
-  syPrintTree();
-  fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
-}
-
-// ラベルを割り当てる
-static int newLab() {
-  curLab = curLab + 1;
-  return curLab;
-}
-
-// 文字列を生成しラベル番号を返す
-static int genStr(char *str) {
-  int lab = newLab();                            // ラベルを割り付け
-  int i=0;
-  fprintf(fpout, "%d S ", lxGetLn());
-  while(str[i]){
-/*    if(str[i]=='\n')
-      fprintf(fpout, "\\n");
-    else if(str[i]=='\t')
-      fprintf(fpout, "\\t");
-    else */
-      fprintf(fpout, "%c", str[i]);
-    i =i+1;
-  }
-  fprintf(fpout, "\n");
-  return lab;                                    //   ラベル番号を返す
-}
-
-// トランスレータ版と統合のために形だけ準備（何もすることはない）
-static void genProto(int idx) {}                 // プロトタイプ宣言があった
-static void genStruc(int idx) {}                 // 構造体宣言があった
-static void genOn(void) {}                       // コード生成を許可する
-static void genOff(char *hdr) {}                 // コード生成を禁止する
-
-static void getFile() {
-  char * fname = lxGetStr();                 // 現在のファイル
-  if (strstr(fname, CMMINC)!=null &&         // システムディレクトリの
-      strEndsWith(fname, ".hmm"))  {         // ヘッダファイルなら
-    fname[strlen(fname)-2]='\0';             //   ".hmm" を ".h" に改変し
-    genOff(strrchr(fname,'/')+1);            // システムヘッダ内容は出力しない
-  } else {                                   // (代替のディレクティブを出力)
-    genOn();                                 // システムヘッダ以外は出力する
-  }
-}
-
-// トークンの読み込み
+//-----------------------------------------------------------------------------
+// トークンの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
+//-----------------------------------------------------------------------------
+#ifndef C
+// コンパイラ版はディレクティブに興味がないので
+// ディレクティブは getTok() が読み飛ばす。
+#define _tok tok                             // _tok と tok の区別はない
 static int tok;                              // 次のトークン
 
-// 10進数を読んで値を返す
-static int getDec() {
-  int v = 0;                                     // 初期値は 0
-  char ch = fgetc(fp);
-  if(ch==EOF)
-    return EOF;
-  while (isdigit(ch)) {                          // 10進数字の間
-    v = v*10 + ch - '0';                         // 値を計算
-    ch = fgetc(fp);                              // 次の文字を読む
-  }
-  return v;                                      // 10進数の値を返す
+static void getTok() {                       // ディレクティブ以外を入力する
+  do {                                       //
+    tok = lxGetTok();                        // 次のトークンを入力する
+  } while (tok==LxFILE);                     // ディレクティブならやり直し
+}
+//-----------------------------------------------------------------------------
+#else
+// トランスレータ版ではディレクティブも処理対象になる場合がある。
+// ディレクティブを処理したい時は _tok を使用する。
+// ディレクティブに興味がない処理は tok を使用する。
+// tok を使用すると _getTok() が呼ばれディレクティブを読み飛ばす。
+static int _tok;                             // 次のトークン
+
+static void getTok() {                       // 次のトークンを入力する
+  _tok = lxGetTok();                         //   ディレクティブも入力する
 }
 
-int lxGetTok(){
-  int tok = LxNONTOK;
-  ln2 = ln;
-  ln = getDec();
-  if(ln==EOF){
-    ln = ln2;
-    return EOF;
-  }
-  tok = getDec();
-  if(tok==LxNAME || tok==LxSTRING || tok==LxFILE){
-    int i=0;
-    char c;
-    while((c=fgetc(fp))!='\n'){               // 改行がくるまで文字列
-      if(i>=StrMAX)
-        error("文字列が長すぎる");
-      str[i] = c;
-      i = i+1;
-    }
-    str[i] = '\0';
-  }else if(tok==LxINTEGER || tok==LxLOGICAL){
-    val = getDec();
-  }else if(tok == LxCHARACTER){
-    val = getDec();
-  }
-  //printf("%d : %d\n",ln ,tok);               // ### デバッグ用 ###
-  return tok;
+#define tok _getTok()                        // tok 使用は、_getTok() に置換え
+static int _getTok() {                       // tok 使用時に
+  while (_tok==LxFILE)                       //   ディレクティブを読み飛ばす
+    _tok = lxGetTok();                       //   ディレクティブを
+  return _tok;
 }
-
-void lxSetFname(char s[]) {                    // 入力ファイル名をセットする
-  int i;
-  for (i=0; i<=StrMAX; i=i+1) {
-    fname[i] = s[i];
-    if (fname[i]=='\0') break;
-  }
-  if (fname[i]!='\0') error("ファイル名が長すぎる");
-}
-
-char *lxGetFname() { return fname; }           // 入力ファイル名を読み出す
-
-int lxGetLn() { return ln; }                   // 行番号を返す
-
-int lxGetVal() { return val; }                 // 数値等を読んだときの値を返す
-
-char *lxGetStr() { return str; }               // 名前、文字列の綴を返す
-
-void lxSetFp(FILE *p) { fp = p; }              // fp をセットする
-
-static int getTok() {
-  tok = lxGetTok();                          // 次のトークンを入力する
-  while (tok==LxFILE) {                      // ディレクティブなら
-    lxSetFname(lxGetStr());
-    getFile();                               //   ディレクティブを処理する
-    tok = lxGetTok();                        //   次のトークンを入力する
-  }
-  return tok;
-}
+//-----------------------------------------------------------------------------
+#endif
 
 /*
  * 構文解析
@@ -325,8 +218,10 @@ static void getStruct(void) {
   for (int i=structIdx; i<ntGetSize(); i=i+1)  // 名前の衝突チェックが終わった
     ntSetScope(i, ScVOID);                     //   のでフィールドのscopeに変更
   ntSetCnt(structIdx-1,ntGetSize()-structIdx); // フィールド数を表に記録
+#ifdef C
   genStruc(structIdx-1);                       // 構造体宣言を出力
-}                                              // (トランスレータ版だけで必要)
+#endif                                         // (トランスレータ版だけで必要)
+}
 
 /*
  * 式の処理
@@ -495,18 +390,24 @@ static void getSizeof(struct watch* w) {
   chkTok('(', "sizeof に '(' が続かない");
   int ty=curType, dm=curDim;                  // getType が壊すので保存し、
   getType();                                  // 型を読む
-  int s = NWORD / 8;                          // INT またはポインタのサイズ
-  if (curDim==0) {                            // 配列以外で
-    if (curType<=0)                           //   構造体の場合は
-      s = s * ntGetCnt(-curType);             //     フィールド数×INTのサイズ
+  if (curType<=0&&ntGetType(-curType)==TyREF) // typedef なら
+    error("typedefされた型はsizeofで使用できない");
+#ifdef C                                      // トランスレータは sizeof を
+  int a = syNewNode(SySIZE, curType, curDim); //   C言語ソースに出力する
+#else                                         // コンパイラは sizeof を計算する
+  int s = NWORD / 8;                          //   INT またはポインタのサイズ
+  if (curDim==0) {                            //   配列以外で
+    if (curType<=0)                           //     構造体の場合は
+      s = s * ntGetCnt(-curType);             //       フィールド数×INTのサイズ
     else if (curType==TyCHAR ||
-	     curType==TyBOOL)                 //   char, boolean なら
-      s = NBYTE / 8;                          //     バイトのサイズ
+	     curType==TyBOOL)                 //     char, boolean なら
+      s = NBYTE / 8;                          //       バイトのサイズ
   }
+  int a = syNewNode(SyCNST, s, SyNULL);       //   サイズを格納するノード
+#endif
   curType=ty;                                 // 保存したものをもとに戻す
   curDim = dm;
   chkTok(')', "sizeof が ')' で終わらない");
-  int a = syNewNode(SyCNST, s, SyNULL);       // サイズを格納するノード
   setWatch(w, TyINT, 0, false, a);            // sizeof は整数型の定数
 }
 
@@ -1044,9 +945,8 @@ static int getBlock(void) {
   chkTok('}', "ブロックが '}' で終了していない");
   ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
-  if (lval!=SyNULL && syGetType(lval)==SySEMI){// 意味のあるブロックなら
+  if (lval!=SyNULL && syGetType(lval)==SySEMI) // 意味のあるブロックなら
     sySetType(lval, SyBLK);                    //   リストを { } で括る
-  }
   return lval;
 }
 
@@ -1116,11 +1016,13 @@ static void getFunc(void) {
     if (optFlag) optTree(syGetRoot());       // 木を最適化する
     //syPrintTree();                         // ### デバッグ用 ###
     genFunc(funcIdx, maxCnt, krnFlag);       //   コード生成
-    syClear(0);                              // コード生成終了で木を消去する
+    sySetSize(0);                            // コード生成終了で木を消去する
   } else {                                   // プロトタイプ宣言の場合
     chkTok(';', "プロトタイプ宣言が ';' で終わっていない");
+#ifdef C
     genProto(funcIdx);                       // プロトタイプ宣言を出力
-  }                                          // (トランスレータ版だけで必要)
+#endif                                       // (トランスレータ版だけで必要)
+  }
   if (idx>=0) {                              // 既に名前表にあれば
     ntUndefName(funcIdx);                    //   全体を削除
   } else {                                   // そうでなければ
@@ -1135,38 +1037,6 @@ static void getFunc(void) {
  */
 static int getGArrayInit(int dim);           // 再帰呼出があるので宣言必要
 
-static void checkLeft(int node);              // 再帰のため
-
-// この演算子は左辺式を必要とする
-static boolean needLeft(int node) {
-  int op = syGetType(node);
-  return SyIS1OPR(op)|| SyIS2OPR(op) || SyISCMP(op) || SyISLOPR(op) ||
-    op==SyASS || op==SyCOMM || op==SySEMI || op==SyBLK;
-}
-
-// この演算子は右辺式を必要とする
-static boolean needRight(int node) {
-  int op = syGetType(node);
-  return (op==SyFUNC && syGetRVal(node)!=SyNULL) ||
-    SyIS2OPR(op) || SyISCMP(op) || SyISLOPR(op) ||
-    op==SyASS || op==SyCOMM || op==SySEMI || op==SyBLK;
-}
-
-static void checkCnst(int node){
-  int ty = syGetType(node);
-  if (ty!=SyCNST && !SyIS1OPR(ty) && !SyIS2OPR(ty))
-    error("定数式が必要");
-}
-
-// 木を左からチェック
-static void checkLeft(int node){
-  if(needLeft(node))                        // 左辺が存在するなら
-    checkLeft(syGetLVal(node));             // 左に進み
-  if(needRight(node))                       // 右辺が存在するなら
-    checkLeft(syGetRVal(node));             // 右に進む
-  checkCnst(node);                          // 定数式かチェック
-}
-
 // 初期化に使用される定数式を読み込む
 static int getCnst(int typ) {
   struct watch *w = newWatch();
@@ -1174,22 +1044,19 @@ static int getCnst(int typ) {
   chkCmpat(w, typ, 0);                       // 初期化(代入)できるかチェック
   int tree = w->tree;                        // 定数式の木を取り出す
   freeWatch(w);                              // 式(w)は役目を終えた
-  /* optTree(tree);                             // 定数式を計算する
-  if (ty!=SyCNST && ty!=SyLABL && ty!=SySTR)
-    error("定数式が必要");
-  */
+  optTree(tree);                             // 定数式を計算する
   int ty = syGetType(tree);
-  if(ty!=SySTR && ty!=SyLABL)
-    checkLeft(tree);                         // 定数式かどうか木をチェック
+  if (ty!=SyCNST && ty!=SyLABL && ty!=SySTR && ty!=SySIZE)
+    error("定数式が必要");
   return tree;
 }
 
 // array(n1 [, n2] ...) を読み込む */
 static int getArray0(int dim) {
   if (dim<=0) error("array の次元が配列の次元を超える");
-  if(syGetLVal(node)<=0)
-    error("配列のサイズは正であるべき");
   int node = getCnst(TyINT);                 // 整数定数式を読み込む
+  if (syGetLVal(node)<=0)
+    error("配列のサイズは正であるべき");
   if (isTok(',')) {                          // ',' が続くなら
     int lVal = getArray0(dim - 1);           //   ','の右側を先に読み
     node = syCatNode(lVal, node);            //   リストの左につなぐ
@@ -1319,7 +1186,7 @@ static void getGVar(void) {
       getStructInit();                       //   構造体の初期化部分 '{ ... }'
     } else error("バグ...getGVar");
     genData(curIdx);                         // 初期化済みデータを生成
-    syClear(0);                              // データ生成終了で木を消去する
+    sySetSize(0);                            // データ生成終了で木を消去する
     if (idx>=0) {                            // 既に登録されていた場合
       if (ntGetScope(idx)!=ScCOMM) error("2重定義"); // コモン以外は2重定義
       ntSetScope(idx, ScGVAR);               // 初期化済データに変更
@@ -1391,32 +1258,28 @@ static void getProg(void) {
 void snSetOptFlag(boolean f) { optFlag = f; };
 void snSetKrnFlag(boolean f) { krnFlag = f; };
 
-// ソースプログラムを読む
+//-----------------------------------------------------------------------------
+// ソースの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
+//-----------------------------------------------------------------------------
+#ifndef C
+// コンパイラ版はディレクティブに興味がないので getProg() を繰り返すだけ
 void snGetSrc(void) {
-  genOn();                                   // コード生成を許可する
   getTok();                                  // 最初の tok を読み込む
-  while (tok!=EOF)                           // EOF になるまで
+  while (_tok!=EOF)                          // EOF になるまで
     getProg();                               //   C-- プログラムを処理
 }
-
-int main(int argc, char *argv[]) {
-  FILE *fp;
-  if (argc==2){
-    if (!strEndsWith(argv[1], ".lx")) error("入力ファイル形式が違う");
-    fp = eOpen(argv[1],"r");                 // 中間ファイルをオープン
-    lxSetFname(argv[1]);
-  }else if (argc==1){
-    fp = stdin;
-    lxSetFname("STDIN");
-  }else{
-    fprintf(stderr, "使用方法 : %s [<srcfile>]\n", argv[0]);
-    exit(1);
+//-----------------------------------------------------------------------------
+#else
+// トランスレータ版はディレクティブの処理と getProg() を繰り返す
+void snGetSrc(void) {
+  getTok();                                  // 最初の tok を読み込む
+  while (_tok!=EOF) {                        // EOF になるまで
+    if (_tok==LxFILE) {                      //  ディレクティブなら
+      genDirect(lxGetVal(), lxGetStr());     //   # 行番号 "ファイル名" の処理
+      getTok();
+    } else {                                 //  ディレクティブ以外なら
+      getProg();                             //   C-- プログラムを処理
+    }
   }
-  char *fn = lxGetFname();
-  fpout = openDstWithExt(lxGetFname(), ".sm");// 拡張子を".sm"に変更してOpen
-  lxSetFp(fp);                               // 字句解析に fp を知らせる
-  snGetSrc();                                // fp からソースコードを入力して
-                                             //   stdout へ出力
-  ntPrintTable(fn);                          // 最終的な名前表をファイル出力
-  return 0;
 }
+#endif

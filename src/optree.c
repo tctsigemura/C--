@@ -22,6 +22,7 @@
 /*
  * optree.c : C--コンパイラの構文木最適化ルーチン
  * 
+ * 2016.05.22         : SySIZE に対応する
  * 2016.02.05 v3.0.0  : トランスレータと統合(SyBLK, SyIDXW, SyIDXB, SyDOT対応)
  * 2015.08.31 v2.1.0  : copyNode の型を void に変更(int ではバグ)
  * 2012.09.08         : a % 1 は 0 に置き換える
@@ -42,48 +43,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include "util.h"
-#include "optree.h"
-#include "namtbl.h"
 #include "sytree.h"
-
-#define StrMAX  128
-
-static char str[StrMAX + 1];
-static int ln;
-static FILE *fp;
-
-static int curLab = 0;              // STRラベル用のカウンタ
-
-int lxGetLn(){ return ln; }
-char *lxGetFname() { return "ERROR lxGetFname"; } // optreeでは使われないはず
-
-// ラベルを割り当てる
-static int newLab() {
-  curLab = curLab + 1;
-  return curLab;
-}
-
-// 文字列を生成しラベル番号を返す
-static int genStr(char *str) {
-  int lab = newLab();                            // ラベルを割り付け
-  int i=0;
-  fprintf(fpout, "%d S ", lxGetLn());
-  while(str[i]){
-   /* if(str[i]=='\n')
-      fprintf(fpout, "\\n");
-    else if(str[i]=='\t')
-      fprintf(fpout, "\\t");
-    else */
-      fprintf(fpout, "%c", str[i]);
-    i =i+1;
-  }
-  fprintf(fpout, "\n");
-  return lab;                                    // ラベル番号を返す
-}
-
+#include "optree.h"
 
 // ノードの内容を上書きする
 static void setNode(int node, int typ, int l, int r) {
@@ -190,6 +152,10 @@ static void optBool(int node, int l) {
   if (syGetType(l)==SyCNST)                       // 対象が定数なら
     setBool(node, getBool(l));                    //   計算結果を格納する
 }
+
+// sizeof 演算を最適化する
+//static void optSIZE(int node, int l) {          // やることがない
+//}
 
 // 定数の足算を最適化する
 static void optAdd(int node, int l, int r) {
@@ -391,6 +357,7 @@ static void calExp(int node) {
   else if (ty==SyBNOT) optBNot(node, l);          // 単項演算'~'最適化を試みる
   else if (ty==SyCHAR) optChar(node, l);          // 単項演算chr最適化を試みる
   else if (ty==SyBOOL) optBool(node, l);          // 単項演算bool最適化を試みる
+  //else if (ty==SySIZE) optSize(node, l);       // 単項演算sizeof最適化を試みる
   else if (ty==SyADD)  optAdd(node, l, r);        // 足算の最適化を試みる
   else if (ty==SySUB)  optSub(node, l, r);        // 引算の最適化を試みる
   else if (ty==SySHL)  optShl(node, l, r);        // 左シフトの最適化を試みる
@@ -441,8 +408,8 @@ static void moveLeft(int node);
 // 木を「たぐる」(右に広がった木を、なるべく左一直線にする)
 static void pullTree(int node) {
   while (needRight(node) &&                       // 右辺が存在する演算子なら
-	 canPull(syGetType(node),                       //    演算子を比較し
-		 syGetType(syGetRVal(node)))) {               //      たぐれる間たぐる  
+	 canPull(syGetType(node),                 //    演算子を比較し
+		 syGetType(syGetRVal(node)))) {   //      たぐれる間たぐる  
     int a = syGetLVal(node);                      //
     int b = syGetRVal(node);                      //    node     =>     node
     int c = syGetLVal(b);                         //    /  |            /  |
@@ -632,7 +599,7 @@ static void optBlk(int node) {
 }
 
 // 初期化配列を最適化する
-static void optArr(int node) {
+static void optArr(int node){                     // !!分割版でのみ使用される!!
   optBlk(syGetLVal(node));
 }
 
@@ -649,105 +616,8 @@ void optTree(int node) {
   else if (ty==SyCNT)  optCnt(node);              // continue 文
   else if (ty==SyRET)  optRet(node);              // retrun 文
   else if (ty==SySEMI ||
-           ty==SyBLK)  optBlk(node);              // ブロック
-  else if (ty==SyARRY ||
-           ty==SyLIST) optArr(node);              // 初期化配列
+	         ty==SyBLK)  optBlk(node);              // ブロック
+  else if (ty==SyARRY ||                          // 分割版では初期化配列
+           ty==SyLIST) optArr(node);              // 　の最適化が必要
   else                 optExp(node);              // 式文
-}
-
-// コード生成処理の記録
-// 関数１個分のコード生成
-static void genFunc(int funcIdx, int depth, boolean krnFlg) {
-  optTree(syGetRoot());
-  syPrintTree();
-  fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
-}
-// 初期化データの生成
-static void genData(int idx) {
-  optTree(syGetRoot());
-  syPrintTree();
-  fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
-}
-
-// 非初期化データの生成
-static void genBss(int idx) {
-  syPrintTree();
-  fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
-}
-
-// 10進数を読んで値を返す
-static int getDec() {
-  int v = 0;                                     // 初期値は 0
-  char ch = fgetc(fp);
-  boolean minusflg = false;
-  if(ch==EOF)
-    return EOF;
-  else if(ch=='-'){
-    minusflg = true;
-    ch = fgetc(fp);
-  }
-  while (isdigit(ch)) {                          // 10進数字の間
-    v = v*10 + ch - '0';                         // 値を計算
-    ch = fgetc(fp);                              // 次の文字を読む
-  }
-  if(minusflg) return -v;
-  return v;                                      // 10進数の値を返す
-}
-
-int main(int argc, char *argv[]){
-  int type, lval, rval, idx, depth, krn;
-  char op;
-  char *fn = "stdin";
-  if (argc==2){
-    if (!strEndsWith(argv[1], ".sm")) error("入力ファイル形式が違う");
-    fp = eOpen(argv[1],"r");   // 中間ファイルをオープン
-    fn = argv[1];
-  }else if (argc==1){
-    fp = stdin;
-  }else{
-    fprintf(stderr, "使用方法 : %s [<srcfile>]\n", argv[0]);
-    exit(1);
-  }
-  ntLoadTable(fn);                       // 名前表ファイルから名前表を作成
-  fpout = openDstWithExt(fn, ".op"); // 拡張子を".sm"に変更してOpen
-  while(true){
-    ln = getDec();
-    if(ln==EOF)
-      return 0;
-    op = fgetc(fp);
-    fgetc(fp);      // 空白読み捨て
-    if(op=='N'){
-      type = getDec();
-      lval = getDec();
-      rval = getDec();
-      syNewNode(type, lval, rval);
-    }else if(op=='F'){
-      idx   = getDec();
-      depth = getDec();
-      krn   = getDec();
-      genFunc(idx, depth, krn);
-      syClear(0);
-    }else if(op=='D'){
-      idx = getDec();
-      genData(idx);
-      syClear(0);
-    }else if(op=='B'){
-      idx = getDec();
-      genBss(idx);
-    }else if(op=='S'){
-      int i=0;
-      char ch;
-      while((ch=fgetc(fp))!='\n'){               // 改行がくるまで文字列
-        if(i>StrMAX)
-          error("文字列が長すぎる");
-        str[i] = ch;
-        i = i+1;
-      }
-      str[i] = '\0';
-      genStr(str);
-    }else{
-      error("bug");
-    }
-  }
-  return 0;
-}
+}    

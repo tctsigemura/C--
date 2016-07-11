@@ -21,6 +21,12 @@
 
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
+ *
+ * 2016.06.06         : syNewNode() が行番号も記録するように変更
+ * 2016.06.04         : syGetSize() を追加
+ *                      syClear() を sySetSize() に名前変更
+ * 2016.05.22         : SySIZE を追加
+ * 2016.05.05         : syGetRoot() が構文木が存在しない時 SyNULL を返す
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合
  *                      (SyPOST, SyBYTE 削除、SyIDXx, SyDOT, SyVAR, SyBLK 追加)
@@ -39,8 +45,8 @@
 
 #include <stdio.h>
 #include "sytree.h"
+#include "lexical.h"
 #include "util.h"
-#include "syntax.h"
 
 // 構文木表
 static int syNextIdx = 0;                      // 次に登録する場所
@@ -49,18 +55,16 @@ static int syNextIdx = 0;                      // 次に登録する場所
 int syNewNode(int type, int lVal, int rVal) {
   int idx = syNextIdx;
   if (idx>=SyMAX) error("構文木が大き過ぎる");
-  syLn[idx]   = lxGetLn();
-  syType[idx] = type;
-  syLVal[idx] = lVal;
-  syRVal[idx] = rVal;
+  sySetType(idx, type);
+  sySetLVal(idx, lVal);
+  sySetRVal(idx, rVal);
+  sySetLn(idx, lxGetLn());                     //  ソースの行番号も記録
   syNextIdx = syNextIdx + 1;
-  //fprintf(fpout, "%d N %d %d %d\n", lxGetLn(), type, lVal, rVal);
   return idx;
 }
 
 // 二つのノードを ',' で接続する
 int syCatNode(int lval, int rval) {
-  //fprintf(fpout, "%d C %d %d\n", lxGetLn(), lval, rval);
   if (lval!=SyNULL && rval!=SyNULL)            // ２つのノードが本当に存在する
     return syNewNode(SySEMI, lval, rval);      //   接続したものを返す
   if (lval!=SyNULL)                            // 左が存在する
@@ -68,41 +72,30 @@ int syCatNode(int lval, int rval) {
   return rval;                                 // どちらでもなければ右を返す
 }
 
-// 構文木表の idx 以降を捨てる
-void syClear(int idx) {
-  //fprintf(fpout, "%d A %d\n", lxGetLn(), idx);
-  syNextIdx = idx;
+// 構文木表の現在のサイズを返す
+int syGetSize() {
+  return syNextIdx;
+}
+
+// 構文木表の n 以降を捨てる
+void sySetSize(int n) {
+  syNextIdx = n;
 }
 
 // 構文木のルートを取り出す
 int syGetRoot() {
-  int root = syNextIdx - 1;   // 最後に登録されたノードがルート
-  if (root<0) root = SyNULL;  // 木が存在しない場合はNULL
+  int root = syNextIdx - 1;            // 最後に登録されたノードがルート
+  if (root<0) root = SyNULL;           // 木が存在しないなら null を返す
   return root;
 }
 
-// 構文木表にデータを書き込む
-void sySetType(int idx, int v){
-  syType[idx] = v;
- // fprintf(fpout, "%d T %d %d\n", lxGetLn(), idx, v);
-}
-
-void sySetLVal(int idx, int v){
-  syLVal[idx] = v;
-//  fprintf(fpout, "%d L %d %d\n", lxGetLn(), idx, v);
-}
-
-void sySetRVal(int idx, int v){
-  syRVal[idx] = v;
- // fprintf(fpout, "%d R %d %d\n", lxGetLn(), idx, v);
-}
 // デバッグ用
 //#ifdef DEBUG
-/*
 struct D {char * a; int b; };
 static struct D d[] = {
   // 特別な値
   {"SyNULL",  SyNULL},
+
   // 構文木のノードの Type
   { "SyCNST", SyCNST},                 // 数値定数、文字定数、論理定数
   { "SyLOC",  SyLOC},                  // ローカル変数、仮引数
@@ -117,6 +110,7 @@ static struct D d[] = {
   { "SyBNOT", SyBNOT},                 // 単項演算 ~(ビット毎のNOT)
   { "SyCHAR", SyCHAR},                 // 文字型へ変換する演算子
   { "SyBOOL", SyBOOL},                 // 文字型へ変換する演算子
+  { "SySIZE", SySIZE},                 // データ型のサイズを求める演算子
 
   { "SyADD",  SyADD},                  // ２項演算 +
   { "SySUB",  SySUB},                  // ２項演算 -
@@ -158,19 +152,23 @@ static struct D d[] = {
   { "SyARRY", SyARRY},                 // 非初期化配列
   { "SyLIST", SyLIST}                  // 配列要素の初期化並び
 };
-*/
 
 void syPrintTree() {
   for (int i=0; i<syNextIdx; i=i+1) {
-    /*
     int n = -1;
     for (int j=0; j<sizeof(d)/sizeof(struct D); j++) {
       if (syGetType(i)==d[j].b) n = j;
+    }
     if (n==-1) error("sysPrintTree バグ");
-    */
-    fprintf(fpout,"%d N %d ", syLn[i], syType[i]);
-    fprintf(fpout,"%d ", syGetLVal(i));
-    fprintf(fpout,"%d\n", syGetRVal(i));
+    fprintf(stderr,"%3d: (%-6s,", i, d[n].a);
+    if (syGetLVal(i)==SyNULL)
+      fprintf(stderr,"   -,");
+    else
+      fprintf(stderr,"%4d,", syGetLVal(i));
+    if (syGetRVal(i)==SyNULL)
+      fprintf(stderr,"   -)\n");
+    else
+      fprintf(stderr,"%4d)\n", syGetRVal(i));
   }
 }
 //#endif

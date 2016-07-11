@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2016 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,14 +20,16 @@
  */
 
 /*
- * optree.h : 構文木最適化ルーチンの外部仕様を定義
+ * util.h : よく使う関数や定数の定義
  *
- * 2010.09.12 v1.0.0  : 最適化と外部変数の定数式による初期化ができる H8 統合版
- * 2010.09.05         : 初期バージョン
+ * 2016.06.04         : 新規作成
  *
  * $Id$
  *
  */
 
-/* 公開関数 */
-void optTree(int node);                   // 構文木を最適化する
+// 構文木をファイルに出力する
+void printTree(FILE *fp);
+
+// 入力ファイル名をもらって、拡張子を変更して書込みオープンする
+FILE *openDstWithExt(char *srcName, char *ext);

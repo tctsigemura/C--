@@ -22,6 +22,7 @@
 /*
  * main.c : C--コンパイラのメインルーチン
  *
+ * 2016.06.04         : eOpen() を使用するように変更
  * 2016.02.05 v3.0.0  : syntax.c から分離して新規作成
  *
  * $Id$
@@ -86,10 +87,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (argc==i+1) {                           // 引数としてソースファイルがある
-    if((fp = fopen(argv[i],"r")) == NULL){   // ソースファイルをオープン
-      perror(argv[i]);                       // オープン失敗の場合は、メッ
-      exit(1);                               //   セージを出力して終了
-    }
+    fp = eOpen(argv[i],"r");                 // ソースファイルをオープン
     lxSetFname(argv[i]);                     // error表示用にファイル名を登録
   } else if (argc==i) {
     fp = stdin;

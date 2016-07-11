@@ -22,6 +22,7 @@
 /*
  * util.c : 良く使う関数
  *
+ * 2016.06.04         : eOpen() を追加
  * 2016.03.01         : NULL を null に書き換え
  * 2016.02.24         : strEndsWith 関数のバグ訂正
  * 2016.02.05 v3.0.0  : トランスレータと統合(strEndsWith 関数を追加)
@@ -40,6 +41,7 @@
 #include <ctype.h>
 #include <strings.h>
 
+#include "lexical.h"
 #include "util.h"
 
 /* エラーメッセージを表示して終了する */
@@ -99,24 +101,4 @@ FILE *eOpen(char *fname, char *mod) {
     exit(1);
   }
   return fp;
-}
-
-/* 入力ファイル名をもらって、拡張子を変更して書込みオープンする */
-static void tooLongFname() {
-  error("ファイル名が長すぎる");
-}
-
-FILE *openDstWithExt(char *srcName, char *ext) {
-  char dstName[StrMAX + 1];
-
-  if (strlen(srcName)>StrMAX) tooLongFname();
-  strcpy(dstName, srcName);
-  
-  char *lastDot = rindex(dstName, '.');
-  if (lastDot!=NULL) *lastDot='\0';
-
-  if (strlen(dstName)+strlen(ext)>StrMAX) tooLongFname();
-  strcat(dstName, ext);
-
-  return eOpen(dstName, "w");
 }

@@ -19,6 +19,8 @@
 #
 # Makefile : c-- の makefile
 #
+# 2016.05.24         : cm2c, cm2e, cm2v を追加
+# 2016.05.20         : トランスレータ版では C を定義するように変更
 # 2016.02.05 v3.0.0  : トランスレータと統合
 # 2016.01.18 v2.1.2  : vm2tac.cmm の vmPop() の意味の無い式に関するバグ修正
 # 2015.12.16 v2.1.1  : void以外の関数の return チェックに関するバグ修正
@@ -39,46 +41,34 @@
 #
 
 CC=cc -std=c99 -Wall
-VER=\"3.0.0\"
+VER=\"3.1.0\"
 DATE="\"`date`\""
 
-all : lx sn op vm tac
+all : c-- vm-c-- c-c--
 
-d-c-- : Makefile syntax.c syntax.h lxdef.h util.h util.c \
-	      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
-	      optree.h optree.c
-		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
-		-DNWORD=16 -DNBYTE=8 -o d-c-- \
-		syntax.c namtbl.c util.c sytree.c \
-		vmCode.c vm2tac.c optree.c
+c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
+      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
+      optree.h optree.c
+	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+	-DNWORD=16 -DNBYTE=8 -o c-- \
+	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
+	vmCode.c vm2tac.c optree.c
 
-lx : Makefile lexical.h lexical.c lxMain.c util.h util.c
-		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
-		-DNWORD=16 -DNBYTE=8 -o lx \
-		lexical.c lxMain.c util.c
+vm-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
+      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2vm.c \
+      optree.h optree.c
+	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"VM\" \
+	-DNWORD=16 -DNBYTE=8 -o vm-c-- \
+	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
+	vmCode.c vm2vm.c optree.c
 
-sn : Makefile syntax.h syntax.c util.h util.c namtbl.h namtbl.c \
-     sytree.h sytree.c
-		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
-		-DNWORD=16 -DNBYTE=8 -o sn \
-		syntax.c util.c namtbl.c sytree.c
-
-op : Makefile optree.h optree.c util.h util.c namtbl.h namtbl.c \
-     sytree.h sytree.c
-		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
-		-DNWORD=16 -DNBYTE=8 -o op \
-		optree.c util.c namtbl.c sytree.c
-
-vm : Makefile vmCode.c util.h util.c namtbl.h namtbl.c \
-     sytree.h sytree.c code.h
-		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
-		-DNWORD=16 -DNBYTE=8 -o vm \
-		vmCode.c util.c namtbl.c sytree.c
-
-tac : Makefile vm.h vm2tac.c util.h util.c namtbl.h namtbl.c
-		${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
-		-DNWORD=16 -DNBYTE=8 -o tac \
-		vm2tac.c util.c namtbl.c
+c-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
+      namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
+      optree.h optree.c
+	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"C\" -DC \
+	-DNWORD=32 -DNBYTE=8 -o c-c-- \
+	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
+	cCode.c optree.c
 
 #h8300hn-c-- : Makefile syntax.c lexical.c lexical.h util.h util.c \
 #      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2h8300hn.c \
@@ -93,8 +83,12 @@ install : c-- vm-c-- c-c-- # h8300hn-c--
 	install -m 755 c-- /usr/local/bin
 	install -m 755 vm-c-- /usr/local/bin
 	install -m 755 c-c-- /usr/local/bin
+	install -m 755 cm2c /usr/local/bin
+	install -m 755 cm2e /usr/local/bin
+	install -m 755 cm2v /usr/local/bin
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- lx sn op vm tac *.lx *.sm *.op *.vm *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+	rm -f c-- vm-c-- c-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 #	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+

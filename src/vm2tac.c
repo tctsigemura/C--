@@ -23,6 +23,7 @@
  * vm2tac.c : 仮想スタックマシンのコードから TaC-CPU V2 の機械語を生成する
  *            (仮想スタックマシンをシミュレーションする機械語を生成する)
  *
+ * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2016.01.18 v2.1.2  : vmPop() で BUG の警告を止める
  *                      ("a[3];"のような意味の無い式で警告が出てしまう。)
  * 2015.08.31 v2.1.0  : vmEntryK 追加
@@ -45,15 +46,8 @@
 #include "namtbl.h"
 #include "vm.h"
 
-#define StrMAX  128
 #define BUG(c,msg) {if(c) {fprintf(stderr,"BUG..."); error(msg);}}
 //#define BUG(c,msg) {}
-
-// 大域データ
-static char str[StrMAX + 1];
-static FILE *fp;                                  // 入力ファイル
-int lxGetLn(){ return 0; }                        // vm2tacでは使われないはず
-char *lxGetFname() { return "ERROR lxGetFname"; } // vm2tacでは使われないはず
 
 /*
  * レジスタの一覧と使用目的
@@ -119,7 +113,7 @@ char*   jcc[] = { "JLT", "JLE", "JZ", "JGE", "JGT", "JNZ"};
 #define GVAR  2                                 // グローバル変数  (未ロード)
 #define LVAR  3                                 // ローカル変数    (未ロード)
 #define RVAR  4                                 // レジスタ変数    (未ロード)
-#define PRM   5                                 // 仮引            (未ロード)
+#define PRM   5                                 // 仮引数          (未ロード)
 #define STR   6                                 // 文字列のラベル  (未ロード)
 #define ADDR  7                                 // アドレス(ラベル)(未ロード)
 #define WINDR 8                                 // ワードデータの間接アドレス
@@ -194,7 +188,7 @@ static void calReg(char *op, int r, int p) {
   } else if (sta==BINDR) {                      // 間接バイトなら
     printf("\t%s\t%s,@%s\n",op,reg,regs[aux]);  //   op Reg,@Acc
   } else if (sta==ACC) {                        // Acc に値があるなら
-    printf("\t%s\t%s,%s\n",op,reg,regs[aux]);   //   op reg,acc
+    printf("\t%s\t%s,%s\n",op,reg,regs[aux]);   //   op Reg,Acc
   } else BUG(true, "calReg");                   // それ以外は直接演算できない
 }
 
@@ -471,7 +465,7 @@ void vmLdLoc(int n) {                           // n はローカル変数番号
     pushStk(LVAR, (n-RVarSIZ)*2);               //   仮想スタックに (LVAR,offs)
 }                                               //   (offs は FP からの距離)
 
-// n番目の仮引数の値をスタックに積む
+// n番目の引数の値をスタックに積む
 void vmLdPrm(int n) {                           // n は仮引数番号(n>=1)
   pushStk(PRM, (n+1)*2);                        // 仮想スタックに (PRM,offs)
 }                                               //   (offs は FP からの距離)
@@ -918,140 +912,4 @@ void vmBs(int n) {
 // STRING "..." (文字列データの生成)
 void vmStr(char *s) {
   printf("\tSTRING\t\"%s\"\n", s);              //    STRING "str"
-}
-
-// 10進数を読んで値を返す
-static int getDec() {
-  int v = 0;                                     // 初期値は 0
-  char ch = fgetc(fp);
-  boolean minusflg = false;
-  if(ch==EOF)
-    return EOF;
-  else if(ch=='-'){
-    minusflg = true;
-    ch = fgetc(fp);
-  }
-  while (isdigit(ch)) {                          // 10進数字の間
-    v = v*10 + ch - '0';                         // 値を計算
-    ch = fgetc(fp);                              // 次の文字を読む
-  }
-  if(minusflg) return -v;
-  return v;                                      // 10進数の値を返す
-}
-
-static void callfunc0(int op){
-       if(op==22) vmRet();
-  else if(op==23) vmRetI();
-  else if(op==24) vmMReg();
-  else if(op==25) vmArg();
-  else if(op==26) vmLdWrd();
-  else if(op==27) vmLdByt();
-  else if(op==28) vmStWrd();
-  else if(op==29) vmStByt();
-  else if(op==30) vmNeg();
-  else if(op==31) vmNot();
-  else if(op==32) vmBNot();
-  else if(op==33) vmChar();
-  else if(op==34) vmBool();
-  else if(op==35) vmAdd();
-  else if(op==36) vmSub();
-  else if(op==37) vmShl();
-  else if(op==38) vmShr();
-  else if(op==39) vmBAnd();
-  else if(op==40) vmBXor();
-  else if(op==41) vmBOr();
-  else if(op==42) vmMul();
-  else if(op==43) vmDiv();
-  else if(op==44) vmMod();
-  else if(op==45) vmGt();
-  else if(op==46) vmGe();
-  else if(op==47) vmLt();
-  else if(op==48) vmLe();
-  else if(op==49) vmEq();
-  else if(op==50) vmNe();
-  else if(op==51) vmPop();
-}
-
-static void callfunc1(int op, int a1){
-       if(op==0)  vmName(a1);
-  else if(op==1)  vmTmpLab(a1);
-  else if(op==2)  vmTmpLabStr(a1);
-  else if(op==3)  vmJmp(a1);
-  else if(op==4)  vmJT(a1);
-  else if(op==5)  vmJF(a1);
-  else if(op==6)  vmLdCns(a1);
-  else if(op==7)  vmLdGlb(a1);
-  else if(op==8)  vmLdLoc(a1);
-  else if(op==9)  vmLdPrm(a1);
-  else if(op==10) vmLdStr(a1);
-  else if(op==11) vmLdLab(a1);
-  else if(op==12) vmStGlb(a1);
-  else if(op==13) vmStLoc(a1);
-  else if(op==14) vmStPrm(a1);
-  else if(op==15) vmDwName(a1);
-  else if(op==16) vmDwLab(a1);
-  else if(op==17) vmDwLabStr(a1);
-  else if(op==18) vmDwCns(a1);
-  else if(op==19) vmDbCns(a1);
-  else if(op==20) vmWs(a1);
-  else if(op==21) vmBs(a1);
-}
-
-static void callfunc2(int op, int a1, int a2){
-       if(op==52)  vmEntry(a1, a2);
-  else if(op==53)  vmEntryK(a1, a2);
-  else if(op==54)  vmEntryI(a1, a2);
-  else if(op==55)  vmCallP(a1, a2);
-  else if(op==56)  vmCallF(a1, a2);
-}
-
-int main(int argc, char *argv[]){
-  int op;
-  char *fn = "stdin";
-  if (argc==2){
-    if (!strEndsWith(argv[1], ".vm")) error("入力ファイル形式が違う");
-    fp = eOpen(argv[1],"r");  // 中間ファイルをオープン
-    fn = argv[1];
-  }else if(argc==1){
-    fp = stdin;
-  }else{
-    fprintf(stderr, "使用方法 : %s [<srcfile>]\n", argv[0]);
-    exit(1);
-  }
-  ntLoadTable(fn);                   // 名前表ファイルから名前表を作成
-  while(true){
-    op = getDec();
-    if(op==EOF)
-      return 0;
-    if(22<=op && op<=51){                    // 引数0の関数
-      callfunc0(op);
-    }else if(0<=op && op<=21){   // 引数1の関数
-      int a1 = getDec();
-      callfunc1(op, a1);
-    }else if(52<=op && op<=56){              // 引数2の関数
-      int a1 = getDec();
-      int a2 = getDec();
-      callfunc2(op, a1, a2);
-    }else if(op==57 || op==58){              // 引数3の関数
-      int a1 = getDec();
-      int a2 = getDec();
-      int a3 = getDec();
-      if(op==57) vmBoolOR(a1, a2, a3);
-      else       vmBoolAND(a1, a2, a3);
-    }else if(op==59){
-      int i=0;
-      char ch;
-      while((ch=fgetc(fp))!='\n'){               // 改行がくるまで文字列
-        if(i>StrMAX)
-          error("文字列が長すぎる");
-        str[i] = ch;
-        i = i+1;
-      }
-      str[i] = '\0';
-      vmStr(str);
-    }else{
-      error("bug");
-    }
-  }
-  return 0;
 }
