@@ -22,6 +22,7 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2016.07.10         : String用ラベルのための関数を追加
  * 2016.05.20         : genProto, genStruc, genOn, genOff 関数廃止
  * 2016.05.05         : genBoolExpr() にバグチェックの error() 追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
