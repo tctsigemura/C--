@@ -153,7 +153,8 @@ static struct D d[] = {
   { "SyLIST", SyLIST}                  // 配列要素の初期化並び
 };
 
-void syPrintTree() {
+// デバッグ用のPrintTree
+void syDebPrintTree() {
   for (int i=0; i<syNextIdx; i=i+1) {
     int n = -1;
     for (int j=0; j<sizeof(d)/sizeof(struct D); j++) {
@@ -172,3 +173,18 @@ void syPrintTree() {
   }
 }
 //#endif
+
+//---------------------------------------------------------------------------
+// STEP BY STEPの場合は以下の関数が必要
+//---------------------------------------------------------------------------
+#ifdef STEPBY
+// 構文木をファイルに出力する
+void syPrintTree(FILE *fp) {
+  for (int i=0; i<syGetSize(); i=i+1) {
+    fprintf(fp,"%d N ", syLn[i]);                // ソースコードの行番号
+    fprintf(fp,"%d ", syGetType(i));             // ノードの種類
+    fprintf(fp,"%d ", syGetLVal(i));             // ノードの値１
+    fprintf(fp,"%d\n", syGetRVal(i));            // ノードの値２
+  }
+}
+#endif    // STEPBY

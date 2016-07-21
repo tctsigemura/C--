@@ -39,9 +39,6 @@
 #include "../namtbl.h"
 #include "../sytree.h"
 
-#define StrMAX  128
-
-static char str[StrMAX + 1];
 static int ln;
 static FILE *fp;    // 入力ファイル
 static FILE *fpout; // 出力ファイル
@@ -60,13 +57,7 @@ static int newLab() {
 // 文字列を生成しラベル番号を返す
 static int genStr(char *str) {
   int lab = newLab();                            // ラベルを割り付け
-  int i=0;
-  fprintf(fpout, "%d S ", lxGetLn());
-  while(str[i]){
-    fprintf(fpout, "%c", str[i]);
-    i =i+1;
-  }
-  fprintf(fpout, "\n");
+  fprintf(fpout, "%d S %s\n", lxGetLn(), str);   // 文字列をファイルに出力
   return lab;                                    // ラベル番号を返す
 }
 
@@ -74,39 +65,20 @@ static int genStr(char *str) {
 // 関数１個分のコード生成
 static void genFunc(int funcIdx, int depth, boolean krnFlg) {
   optTree(syGetRoot());
-  printTree(fpout);
+  syPrintTree(fpout);
   fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
 }
 // 初期化データの生成
 static void genData(int idx) {
   optTree(syGetRoot());
-  printTree(fpout);
+  syPrintTree(fpout);
   fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
 }
 
 // 非初期化データの生成
 static void genBss(int idx) {
-  printTree(fpout);
+  syPrintTree(fpout);
   fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
-}
-
-// 10進数を読んで値を返す
-static int getDec() {
-  int v = 0;                                     // 初期値は 0
-  char ch = fgetc(fp);
-  boolean minusflg = false;
-  if(ch==EOF)
-    return EOF;
-  else if(ch=='-'){
-    minusflg = true;
-    ch = fgetc(fp);
-  }
-  while (isdigit(ch)) {                          // 10進数字の間
-    v = v*10 + ch - '0';                         // 値を計算
-    ch = fgetc(fp);                              // 次の文字を読む
-  }
-  if(minusflg) return -v;
-  return v;                                      // 10進数の値を返す
 }
 
 int main(int argc, char *argv[]){
@@ -126,40 +98,31 @@ int main(int argc, char *argv[]){
   ntLoadTable(fn);                       // 名前表ファイルから名前表を作成
   fpout = openDstWithExt(fn, ".op");     // 拡張子を".sm"に変更してOpen
   while(true){
-    ln = getDec();
+    ln = getDec(fp);
     if(ln==EOF)
       return 0;
     op = fgetc(fp);
     fgetc(fp);      // 空白読み捨て
     if(op=='N'){
-      type = getDec();
-      lval = getDec();
-      rval = getDec();
+      type = getDec(fp);
+      lval = getDec(fp);
+      rval = getDec(fp);
       syNewNode(type, lval, rval);
     }else if(op=='F'){
-      idx   = getDec();
-      depth = getDec();
-      krn   = getDec();
+      idx   = getDec(fp);
+      depth = getDec(fp);
+      krn   = getDec(fp);
       genFunc(idx, depth, krn);
       sySetSize(0);
     }else if(op=='D'){
-      idx = getDec();
+      idx = getDec(fp);
       genData(idx);
       sySetSize(0);
     }else if(op=='B'){
-      idx = getDec();
+      idx = getDec(fp);
       genBss(idx);
     }else if(op=='S'){
-      int i=0;
-      char ch;
-      while((ch=fgetc(fp))!='\n'){               // 改行がくるまで文字列
-        if(i>StrMAX)
-          error("文字列が長すぎる");
-        str[i] = ch;
-        i = i+1;
-      }
-      str[i] = '\0';
-      genStr(str);
+      genStr(getStr(fp));
     }else{
       error("bug");
     }

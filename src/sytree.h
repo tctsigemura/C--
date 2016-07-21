@@ -133,4 +133,5 @@ int syGetRoot();                             // 構文木のルートを取り�
 #define sySetRVal(idx,v) (syRVal[idx]=(v))
 #define sySetLn(idx,v)   (syLn[idx]=(v))
 
-void syPrintTree();                          // デバッグ用
+void syDebPrintTree();                        // デバッグ用
+void syPrintTree(FILE *fp);                   // 構文木を中間ファイルに出力

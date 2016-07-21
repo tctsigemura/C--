@@ -38,72 +38,34 @@
 #include "../code.h"            // vmCcode.c と見かけが同じ関数を提供する
 #include "../syntax.h"          // syntax.c  の関数を使用する
 #include "../namtbl.h"          // namtbl.c  の関数を使用する
+#include "../sytree.h"
 
 /*
  * 段階コンパイラ版のために lexical.c の関数を提供する
  */
-//static int  nextch = '\n';                         // 次の文字
-static int  ch     = 0;                            // 現在の文字
 static int  ln     = 1;                            // 現在の行
+static int  ln2;                                   // EOF時に行番号を戻す
 static int  val;                                   // 数値を返す場合、その値
-static char str[StrMAX + 1];                       // 名前を返す場合、その綴
 static char fname[StrMAX + 1];                     // 入力ファイル名
 static FILE * fp;                                  // 入力ファイル
 static FILE * fpout;                               // 出力ファイル
-
-
-// 一文字を読み込む
-static int getCh() {
-//  ch = nextch;                                     // 次の文字を現在の文字に
-//  nextch = fgetc(fp);                              // 次の文字を読み込む
-  ch = fgetc(fp);
-  return ch;
-}
-
-/* 改行以外の空白を読み飛ばす */
-static void skipSpc() {
-  while(ch != '\n' && isspace(ch))               // 改行以外の空白文字の間
-    getCh();                                     // 1文字読み飛ばす
-}
-
-// 10進数を読んで値を返す
-static int getDec() {
-  int val = 0;                                     // 初期値は 0
-  while (isdigit(ch)) {                            // 10進数字の間
-    val = val*10 + ch - '0';                       // 値を計算
-    getCh();                                       // 次の文字を読む
-  }
-  return val;                                      // 10進数の値を返す
-}
-
-// 名前か文字列を読み込む
-static void getStr(){
-  int i;
-  for (i=0; ch!='\n' && ch!=EOF; i=i+1) {            // 行末まで
-    if (i>StrMAX) error("名前が長すぎる");
-    str[i] = ch;                                     // strに読み込む
-    getCh();                                         // 1文字読み飛ばす
-  }
-  str[i] = '\0';                                     // 文字列を完成させる
-}
+static char * str;
 
 //  外部インタフェース用の関数
 int lxGetTok(){                                    // トークンを取り出す
   int tok = LxNONTOK;                              // tok の初期値はエラー
-  getCh();                                         // 文字を読んでおく
-  if(ch == EOF){                                   // ch が EOF なら
+  ln2 = ln;                                        // EOF用に保持
+  ln = getDec(fp);
+  if(ln == EOF){                                   // ln が EOF なら
+    ln = ln2;                                      // lnに行番号を戻して
     tok = EOF;                                     // tok=EOF
   } else {
-    ln = getDec();                                 // 行番号
-    skipSpc();
-    tok = getDec();                                // トークンの種類
-    skipSpc();
+    tok = getDec(fp);                              // トークンの種類
     if (tok==LxNAME||tok==LxSTRING||tok==LxFILE)   // 名前か文字列
-      getStr();
+      str = getStr(fp);
     else if (tok==LxLOGICAL||tok==LxINTEGER||
         tok==LxCHARACTER)
-      val = getDec();
-//    getCh();                                       // '\n' を読み飛ばす
+      val = getDec(fp);
   }
   //printf("%d : %d\n", ln, tok);                    // #デバッグ用#
   return tok;                                      // トークン値を返す
@@ -135,18 +97,18 @@ void lxSetFp(FILE *p) { fp = p; }              // fp をセットする
 
 // 関数１個分のコード生成
 void genFunc(int funcIdx, int depth, boolean krnFlg) {
-  printTree(fpout);
+  syPrintTree(fpout);
   fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
 }
 // 初期化データの生成
 void genData(int idx) {
-  printTree(fpout);
+  syPrintTree(fpout);
   fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
 }
 
 // 非初期化データの生成
 void genBss(int idx) {
-  printTree(fpout);
+  syPrintTree(fpout);
   fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
 }
 
@@ -186,12 +148,11 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "使用方法 : %s [<srcfile>]\n", argv[0]);
     exit(1);
   }
+  lxSetFp(fp);                                // 字句解析に fp を知らせる
   char *fn = lxGetFname();
-  fpout = openDstWithExt(lxGetFname(), ".sm");// 拡張子を".sm"に変更してOpen
-  lxSetFp(fp);                               // 字句解析に fp を知らせる
-  snGetSrc();                                // fp からソースコードを入力して
-  //   stdout へ出力
-  ntPrintTable(fn);                          // 最終的な名前表をファイル出力
+  fpout = openDstWithExt(lxGetFname(), ".sm");// 拡張子を".sm"に変更しOpen
+  snGetSrc();                                 // fp からソースコードを入力
+  ntPrintTable(fn);                           // 最終的な名前表をファイル出力
   return 0;
 }
  

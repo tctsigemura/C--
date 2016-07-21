@@ -130,25 +130,6 @@ void vmWs(int n){         fprintf(fpout, "20 %d\n", n); }
 void vmBs(int n){         fprintf(fpout, "21 %d\n", n); }      
 void vmStr(char *s){      fprintf(fpout, "59 %s\n", s); }
 
-// 10進数を読んで値を返す
-static int getDec() {
-  int v = 0;                                     // 初期値は 0
-  char ch = fgetc(fp);
-  boolean minusflg = false;
-  if(ch==EOF)
-    return EOF;
-  else if(ch=='-'){
-    minusflg = true;
-    ch = fgetc(fp);
-  }
-  while (isdigit(ch)) {                          // 10進数字の間
-    v = v*10 + ch - '0';                         // 値を計算
-    ch = fgetc(fp);                              // 次の文字を読む
-  }
-  if(minusflg) return -v;
-  return v;                                      // 10進数の値を返す
-}
-
 int main(int argc, char *argv[]){
   int type, lval, rval, idx, depth, krn;
   char op;
@@ -166,28 +147,28 @@ int main(int argc, char *argv[]){
   ntLoadTable(fn);                   // 名前表ファイルから名前表を作成
   fpout = openDstWithExt(fn, ".vm"); // 拡張子を".vm"に変更してOpen
   while(true){
-    ln = getDec();
+    ln = getDec(fp);
     if(ln==EOF)
       return 0;
     op = fgetc(fp);
     fgetc(fp);      // 空白読み捨て
     if(op=='N'){
-      type = getDec();
-      lval = getDec();
-      rval = getDec();
+      type = getDec(fp);
+      lval = getDec(fp);
+      rval = getDec(fp);
       syNewNode(type, lval, rval);
     }else if(op=='F'){
-      idx   = getDec();
-      depth = getDec();
-      krn   = getDec();
+      idx   = getDec(fp);
+      depth = getDec(fp);
+      krn   = getDec(fp);
       genFunc(idx, depth, krn);
       sySetSize(0);
     }else if(op=='D'){
-      idx = getDec();
+      idx = getDec(fp);
       genData(idx);
       sySetSize(0);
     }else if(op=='B'){
-      idx = getDec();
+      idx = getDec(fp);
       genBss(idx);
     }else if(op=='S'){
       int i=0;

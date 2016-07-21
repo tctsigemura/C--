@@ -30,22 +30,13 @@
 
 #include <stdio.h>
 #include <strings.h>
+#include <ctype.h>
 
 #include "../sytree.h"
 #include "../util.h"
 #include "util.h"
-
-// 中間ファイルから読み込む
-
-// 構文木をファイルに出力する
-void printTree(FILE *fp) {
-  for (int i=0; i<syGetSize(); i=i+1) {
-    fprintf(fp,"%d N ", syLn[i]);                // ソースコードの行番号
-    fprintf(fp,"%d ", syGetType(i));             // ノードの種類
-    fprintf(fp,"%d ", syGetLVal(i));             // ノードの値１
-    fprintf(fp,"%d\n", syGetRVal(i));            // ノードの値２
-  }
-}
+#define StrMAX  128
+static char str[StrMAX + 1];            // 名前を返す場合、その綴
 
 // 入力ファイル名をもらって、拡張子を変更して書込みオープンする
 static void tooLongFname() {
@@ -65,4 +56,36 @@ FILE *openDstWithExt(char *srcName, char *ext) {
   strcat(dstName, ext);
 
   return eOpen(dstName, "w");
+}
+
+// 10進数を読んで整数を返す, EOFならEOFを返す
+int getDec(FILE *fp) {
+  int v = 0;                                     // 初期値は 0
+  char ch = fgetc(fp);
+  boolean minusflg = false;
+  if(ch==EOF)
+    return EOF;
+  else if(ch=='-'){
+    minusflg = true;
+    ch = fgetc(fp);
+  }
+  while (isdigit(ch)) {                          // 10進数字の間
+    v = v*10 + ch - '0';                         // 値を計算
+    ch = fgetc(fp);                              // 次の文字を読む
+  }
+  if(minusflg) return -v;
+  return v;                                      // 10進数の値を返す
+}
+
+// 名前か文字列を読み込む
+char *getStr(FILE *fp){
+  int i;
+  char ch = fgetc(fp);
+  for (i=0; ch!='\n' && ch!=EOF; i=i+1) {        // 行末まで
+    if (i>=StrMAX-1) error("名前が長すぎる");
+    str[i] = ch;                                 // strに読み込む
+    ch = fgetc(fp);                              // 次の文字を読む
+  }
+  str[i] = '\0';                                 // 文字列を完成させる
+  return str;
 }

@@ -178,6 +178,4 @@ void ntLoadTable(char *name){
     ntDefName(str, scp, type, dim, val, pub);
   }
 }
-#else
-
 #endif    // STEPBY

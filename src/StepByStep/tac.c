@@ -33,6 +33,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "util.h"
 #include "../util.h"
 #include "../vm.h"
 #include "../namtbl.h"
@@ -44,25 +45,6 @@ static char str[StrMAX + 1];
 static FILE *fp;                                  // 入力ファイル
 int lxGetLn(){ return 0; }                        // vm2tacでは使われないはず
 char *lxGetFname() { return "ERROR lxGetFname"; } // vm2tacでは使われないはず
-
-// 10進数を読んで値を返す
-static int getDec() {
-  int v = 0;                                     // 初期値は 0
-  char ch = fgetc(fp);
-  boolean minusflg = false;
-  if(ch==EOF)
-    return EOF;
-  else if(ch=='-'){
-    minusflg = true;
-    ch = fgetc(fp);
-  }
-  while (isdigit(ch)) {                          // 10進数字の間
-    v = v*10 + ch - '0';                         // 値を計算
-    ch = fgetc(fp);                              // 次の文字を読む
-  }
-  if(minusflg) return -v;
-  return v;                                      // 10進数の値を返す
-}
 
 static void callfunc0(int op){
        if(op==22) vmRet();
@@ -145,22 +127,22 @@ int main(int argc, char *argv[]){
   }
   ntLoadTable(fn);                   // 名前表ファイルから名前表を作成
   while(true){
-    op = getDec();
+    op = getDec(fp);
     if(op==EOF)
       return 0;
     if(22<=op && op<=51){                    // 引数0の関数
       callfunc0(op);
     }else if(0<=op && op<=21){   // 引数1の関数
-      int a1 = getDec();
+      int a1 = getDec(fp);
       callfunc1(op, a1);
     }else if(52<=op && op<=56){              // 引数2の関数
-      int a1 = getDec();
-      int a2 = getDec();
+      int a1 = getDec(fp);
+      int a2 = getDec(fp);
       callfunc2(op, a1, a2);
     }else if(op==57 || op==58){              // 引数3の関数
-      int a1 = getDec();
-      int a2 = getDec();
-      int a3 = getDec();
+      int a1 = getDec(fp);
+      int a2 = getDec(fp);
+      int a3 = getDec(fp);
       if(op==57) vmBoolOR(a1, a2, a3);
       else       vmBoolAND(a1, a2, a3);
     }else if(op==59){

@@ -28,8 +28,9 @@
  *
  */
 
-// 構文木をファイルに出力する
-void printTree(FILE *fp);
-
 // 入力ファイル名をもらって、拡張子を変更して書込みオープンする
 FILE *openDstWithExt(char *srcName, char *ext);
+
+// 10進数を読んで返す
+int getDec(FILE *fp);
+char *getStr(FILE *fp);
