@@ -44,7 +44,6 @@
  * 段階コンパイラ版のために lexical.c の関数を提供する
  */
 static int  ln     = 1;                            // 現在の行
-static int  ln2;                                   // EOF時に行番号を戻す
 static int  val;                                   // 数値を返す場合、その値
 static char fname[StrMAX + 1];                     // 入力ファイル名
 static FILE * fp;                                  // 入力ファイル
@@ -54,12 +53,11 @@ static char * str;
 //  外部インタフェース用の関数
 int lxGetTok(){                                    // トークンを取り出す
   int tok = LxNONTOK;                              // tok の初期値はエラー
-  ln2 = ln;                                        // EOF用に保持
-  ln = getDec(fp);
-  if(ln == EOF){                                   // ln が EOF なら
-    ln = ln2;                                      // lnに行番号を戻して
-    tok = EOF;                                     // tok=EOF
+  int ln2 = getDec(fp);                            // EOFチェック用の仮の行番号
+  if(ln2 == EOF){                                  // ln2 が EOF なら
+    tok = EOF;                                     // tok=EOF, lnは更新しない
   } else {
+    ln = ln2;                                      // EOFでなければlnを更新
     tok = getDec(fp);                              // トークンの種類
     if (tok==LxNAME||tok==LxSTRING||tok==LxFILE)   // 名前か文字列
       str = getStr(fp);

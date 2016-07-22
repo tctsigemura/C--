@@ -61,7 +61,7 @@ FILE *openDstWithExt(char *srcName, char *ext) {
 // 10進数を読んで整数を返す, EOFならEOFを返す
 int getDec(FILE *fp) {
   int v = 0;                                     // 初期値は 0
-  char ch = fgetc(fp);
+  int ch = fgetc(fp);
   boolean minusflg = false;
   if(ch==EOF)
     return EOF;

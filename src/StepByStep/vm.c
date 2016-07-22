@@ -50,20 +50,6 @@ static FILE *fpout;                               // 出力ファイル
 int lxGetLn(){ return ln; }
 char *lxGetFname() { return "ERROR lxGetFname"; } // vmCodeでは使われないはず
 
-// 値のある場所
-#define INVAL 0                                   // 使用していない
-#define CNST  1                                   // 定数
-#define GVAR  2                                   // 大域変数
-#define LVAR  3                                   // ローカル変数
-#define PRM   4                                   // 仮引数
-#define STR   5                                   // 文字列ラベル
-#define STKD  6                                   // スタックに置かれたデータ
-#define STKW  7                                   // スタックにワード配列を
-                                                  //   参照する添字とアドレス
-#define STKB  8                                   // スタックにバイト配列を
-                                                  //   参照する添字とアドレス
-#define LABL  9                                   // 大域ラベル(定数)
-
 // vm出力 0-21:引数1, 22-51:引数0, 52-56:引数2, 57-58:引数3, 59:Str
 void vmName(int idx){              fprintf(fpout, "0 %d\n", idx); }
 void vmTmpLab(int lab){            fprintf(fpout, "1 %d\n", lab); }
