@@ -60,6 +60,11 @@ void vmTmpLab(int lab) {
   printf(".L%d\n", lab);
 }
 
+// 番号で管理されるSTRING用ラベルを印刷する
+void vmTmpLabStr(int lab) {
+  printf(".S%d\n", lab);                           // .Sn
+}
+
 // 関数の入口
 void vmEntry(int depth, int idx) {
   vmName(idx);
@@ -381,6 +386,12 @@ void vmDwName(int idx) {
 void vmDwLab(int lab) {
   printf("\tDW\t");
   vmTmpLab(lab);
+}
+
+// DW .Sn       (STRING用ポインタデータの生成)
+void vmDwLabStr(int lab) {
+  printf("\tDW\t");
+  vmTmpLabStr(lab);
 }
 
 // DW N         (整数データの生成)
