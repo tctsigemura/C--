@@ -2,8 +2,10 @@
 // t360.cmm : スタックにアドレスが積まれた場合に参照外しが不足するバグ(TaC)対応
 //
 
-void[] __AddrAdd(void[] a, int i);
-int printf(char[] f, ...);
+public void[] __AddrAdd(void[] a, int i);
+
+#include <stdio.hmm>
+//public int printf(char[] f, ...);
 
 struct Reloc {
        int addr;

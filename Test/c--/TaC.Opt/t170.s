@@ -74,6 +74,7 @@
 .L27	DW	.L25
 	DW	.L26
 .q	DW	.L27
+__alcAddr	WS	1
 .L28	STRING	"ABCDE"
 .f2	PUSH	FP
 	LD	FP,SP
@@ -85,7 +86,7 @@
 	CALL	__stkChk
 	LD	G0,#10
 	PUSH	G0
-	CALL	.malloc
+	CALL	_malloc
 	ADD	SP,#2
 	LD	G5,G0
 	LD	G6,4,FP

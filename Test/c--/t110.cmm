@@ -11,7 +11,8 @@ struct
 X d = {-1,true};
 X[] e = {{1,false},{-1,true}};
 
-void main() {
+public int main() {
   int f = 1;
   int g = -1;
+  return 0;
 }

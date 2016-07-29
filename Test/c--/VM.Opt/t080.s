@@ -66,7 +66,7 @@
 	DW	.L16
 .f1
 	ENTRY	1
-	LDA	1
+	LDP	1
 	JF	.L18
 	LDG	.a
 	LDC	0

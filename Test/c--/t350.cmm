@@ -4,8 +4,10 @@
 //
 
 boolean a,b;
-boolean f();
+public boolean f();
 
-void main() {
+public int main() {
   boolean c = (a!=b) && (a==b) == f();
+
+  return 0;
 }

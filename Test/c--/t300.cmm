@@ -4,6 +4,8 @@
 //
 
 boolean b;
-void main() {
+
+public int main() {
   boolean s = true && (b = true);
+  return 0;
 }

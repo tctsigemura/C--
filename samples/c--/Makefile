@@ -1,27 +1,24 @@
 #
 INCDIR=/usr/local/cmmInclude/
-VER=\"3.0.0\"
-DATE="\"`date`\""
+LIBDIR=/usr/local/cmmLib/
+VER=3.0.0
+DATE=`date`
 
-CPFLAGS+=-DNWORD=8 -DNBYTE=32 -DDATE=${DATE} -DVER=${VER} -DARC=\"C\"
-CFLAGS+=-Wno-parentheses-equality
+CPFLAGS+=-DNWORD=8 -DNBYTE=32
+CPFLAGS+="-DDATE=\"${DATE}\"" "-DVER=\"${VER}\""
 
-CPP=cc -E -std=c99 -nostdinc -I${INCDIR} ${CPFLAGS} - < 
+SRCS=lexical.cmm namtbl.cmm syntax.cmm util.cmm main.cmm optree.cmm sytree.cmm
 
-TRANS=c-c--
+all: c-- # c-c-- v-c--
 
-.SUFFIXES: .o .cmm
+c--:
+	cm2c -o c-- ${CPFLAGS} -DARC=\"TaC\" ${SRCS} vmCode.cmm vm2tac.cmm
 
-# .cmm -> .c
-.cmm.c:
-	${CPP} $*.cmm | ${TRANS} ${CMFLAGS} > $*.c
+c-c--:
+	cm2c -o c-c-- ${CPFLAGS} -DARC=\"C\" ${SRCS}
 
-OBJS=syntax.o lexical.o namtbl.o optree.o sytree.o util.o vm2tac.o vmCode.o
-
-all: c-c--
-
-c-c--: ${OBJS}
-	cc -o c-c-- ${CFLAGS} ${OBJS}
+v-c--:
+	cm2c -o v-c-- ${CPFLAGS} -DARC=\"VM\" ${SRCS}
 
 clean:
-	rm -f ${OBJS} *.cmm~ *.hmm~ Makefile~ c-c--
+	rm -f *.cmm~ *.hmm~ Makefile~ c-- c-c-- v-c--

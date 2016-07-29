@@ -1,39 +1,20 @@
 #
-# C-- 言語から色々なファイルに変換する手順
+# C-- 言語から a.out、.exe、 .v ファイルを作る手順
 #
 
-INCDIR=/usr/local/cmmInclude
-LIBDIR=/usr/local/cmmLib
+all: hello hello.exe hello.v
 
-CFLAGS+=-Wno-parentheses-equality
-%.c : CPPFLAGS = -DC
-
-# プリプロセッサの実行方法
-CPP=cc -E ${CPPFLAGS} -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < 
-
-all: hello hello.v hello.s hello.exe
-
-# MacOS, UNIX の実行形式を作る
-hello: hello.c
-	cc -o hello ${CFLAGS} hello.c ${LIBDIR}/wrapper.c
+# UNIX, Mac の a.out へ変換
+hello: hello.cmm
+	cm2c -o hello hello.cmm
 
 # TacOS の実行形式を作る
-hello.exe: hello.s
-	as-- hello.s
-	ld-- mod.o /usr/local/cmmLib/libtac.o hello.o > hello.sym
-	objexe-- hello.exe mod.o 600 | sort --key=1 > hello.map
-
-# C言語に変換する
-hello.c: hello.cmm
-	${CPP} hello.cmm | c-c-- > hello.c
+hello.exe: hello.cmm
+	cm2e -o hello.exe hello.cmm
 
 # C--コンパイラの中間言語に変換する
 hello.v: hello.cmm
-	${CPP} hello.cmm | vm-c-- > hello.v
-
-# TaCのアセンブリ言語に変換する
-hello.s: hello.cmm
-	${CPP} hello.cmm | c-- > hello.s
+	cm2v hello.cmm
 
 clean:
 	rm -f hello hello.c hello.s hello.v *.lst *.sym *.map *.o *.exe *~

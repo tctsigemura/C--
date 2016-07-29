@@ -1,3 +1,4 @@
+__alcAddr	WS	1
 .a	WS	1
 .b	DW	48
 .d	WS	1
@@ -145,7 +146,7 @@
 	LD	G3,#1
 	LD	G0,#20
 	PUSH	G0
-	CALL	.malloc
+	CALL	_malloc
 	ADD	SP,#2
 	LD	G6,G0
 	LD	G0,0,G6
@@ -239,7 +240,7 @@
 	JMP	.L67
 .L69
 	PUSH	G6
-	CALL	.free
+	CALL	_free
 	ADD	SP,#2
 	LD	G0,G5
 	POP	G7
@@ -406,12 +407,12 @@
 	ST	G0,.z1
 	LD	G0,#6
 	PUSH	G0
-	CALL	.malloc
+	CALL	_malloc
 	ADD	SP,#2
 	ST	G0,.z1
 	LD	G0,.z1
 	PUSH	G0
-	CALL	.free
+	CALL	_free
 	ADD	SP,#2
 	LD	G0,.z3
 	ADDS	G0,#3
@@ -443,7 +444,7 @@
 	ST	G0,.a
 	LD	G0,#6
 	PUSH	G0
-	CALL	.malloc
+	CALL	_malloc
 	ADD	SP,#2
 	LD	G1,.z8
 	ADDS	G1,#1
@@ -459,7 +460,7 @@
 	ST	G1,0,G0
 	LD	G0,.z8
 	PUSH	G0
-	CALL	.free
+	CALL	_free
 	ADD	SP,#2
 	POP	FP
 	RET
@@ -474,26 +475,26 @@
 	CALL	__stkChk
 	LD	G0,#1
 	PUSH	G0
-	CALL	.f7
+	CALL	_f7
 	ADD	SP,#2
 	ST	G0,.z1
 	LD	G0,#1
 	PUSH	G0
-	CALL	.f7
+	CALL	_f7
 	ADD	SP,#2
 	ADDS	G0,#1
 	LD	G0,0,G0
 	ST	G0,4,FP
 	LD	G0,.z1
 	PUSH	G0
-	CALL	.f8
+	CALL	_f8
 	ADD	SP,#2
 	ADDS	G0,#1
 	LD	G0,0,G0
 	ST	G0,.z1
 	LD	G0,.z3
 	PUSH	G0
-	CALL	.f9
+	CALL	_f9
 	ADD	SP,#2
 	ADDS	G0,#1
 	LD	G0,0,G0
@@ -502,7 +503,7 @@
 	ST	G0,.z1
 	LD	G0,#.L104
 	PUSH	G0
-	CALL	.f10
+	CALL	_f10
 	ADD	SP,#2
 	LD	G0,#.L106
 	PUSH	G0
@@ -510,7 +511,7 @@
 	PUSH	G0
 	LD	G0,#.L105
 	PUSH	G0
-	CALL	.f10
+	CALL	_f10
 	ADD	SP,#6
 	PUSH	G3
 	LD	G0,4,FP
@@ -566,11 +567,11 @@
 	CALL	__stkChk
 	LD	G0,#8
 	PUSH	G0
-	CALL	.malloc
+	CALL	_malloc
 	ADD	SP,#2
 	LD	G3,G0
 	PUSH	G3
-	CALL	.free
+	CALL	_free
 	ADD	SP,#2
 	LD	G4,#1
 	POP	G4

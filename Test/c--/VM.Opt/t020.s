@@ -31,7 +31,7 @@
 	LDG	.y
 	LDC	1
 	LDW
-	CALLF	0,.f1
+	CALLF	0,_f1
 	LDG	.c
 	MUL
 	LDG	.a

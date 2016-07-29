@@ -1,4 +1,4 @@
-.main
+_main
 	ENTRY	1
 	LDL	1
 	LDC	1
@@ -96,4 +96,6 @@
 	STL	1
 	POP
 .L12
+	LDC	0
+	MREG
 	RET

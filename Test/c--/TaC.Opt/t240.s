@@ -6,7 +6,7 @@
 .L4	WS	2
 .b	DW	.L4
 .t	WS	1
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	CALL	__stkChk
 	LD	G0,.a
@@ -28,14 +28,15 @@
 	LD	G0,0,G0
 	LD	G1,#2
 	ST	G1,0,G0
-	CALL	.f
+	CALL	_f
 	ADDS	G0,#2
 	LD	G1,#1
 	ST	G1,0,G0
-	CALL	.f
+	CALL	_f
 	ST	G0,.b
 	ADDS	G0,#4
 	LD	G1,#2
 	ST	G1,0,G0
+	LD	G0,#0
 	POP	FP
 	RET

@@ -3,7 +3,7 @@
 .L1
 	LDC	1
 	ARG
-	CALLF	1,.f1
+	CALLF	1,_f1
 	STL	1
 	POP
 	LDL	1

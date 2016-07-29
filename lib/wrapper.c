@@ -22,6 +22,7 @@
 /*
  * wrapper.c : C-- 版と C 版で仕様が異なる関数など
  *
+ * 2016.05.26 : #include <wrapper.h> を追加
  * 2016.03.02 : mAlloc, fOpen を追加
  * 2016.02.26 : 初期バージョン
  *
@@ -29,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wrapper.h>
 
 void *_addrAdd(void *a, int inc) {
   return (char *)a + inc;

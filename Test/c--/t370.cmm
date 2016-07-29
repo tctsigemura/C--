@@ -3,8 +3,8 @@
 //
 
 int a,c;
-int d();
-int e(int a, int b);
+public int d();
+public int e(int a, int b);
 void f() {
      int b;
      b=(2+3*a+1)*(3+4)*(4+4);         // b=(3*a+3)*56  (スタックが浅い

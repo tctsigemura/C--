@@ -81,7 +81,7 @@
 	LD	G0,#3
 	ADD	G0,.a
 	PUSH	G0
-	CALL	.e
+	CALL	_e
 	ADD	SP,#4
 .L1
 	LD	G0,.a

@@ -3,8 +3,9 @@
  *   グローバル変数とスコープのテスト
  */
 
-void[] malloc(int n);
-void free(void[] p);
+//void[] malloc(int n);
+//void free(void[] p);
+#include <stdlib.hmm>
 
 int a;
 char b = '0';
@@ -128,11 +129,11 @@ void f6() {
   free(z8);
 }
 
-X f7(int a);
-X[] f8(X x);
-X[] f9(X[] x);
+public X f7(int a);
+public X[] f8(X x);
+public X[] f9(X[] x);
 
-void f10(char[] s , ...);
+public void f10(char[] s , ...);
 
 void f11(int a, ...) {
   int b;

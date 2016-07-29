@@ -143,7 +143,7 @@
 	LDG	.a
 	ADD
 	ARG
-	CALLF	2,.e
+	CALLF	2,_e
 	POP
 .L1
 	LDG	.a

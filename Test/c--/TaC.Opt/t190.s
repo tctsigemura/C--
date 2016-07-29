@@ -1,6 +1,6 @@
 .L1	WS	10
 .a	DW	.L1
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	PUSH	G3
 	PUSH	G4
@@ -21,6 +21,7 @@
 	LD	G0,G5
 	ADDS	G0,#1
 	LD	G4,0,G0
+	LD	G0,#0
 	POP	G5
 	POP	G4
 	POP	G3

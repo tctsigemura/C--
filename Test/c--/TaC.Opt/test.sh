@@ -1,15 +1,14 @@
 #!/bin/sh
 
+INCDIR=/usr/local/cmmInclude
+LIBDIR=/usr/local/cmmLib
+
 for i in $*; do
    j=`basename ${i}`
    echo '[!!!' ${j} '!!!]'
    n=`expr ${j} : '\([^\.]*\)'`
-   ../../../src/lx ${i}
-   ../../../src/sn ${i%.*}.lx
-   ../../../src/op ${i%.*}.sm
-   ../../../src/vm ${i%.*}.op
-   ../../../src/tac ${i%.*}.vm > t.$$
-
+   cc -E -DC -Wno-comment -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < ${i} |
+   ../../../src/c-- -O > t.$$
    diff ${n}.s t.$$
 done
 

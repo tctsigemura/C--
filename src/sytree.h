@@ -22,6 +22,7 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
+ * 2016.07.22         : SySIZE は単項演算子ではなく因子に分類すべき
  * 2016.06.06         : syLn[], syGetLn(), sySetLn() を追加
  * 2016.06.04         : syGetSize() を追加
  *                      syClear() を sySetSize() に名前変更
@@ -59,6 +60,7 @@ int syLn[SyMAX];                             // 対応するソースの行番�
 #define SySTR         0x106                 // 文字列
 #define SyFUNC        0x107                 // 関数コール
 #define SyLABL        0x108                 // 大域ラベル(addrof 演算子が使用)
+#define SySIZE        0x109                 // sizeof 演算子
 
 #define SyIS1OPR(c)   (((c)&0xf00)==0x200)  // 単項演算子かどうか判定
 #define SyNEG         0x200                 // 単項演算 -
@@ -66,7 +68,6 @@ int syLn[SyMAX];                             // 対応するソースの行番�
 #define SyBNOT        0x202                 // 単項演算 ~(ビット毎のNOT)
 #define SyCHAR        0x203                 // chr 演算子(型変換)
 #define SyBOOL        0x204                 // bool 演算子(型変換)
-#define SySIZE        0x205                 // sizeof 演算子
 
 #define SyIS2OPR(c)   (((c)&0xf00)==0x300)  // 普通の２項演算子かどうか判定
 #define SyADD         0x300                 // ２項演算 +

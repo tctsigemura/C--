@@ -1,20 +1,147 @@
 % 
-% $Id$
+% 付録：コマンドリファレンス
 %
 \chapter{コマンドリファレンス}
+\label{app:command}
 
-UNIX や MacOS 上で動作する{\cmm}コンパイラの使用方法を解説します。
+%UNIX や MacOS 上で動作する{\cmm}コンパイラの使用方法を解説します。
+
+\section{{\cme}コマンド}
+
+{\cmm}プログラムを{\tac}で実行できる{\tt .exe}ファイルに変換します。
+{\cme}コマンドは、内部で「\ref{command:cmmc} {\cmmc}コマンド」や
+「{\tt Util--}ユーティリティ」プログラムを自動的に呼び出すシェルスクリプトです。
+
+\begin{flushleft}
+{\bf 形式 : }~~~\verb/cm2e [-h] [-o exec] [-s ###] [-E] [-S] [-K] [-c] [-Dxx=yy] <file>.../
+\end{flushleft}
+
+{\tt <file>...}の各ファイルについて、
+プリプロセッサ({\tt cpp})、
+コンパイラ({\tt c--})、
+アセンブラ({\tt as--})を順に呼び出し、
+リロケータブルオブジェクト(「{\tt Util--}解説書」参照)に変換します。
+次に、
+リンカー({\tt ld--})を用いリロケータブルオブジェクトを結合します。
+最後に、実行可能形式作成プログラム({\tt objexe--})を呼び出し
+{\tt .exe}ファイルを作成します。
+
+{\cme}は、
+指定されたファイルの拡張子からファイルの種類を判断し、
+必要な処理を自動的に判断します。
+拡張子「{\tt .cmm}」は{\cmml}のソースプログラム、
+「{\tt .s}」は{\tac}のアセンブリ言語プログラム、
+「{\tt .o}」は{\tac}のリロケータブルオブジェクトと判断します。
+
+\begin{quote}
+\hspace{-1em}以下のオプションが使用できます。
+
+\begin{description}
+\item[{\tt -h}] : 使用方法メッセージを表示します。
+\item[{\tt -o}] : 作成する{\tt .exe}ファイルの名前を指定します。
+{\tt -o}オプションの後ろに空白で区切ってファイル名を入力します。
+\item[{\tt -s}] : プログラムのスタック領域サイズをバイト単位で明示します。
+{\tt -s}オプションの後ろに空白で区切ってサイズを10進数で入力します。
+スタックサイズを明示しない場合は、規定値の600が使用されます。
+\item[{\tt -E}] : プリプロセッサで処理した{.cmm}ファイルの内容を
+標準出力ストリームに書き出します。
+\item[{\tt -S}] : アセンブラソースプログラム{\tt .s}の作成まで行い、
+それより後の処理を行いません。
+\item[{\tt -K}] : {\tacos}カーネル用モードでコンパイルを行います。
+コンパイル結果に、
+ユーザプログラム用のスタックオーバーフローチェック機能を埋め込みません。
+\item[{\tt -c}] : リロケータブルオブジェクトファイル{\tt .o}の作成まで行い、
+それより後の処理を行いません。
+\item[{\tt -D}] : このオプションは、そのままプリプロセッサに渡されます。
+次に使用例を示します。\\
+\verb/$ cm2e -DDEBUG=1 -o hello hello.cmm/
+\end{description}
+\end{quote}
+
+\section{{\cmc}コマンド}
+
+{\cmm}プログラムを{\cl}プログラムに変換した後、
+{\cl}プログラムをコンパイルしてUNIXやMacの実行形式を作成します。
+{\cmc}コマンドは、内部で「\ref{command:ccmmc} {\ccmmc}コマンド」や
+{\tt C}コンパイラドライバを自動的に呼び出すシェルスクリプトです。
+
+\begin{flushleft}
+{\bf 形式 : }~~~\verb/cm2c [-h] [-o exec] [-S] [-E] [-c] [-Dxx=yy] <file>.../
+\end{flushleft}
+
+{\tt <file>...}の各ファイルについて、
+プリプロセッサ({\tt cpp})
+トランスレータ({\tt c-c--})、
+{\tt C}コンパイラドライバ({\tt cc})を順に呼び出し、
+UNIXやMacのリロケータブルオブジェクトに変換します。
+次に、{\tt C}コンパイラドライバ({\tt cc})を呼び出し、
+リロケータブルオブジェクトを結合し実行可能ファイルを作成します。
+
+{\cmc}は、
+指定されたファイルの拡張子をからファイルの種類を判断し、
+必要な処理を自動的に判断します。
+拡張子「{\tt .cmm}」は{\cmml}のソースプログラム、
+「{\tt .c}」は{\cl}ソースプログラム、
+「{\tt .o}」はUNIXやMacのリロケータブルオブジェクトと判断します。
+
+\begin{quote}
+\hspace{-1em}以下のオプションが使用できます。
+
+\begin{description}
+\item[{\tt -h}] : 使用方法メッセージを表示します。
+\item[{\tt -o}] : 作成する実行可能ファイルの名前を指定します。
+{\tt -o}オプションの後ろに空白で区切ってファイル名を入力します。
+\item[{\tt -E}] : プリプロセッサで処理した{.cmm}ファイルの内容を
+標準出力ストリームに書き出します。
+\item[{\tt -S}] : {\cl}ソースプログラム{\tt .c}の作成まで行い、
+それより後の処理を行いません。
+\item[{\tt -c}] : リロケータブルオブジェクトファイル{\tt .o}の作成まで行い、
+それより後の処理を行いません。
+\item[{\tt -D}] : このオプションは、そのままプリプロセッサに渡されます。
+\end{description}
+\end{quote}
+
+\section{{\cmv}コマンド}
+
+{\cmm}プログラムをコンパイルして仮想スタックマシンのニーモニックに変換します。
+{\cmv}コマンドは、
+内部で「\ref{command:vcmmc} {\vcmmc}コマンド」を呼び出すシェルスクリプトです。
+
+\begin{flushleft}
+{\bf 形式 : }~~~\verb/cm2v [-h] [-E] [-Dxx=yy] <file>.../
+\end{flushleft}
+
+{\tt <file>...}の各ファイルについて、
+プリプロセッサ({\tt cpp})、
+コンパイラ({\tt vm-c--})
+を順に呼び出し仮想スタックマシンのニーモニック({\tt .v})を出力します。
+{\cmv}コマンドに指定できるファイルは、
+拡張子「{\tt .cmm}」の{\cmml}ソースプログラムだけです。
+
+\begin{quote}
+\hspace{-1em}以下のオプションが使用できます。
+
+\begin{description}
+\item[{\tt -h}] : 使用方法メッセージを表示します。
+\item[{\tt -E}] : プリプロセッサで処理した{.cmm}ファイルの内容を
+標準出力ストリームに書き出します。
+それより後の処理を行いません。
+\item[{\tt -D}] : このオプションは、そのままプリプロセッサに渡されます。
+\end{description}
+\end{quote}
 
 \section{{\cmmc}コマンド}
+\label{command:cmmc}
 
-{\cmmc}コマンドは{\cmml}の{\tac}用コンパイラです。
-
-\cmmc コマンドは、\cmml で記述されたプログラムを入力し、
+{\cmml}の{\tac}用コンパイラです。
+{\bf 通常は{\cme}から起動されユーザが直接使用することはありません。}
+\cmml で記述されたプログラムを入力し、
 \tac アセンブリ言語で記述したプログラムに変換します。
 \cmmc コマンドの書式は次の通りです。
 
 \begin{flushleft}
-{\bf 形式 : }~~~\verb/c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]/
+{\bf 形式 : }~~~\verb/c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]/\\
+({\bf 注意}：オプションは書式の順番で指定する必要があります。)
 \end{flushleft}
 
 引数に \cmml のソースプログラムファイルを指定した場合は、
@@ -33,52 +160,78 @@ UNIX や MacOS 上で動作する{\cmm}コンパイラの使用方法を解説�
 関数入口へのスタックオーバーフロー検出コードの埋め込みが抑制されます。
 \tacos のカーネルをコンパイルするときに使用するオプションです。
 
-\cmmc コマンドは、\cl のプリプロセッサと組み合わせて次のように使用します。
-コンパイル結果はリダイレクトを用いて拡張子「\verb/.s/」のファイルに出力します。
-
-\begin{mylist}
-\begin{verbatim}
-$ cc -E -std=c99 -nostdinc -I/usr/local/cmmInclude \
--I/usr/local/cmmLib - < hello.cmm | c-- > hello.s
-\end{verbatim}
-\end{mylist}
-
-この実行例は、OSX 10.11 の場合です。
-OSX 10.11 の\verb/cpp/コマンドは、
-\verb;//;コメントをうまく処理できないようです。
-\verb/cc -E/コマンドを代用にするとうまく処理できます。
-他の実行環境では、その環境にあう実行方法を試行錯誤する必要があるかもしれません。
-
-%\cmm コンパイラはプリプロセッサと組み合わせた場合でも、
-%エラーの発生箇所を正しく報告することができます。
-%次の例はインクルードファイルの中にエラーがある場合の例です。
+%\cmmc コマンドは、\cl のプリプロセッサと組み合わせて次のように使用します。
+%コンパイル結果はリダイレクトを用いて拡張子「\verb/.s/」のファイルに出力します。
 %
 %\begin{mylist}
 %\begin{verbatim}
-%$ cat util.h 
-%// util.h
-%void printf(char[] fmt, ...);
-%a;
-%$ cat hello.cmm
-%// hello.cmm
-%#include "util.h"
-%void main() {
-%  printf("hello\n");
+%$ cc -E -std=c99 -nostdinc -I/usr/local/cmmInclude \
+%-I/usr/local/cmmLib - < hello.cmm | c-- > hello.s
+%\end{verbatim}
+%\end{mylist}
+%
+%この実行例は、OSX 10.11 の場合です。
+%OSX 10.11 の\verb/cpp/コマンドは、
+%\verb;//;コメントをうまく処理できないようです。
+%\verb/cc -E/コマンドを代用にするとうまく処理できます。
+%他の実行環境では、
+%その環境にあう実行方法を試行錯誤する必要があるかもしれません。
+
+\section{{\ccmmc}コマンド}
+\label{command:ccmmc}
+
+{\cmm}プログラムを{\cl}に変換して出力するトランスレータです。
+{\bf 通常は{\cmc}から起動されユーザが直接使用することはありません。}
+
+\begin{flushleft}
+{\bf 形式 : }~~~\verb/c-c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]/\\
+({\bf 注意}：オプションは書式の順番で指定する必要があります。)
+\end{flushleft}
+
+%出力された{\cl}は、
+%\verb;/user/local/cmmLib/; にインストールされた、
+%\verb;cfunc.hmm; や \verb;wrapper.c; を用いて、
+%UNIX や MacOS で実行できるようになります。
+
+引数の意味は{\cmmc}コマンドと同様です。
+%次の実行例は変換結果を画面に表示しています。
+
+%\begin{mylist}
+%\begin{verbatim}
+%$ cc -E -std=c99 -nostdinc -I/usr/local/cmmInclude \
+% -I/usr/local/cmmLib - < hello.cmm | c-c--
+%#include <stdio.h>
+%#define _cmm_str_L0 "hello,world\n"
+%int main(){
+%printf(_cmm_str_L0);
 %}
-%$ cpp -std=c99 hello.cmm | c-- > hello.s
-%"util.h": 3 : 型がない
-%$ 
+%\end{verbatim}
+%\end{mylist}
+
+%次の実行例は変換結果を\verb/hello.c/ファイルに格納したあと、
+%{\cl}コンパイラでコンパイルして実行した例です。
+
+%\begin{mylist}
+%\begin{verbatim}
+%$ cc -E -std=c99 -nostdinc -I/usr/local/cmmInclude \
+% -I/usr/local/cmmLib - < hello.cmm | c-c-- > hello.c
+%$ cc -o hello -Wno-parentheses-equality hello.c \
+% /usr/local/cmmLib/wrapper.c
+%$ ./hello
+%hello,world
 %\end{verbatim}
 %\end{mylist}
 
 \section{{\vcmmc}コマンド}
+\label{command:vcmmc}
 
 仮想スタックマシンのニーモニックを出力する{\cmm}コンパイラです。
+{\bf 通常は{\cmv}から起動されユーザが直接使用することはありません。}
 
 仮想スタックマシンのニーモニックは、
 コンパイラ内部で用いている中間言語（\pageref{app:vm}ページ参照）と、
 ほぼ一対一に対応します。
-中間言語や仮想スタックマシンを学習したいときにこのコマンドを利用します。
+中間言語や仮想スタックマシンを学習したいときに利用します。
 {\vcmmc}コマンドの書式は次の通りです。
 
 \begin{flushleft}
@@ -86,67 +239,29 @@ OSX 10.11 の\verb/cpp/コマンドは、
 \end{flushleft}
 
 引数の意味は{\cmmc}コマンドと同様です。
-次の実行例は変換結果を画面に表示しています。
-
-\begin{mylist}
-\begin{verbatim}
-$ cc -E -std=c99 -nostdinc -I/usr/local/cmmInclude \
- - < hello.cmm | vm-c--
-_stdin
-        WS      1
-_stdout
-        WS      1
-_stderr
-        WS      1
-.L1
-        STRING  "hello,world\n"
-_main
-        ENTRY   0
-        LDC     .L1
-        ARG
-        CALLF   1,_printf
-        POP
-        LDC     0
-        MREG
-        RET
-\end{verbatim}
-\end{mylist}
-
-\section{{\ccmmc}コマンド}
-
-{\cl}に変換して出力するトランスレータです。
-
-出力された{\cl}は、
-\verb;/user/local/cmmLib/; にインストールされた、
-\verb;cfunc.hmm; や \verb;wrapper.c; を用いて、
-UNIX や MacOS で実行できるようになります。
-
-引数の意味は{\cmmc}コマンドと同様です。
-次の実行例は変換結果を画面に表示しています。
-
-\begin{mylist}
-\begin{verbatim}
-$ cc -E -std=c99 -nostdinc -I/usr/local/cmmInclude \
- -I/usr/local/cmmLib - < hello.cmm | c-c--
-#include <stdio.h>
-#define _cmm_str_L0 "hello,world\n"
-int main(){
-printf(_cmm_str_L0);
-}
-\end{verbatim}
-\end{mylist}
-
-次の実行例は変換結果を\verb/hello.c/ファイルに格納したあと、
-{\cl}コンパイラでコンパイルして実行した例です。
-
-\begin{mylist}
-\begin{verbatim}
-$ cc -E -std=c99 -nostdinc -I/usr/local/cmmInclude \
- -I/usr/local/cmmLib - < hello.cmm | c-c-- > hello.c
-$ cc -o hello -Wno-parentheses-equality hello.c \
- /usr/local/cmmLib/wrapper.c
-$ ./hello
-hello,world
-\end{verbatim}
-\end{mylist}
+%次の実行例は変換結果を画面に表示しています。
+%
+%\begin{mylist}
+%\begin{verbatim}
+%$ cc -E -std=c99 -nostdinc -I/usr/local/cmmInclude \
+% - < hello.cmm | vm-c--
+%_stdin
+%        WS      1
+%_stdout
+%        WS      1
+%_stderr
+%        WS      1
+%.L1
+%        STRING  "hello,world\n"
+%_main
+%        ENTRY   0
+%        LDC     .L1
+%        ARG
+%        CALLF   1,_printf
+%        POP
+%        LDC     0
+%        MREG
+%        RET
+%\end{verbatim}
+%\end{mylist}
 

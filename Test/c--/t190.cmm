@@ -8,7 +8,7 @@ struct X {
   int b;
 };
 
-void main() {
+public int main() {
   int i,j;
   X l;
 
@@ -20,4 +20,5 @@ void main() {
   j = a[1];
   i = l.a;
   j = l.b;
+  return 0;
 }

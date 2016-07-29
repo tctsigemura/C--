@@ -1,7 +1,8 @@
-.main	PUSH	FP
+_main	PUSH	FP
 	LD	FP,SP
 	PUSH	G3
 	CALL	__stkChk
+	LD	G0,#0
 	POP	G3
 	POP	FP
 	RET

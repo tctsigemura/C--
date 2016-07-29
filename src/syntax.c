@@ -22,6 +22,8 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2016.06.26         : 可変個引数関数の実引数に void 関数が渡されたとき
+ *                      エラーを見逃すバグを修正
  * 2016.05.22         : トランスレータは sizeof を計算しないで木に残す
  * 2016.05.20         : トランスレータ用のディレクティブ処理を改良
  *                      宣言、定義の途中で使用されたディレクティブを無視する
@@ -366,7 +368,8 @@ static void getArgs(struct watch* w, int func) {   // funcは表の現在の関�
       if (ntGetType(idx)!=TyDOTDOTDOT) {           // 可変個引数ではないなら
 	chkCmpat(w,ntGetType(idx),ntGetDim(idx));  //     型チェックしてから
 	idx=idx+1;                                 //     インデクスを進める
-      }
+      } else if (w->type==TyVOID && w->dim==0)     // 可変個引数でも
+	error("void型の関数は引数にできない");     //     void関数は使用不可
     } while (isTok(','));                          // ','が続く間繰り返す
   }
   chkTok(')', "関数呼出に ')' がない");
