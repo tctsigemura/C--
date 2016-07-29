@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2016.07.29         : SyCNSTノードに型情報を追加
  * 2016.06.26         : 可変個引数関数の実引数に void 関数が渡されたとき
  *                      エラーを見逃すバグを修正
  * 2016.05.22         : トランスレータは sizeof を計算しないで木に残す
@@ -278,39 +279,6 @@ static void chkCmpat(struct watch* w, int type, int dim) {
 static void getAsExpr(struct watch *w);        // 再帰呼出の関係で
 static void getExpr(struct watch *w);          //   プロトタイプ宣言が必要
 
-/*
-// 後置演算子(添字('[n]')と構造体フィールド('.'))の処理
-static void getPostOP(struct watch *w) {
-  while (tok=='[' || tok=='.') {               // 後置演算子が続く間繰り返す
-    struct watch *w2 = newWatch();
-    int stype = SyPOST;
-    int rval = 0;
-    if (isTok('[')) {                          // 添字の場合
-      if (w->dim<=0) error("添字が多すぎる");
-      getAsExpr(w2);                           // 添字式(w2)はカンマ式不可
-      chkTok(']', "']' がない");
-      if (w2->type!=TyINT || w2->dim!=0)       // 添字式(w2)の型チェック
-	error("配列の添字が整数以外になっている");
-      w->dim = w->dim - 1;                     // 式(w)の次元を下げる
-      rval = w2->tree;
-      if ((w->type==TyCHAR || w->type==TyBOOL) // char, boolean の配列は
-	  && w->dim==0) stype = SyBYTE;        //   バイト単位で詰め込む
-    } else if (isTok('.')) {                   // 構造体の場合は
-      if (w->type>0 || w->dim>0)               //   式(w)が基本型または配列の
-	error("構造体以外に'.' がある");       //   場合は'.'が続いてはならない
-      chkTok(LxNAME, "'.' の次に名前がない");  // '.'の次は必ず名前が必要
-      int n = ntSrcField(w->type,lxGetStr());  // 構造体をフィールド名でサーチ
-      w->type = ntGetType(n);                  // 式(w)をフィールドの型と
-      w->dim  = ntGetDim(n);                   //   次元に変更する
-      rval = syNewNode(SyCNST,ntGetCnt(n),SyNULL); // フィールドオフセット
-    } else error("バグ...getPostOP");
-    w->tree = syNewNode(stype, w->tree, rval); // 後置演算を構文木に追加
-    w->lhs = true;                             // 演算結果は代入可
-    freeWatch(w2);
-  }
-}
-*/
-
 // 後置演算子(添字('[n]'))の処理
 static void getIdxOP(struct watch *w) {
   struct watch *w2 = newWatch();               // w2 は添字式
@@ -341,7 +309,7 @@ static void getDotOP(struct watch *w) {
   int n = ntSrcField(w->type,lxGetStr());      // 構造体をフィールド名でサーチ
   w->type = ntGetType(n);                      // 式(w)をフィールドの型と
   w->dim  = ntGetDim(n);                       //   次元に変更する
-  int cnst = syNewNode(SyCNST, n, SyNULL);     // フィールドの名前表インデクス
+  int cnst = syNewNode(SyCNST, n, TyINT);      // フィールドの名前表インデクス
   w->tree = syNewNode(SyDOT, w->tree, cnst);   // '.'演算を構文木に追加
   w->lhs = true;                               // 演算結果は代入可
 }
@@ -406,7 +374,7 @@ static void getSizeof(struct watch* w) {
 	     curType==TyBOOL)                 //     char, boolean なら
       s = NBYTE / 8;                          //       バイトのサイズ
   }
-  int a = syNewNode(SyCNST, s, SyNULL);       //   サイズを格納するノード
+  int a = syNewNode(SyCNST, s, TyINT);        //   サイズを格納するノード
 #endif
   curType=ty;                                 // 保存したものをもとに戻す
   curDim = dm;
@@ -492,20 +460,20 @@ static void getFactor(struct watch* w) {
   } else if (isTok(LxNAME)) {                 // 名前の場合
     getIdent(w);                              //   関数呼び出しか変数
   } else if (isTok(LxINTEGER)) {              // 整数定数の場合は
-    int a = syNewNode(SyCNST, lxGetVal(), SyNULL);  // 定数を格納するノード
+    int a = syNewNode(SyCNST, lxGetVal(), TyINT);  // 定数を格納するノード
     setWatch(w, TyINT, 0, false, a);          //   式(w)がint型定数になる
   } else if (isTok(LxCHARACTER)) {            // 文字定数の場合は
-    int a = syNewNode(SyCNST, lxGetVal(), SyNULL);  // 定数を格納するノード
-    setWatch(w, TyCHAR, 0, false, a);         //   式(w)がint型定数になる
+    int a = syNewNode(SyCNST, lxGetVal(), TyCHAR); // 定数を格納するノード
+    setWatch(w, TyCHAR, 0, false, a);         //   式(w)がchar型定数になる
   } else if (isTok(LxLOGICAL)) {              // 論理値の場合は
-    int a = syNewNode(SyCNST, lxGetVal(), SyNULL);  // 定数を格納するノード
+    int a = syNewNode(SyCNST, lxGetVal(), TyBOOL); // 定数を格納するノード
     setWatch(w, TyBOOL, 0, false, a);         //   式(w)がboolean型定数になる
   } else if (isTok(LxSTRING)) {               // 文字列の場合は
     int lab = genStr(lxGetStr());             // 文字列を出力しラベルを付ける
     int a = syNewNode(SySTR, lab, SyNULL);    //    ラベル番号を格納するノード
     setWatch(w, TyCHAR, 1,  false, a);        //    式(w)が文字配列型になる
   } else if (isTok(LxNUL)) {                  // null の場合は
-    int a = syNewNode(SyCNST, 0, SyNULL);     //   NULL を格納するノード
+    int a = syNewNode(SyCNST, 0, TyREF);      //   NULL を格納するノード
     setWatch(w, TyVOID, 1, false, a);         //   式(w)は void[] 型になる
   } else if (isTok(LxSIZEOF)) {               // sizeof 演算子の場合
     getSizeof(w);
@@ -1087,7 +1055,7 @@ static int getStructInit0() {
     int n = 0;
     if (ntGetType(i)<=0) {                   // フィールドが構造体の場合
       chkTok(LxNUL, "入れ子構造体の初期化は null だけ");
-      n = syNewNode(SyCNST, 0, SyNULL);
+      n = syNewNode(SyCNST, 0, TyREF);
     } else if (ntGetDim(i)>0) {              // フィールドが配列の場合
       if (isTok(LxSTRING)) {                 // 入力が文字列なら
 	if (ntGetDim(i)!=1||ntGetType(i)!=TyCHAR)
@@ -1095,7 +1063,7 @@ static int getStructInit0() {
 	int lab = genStr(lxGetStr());        // .Lx STRING "..." を出力
 	n = syNewNode(SySTR, lab, SyNULL);
       } else if (isTok(LxNUL)) {             // 配列を null で初期化
-	n = syNewNode(SyCNST, 0, SyNULL);
+	n = syNewNode(SyCNST, 0, TyREF);
       } else error("構造体フィールドの配列初期化は文字列か null だけ");
     } else if (ntGetType(i)==TyINT) {        // フィールドが整数型の場合
       n = getCnst(TyINT);                    //   整数定数式を読み込む
@@ -1116,7 +1084,7 @@ static int getStructInit0() {
 static int getStructInit() {
   int node = SyNULL;
   if (isTok(LxNUL)) {                        // null による初期化の場合
-    node = syNewNode(SyCNST, 0, SyNULL);     // 0 を木に登録
+    node = syNewNode(SyCNST, 0, TyREF);      // NULL を木に登録
   } else {                                   // '{ ... }' による初期化の場合
     chkTok('{', "構造体の初期化が '{' で始まっていない");
     node = getStructInit0();                 // 初期化の内容を読み込む
@@ -1168,7 +1136,7 @@ static int getGArrayInit(int dim) {
   } else if (isTok(LxARRAY)) {               // 'array( ... ) の場合
     node = getArray(dim);                    // array の括弧の中を読み込む
   } else if (isTok(LxNUL)) {                 // null による初期化の場合
-    node = syNewNode(SyCNST, 0, SyNULL);     // 定数 0 を木に登録
+    node = syNewNode(SyCNST, 0, TyREF);      // NULL を木に登録
   } else error("配列の初期化");              // 上のどれでもない入力
   return node;
 }
