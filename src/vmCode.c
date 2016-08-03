@@ -237,6 +237,7 @@ static void gen1OpExpr(int node, struct Expr* c) {
   else if (typ == SyBNOT) vmBNot();               //     BNOT (1の補数)
   else if (typ == SyCHAR) vmChar();               //     CHR  (文字型への変換)
   else if (typ == SyBOOL) vmBool();               //     BOOL (論理型への変換)
+  else if (typ == SyORD)  vmOrd();                //     INT  (整数型への変換)
   else error("バグ...gen1OpExpr");
 }
 
@@ -785,7 +786,7 @@ static void genList(int node, int dim) {         // 開始位置と配列の次�
 }
 
 // 初期化データの生成
-void genData(int idx) {
+static void genData(int idx) {
   int root = syGetRoot();
   int typ  = syGetType(root);
   int dim  = ntGetDim(idx);
@@ -798,9 +799,14 @@ void genData(int idx) {
 }
 
 // 非初期化データの生成
-void genBss(int idx) {                           // 次のような出力をする
+static void genBss(int idx) {                           // 次のような出力をする
   vmName(idx);                                   //   Name  WS 1
   vmWs(1);
+}
+
+void genGVar(int idx) {
+  if (syGetRoot()!=SyNULL) genData(idx);         // 木があれば初期化データ
+  else genBss(idx);                              // なければ非初期化データ生成
 }
 
 // 文字列を生成しラベル番号を返す

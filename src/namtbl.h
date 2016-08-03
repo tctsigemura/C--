@@ -72,6 +72,7 @@ boolean ntPub [NtMAX];      // 名前が外部公開される
 int ntSrcName(char *str);         // str と同じ名前の関数、変数、仮引数を探索
 int ntSrcStruct(char *str);       // str と同じ名前の構造体を探索
 int ntSrcField(int n, char *str); // 構造体(n)のフィールドから str を探索
+int ntSrcFieldName(char *str);    // 表全体からstrを探索
 int ntSrcGlob(int n);             // 大域名(n)と２重定義になるものを探索
 void ntDefName(char *name,        // 新規登録
 	       int scope, int type, int dim, int val, boolean pub);

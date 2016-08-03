@@ -19,6 +19,7 @@
 #
 # Makefile : c-- の makefile
 #
+# 2016.07.29         : t-c--の追加(意味解析分離板のtest)
 # 2016.06.29 v3.1.1  : 可変個引数関数の実引数にvoid型を渡せるバグ修正
 # 2016.06.12 v3.1.0  : トランスレータが正常に使用できる
 # 2016.05.24         : cm2c, cm2e, cm2v を追加
@@ -56,6 +57,14 @@ c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
 	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
 	vmCode.c vm2tac.c optree.c
 
+t-c-- : Makefile main.c indep_syntax.c syntax.h lexical.c lexical.h util.h util.c \
+      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
+      optree.h optree.c semantic.h semantic.c
+	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+	-DNWORD=16 -DNBYTE=8 -o t-c-- \
+	main.c indep_syntax.c semantic.c lexical.c namtbl.c util.c sytree.c \
+	vmCode.c vm2tac.c optree.c
+
 vm-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2vm.c \
       optree.h optree.c
@@ -91,6 +100,6 @@ install : c-- vm-c-- c-c-- # h8300hn-c--
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+	rm -f c-- vm-c-- c-c-- t-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 #	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 

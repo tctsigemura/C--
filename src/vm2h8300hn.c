@@ -716,6 +716,12 @@ void vmBool() {
   flgPtr = stkPtr;                              // フラグ変化あり
 }
 
+// 何もしない
+void vmOrd(){
+  ;
+}
+
+
 // 多くの演算命令の共通処理(イミディエイトが使用できる)
 static void cal(char *op) {
   loadStk(1);                                   // Dst を Rd にロード

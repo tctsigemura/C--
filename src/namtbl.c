@@ -57,7 +57,7 @@ int ntSrcName(char *str) {
 int ntSrcStruct(char *str) {
   for (int i=0; i<ntNextIdx; i=i+1)              // 表全体について
     if (ntScope[i]==ScSTRC &&                    // 構造体のスコープで
-	strcmp(ntName[i], str)==0) return -i;    // 名前の同じものをさがす
+	strcmp(ntName[i], str)==0) return -i;          // 名前の同じものをさがす
   return TyNON;                                  // 見付からない場合は TyNON
 }
 
@@ -66,6 +66,14 @@ int ntSrcField(int n, char *str) {               // n は構造体型(非正値)
   for (int i=-n+1; i<=-n+ntCnt[-n]; i=i+1)       // ntCnt[-n]はフィールド数
     if (strcmp(ntName[i], str)==0) return i;     // フィールド名と比較
   error2("未定義の構造体フィールド名", str);
+  return -1;                                     // ここが実行されることはない
+}
+
+// 構造体参照時のフィールド名を探す (名前しか使わないため他は何でもよい)
+int ntSrcFieldName(char *str) {
+ for (int i=0; i<ntNextIdx; i=i+1)               // 表全体について
+	if(strcmp(ntName[i], str)==0) return i;        // 名前が同じものを探す
+  error2("未定義の構造体フィールド名.", str);
   return -1;                                     // ここが実行されることはない
 }
 

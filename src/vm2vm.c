@@ -238,6 +238,10 @@ void vmBool() {
   printf("\tBOOL\n");
 }
 
+// 何もしない
+void vmBool() {
+  ;
+}
 // まず、スタックから整数を二つ取り出し和を計算する
 // 次に、計算結果をスタックに積む
 void vmAdd() {

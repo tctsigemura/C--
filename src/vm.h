@@ -76,6 +76,7 @@ void vmNot(void);                  // 論理の否定を計算し結果をスタ
 void vmBNot(void);                 // １の補数を計算し結果をスタックに積む
 void vmChar(void);                 // 文字型のビット数だけ残しスタックに積む
 void vmBool(void);                 // 最下位１ビットだけ残しスタックに積む
+void vmOrd(void);                  // そのままスタックに積む
 void vmAdd(void);                  // 和を計算し結果をスタックに積む
 void vmSub(void);                  // 差を計算し結果をスタックに積む
 void vmShl(void);                  // 左シフトし結果をスタックに積む

@@ -622,6 +622,14 @@ void vmBool() {
   flgPtr = stkPtr;                              // フラグが有効
 }
 
+// 計算結果をスタックに積む
+void vmOrd() {
+  ;
+  //clearFlg();                                   // フラグ値の変化にそなえる
+  //loadStk(0);                                   // スタックトップを Acc に移動
+  //flgPtr = stkPtr;                              // フラグが有効
+}
+
 // 多くの演算命令の共通処理
 static void cal(char *op) {
   clearFlg();                                   // フラグ値の変化にそなえる

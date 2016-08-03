@@ -105,11 +105,13 @@ static struct D d[] = {
   { "SyFUNC", SyFUNC},                 // 関数コール
   { "SyLABL", SyLABL},                 // ラベル(addrof 演算子が使用)
 
+  { "SyPLS",  SyPLS},                  // 単項演算 +
   { "SyNEG",  SyNEG},                  // 単項演算 -
   { "SyNOT",  SyNOT},                  // 単項演算 !
   { "SyBNOT", SyBNOT},                 // 単項演算 ~(ビット毎のNOT)
   { "SyCHAR", SyCHAR},                 // 文字型へ変換する演算子
-  { "SyBOOL", SyBOOL},                 // 文字型へ変換する演算子
+  { "SyBOOL", SyBOOL},                 // BOOL型へ変換する演算子
+  { "SyORD",  SyORD},                  // INT型へ変換する演算子
   { "SySIZE", SySIZE},                 // データ型のサイズを求める演算子
 
   { "SyADD",  SyADD},                  // ２項演算 +
@@ -124,6 +126,7 @@ static struct D d[] = {
   { "SyMOD",  SyMOD},                  // ２項演算 %
   { "SyIDXW", SyIDXW},                 // 後置演算子(ワード配列([ ]))
   { "SyIDXB", SyIDXB},                 // 後置演算子(バイト配列([ ]))
+  { "SyDOT",  SyDOT},                  // 後置演算子(構造体(.))
 
   { "SyGT",   SyGT},                   // ２項演算 >  (Greater Than)
   { "SyGE",   SyGE},                   // ２項演算 >  (Greater or Equal)
