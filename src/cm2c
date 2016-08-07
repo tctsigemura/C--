@@ -5,7 +5,7 @@ LIBDIR=/usr/local/cmmLib
 
 CFLAGS="-funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
-   -Wno-dangling-else -include ${LIBDIR}/wrapper.h"
+   -Wno-dangling-else -include stdio.h -include ${LIBDIR}/wrapper.h"
 
 CPPFLAGS="-std=c99 -nostdinc -DC"
 

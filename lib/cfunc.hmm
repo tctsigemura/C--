@@ -22,6 +22,7 @@
 /*
  * lib/cfunc.hmm : C-- 関数と C 関数の読みかえを定義
  *
+ * 2016.08.07 : feof を追加
  * 2016.02.26 : 新規作成
  *
  * $Id$
@@ -31,6 +32,7 @@
 // 一部は仕様を変更したので wrapper.c の関数を参照するようにする
 #define malloc(s) _mAlloc(s)
 //#define fopen(n,m) _fOpen(n,m)
+#define feof(fp) _feof(fp)
 
 
 // ctype, stringの関数は Lower Camel Case にする
