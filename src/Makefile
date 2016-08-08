@@ -43,7 +43,7 @@
 #
 
 CC=cc -std=c99 -Wall
-VER=\"3.1.0\"
+VER=\"3.1.1\"
 DATE="\"`date`\""
 
 all : c-- vm-c-- c-c--
