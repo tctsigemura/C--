@@ -22,6 +22,7 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
+ * 2016.08.07 : feof を追加
  * 2016.05.26 : 初期バージョン
  *
  */
@@ -42,6 +43,9 @@ void * _mAlloc(int s);
  * 以下では再現しきれていない
 FILE *_fOpen(char *n, char *m);
 */
+
+// TaC 版では EOF になるタイミングが C 言語より早い
+int _feof(FILE *fp);
 
 // TaC 版では string.cmm に記述されている関数
 int strChr(char *s, int c);

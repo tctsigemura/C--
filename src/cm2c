@@ -1,13 +1,19 @@
 #!/bin/sh
 
+function error {
+  eval  "$@"
+  rm -f ${tmps}
+  exit 1
+}
+
 INCDIR=/usr/local/cmmInclude
 LIBDIR=/usr/local/cmmLib
 
 CFLAGS="-funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
-   -Wno-dangling-else -include ${LIBDIR}/wrapper.h"
+   -Wno-dangling-else -include stdio.h -include ${LIBDIR}/wrapper.h"
 
-CPPFLAGS="-std=c99 -nostdinc -DC"
+CPPFLAGS="-xc++ -nostdinc -DC"
 
 myname=`basename $0`
 exefile="a.out"
@@ -16,12 +22,12 @@ cflag="no"
 eflag="no"
 while [ $# -gt 0 ]; do
     case "$1" in
-	-o) exefile=$2;  shift; shift;;
+        -o) exefile=$2;  shift; shift;;
         -S) sflag="yes"; shift;;
         -c) cflag="yes"; shift;;
         -E) eflag="yes"; shift;;
-	-D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
-	    CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
+        -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
+            CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
         -*) echo  "\"${myname}\" is the C-- compiler driver."     1>&2
             echo  "syntax: ${myname} [switches] <c-- source> ..." 1>&2
             echo  "     switches are :"                           1>&2
@@ -38,7 +44,7 @@ done
 
 
 if [ $# -le 0 ]; then
-    echo "${myname} : no input files." 1>&2
+    echo "${myname} : no input files."                            1>&2
     exit 1
 fi
 
@@ -50,28 +56,31 @@ while [ $# -gt 0 ]; do
     ext=`expr "${j}" : '.*\(\.[^.]*\)'`
     case "${ext}" in
         *.cmm)
-	    if [ "${eflag}" == "yes" ]; then
-		eval cc -E ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} - < $1
-	    else
-		eval cc -E ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} - < $1 |
-		c-c-- -O > ${name}.c
-		if [ "${sflag}" != "yes" ]; then
-                    cc -c ${CFLAGS} -I${LIBDIR} ${name}.c;
-                    rm -f ${name}.c
+            if [ "${eflag}" == "yes" ]; then
+                eval cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} $1 || error
+            else
+                eval cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} $1 \
+                  > $$.tmp || error rm $$.tmp
+                c-c-- -O $$.tmp > ${name}.c || error rm $$.tmp ${name}.c
+                rm $$.tmp
+
+                if [ "${sflag}" != "yes" ]; then
                     objs="${objs} ${name}.o"
                     tmps="${tmps} ${name}.o"
-		fi
-	    fi ;;
+                    cc -c ${CFLAGS} -I${LIBDIR} ${name}.c || error rm ${name}.c
+                    rm -f ${name}.c
+                fi
+            fi ;;
         *.c)
             if [ "${eflag}" != "yes" -a "${sflag}" != "yes" ]; then
-                cc -c ${CFLAGS} -I${LIBDIR} ${name}.c;
                 objs="${objs} ${name}.o"
                 tmps="${tmps} ${name}.o"
+                cc -c ${CFLAGS} -I${LIBDIR} ${name}.c || error
             fi ;;
         *.o)
             objs="${objs} ${name}.o" ;;
         *)
-            echo "${myname} : ${i} : illegal extension." 1>&2
+            echo "${myname} : ${j} : illegal extension." 1>&2
             rm -f ${tmps}
             exit 1;;
     esac

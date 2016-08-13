@@ -22,6 +22,7 @@
 /*
  * wrapper.c : C-- 版と C 版で仕様が異なる関数など
  *
+ * 2016.08.07 : feof を追加
  * 2016.05.26 : #include <wrapper.h> を追加
  * 2016.03.02 : mAlloc, fOpen を追加
  * 2016.02.26 : 初期バージョン
@@ -72,6 +73,14 @@ FILE *_fOpen(char *n, char *m) {
   return fp;
 }
 */
+
+// TaC 版では EOF になるタイミングが早い
+int _feof(FILE *fp) {
+  int c = fgetc(fp);
+  if (c==EOF) return 1;
+  ungetc(c, fp);
+  return 0;
+}
 
 // TaC 版では string.cmm に記述されている関数
 

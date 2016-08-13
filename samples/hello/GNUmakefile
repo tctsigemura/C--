@@ -17,25 +17,26 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# Makefile.rul : ユーザプログラム用の Makefile.rul
+# GNUmakefile : ユーザプログラム用の Makefile
 #
-# 2016.05.24   : cm2e を使用するようにする
-# 2016.01.07   : 初期バージョン
+# 2016.08.11         : 初期バージョン
 #
 # $Id$
 #
 
-# make するソースのサフィックス（拡張子） の一覧
-.SUFFIXES: .o .cmm .s
+#----------------------------------------------------------------------------
+NAME=hello
+SRCS=${NAME}.cmm
+#----------------------------------------------------------------------------
 
-# .cmm -> .o
-.cmm.o:
-	cm2e -c $*.cmm
+all : clean ${NAME}.exe ${NAME}
 
-# .o から .exe ファイルを生成する
-${NAME}.exe : ${OBJS}
-	cm2e -o ${NAME} ${OBJS}
-	rm ${OBJS}
+${NAME}.exe : ${SRCS}
+	cm2e -o ${NAME} ${SRCS}
+
+${NAME} : ${SRCS}
+	cm2c -o ${NAME} ${SRCS}
 
 clean :
-	rm -f *.o *.lst *.sym *.exe *.map *~
+	rm -f ${NAME} *.o *.lst *.sym *.exe *.map *~
+

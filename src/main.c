@@ -40,7 +40,7 @@
 static void usage(char *name) {
   fprintf(stderr,
           "使用方法 : %s [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]\n",
-	  name);
+          name);
   fprintf(stderr, "    <source file> は C--言語ソースコード\n");
   fprintf(stderr, "    <source file> 省略時は stdin から入力\n");
   fprintf(stderr, "    コンパイル結果は stdout へ出力\n");
@@ -61,27 +61,27 @@ int main(int argc, char *argv[]) {
   int i = 1;
 
   if (argc>i &&
-      (strcmp(argv[i],"-v")==0 ||            //  "-v", "-h" で、使い方と
-       strcmp(argv[i],"-h")==0   ) ) {       //   バージョンを表示
+      (strcmp(argv[i],"-v")==0 ||            // "-v", "-h" で、使い方と
+       strcmp(argv[i],"-h")==0   ) ) {       //  バージョンを表示
     usage(argv[0]);
     exit(0);
   }
 
   if (argc>i &&
       (strcmp(argv[i],"-O")==0 ||
-       strcmp(argv[i],"-O1")==0)  ) {        //  "-O","-O1" で、最適化
+       strcmp(argv[i],"-O1")==0)  ) {        // "-O","-O1" で、最適化
     snSetOptFlag(true);
     i = i + 1;
   }
 
   if (argc>i &&
-      (strcmp(argv[i],"-O0")==0)) {          //  "-O0" で、最適化しない
+      strcmp(argv[i],"-O0")==0) {            // "-O0" で、最適化しない
     snSetOptFlag(false);
     i = i + 1;
   }
 
   if (argc>i &&
-      (strcmp(argv[i],"-K")==0)) {           //  "-K" で、カーネルコンパイル
+      strcmp(argv[i],"-K")==0) {             // "-K" で、カーネルコンパイル
     snSetKrnFlag(true);
     i = i + 1;
   }

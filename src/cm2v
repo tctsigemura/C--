@@ -1,18 +1,22 @@
 #!/bin/sh
 
+function error {
+  eval  "$@"
+  exit 1
+}
+
 INCDIR=/usr/local/cmmInclude
 LIBDIR=/usr/local/cmmLib
 
+CPPFLAGS="-xc++ -nostdinc"
+
 myname=`basename $0`
-exefile="a.out"
-sflag="no"
-cflag="no"
 eflag="no"
 while [ $# -gt 0 ]; do
     case "$1" in
         -E) eflag="yes"; shift;;
-	-D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
-	    CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
+        -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
+            CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
         -*) echo  "\"${myname}\" is the C-- compiler driver."     1>&2
             echo  "syntax: ${myname} [switches] <c-- source> ..." 1>&2
             echo  "     switches are :"                           1>&2
@@ -25,7 +29,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ $# -le 0 ]; then
-    echo "${myname} : no input files." 1>&2
+    echo "${myname} : no input files."                            1>&2
     exit 1
 fi
 
@@ -35,15 +39,16 @@ while [ $# -gt 0 ]; do
     ext=`expr "${j}" : '.*\(\.[^.]*\)'`
     case "${ext}" in
         *.cmm)
-	    if [ "${eflag}" == "yes" ]; then
-		eval cc -E ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} - < $1
-	    else
-		eval cc -E ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} - < $1 |
-		vm-c-- -O > ${name}.v
-	    fi ;;
+            if [ "${eflag}" == "yes" ]; then
+                eval cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} $1 || error
+            else
+                eval cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} $1 \
+                  > $$.tmp || error rm $$.tmp
+                vm-c-- -O $$.tmp > ${name}.v || error rm $$.tmp ${name}.v
+                rm $$.tmp
+            fi ;;
         *)
-            echo "${myname} : ${i} : illegal extension." 1>&2
-            rm -f ${tmps}
+            echo "${myname} : ${j} : illegal extension." 1>&2
             exit 1;;
     esac
     shift

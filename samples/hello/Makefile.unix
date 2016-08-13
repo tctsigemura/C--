@@ -1,9 +1,0 @@
-#
-# Makefile.unix : C--言語からMacOSやUNIXの実行形式に変換する手順
-#
-
-hello: hello.cmm
-	cm2c -o hello hello.cmm
-
-clean:
-	rm -f hello
