@@ -240,6 +240,10 @@ while (!feof(fp))
 
 入力ストリームが EOF になっていると \verb/true/ を返します。
 \verb/fgetc/ を実行する前に EOF チェックのために使用します。
+{\bf \cl の\verb/feof/関数と仕様が異なります。}
+\cl の\verb/feof/関数はストリームが EOF になった後で \verb/true/ になりますが、
+\cmml の\verb/feof/関数は次回の操作で EOF になるタイミングで \verb/true/ に
+なります。
 
 \begin{quote}
 \begin{verbatim}
