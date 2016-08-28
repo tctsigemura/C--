@@ -22,10 +22,16 @@
 /*
  * include/stdlib.hmm : lib/stdlib.cmm の外部インタフェース
  *
+ * 2016.08.27 : Cトランスレータの場合を追加
  * 2016.02.26 : 新規作成
  *
  * $Id$
  */
+
+// C トランスレータの場合はC関数の定義を読む
+#ifdef C
+#include <cfunc.hmm>
+#endif
 
 public void[] _alcAddr;                      // ヒープ領域終端を示すポインタ
 public void _stdlibInit();                   // stdlib の初期化
@@ -38,3 +44,4 @@ public int atoi(char[] s);
 public int rand();
 public void srand(int seed);
 public void exit(int status);
+
