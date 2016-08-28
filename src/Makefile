@@ -19,6 +19,7 @@
 #
 # Makefile : c-- の makefile
 #
+# 2016.08.27 v3.1.3  : バグ修正(doc,stdib.hmm)と若干の改良
 # 2016.08.13 v3.1.2  : バグ修正と若干の改良
 # 2016.08.13         : feofの仕様変更
 # 2016.08.12         : cm2c, cm2e, cm2v が cc -E ではなく cpp -xc++ を使用
@@ -47,7 +48,7 @@
 #
 
 CC=cc -std=c99 -Wall
-VER=\"3.1.2\"
+VER=\"3.1.3\"
 DATE="\"`date`\""
 
 all : c-- vm-c-- c-c--
