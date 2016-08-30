@@ -237,21 +237,7 @@ static int getSizeof(void) {
   chkTok('(', "sizeof に '(' が続かない");
   int ty=curType, dm=curDim;                  // getType が壊すので保存し、
   getType();                                  // 型を読む
-  if (curType<=0&&ntGetType(-curType)==TyREF) // typedef なら
-    error("typedefされた型はsizeofで使用できない");
-#ifdef C                                      // トランスレータは sizeof を
-  int a = syNewNode(SySIZE, curType, curDim); //   C言語ソースに出力する
-#else                                         // コンパイラは sizeof を計算する
-  int s = NWORD / 8;                          //   INT またはポインタのサイズ
-  if (curDim==0) {                            //   配列以外で
-    if (curType<=0)                           //     構造体の場合は
-      s = s * ntGetCnt(-curType);             //       フィールド数×INTのサイズ
-    else if (curType==TyCHAR ||
-	     curType==TyBOOL)                 //     char, boolean なら
-      s = NBYTE / 8;                          //       バイトのサイズ
-  }
-  int a = syNewNode(SyCNST, s, TyINT);        //   サイズを格納するノード
-#endif
+  int a = syNewNode(SySIZE, curType, curDim); // sizeofの出現を記録
   curType=ty;                                 // 保存したものをもとに戻す
   curDim = dm;
   chkTok(')', "sizeof が ')' で終わらない");
@@ -673,12 +659,9 @@ static int getReturn(void) {
   return syNewNode(SyRET, exp, SyNULL);
 }
 
-static int lastStat = LxNONTOK;     // 最後の文はどの種類のトークンで始まったか
-
 // 文
 static int getStat(void) {
   int sta = SyNULL;
-  int ltok = tok;                              // 最後に読んだ文(returnがあるか)
   if      (isTok(LxIF))       sta=getIf();     // if 文を見つけた場合
   else if (isTok(LxWHILE))    sta=getWhile();  // while 文を見つけた場合
   else if (isTok(LxDO))       sta=getDoWhile();// do - while 文を見つけた場合
@@ -695,7 +678,6 @@ static int getStat(void) {
     sta = getExpr();                           // 式(w)を読み込む
     chkTok(';', "式文の後ろに ';' がない");
   }
-  lastStat = ltok;                             // 最後に読んだ文(returnがあるか)
   return sta;
 }
 
@@ -722,18 +704,11 @@ static int getBlock(void) {
   return lval;
 }
 
-// プロトタイプ宣言と引数を比較する
-static void chkParam(int idx) {
-  if (ntGetType(idx)!=curType || ntGetDim(idx)!=curDim)
-    error("引数が以前の宣言と異なる");
-}
-
 // 関数宣言の引数リスト( 'f( ... )'の ... 部分)を読み込む
 static void getParams(int idx) {
   int lastTok = ',';                           // '...'の前は ',' でなきゃ
   for(curCnt=-1;isType();curCnt=curCnt-1){     // 型名の間,オフセットを変化
     getType();                                 // 型を読む
-    if (idx>=0) chkParam(idx-curCnt);          // プロトタイプ宣言があれば比較
     getName(false);                            // 仮引数名を登録
     lastTok = tok;                             // ',' があったか記録する
     if (!isTok(',')) break;                    // ',' の間繰り返す
@@ -741,7 +716,6 @@ static void getParams(int idx) {
   if (lastTok==',' && isTok(LxDOTDOTDOT)) {    // '...' があった場合
     curType = TyDOTDOTDOT;                     // 型は便宜的に DOTDOTDOT
     curDim  = 0;
-    if (idx>=0) chkParam(idx-curCnt);          // プロトタイプ宣言があれば比較
     ntDefName("", curScope, TyDOTDOTDOT,       // '...'を関数引数として表に登録
 	      0, curCnt, false);
   }
@@ -753,39 +727,21 @@ static void getParams(int idx) {
 static void getFunc(void) {
   funcIdx = ntGetSize() - 1;       // 処理中の関数(return型のチェックに使用)
   int idx = ntSrcGlob(funcIdx);              // 同じ名前のものはないか
-  if (idx>=0 && (ntGetScope(idx)==ScCOMM || ntGetScope(idx)==ScGVAR))
-    error("2重定義(以前は変数)");
-  if (idx>=0 &&
-      (ntGetType(idx)!=curType||ntGetDim(idx)!=curDim||ntGetPub(idx)!=pubFlag))
-    error("関数の型が以前の宣言と異なっている");
-  if (curType==TyINTR && curDim!=0)
-    error("interrupt型の配列は認められない");
   getTok();                                  // '(' を読み飛ばす
-  lastStat = LxNONTOK;                       // 最後の文(returnで終わっているか)
   curScope = ScLVAR;                         // 仮引数、ローカル変数のスコープ
   int prmIdx = ntGetSize();                  // 仮引数の先頭を記憶
   getParams(idx);                            // 仮引数リストを読み込む
   int prmCnt = ntGetSize()-prmIdx;           // 仮引数の個数を計算
-  if (ntGetType(funcIdx)==TyINTR && prmCnt!=0) // 割込み関数は引数を持てない
-    error("interrupt関数は引数を持てない");
-  ntSetCnt(funcIdx, prmCnt);                 // 関数に引数の個数を記録
-  if (idx>=0 && ntGetCnt(idx)!=ntGetCnt(funcIdx))
-    error("引数の数が以前の宣言と異なっている");
+    ntSetCnt(funcIdx, prmCnt);                 // 関数に引数の個数を記録
   int locIdx = ntGetSize();                  // ローカル変数の先頭を記録
   if (isTok('{')) {                          // 関数本体がある場合
-    if (idx>=0 && ntGetScope(idx)!=ScPROT) error("関数の2重定義");
     if (idx>=0) ntSetScope(idx, ScFUNC);     // 以前の宣言を定義に変更
     ntSetScope(funcIdx, ScFUNC);             // 今回の宣言を定義に変更
     maxCnt = 0;                              // 最大の変数番号
     curCnt = 0;                              // 次出現変数の番号
     getBlock();                              // 関数本体を読み込む
-    if ((ntGetType(funcIdx)!=TyVOID ||       // void型の関数,
-	 ntGetDim(funcIdx)!=0)      &&       //
-	ntGetType(funcIdx)!=TyINTR  &&       // interupt型以外の関数が
-	lastStat!=LxRETURN)                  // return文で終わっていない
-      error("関数が値を返していない");
     //syPrintTree();                         // ### デバッグ用 ###
-    semChkFunc(syGetRoot(), funcIdx);       // 意味解析を行う*************************
+    semChkFunc(syGetRoot(), funcIdx, krnFlag);// 意味解析を行う
     if (optFlag) optTree(syGetRoot());       // 木を最適化する
     //syPrintTree();                         // ### デバッグ用 ###
     genFunc(funcIdx, maxCnt, krnFlag);       //   コード生成
@@ -883,18 +839,14 @@ static void getGVar(void) {
   int curIdx = ntGetSize()-1;                // 処理中の変数
   if (isTok('=')) {                          // '='が続けば初期化部分がある
     ntSetScope(curIdx, ScGVAR);              // 初期化された大域変数
-    if (curDim>0) {                          // 配列の初期化なら
-      getGArrayInit(curDim);                 //   配列の初期化部分 '{ ... }'
-    } else if (curType==TyINT  ||
-               curType==TyCHAR ||
-               curType==TyBOOL) {            // 基本型の初期化なら
+    if (curType==TyINT  ||
+        curType==TyCHAR ||
+        curType==TyBOOL)                     // 基本型の初期化なら
       getCnst();                             //   整数定数式を入力する
-    } else if (curType<=0) {                 // 構造体初期化なら
-      getGArrayInit(curDim);                 //   構造体の初期化部分 '{ ... }'
-    } else error("バグ...getGVar");
+    else getGArrayInit(curDim);              // それ以外は配列or構造体
   }
   //ntDebPrintTable();
-  semChkGVar(curType, curDim, pubFlag);      // 意味解析
+  semChkGVar(curIdx);                        // 意味解析
   genGVar(curIdx);                           // 大域変数の生成
   sySetSize(0);                              // データ生成終了で木を消去する
 }
@@ -936,10 +888,6 @@ static void getProg(void) {
     } else {                                 // 大域変数宣言だと判明
       ntSetScope(ntGetSize()-1, ScCOMM);     // 仮定が外れたので訂正
       curScope = ScCOMM;                     // 仮定が外れたので訂正
-      if (curType==TyVOID && curDim==0)      // 変数だとすればvoid型はエラー
-	error("void型変数は使用できない");
-      if (curType==TyINTR)                   // 変数ならinterrupt型はエラー
-	error("interrupt型変数は使用できない");
       getGVars();                            // グローバル変数宣言
     }
   }

@@ -37,6 +37,7 @@
 
 static int funcIdx;
 static int locIdx;
+static boolean krnFlag;
 
 /*
  * 式の処理
@@ -167,6 +168,23 @@ static struct watch *chkFactor(int node) {
   } else if(syGetType(node)==SySIZE) {         // sizeofならば
     type = syGetLVal(node);                    //  左値が型
     dim  = syGetRVal(node);                    //  右値が次元？
+    if (type<=0&&ntGetType(-type)==TyREF)      // typedef なら
+      error("typedefされた型はsizeofで使用できない");
+#ifdef C                                       // トランスレータは sizeof を
+                                               //   そのままC言語ソースに出力
+#else                                          // コンパイラは sizeof を計算
+    int s = NWORD / 8;                         //   INT またはポインタのサイズ
+    if (dim==0) {                              //   配列以外で
+      if (type<=0)                             //     構造体の場合は
+        s = s * ntGetCnt(-type);               //       フィールド数×INTのサイズ
+      else if (type==TyCHAR ||
+	             type==TyBOOL)                   //     char, boolean なら
+        s = NBYTE / 8;                         //       バイトのサイズ
+    }
+    sySetType(node,SyCNST);                    //   定数
+    sySetLVal(node, s);                        //   サイズ
+    sySetRVal(node, TyINT);                    //   型はINT
+#endif
   } else {                                     // これら以外は渡されないはず
     error("バグ...semantic.c : chkFactor(watch *w);");
   }
@@ -408,6 +426,15 @@ static void chkRet(int node) {
   }
 }
 
+static void chkName(int curType, int curDim, int curScope) {
+  if (curScope!=ScPROT && curType==TyVOID && curDim==0)  // 関数以外でvoid型は
+    error("void型変数/引数は使用できない");              //   ポインタだけOK
+  if (curScope!=ScPROT && curType==TyINTR)               // 関数以外でintrrupt
+    error("interrupt型変数/引数は使用できない");         //   型は使用できない
+  if (curType==TyINTR && !krnFlag)                       // カーネルのみintrrupt
+    error("interrupt型はカーネルのみで使用可");          //   型は使用できる
+}
+
 // 構文木をトレースする
 static void traceTree(int node) {
   if (node==SyNULL) return;                       // 何も無い
@@ -423,7 +450,9 @@ static void traceTree(int node) {
     traceTree(syGetLVal(node));                   //   先に左側を解析
     traceTree(syGetRVal(node));                   //   次に右側を解析
   } else if (ty==SyVAR) {                         // ローカル変数宣言
-    ;                                             //   特にやることがない
+    int curType = syGetLVal(syGetRVal(node));
+    int curDim  = syGetRVal(syGetRVal(node));
+    chkName(curType, curDim, ScLVAR);
   } else {                                        // 式文
     chkExpr(node);                                //  式 解析
   }
@@ -526,19 +555,18 @@ static void semChkData(int curIdx, int idx) {
   int ltype = ntGetType(curIdx);           // 処理中の変数の型と
   int ldim  = ntGetDim(curIdx);            //   次元を取ってくる
   int node  = syGetRoot();
+  chkName(ltype, ldim, ScGVAR);            // 名前チェック
   if (syGetType(node)==SyLIST) {           // LISTなら
     if (ltype!=TyCHAR && ltype!=TyBOOL)    // バイト単位の配列以外
       sySetRVal(node, 0);                  //  右値が0
-    if (ltype<=0) {                        //  構造体初期化の場合
-      chkLstSemi(node, ltype, ldim);
-    } else {                               //  配列初期化の場合
-      chkLstSemi(node, ltype, ldim);
-    }
+    chkLstSemi(node, ltype, ldim);
   } else if (syGetType(node)==SyARRY) {    // arrayなら
     int cnt = chkArry(syGetLVal(node));    //  式の個数を調べる
     if (ldim<cnt)
       error("array の次元が配列の次元を超える");
   } else {
+    if (syGetType(node)==SySEMI)
+      error("バグ...SySEMIは来ないはず, semChkData");
     if (chkNull(syGetType(node), syGetRVal(node),
         syGetLVal(node), ldim, ltype)){    // null初期化かチェック
       struct watch *w = chkBiExpr(node);   //  式として解析
@@ -563,27 +591,64 @@ static void semChkBss(int curIdx, int idx) {
  ***/
 
 // 関数の意味解析
-void semChkFunc(int node, int idx){
-  syDebPrintTree();
-  funcIdx = idx;                           // 名前表上の関数名の番号
+void semChkFunc(int node, int fidx, boolean kFlag){
+  syDebPrintTree();                        // ### DEBUG ###
+  funcIdx = fidx;                          // 名前表上の関数名の番号
+  krnFlag = kFlag;
+  int curType = ntGetType(funcIdx);        // 扱う関数の型
+  int curDim  = ntGetDim(funcIdx);         //         と次元
+  boolean curPub  = ntGetPub(funcIdx);     //         とpubフラグ
+  int idx = ntSrcGlob(funcIdx);            // 同じ名前のものはないか
+  if (idx>=0 && (ntGetScope(idx)==ScCOMM || ntGetScope(idx)==ScGVAR))
+    error("2重定義(以前は変数)");
+  if (idx>=0 &&
+      (ntGetType(idx)!=curType||ntGetDim(idx)!=curDim||ntGetPub(idx)!=curPub))
+    error("関数の型が以前の宣言と異なっている");
+  if (curType==TyINTR && curDim!=0)
+    error("interrupt型の配列は認められない");
+  if (idx>=0) {                            // プロトタイプ宣言があれば
+    int curCnt = ntGetCnt(funcIdx);
+    if (ntGetCnt(idx)!=curCnt)
+      error("引数の数が以前の宣言と異なっている");
+    for (int i=1;i<=curCnt;i=i+1) {
+      curType = ntGetType(funcIdx+i);      //   引数を比較
+      curDim  = ntGetDim(funcIdx+i);
+      if (ntGetType(idx+i)!=curType || ntGetDim(idx+i)!=curDim)
+        error("引数が以前の宣言と異なる"); 
+    }
+  }
+  if (ntGetType(funcIdx)==TyINTR && ntGetCnt(funcIdx)!=0)
+    error("interrupt関数は引数を持てない");
+  if (idx>=0 && ntGetScope(idx)!=ScPROT) error("関数の2重定義");
   locIdx  = funcIdx + ntGetCnt(funcIdx);   // 1つ目のローカル変数の1つ前
   traceTree(node);                         // 構文木をトレースする
+  int lastNode;                            //  関数最後の文のノード
+  if (syGetType(syGetRoot())!=SyBLK)       //  SyBLKでないなら
+    lastNode = syGetRoot();            //  そのものが，
+  else                                     //  SyBLKならば
+    lastNode = syGetRVal(syGetRoot()); //  右の値が，関数最後の文
+  if ((ntGetType(funcIdx)!=TyVOID ||       // void型の関数,
+	     ntGetDim(funcIdx)!=0)      &&       //
+       ntGetType(funcIdx)!=TyINTR &&       // interupt型以外の関数が
+       syGetType(lastNode)!=SyRET)         // return文で終わっていない
+      error("関数が値を返していない");
 }
 
-void semChkGVar(int curType, int curDim, boolean pubFlag) {
-  int curIdx = ntGetSize()-1;              // 処理中の変数
+void semChkGVar(int curIdx) {
   int idx = ntSrcGlob(curIdx);             // 2重定義の可能性があるか？
   if (syGetRoot()!=SyNULL) semChkData(curIdx, idx);
   else semChkBss(curIdx, idx);
+  int curType = ntGetType(curIdx);
+  int curDim  = ntGetDim(curIdx);
+  int pubFlag = ntGetPub(curIdx);
   if (idx>=0) {
     if (ntGetType(idx)!=curType||ntGetDim(idx)!=curDim||ntGetPub(idx)!=pubFlag)
       error("変数の型が以前の宣言と異なっている");
   }
+  if (curType==TyVOID && curDim==0)      // void型はエラー
+    error("void型変数は使用できない");
+  if (curType==TyINTR)                   // interrupt型はエラー
+    error("interrupt型変数は使用できない");
+
 }
 
-/*
-// 文字列の意味解析 ?
-void semChkStr(int curIdx) {
-
-}
-*/

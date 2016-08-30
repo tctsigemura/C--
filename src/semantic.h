@@ -27,6 +27,6 @@
  *
  */
 
-void semChkFunc(int node, int func);
-void semChkGVar(int curType, int curDim, boolean pubFlag);
-void semChkStr(int curIdx);
+void semChkFunc(int node, int idx, boolean krnFlag);
+void semChkGVar(int curIdx);
+//void semChkStr(int curIdx);
