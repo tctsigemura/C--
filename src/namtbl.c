@@ -156,6 +156,12 @@ void ntPrintTable(char *name){
       , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
 }
 
+void ntDebPrintTable(){
+  for (int i=0; i<ntNextIdx; i=i+1)              // 表全体について
+    printf("%s %d %d %d %d %d\n"
+      , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
+}
+
 /* 名前表の読み込み */
 void ntLoadTable(char *name){
   FILE *fp;

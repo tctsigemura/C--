@@ -430,20 +430,37 @@ static void traceTree(int node) {
 }
 static int strcIdx;
 
+// null初期化が適切か調べる
+static boolean chkNull(int node, int rval, int lval, int dim, int type) {
+  if((node==SyCNST) &&
+     (rval==TyREF)  &&
+     (lval==0)         ) {         // null初期化なら
+    if (!(dim!=0||type<=0))        // 構造体or配列のはず
+      error("nullの使用が不適切");
+    return false;                  // null初期化が適切
+  }
+  return true;                     // null初期化ではない
+}
+
 static void chkStrc(int node, int maxIdx);
 static void chkStrc(int node, int maxIdx) {
   struct watch *w = null;
   if (syGetType(node)==SySEMI) {               // SySEMIならば
-    chkStrc(syGetLVal(node), maxIdx);         //  左辺はSySEMIかも
-    w = chkAsExpr(syGetRVal(node));            //  右辺を代入式解析
+    chkStrc(syGetLVal(node), maxIdx);          //  左辺はSySEMIかも
+    node = syGetRVal(node);                    //  右辺を代入式解析
+    if (syGetType(node)==SyLIST)
+      error("構造体初期化式で\"{...}\"が多すぎる");
   } else if (syGetType(node)==SyLIST) {        // SyLISTは来ない
-    error("構造体配列初期化の次元が多すぎる");
-  } else {                                     // SySEMIでなければ
-    w = chkAsExpr(node);                       //  自身を代入式解析
-  }
+    error("構造体初期化式で\"{...}\"が多すぎる");
+  }                                            // SySEMIでなければ
+  w = chkAsExpr(node);                         //  自身を代入式解析
   if (strcIdx>maxIdx) error("フィールド数が多い");
-  chkCmpat(w, ntGetType(strcIdx),              //  式を引数に代入可能か
-              ntGetDim(strcIdx));              //  チェックして 
+  int nType = ntGetType(strcIdx);              //  名前表から型をとる
+  int nDim  = ntGetDim(strcIdx);               //    次元をとる
+  if (chkNull(syGetType(node), syGetRVal(node),
+              syGetLVal(node), nDim, nType)) { // null初期化かチェック
+    chkCmpat(w, nType, nDim);                  //  式を引数に代入可能か
+  }
   strcIdx = strcIdx + 1;                       //  仮引数番号を進める
 }
 
@@ -457,18 +474,26 @@ static void chkLstSemi(int node, int type, int dim) {
     chkLstSemi(syGetRVal(node), type, dim);    //  右辺はLISTか式
   } else if (syGetType(node)==SyLIST) {        // SyLISTならば
     if (dim==0 && type<=0) {                   //  構造体かもしれない
+      sySetRVal(node, SyNULL);                 //  構造体の右値はSyNULL
       strcIdx = -type + 1;                     //  typeがインデクス
       int maxIdx = ntGetCnt(strcIdx-1);        // フィールド数を読む
+      maxIdx = maxIdx + strcIdx - 1;
       chkStrc(syGetLVal(node), maxIdx);
       if (strcIdx-1!=maxIdx)
         error("構造体初期化のフィールド数が少ない");
     }  else {                                  //  構造体じゃなければ
       if (dim<=0) error("配列初期化の次元が多すぎる");
+      if (type!=TyCHAR && type!=TyBOOL)        // バイト単位の配列以外
+        sySetRVal(node, 0);                    //  右値が0
+
       chkLstSemi(syGetLVal(node), type, dim-1);//  LIST初期化
     }
   } else {                                     // それ以外ならば
-    struct watch *w = chkBiExpr(node);         //  式解析
-    chkCmpat(w, type, dim);                    //  代入可能かチェック
+    if (chkNull(syGetType(node), syGetRVal(node),
+            syGetLVal(node), dim, type)) {     // null初期化かチェック
+      struct watch *w = chkBiExpr(node);       //  式解析
+      chkCmpat(w, type, dim);                  //  代入可能かチェック
+    }
   }
 }
 
@@ -502,7 +527,9 @@ static void semChkData(int curIdx, int idx) {
   int ldim  = ntGetDim(curIdx);            //   次元を取ってくる
   int node  = syGetRoot();
   if (syGetType(node)==SyLIST) {           // LISTなら
-    if (ltype<=0) {                         //  構造体初期化の場合
+    if (ltype!=TyCHAR && ltype!=TyBOOL)    // バイト単位の配列以外
+      sySetRVal(node, 0);                  //  右値が0
+    if (ltype<=0) {                        //  構造体初期化の場合
       chkLstSemi(node, ltype, ldim);
     } else {                               //  配列初期化の場合
       chkLstSemi(node, ltype, ldim);
@@ -511,10 +538,14 @@ static void semChkData(int curIdx, int idx) {
     int cnt = chkArry(syGetLVal(node));    //  式の個数を調べる
     if (ldim<cnt)
       error("array の次元が配列の次元を超える");
-  } else {                                 // それ以外なら
-    struct watch *w = chkBiExpr(node);     //  式として解析
-    chkCmpat(w, ltype, ldim);              //  代入可能かチェック
+  } else {
+    if (chkNull(syGetType(node), syGetRVal(node),
+        syGetLVal(node), ldim, ltype)){    // null初期化かチェック
+      struct watch *w = chkBiExpr(node);   //  式として解析
+      chkCmpat(w, ltype, ldim);            //  代入可能かチェック
+    }
   }
+  syDebPrintTree();
 }
 
 // 非初期化データの意味解析

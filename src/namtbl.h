@@ -81,6 +81,8 @@ void ntUndefName(int idx);        // 名前表をもとに戻す
 void ntPrintTable(char *name);
 void ntLoadTable(char *name);
 
+void ntDebPrintTable();
+
 #define ntGetSize()     (ntNextIdx)       // 名前表のサイズを返す
 
 #define ntGetName(idx)  (ntName[idx])    // 名前表からデータを取り出す。

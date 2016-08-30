@@ -811,9 +811,8 @@ static void getFunc(void) {
 static int getGArrayInit(int dim);           // 再帰呼出があるので宣言必要
 
 // 初期化に使用される定数式を読み込む     **********optTreeに移植予定
-static int getCnst(int typ) {
+static int getCnst() {
   int tree = getAsExpr();                    // 初期化式にはカンマ式不可
-  //chkCmpat(w, typ, 0);                     // 初期化(代入)できるかチェック
   optTree(tree);                             // 定数式を計算する
   int ty = syGetType(tree);
   if (ty!=SyCNST && ty!=SyLABL && ty!=SySTR && ty!=SySIZE)
@@ -824,7 +823,7 @@ static int getCnst(int typ) {
 // array(n1 [, n2] ...) を読み込む */
 static int getArray0(int dim) {
   //if (dim<=0) error("array の次元が配列の次元を超える");
-  int node = getCnst(TyINT);                 // 整数定数式を読み込む
+  int node = getCnst();                 // 整数定数式を読み込む
   if (syGetLVal(node)<=0)
     error("配列のサイズは正であるべき");
   if (isTok(',')) {                          // ',' が続くなら
@@ -844,99 +843,38 @@ static int getArray(int dim) {
   return syNewNode(SyARRY, node, d);         // 構造体と配列と同じ扱い
 }
 
-// 構造体初期化('{ ... }'を読み込む
-static int getStructInit0() {
-  int node = SyNULL;
-  int i=-curType+1;                          // i が構造体フィールドを指す
-  do {
-    //if (i>=ntGetSize()||ntGetScope(i)!=ScVOID)
-    //  error("構造体初期化がフィールドより多い");
-    int n = 0;
-    if (ntGetType(i)<=0) {                   // フィールドが構造体の場合
-      chkTok(LxNUL, "入れ子構造体の初期化は null だけ");
-      n = syNewNode(SyCNST, 0, TyREF);
-    } else if (ntGetDim(i)>0) {              // フィールドが配列の場合
-      if (isTok(LxSTRING)) {                 // 入力が文字列なら
-	if (ntGetDim(i)!=1||ntGetType(i)!=TyCHAR)
-	  error("文字列で初期化できない");
-	int lab = genStr(lxGetStr());        // .Lx STRING "..." を出力
-	n = syNewNode(SySTR, lab, SyNULL);
-      } else if (isTok(LxNUL)) {             // 配列を null で初期化
-	n = syNewNode(SyCNST, 0, TyREF);
-      } else error("構造体フィールドの配列初期化は文字列か null だけ");
-    } else if (ntGetType(i)==TyINT) {        // フィールドが整数型の場合
-      n = getCnst(TyINT);                    //   整数定数式を読み込む
-    } else if (ntGetType(i)==TyBOOL) {       // フィールドが論理型の場合
-      n = getCnst(TyBOOL);                   //   論理型定数式を読み込む
-    } else if (ntGetType(i)==TyCHAR) {       // フィールドが文字型の場合
-      n = getCnst(TyCHAR);                   //   文字型定数式を読み込む
-    } else error("バグ...getStructInit0");
-    node = syCatNode(node, n);
-    i=i+1;                                   // i を進める
-  } while (isTok(','));                      // ',' が続く間繰り返す
-  // if (i<ntGetSize() && ntGetScope(i)==ScVOID)
-  //   error("構造体の初期化がフィールドより少ない");
-  return node;
-}
-
-// 構造体の初期化
-static int getStructInit() {
-  int node = SyNULL;
-  if (isTok(LxNUL)) {                        // null による初期化の場合
-    node = syNewNode(SyCNST, 0, TyREF);      // NULL を木に登録
-  } else {                                   // '{ ... }' による初期化の場合
-    chkTok('{', "構造体の初期化が '{' で始まっていない");
-    node = getStructInit0();                 // 初期化の内容を読み込む
-    node = syNewNode(SyLIST, node, SyNULL);
-    chkTok('}', "構造体の初期化が '}' で終わっていない");
-  }
-  return node;
-}
-
 // 配列初期化('{ ... }'の ... を読み込む
 static int getGArrayInit0(int dim) {
-  int node = SyNULL;                         // 最初はリスト要素が空
-  if (dim<=1) {                              // 最後の１次元の場合
-    if (curType<=0) {                        //   型が構造体型なら
-      do {
-        int r = getStructInit();             //     構造体の初期化を読み込む
-        node = syCatNode(node, r);           //     リストにつなぐ
-      } while (isTok(','));                  //      ',' が続く間、繰り返す
-    } else if (curType==TyINT  ||
-               curType==TyCHAR ||
-               curType==TyBOOL) {            //   型が基本型なら
-      do {
-        int n = getCnst(curType);            //     定数式を読み込む
-        node = syCatNode(node, n);           //     リストにつなぐ
-      } while (isTok(','));                  //     ',' が続く間、繰り返す
-    } else error("バグ...getGArrayInit0");
-  } else {                                   // 2次元以上の配列の場合
-    do {
-      int r = getGArrayInit(dim-1);          //   1次元低い配列の読み込み
-      node = syCatNode(node, r);             //   リストにつなぐ
-    } while (isTok(','));                    //   ',' が続く間繰り返す
-  }
-  int d = 0;
-  if (curType==TyCHAR || curType==TyBOOL)    // バイト単位の配列にするもの
-    d = dim;
-  return syNewNode(SyLIST, node, d);         // リストを返す
+  int node = SyNULL;                     // 最初はリスト要素が空
+  int n = getCnst();
+  node = syCatNode(node, n);
+  while (isTok(',')) {
+    int n = getGArrayInit(dim);          //     定数式を読み込む
+    node = syCatNode(node, n);           //     リストにつなぐ
+  }                                      //     ',' が続く間、繰り返す
+  return node;
 }
 
 // 大域配列の初期化
 static int getGArrayInit(int dim) {
-  int node = 0;
+  int node = SyNULL;
   if (isTok('{')) {                          // '{ ... ' の初期化の場合
-    node = getGArrayInit0(dim);              // 初期化の本体(リスト)を読み込む
+    do {
+      int r = getGArrayInit(dim-1);          //   1次元低い配列の読み込み
+      node = syCatNode(node, r);             //   リストにつなぐ
+    } while (isTok(','));                    //   ',' が続く間繰り返す
     chkTok('}', "初期化で '}'が不足");       // '}' をチェック
+    node = syNewNode(SyLIST, node, dim);
   } else if (isTok(LxSTRING)) {              // 文字列による初期化の場合
-    if (curType!=TyCHAR || dim!=1) error("文字列による初期化の型");
     int l = genStr(lxGetStr());              // .L STRING "..." を出力
     node = syNewNode(SySTR, l, SyNULL);      // 文字列を木に登録
   } else if (isTok(LxARRAY)) {               // 'array( ... ) の場合
     node = getArray(dim);                    // array の括弧の中を読み込む
   } else if (isTok(LxNUL)) {                 // null による初期化の場合
     node = syNewNode(SyCNST, 0, TyREF);      // NULL を木に登録
-  } else error("配列の初期化");              // 上のどれでもない入力
+  } else {
+    node = getGArrayInit0(dim);
+  }
   return node;
 }
 
@@ -950,11 +888,12 @@ static void getGVar(void) {
     } else if (curType==TyINT  ||
                curType==TyCHAR ||
                curType==TyBOOL) {            // 基本型の初期化なら
-      getCnst(curType);                      //   整数定数式を入力する
+      getCnst();                             //   整数定数式を入力する
     } else if (curType<=0) {                 // 構造体初期化なら
-      getStructInit();                       //   構造体の初期化部分 '{ ... }'
+      getGArrayInit(curDim);                 //   構造体の初期化部分 '{ ... }'
     } else error("バグ...getGVar");
   }
+  //ntDebPrintTable();
   semChkGVar(curType, curDim, pubFlag);      // 意味解析
   genGVar(curIdx);                           // 大域変数の生成
   sySetSize(0);                              // データ生成終了で木を消去する
