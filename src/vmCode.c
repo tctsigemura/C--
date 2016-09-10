@@ -746,7 +746,7 @@ static void genList0(int node, int dim, boolean byt) {
   } else if (dim==0) {                           // コード生成すべき深さ
     if (byt) {                                   //   バイト配列の末端
       if (syGetType(node)!=SyCNST)
-        error("バグ...genList0");             //     定数だけ OK
+        error("バグ...genList0");                //     定数だけ OK
       vmDbCns(syGetLVal(node));                  //     DB XX を生成
     } else {                                     //   ワード配列(ポインタ含む)
       genDW(node);                               //     DW XX を生成
