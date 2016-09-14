@@ -11,8 +11,9 @@ for i in $*; do
    cpp -DC -xc++ -Wno-comment -nostdinc -I${INCDIR} -I${LIBDIR} ${i} |
    ../../../src/c-c-- -O > $$.c
    diff ${n}.c $$.c
-   cc -S -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare  \
+   cc -S -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
      -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
+     -Wno-dangling-else -include stdio.h -include ${LIBDIR}/wrapper.h \
      $$.c 
 done
 

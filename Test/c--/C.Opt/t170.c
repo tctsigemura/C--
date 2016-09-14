@@ -53,7 +53,7 @@ static int f2(int _cmm_1P,int _cmm_2P){
 int _cmm_1L;
 int _cmm_2L;
 int *_cmm_3L;
-(_cmm_3L=malloc(10));
+(_cmm_3L=_mAlloc(10));
 {
 int _cmm_4L;
 (_cmm_4L=_cmm_1P);
