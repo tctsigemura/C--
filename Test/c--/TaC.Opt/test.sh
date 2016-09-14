@@ -7,7 +7,7 @@ for i in $*; do
    j=`basename ${i}`
    echo '[!!!' ${j} '!!!]'
    n=`expr ${j} : '\([^\.]*\)'`
-   cc -E -Wno-comment -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < ${i} |
+   cpp -xc++ -Wno-comment -nostdinc -I${INCDIR} -I${LIBDIR} ${i} |
    ../../../src/c-- -O > t.$$
    diff ${n}.s t.$$
 done
