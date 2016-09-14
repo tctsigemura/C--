@@ -22,6 +22,7 @@
 /*
  * lexical.h : 字句解析部の外部仕様を定義
  *
+ * 2016.09.16         : lxSetFname(), lxGetFname()を削除（utilに移動）
  * 2016.02.05 v3.0.0  : トランスレータ用と統合(LxTYPEDEF, LxFILE 追加)
  * 2011.01.12         : addr, refer 演算子を削除
  * 2010.12.15         : v2.0 に向けて ord, chr, bool, addr, refer 演算子等を追加
@@ -88,8 +89,6 @@
 #define LxNONTOK    256        // トークン値として表れない値
 
 int   lxGetTok(void);          // 字句解析ルーチン
-void  lxSetFname(char *s);     // ファイル名を記憶させる
-char *lxGetFname(void);        // 入力ファイル名を読み出す
 int   lxGetLn(void);           // 行番号を返す
 int   lxGetVal(void);          // 数値等を読んだときの値を返す
 char *lxGetStr(void);          // 名前、文字列の綴を返す

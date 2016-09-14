@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2016.09.24         : ファイル名の管理をlexicalからutilに移動
  * 2016.07.29         : SyCNSTノードに型情報を追加
  * 2016.06.26         : 可変個引数関数の実引数に void 関数が渡されたとき
  *                      エラーを見逃すバグを修正
@@ -115,9 +116,11 @@ static boolean krnFlag = false;     // カーネルコンパイルモード
 static int tok;                              // 次のトークン
 
 static void getTok() {                       // ディレクティブ以外を入力する
-  do {                                       //
+  for (;;) {
     tok = lxGetTok();                        // 次のトークンを入力する
-  } while (tok==LxFILE);                     // ディレクティブならやり直し
+    if (tok!=LxFILE) break;                  // ディレクティブ以外なら完了
+    setFname(lxGetStr());                    // ディレクティブなら
+  }                                          //   ファイル名を記憶してやり直し
 }
 //-----------------------------------------------------------------------------
 #else
@@ -129,12 +132,15 @@ static int _tok;                             // 次のトークン
 
 static void getTok() {                       // 次のトークンを入力する
   _tok = lxGetTok();                         //   ディレクティブも入力する
+  if (_tok==LxFILE) setFname(lxGetStr());    // ディレクティブならファイル名記憶
 }
 
 #define tok _getTok()                        // tok 使用は、_getTok() に置換え
 static int _getTok() {                       // tok 使用時に
-  while (_tok==LxFILE)                       //   ディレクティブを読み飛ばす
-    _tok = lxGetTok();                       //   ディレクティブを
+  while (_tok==LxFILE) {                     //   ディレクティブを読み飛ばす
+    _tok = lxGetTok();                       //     次もディレクティブなら     
+    if (_tok==LxFILE) setFname(lxGetStr());  //       ファイル名記憶記憶して
+  }                                          //         やり直す
   return _tok;
 }
 //-----------------------------------------------------------------------------
