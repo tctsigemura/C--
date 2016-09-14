@@ -22,6 +22,7 @@
 /*
  * main.c : C--コンパイラのメインルーチン
  *
+ * 2016.09.14         : lxSetFname()をsetFname()に変更(lexicalからutilに移動）
  * 2016.06.04         : eOpen() を使用するように変更
  * 2016.02.05 v3.0.0  : syntax.c から分離して新規作成
  *
@@ -88,10 +89,10 @@ int main(int argc, char *argv[]) {
 
   if (argc==i+1) {                           // 引数としてソースファイルがある
     fp = eOpen(argv[i],"r");                 // ソースファイルをオープン
-    lxSetFname(argv[i]);                     // error表示用にファイル名を登録
+    setFname(argv[i]);                       // error表示用にファイル名を登録
   } else if (argc==i) {
     fp = stdin;
-    lxSetFname("STDIN");                     // error表示用にファイル名を登録
+    setFname("STDIN");                       // error表示用にファイル名を登録
   } else {
     usage(argv[0]);
     exit(1);

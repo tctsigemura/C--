@@ -22,6 +22,7 @@
 /*
  * util.c : 良く使う関数
  *
+ * 2016.09.14         : setFname() を追加
  * 2016.06.04         : eOpen() を追加
  * 2016.03.01         : NULL を null に書き換え
  * 2016.02.24         : strEndsWith 関数のバグ訂正
@@ -44,9 +45,20 @@
 #include "lexical.h"
 #include "util.h"
 
+/* エラーメッセージに必要なファイル名を管理する */
+static char fname[StrMAX + 1];                     // 入力ファイル名
+void setFname(char s[]) {                          // 入力ファイル名を記憶する
+  int i;
+  for (i=0; i<=StrMAX; i=i+1) {
+    fname[i] = s[i];
+    if (fname[i]=='\0') break;
+  }
+  if (fname[i]!='\0') error("ファイル名が長すぎる");
+}
+
 /* エラーメッセージを表示して終了する */
 void errmsg() {
-  fprintf(stderr,"\"%s\": %d : ", lxGetFname(), lxGetLn());
+  fprintf(stderr,"\"%s\": %d : ", fname, lxGetLn());
 }
 
 void error(char s[]) {

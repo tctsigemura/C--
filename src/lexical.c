@@ -80,7 +80,6 @@ static int  ln     = 1;                            // 現在の行
 static int  ln2    = 0;                            // 現在の行
 static int  val;                                   // 数値を返す場合、その値
 static char str[StrMAX + 1];                       // 名前を返す場合、その綴
-static char fname[StrMAX + 1];                     // 入力ファイル名
 static FILE * fp;                                  // ソースコードファイル
 
 // 一文字を読み込む
@@ -205,10 +204,10 @@ static int getSharp() {
   int i;
   for (i=0; i<=StrMAX; i=i+1) {                    // ファイル名を読み込む
     if (ch=='"' || ch=='\n' || ch==EOF) break;     // 終わったら break
-    fname[i] = str[i] = ch;                        // ファイル名を記憶
+    str[i] = ch;                                   // ファイル名を記憶
     getCh();
   }
-  fname[i] = str[i] = '\0';                        // ファイル名を完成する
+  str[i] = '\0';                                   // ファイル名を完成する
   if (ch!='"') error("#の\"が閉じてないか長すぎる");
   skipToEol();                                     // 行末まで読み飛ばす
   return LxFILE;                                   // ファイル名を読んだ
@@ -373,24 +372,13 @@ int lxGetTok(){                                    // トークンを取り出�
   } else {                                         // ch がそれ以外なら
     tok = getSign();                               // 記号を読み込む
   }
-  return tok;                                      /* トークン値を返す       */
+  return tok;                                      // トークンを返す
 }
 
-void lxSetFname(char s[]) {                    // 入力ファイル名をセットする
-  int i;
-  for (i=0; i<=StrMAX; i=i+1) {
-    fname[i] = s[i];
-    if (fname[i]=='\0') break;
-  }
-  if (fname[i]!='\0') error("ファイル名が長すぎる");
-}
+int lxGetLn() { return ln; }                       // 行番号を返す
 
-char *lxGetFname() { return fname; }           // 入力ファイル名を読み出す
+int lxGetVal() { return val; }                     // 数値等の値を返す
 
-int lxGetLn() { return ln; }                   // 行番号を返す
+char *lxGetStr() { return str; }                   // 名前、文字列の綴を返す
 
-int lxGetVal() { return val; }                 // 数値等を読んだときの値を返す
-
-char *lxGetStr() { return str; }               // 名前、文字列の綴を返す
-
-void lxSetFp(FILE *p) { fp = p; }              // fp をセットする
+void lxSetFp(FILE *p) { fp = p; }                  // fp をセットする

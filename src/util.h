@@ -22,6 +22,7 @@
 /*
  * util.h : よく使う関数や定数の定義
  *
+ * 2016.09.14         : setFname() を追加
  * 2016.06.04         : StrMAX, eOpen() を追加
  * 2016.03.01         : null の値を 0 から NULL に変更
  * 2016.02.05 v3.0.0  : トランスレータと統合(strEndsWith 関数を追加)
@@ -49,6 +50,7 @@
 #define BMSK (((unsigned)1<<(NBYTE-1)|(((unsigned)1<<(NBYTE-1))-1))) // バイト
 
 // 良く使う関数
+void setFname(char s[]);                  // エラーメッセージ用ファイル名を記憶
 void error(char s[]);                     // エラーメッセージを表示後終了
 void error2(char s1[], char s2[]);        // エラーメッセージを表示後終了
 void *ealloc(int s);                      // エラーチェックつきの malloc
