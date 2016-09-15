@@ -22,6 +22,8 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
+ * 2016.09.15         : syGetSize() を削除
+ *                      sySetSize() を syClear() に名前変更
  * 2016.06.06         : syNewNode() が行番号も記録するように変更
  * 2016.06.04         : syGetSize() を追加
  *                      syClear() を sySetSize() に名前変更
@@ -72,14 +74,9 @@ int syCatNode(int lval, int rval) {
   return rval;                                 // どちらでもなければ右を返す
 }
 
-// 構文木表の現在のサイズを返す
-int syGetSize() {
-  return syNextIdx;
-}
-
-// 構文木表の n 以降を捨てる
-void sySetSize(int n) {
-  syNextIdx = n;
+// 構文木を消す
+void syClear() {
+  syNextIdx = 0;
 }
 
 // 構文木のルートを取り出す
@@ -90,7 +87,7 @@ int syGetRoot() {
 }
 
 // デバッグ用
-//#ifdef DEBUG
+/*
 struct D {char * a; int b; };
 static struct D d[] = {
   // 特別な値
@@ -171,4 +168,4 @@ void syPrintTree() {
       fprintf(stderr,"%4d)\n", syGetRVal(i));
   }
 }
-//#endif
+*/

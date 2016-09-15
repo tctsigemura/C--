@@ -22,7 +22,8 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
- * 2016.09.24         : ファイル名の管理をlexicalからutilに移動
+ * 2016.09.15         : sySetSize(0) を syClear() に変更
+ * 2016.09.14         : ファイル名の管理をlexicalからutilに移動
  * 2016.07.29         : SyCNSTノードに型情報を追加
  * 2016.06.26         : 可変個引数関数の実引数に void 関数が渡されたとき
  *                      エラーを見逃すバグを修正
@@ -993,7 +994,7 @@ static void getFunc(void) {
     if (optFlag) optTree(syGetRoot());       // 木を最適化する
     //syPrintTree();                         // ### デバッグ用 ###
     genFunc(funcIdx, maxCnt, krnFlag);       //   コード生成
-    sySetSize(0);                            // コード生成終了で木を消去する
+    syClear();                               // コード生成終了で木を消去する
   } else {                                   // プロトタイプ宣言の場合
     chkTok(';', "プロトタイプ宣言が ';' で終わっていない");
 #ifdef C
@@ -1163,7 +1164,7 @@ static void getGVar(void) {
       getStructInit();                       //   構造体の初期化部分 '{ ... }'
     } else error("バグ...getGVar");
     genData(curIdx);                         // 初期化済みデータを生成
-    sySetSize(0);                            // データ生成終了で木を消去する
+    syClear();                               // データ生成終了で木を消去する
     if (idx>=0) {                            // 既に登録されていた場合
       if (ntGetScope(idx)!=ScCOMM) error("2重定義"); // コモン以外は2重定義
       ntSetScope(idx, ScGVAR);               // 初期化済データに変更

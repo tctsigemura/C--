@@ -108,6 +108,6 @@ void ntDefName(char *name, int scope, int type, int dim, int cnt, boolean pub){
 /* 名前表をもとに戻す */
 void ntUndefName(int idx) {                      // idx まで戻す
   for (int i=idx; i<ntNextIdx; i=i+1)            // 名前のつづり用の領域を順に
-    free(ntName[i]);                            // 解放していく
+    free(ntName[i]);                             // 解放していく
   ntNextIdx = idx;                               // nextIdx を戻せば完成
 }
