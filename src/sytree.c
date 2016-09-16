@@ -22,6 +22,7 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
+ * 2016.09.16         : sySetLn() の使用をコメントアウト
  * 2016.09.15         : syGetSize() を削除
  *                      sySetSize() を syClear() に名前変更
  * 2016.06.06         : syNewNode() が行番号も記録するように変更
@@ -60,7 +61,7 @@ int syNewNode(int type, int lVal, int rVal) {
   sySetType(idx, type);
   sySetLVal(idx, lVal);
   sySetRVal(idx, rVal);
-  sySetLn(idx, lxGetLn());                     //  ソースの行番号も記録
+  //sySetLn(idx, lxGetLn());                   //  ソースの行番号も記録
   syNextIdx = syNextIdx + 1;
   return idx;
 }
