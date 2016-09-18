@@ -26,6 +26,7 @@
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
  *                    : vmNameをvmNam に変更
+ *                    : vmCharをvmChr に変更
  * 2012.09.12         : FLAG に論理値を残している場合の処理にバグがある=>未解決
  * 2012.09.09         : vmJmp, vmJT, vmJF でスタックの深さ制限をしていたのはバグ
  * 2012.08.15 v2.0.0  : *2, /2 をシフトに置換える
@@ -703,7 +704,7 @@ void vmBNot() {
 
 // まず、スタックから整数を取り出し文字型で有効なビット数だけ残しマスクする
 // 次に、計算結果をスタックに積む
-void vmChar() {
+void vmChr() {
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   loadStk(0);                                   // スタックトップを Rd に移動
   char* reg = regs[topAux];

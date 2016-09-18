@@ -27,6 +27,7 @@
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
  *                    : vmNameをvmNam に変更
+ *                    : vmCharをvmChr に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK を追加
  * 2010.12.23         : 仮想マシンのニーモニックを大幅に変更
@@ -76,7 +77,7 @@ void vmStByt(void);                // バイト配列にストアする
 void vmNeg(void);                  // ２の補数を計算し結果をスタックに積む
 void vmNot(void);                  // 論理の否定を計算し結果をスタックに積む
 void vmBNot(void);                 // １の補数を計算し結果をスタックに積む
-void vmChar(void);                 // 文字型のビット数だけ残しスタックに積む
+void vmChr(void);                  // 文字型のビット数だけ残しスタックに積む
 void vmBool(void);                 // 最下位１ビットだけ残しスタックに積む
 void vmAdd(void);                  // 和を計算し結果をスタックに積む
 void vmSub(void);                  // 差を計算し結果をスタックに積む

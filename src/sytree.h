@@ -22,6 +22,7 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
+ * 2016.09.18         : SyCHARをSyCHRに変更
  * 2016.09.16         : syLn[], syGetLn(), sySetLn() をコメントアウト
  * 2016.09.15         : syGetSize() を削除
  *                      sySetSize() を syClear() に名前変更
@@ -69,7 +70,7 @@ int syRVal[SyMAX];                           // ノードの値２
 #define SyNEG         0x200                 // 単項演算 -
 #define SyNOT         0x201                 // 単項演算 !
 #define SyBNOT        0x202                 // 単項演算 ~(ビット毎のNOT)
-#define SyCHAR        0x203                 // chr 演算子(型変換)
+#define SyCHR         0x203                 // chr 演算子(型変換)
 #define SyBOOL        0x204                 // bool 演算子(型変換)
 
 #define SyIS2OPR(c)   (((c)&0xf00)==0x300)  // 普通の２項演算子かどうか判定

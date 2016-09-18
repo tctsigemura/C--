@@ -26,6 +26,8 @@
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
  *                    : vmNameをvmNam に変更
+ *                    : vmCharをvmChr に変更
+ *                    : SyCHARをSyCHRに変更
  * 2016.05.20         : genProto, genStruc, genOn, genOff 関数廃止
  * 2016.05.05         : genBoolExpr() にバグチェックの error() 追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
@@ -226,7 +228,7 @@ static void gen1OpExpr(int node, struct Expr* c) {
   if      (typ == SyNEG)  vmNeg();                //     NEG  (2の補数)
   else if (typ == SyNOT)  vmNot();                //     NOT  (論理の否定)
   else if (typ == SyBNOT) vmBNot();               //     BNOT (1の補数)
-  else if (typ == SyCHAR) vmChar();               //     CHR  (文字型への変換)
+  else if (typ == SyCHR)  vmChr();                //     CHR  (文字型への変換)
   else if (typ == SyBOOL) vmBool();               //     BOOL (論理型への変換)
   else error("バグ...gen1OpExpr");
 }

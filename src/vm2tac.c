@@ -27,6 +27,9 @@
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
  *                    : vmNameをvmNam に変更
+ *                    : vmCharをvmChr に変更
+ *                    : ADDRをNAME に変更
+ *                    : STRをLABEL に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2016.01.18 v2.1.2  : vmPop() で BUG の警告を止める
  *                      ("a[3];"のような意味の無い式で警告が出てしまう。)
@@ -118,8 +121,8 @@ char*   jcc[] = { "JLT", "JLE", "JZ", "JGE", "JGT", "JNZ"};
 #define LVAR  3                                 // ローカル変数    (未ロード)
 #define RVAR  4                                 // レジスタ変数    (未ロード)
 #define PRM   5                                 // 仮引数          (未ロード)
-#define STR   6                                 // 文字列のラベル  (未ロード)
-#define ADDR  7                                 // アドレス(ラベル)(未ロード)
+#define LABEL 6                                 // ラベル参照      (未ロード)
+#define NAME  7                                 // 名前参照        (未ロード)
 #define WINDR 8                                 // ワードデータの間接アドレス
 #define BINDR 9                                 // バイトデータの間接アドレス
 #define ACC   10                                // Acc にある      (既ロード)
@@ -181,9 +184,9 @@ static void calReg(char *op, int r, int p) {
     printf("\t%s\t%s,%s\n", op,reg,regs[aux]);  //   op Reg,RVar
   } else if (sta==PRM) {                        // 仮引数なら
     printf("\t%s\t%s,%d,FP\n", op, reg, aux);   //   op Reg,n,FP
-  } else if (sta==STR) {                        // 文字列のラベルなら
+  } else if (sta==LABEL) {                      // ラベル参照（アドレス）なら
     printf("\t%s\t%s,#.L%d\n", op, reg, aux);   //   op Reg,#.Ln
-  } else if (sta==ADDR) {                       // グローバルラベルなら
+  } else if (sta==NAME) {                       // 名前参照（アドレス）なら
     printf("\t%s\t%s,#%c%s\n", op, reg,         //   op Reg,#_name
 	   getPref(aux), ntGetName(aux));       //
   } else if (sta==WINDR) {                      // 間接ワードなら
@@ -470,12 +473,12 @@ void vmLdPrm(int n) {                           // n は仮引数番号(n>=1)
 
 // ラベルの参照(アドレス)をスタックに積む
 void vmLdLab(int lab) {                         // lab はラベル番号
-  pushStk(STR, lab);                            // 仮想スタックに (STR,lab)
+  pushStk(LABEL, lab);                          // 仮想スタックに (LABEL,lab)
 }
 
 // 名前の参照(アドレス)をスタックに積む
 void vmLdNam(int idx) {                         // idx は名前表のインデクス
-  pushStk(ADDR, idx);                           // 仮想スタックに (ADDR,idx)
+  pushStk(NAME, idx);                           // 仮想スタックに (NAME,idx)
 }
 
 // スタックトップの値を大域変数にストアする(POPはしない)
@@ -603,7 +606,7 @@ void vmBNot() {
 
 // まず、スタックから整数を取り出し文字型で有効なビット数だけ残しマスクする
 // 次に、計算結果をスタックに積む
-void vmChar() {
+void vmChr() {
   clearFlg();                                   // フラグ値の変化にそなえる
   loadStk(0);                                   // スタックトップを Acc に移動
   printf("\tAND\t%s,#0x00ff\n", regs[topAux]);  //   AND Acc,#0x00ff

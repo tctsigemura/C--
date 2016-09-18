@@ -22,6 +22,7 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
+ * 2016.09.18         : SyCHARをSyCHRに変更
  * 2016.09.16         : sySetLn() の使用をコメントアウト
  * 2016.09.15         : syGetSize() を削除
  *                      sySetSize() を syClear() に名前変更
@@ -106,7 +107,7 @@ static struct D d[] = {
   { "SyNEG",  SyNEG},                  // 単項演算 -
   { "SyNOT",  SyNOT},                  // 単項演算 !
   { "SyBNOT", SyBNOT},                 // 単項演算 ~(ビット毎のNOT)
-  { "SyCHAR", SyCHAR},                 // 文字型へ変換する演算子
+  { "SyCHR",  SyCHR},                  // 文字型へ変換する演算子
   { "SyBOOL", SyBOOL},                 // 文字型へ変換する演算子
   { "SySIZE", SySIZE},                 // データ型のサイズを求める演算子
 

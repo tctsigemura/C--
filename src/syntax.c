@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2016.09.18         : SyCHARをSyCHRに変更
  * 2016.09.15         : sySetSize(0) を syClear() に変更
  * 2016.09.14         : ファイル名の管理をlexicalからutilに移動
  * 2016.07.29         : SyCNSTノードに型情報を追加
@@ -420,7 +421,7 @@ static void getChr(struct watch* w) {
   getExpr(w);                                 // 括弧内の式を読み込む
   chkTok(')', "chr が ')' で終わらない");
   if (w->dim!=0 || w->type!=TyINT) error("chr 括弧内が int 以外になっている");
-  w->tree = syNewNode(SyCHAR, w->tree, SyNULL);
+  w->tree = syNewNode(SyCHR, w->tree, SyNULL);
   w->type = TyCHAR;                           // char 型に変換
   w->lhs  = false;                            // 代入不可
 }

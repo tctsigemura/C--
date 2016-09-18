@@ -22,6 +22,8 @@
 /*
  * optree.c : C--コンパイラの構文木最適化ルーチン
  * 
+ * 2016.09.18         : SyCHARをSyCHRに変更
+ *                    : optCharをoptChrに変更
  * 2016.05.22         : SySIZE に対応する
  * 2016.02.05 v3.0.0  : トランスレータと統合(SyBLK, SyIDXW, SyIDXB, SyDOT対応)
  * 2015.08.31 v2.1.0  : copyNode の型を void に変更(int ではバグ)
@@ -142,7 +144,7 @@ static void optBNot(int node, int l) {
 }
 
 // 定数の chr 演算を最適化する
-static void optChar(int node, int l) {
+static void optChr(int node, int l) {
   if (syGetType(l)==SyCNST)                       // 対象が定数なら、
     setUInt(node, getUInt(l) & BMSK);             //   下位バイトを格納する
 }
@@ -355,9 +357,9 @@ static void calExp(int node) {
   if      (ty==SyNEG)  optNeg(node, l);           // 単項演算'-'最適化を試みる
   else if (ty==SyNOT)  optNot(node, l);           // 単項演算'!'最適化を試みる
   else if (ty==SyBNOT) optBNot(node, l);          // 単項演算'~'最適化を試みる
-  else if (ty==SyCHAR) optChar(node, l);          // 単項演算chr最適化を試みる
+  else if (ty==SyCHR)  optChr(node, l);           // 単項演算chr最適化を試みる
   else if (ty==SyBOOL) optBool(node, l);          // 単項演算bool最適化を試みる
-  //else if (ty==SySIZE) optSize(node, l);       // 単項演算sizeof最適化を試みる
+  //else if (ty==SySIZE) optSize(node, l);        // 単項演算sizeof最適化を試みる
   else if (ty==SyADD)  optAdd(node, l, r);        // 足算の最適化を試みる
   else if (ty==SySUB)  optSub(node, l, r);        // 引算の最適化を試みる
   else if (ty==SySHL)  optShl(node, l, r);        // 左シフトの最適化を試みる

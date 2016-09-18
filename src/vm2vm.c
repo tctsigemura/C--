@@ -27,6 +27,8 @@
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
  *                    : vmNameをvmNam に変更
+ *                    : vmCharをvmChr に変更
+ *                    : ニーモニックCHARをCHR に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK 追加
  * 2015.08.30         : vmStWrdのコメント誤り修正（バイト配列=>ワード配列）
@@ -227,8 +229,8 @@ void vmBNot() {
 
 // まず、スタックから整数を取り出し文字型で有効なビット数だけ残しマスクする
 // 次に、計算結果をスタックに積む
-void vmChar() {
-  printf("\tCHAR\n");
+void vmChr() {
+  printf("\tCHR\n");
 }
 
 // まず、スタックから整数を取り出し最下位ビットだけ残しマスクする
