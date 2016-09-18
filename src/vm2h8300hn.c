@@ -22,6 +22,7 @@
 /*
  * vm2h8300hn.c : 仮想マシンのコードから H8/300H Tiny の機械語を生成する
  *
+ * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
@@ -394,8 +395,7 @@ static void cancelFrame() {
 }
 
 // 関数の入口
-void vmEntry(int depth, int idx) {
-  vmNam(idx);                                   // 関数名ラベルを記憶させる
+void vmEntry(int depth) {
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   makeFrame(depth);                             // スタックフレームを作る
 }
@@ -408,8 +408,7 @@ void vmRet() {
 }
 
 // 割り込み関数の入口
-void vmEntryI(int depth, int idx) {
-  vmNam(idx);                                   // 関数名ラベルを記憶させる
+void vmEntryI(int depth) {
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   printf("\tpush.l\ter0\n");                    //   push.l er0
   printf("\tpush.l\ter1\n");                    //   push.l er1

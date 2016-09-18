@@ -23,6 +23,7 @@
  * vm.h : 仮想マシンのコードから実際のコードを生成するプログラムで準備
  *        すべき関数のプロトタイプ
  *
+ * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
@@ -49,10 +50,10 @@
 
 void vmNam(int idx);               // 名前を表現するラベルを印刷する
 void vmLab(int lab);               // コンパイラが生成した一時ラベルを印刷する
-void vmEntry(int depth, int idx);  // 関数の入口
-void vmEntryK(int depth, int idx); // カーネル用、関数の入口
+void vmEntry(int depth);           // 関数の入口
+void vmEntryK(int depth);          // カーネル用、関数の入口
 void vmRet(void);                  // 関数の出口
-void vmEntryI(int depth, int idx); // 割り込み関数の入口
+void vmEntryI(int depth);          // 割り込み関数の入口
 void vmRetI(void);                 // 割り込み関数の出口
 void vmMReg(void);                 // スタックトップを返り値レジスタに移動する
 void vmArg(void);                  // スタックトップを引数領域に移動する

@@ -22,6 +22,7 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
@@ -655,12 +656,13 @@ static void traceTree(int node) {
 
 // 関数１個分のコード生成
 void genFunc(int funcIdx, int depth, boolean krnFlg) {
+  vmNam(funcIdx);                                // 関数名出力
   if (ntGetType(funcIdx)==TyINTR) {              // 割込み関数の場合は
-    vmEntryI(depth, funcIdx);                    //   割込み関数用の Entry
+    vmEntryI(depth);                             //   割込み関数用の Entry
   } else if (krnFlg) {                           // カーネルモードなら
-    vmEntryK(depth, funcIdx);                    //   カーネル用の Entry
+    vmEntryK(depth);                             //   カーネル用の Entry
   } else {                                       // そうでなければ
-    vmEntry(depth, funcIdx);                     //   通常の Entry
+    vmEntry(depth);                              //   通常の Entry
   }
 
   retLab = -1;                                   // return 用のラベル

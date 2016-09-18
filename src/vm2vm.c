@@ -23,6 +23,7 @@
  * vm2vm.c : 仮想マシンのコードから実際のコードを生成するプログラムのサンプル
  *           (このプログラムは仮想マシンのコードを出力する)
  *
+ * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
@@ -67,14 +68,12 @@ void vmLab(int lab) {
 }
 
 // 関数の入口
-void vmEntry(int depth, int idx) {
-  vmNam(idx);
+void vmEntry(int depth) {
   printf("\tENTRY\t%d\n", depth);
 }
 
 // カーネル関数の入口
-void vmEntryK(int depth, int idx) {
-  vmNam(idx);
+void vmEntryK(int depth) {
   printf("\tENTRYK\t%d\n", depth);
 }
 
@@ -84,8 +83,7 @@ void vmRet() {
 }
 
 // 割り込み関数の入口
-void vmEntryI(int depth, int idx) {
-  vmNam(idx);
+void vmEntryI(int depth) {
   printf("\tENTRYI\t%d\n", depth);
 }
 
