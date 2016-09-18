@@ -23,6 +23,7 @@
  * vm2vm.c : 仮想マシンのコードから実際のコードを生成するプログラムのサンプル
  *           (このプログラムは仮想マシンのコードを出力する)
  *
+ * 2016.09.18         : vmLdLabをvmLdNam に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK 追加
  * 2015.08.30         : vmStWrdのコメント誤り修正（バイト配列=>ワード配列）
@@ -167,8 +168,8 @@ void vmLdByt() {
   printf("\tLDB\n");
 }
 
-// ラベルの値(アドレス)をスタックに積む
-void vmLdLab(int idx) {
+// 名前の参照(アドレス)をスタックに積む
+void vmLdNam(int idx) {
   printf("\tLDC\t");
   vmName(idx);
 }

@@ -23,6 +23,7 @@
  * vm2tac.c : 仮想スタックマシンのコードから TaC-CPU V2 の機械語を生成する
  *            (仮想スタックマシンをシミュレーションする機械語を生成する)
  *
+ * 2016.09.18         : vmLdLabをvmLdNam に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2016.01.18 v2.1.2  : vmPop() で BUG の警告を止める
  *                      ("a[3];"のような意味の無い式で警告が出てしまう。)
@@ -469,8 +470,8 @@ void vmLdStr(int lab) {                         // lab はラベル番号
   pushStk(STR, lab);                            // 仮想スタックに (STR,lab)
 }
 
-// ラベルの値(アドレス)をスタックに積む
-void vmLdLab(int idx) {                         // idx は名前表のインデクス
+// 名前の参照(アドレス)をスタックに積む
+void vmLdNam(int idx) {                         // idx は名前表のインデクス
   pushStk(ADDR, idx);                           // 仮想スタックに (ADDR,idx)
 }
 

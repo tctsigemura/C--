@@ -22,6 +22,7 @@
 /*
  * vm2h8300hn.c : 仮想マシンのコードから H8/300H Tiny の機械語を生成する
  *
+ * 2016.09.18         : vmLdLabをvmLdNam に変更
  * 2012.09.12         : FLAG に論理値を残している場合の処理にバグがある=>未解決
  * 2012.09.09         : vmJmp, vmJT, vmJF でスタックの深さ制限をしていたのはバグ
  * 2012.08.15 v2.0.0  : *2, /2 をシフトに置換える
@@ -552,8 +553,8 @@ void vmLdStr(int lab) {
   stkPush(STR, lab);                            // 仮想スタックに (STR,lab)
 }
 
-// ラベルの値(アドレス)をスタックに積む
-void vmLdLab(int idx) {
+// 名前の参照(アドレス)をスタックに積む
+void vmLdNam(int idx) {
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   stkPush(ADDR, idx);                           // 仮想スタックに (ADDR,idx)
 }

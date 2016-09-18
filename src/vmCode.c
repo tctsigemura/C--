@@ -22,6 +22,7 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2016.09.18         : vmLdLabをvmLdNam に変更
  * 2016.05.20         : genProto, genStruc, genOn, genOff 関数廃止
  * 2016.05.05         : genBoolExpr() にバグチェックの error() 追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
@@ -127,7 +128,7 @@ static void load(struct Expr *c) {
     else if (p == LVAR) vmLdLoc(v);               //   ローカル変数の値をロード
     else if (p == PRM)  vmLdPrm(v);               //   仮引数の値をロード
     else if (p == STR)  vmLdStr(v);               //   一時ラベル値をロード
-    else if (p == LABL) vmLdLab(v);               //   通常ラベル値をロード
+    else if (p == LABL) vmLdNam(v);               //   名前の参照をロード
     else if (p == STKW) vmLdWrd();                //   ワード配列からロード
     else if (p == STKB) vmLdByt();                //   バイト配列からロード
     else error("バグ...load");                    //   それ以外ならエラー

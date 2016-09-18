@@ -23,6 +23,7 @@
  * vm.h : 仮想マシンのコードから実際のコードを生成するプログラムで準備
  *        すべき関数のプロトタイプ
  *
+ * 2016.09.18         : vmLdLabをvmLdNam に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK を追加
  * 2010.12.23         : 仮想マシンのニーモニックを大幅に変更
@@ -61,7 +62,7 @@ void vmLdGlb(int idx);             // 大域変数の値をスタックに積む
 void vmLdLoc(int n);               // n番目のローカル変数の値をスタックに積む
 void vmLdPrm(int n);               // n番目の仮引数の値をスタックに積む
 void vmLdStr(int lab);             // 文字列のアドレスをスタックに積む
-void vmLdLab(int idx);             // ラベルの値(アドレス)をスタックに積む
+void vmLdNam(int idx);             // 名前の参照(アドレス)をスタックに積む
 void vmLdWrd(void);                // ワード配列からスタックに積む
 void vmLdByt(void);                // バイト配列からスタックに積む
 void vmStGlb(int idx);             // 大域変数にストアする
