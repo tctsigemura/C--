@@ -24,6 +24,7 @@
  *           (このプログラムは仮想マシンのコードを出力する)
  *
  * 2016.09.18         : vmLdLabをvmLdNam に変更
+ *                    : vmLdStrをvmLdLab に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK 追加
  * 2015.08.30         : vmStWrdのコメント誤り修正（バイト配列=>ワード配列）
@@ -150,8 +151,8 @@ void vmLdPrm(int n) {
   printf("\tLDP\t%d\n", n);
 }
 
-// 文字列のアドレスをスタックに積む
-void vmLdStr(int lab) {
+// ラベルの参照(アドレス)をスタックに積む
+void vmLdLab(int lab) {
   printf("\tLDC\t");
   vmTmpLab(lab);
 }

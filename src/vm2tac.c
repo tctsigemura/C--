@@ -24,6 +24,7 @@
  *            (仮想スタックマシンをシミュレーションする機械語を生成する)
  *
  * 2016.09.18         : vmLdLabをvmLdNam に変更
+ *                    : vmLdStrをvmLdLab に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2016.01.18 v2.1.2  : vmPop() で BUG の警告を止める
  *                      ("a[3];"のような意味の無い式で警告が出てしまう。)
@@ -465,8 +466,8 @@ void vmLdPrm(int n) {                           // n は仮引数番号(n>=1)
   pushStk(PRM, (n+1)*2);                        // 仮想スタックに (PRM,offs)
 }                                               //   (offs は FP からの距離)
 
-// 文字列のアドレスをスタックに積む
-void vmLdStr(int lab) {                         // lab はラベル番号
+// ラベルの参照(アドレス)をスタックに積む
+void vmLdLab(int lab) {                         // lab はラベル番号
   pushStk(STR, lab);                            // 仮想スタックに (STR,lab)
 }
 
