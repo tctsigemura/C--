@@ -25,6 +25,7 @@
  *
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
+ *                    : vmTmpLabをvmLab に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK 追加
  * 2015.08.30         : vmStWrdのコメント誤り修正（バイト配列=>ワード配列）
@@ -58,7 +59,7 @@ void vmName(int idx) {
 }
 
 // 番号で管理されるコンパイラが生成したラベルを印刷する
-void vmTmpLab(int lab) {
+void vmLab(int lab) {
   printf(".L%d\n", lab);
 }
 
@@ -115,19 +116,19 @@ void vmCallF(int n, int idx) {
 // 無条件ジャンプ
 void vmJmp(int lab) {
   printf("\tJMP\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // スタックから論理値を取り出し true ならジャンプ
 void vmJT(int lab) {
   printf("\tJT\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // スタックから論理値を取り出し false ならジャンプ
 void vmJF(int lab) {
   printf("\tJF\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // 定数をスタックにロードする
@@ -154,7 +155,7 @@ void vmLdPrm(int n) {
 // ラベルの参照(アドレス)をスタックに積む
 void vmLdLab(int lab) {
   printf("\tLDC\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // まず、スタックから添字とワード配列の番地を取り出す
@@ -344,14 +345,14 @@ void vmPop() {
 void vmBoolOR(int lab1, int lab2, int lab3) {
   printf("; BOOLOR .L%d,.L%d,.L%d\n", lab1, lab2, lab3);
   vmJmp(lab3);
-  vmTmpLab(lab1);
+  vmLab(lab1);
   vmLdCns(1);
   if (lab2!=-1) {
     vmJmp(lab3);
-    vmTmpLab(lab2);
+    vmLab(lab2);
     vmLdCns(0);
   }
-  vmTmpLab(lab3);
+  vmLab(lab3);
   printf("; ----\n");
 }
 
@@ -359,14 +360,14 @@ void vmBoolOR(int lab1, int lab2, int lab3) {
 void vmBoolAND(int lab1, int lab2, int lab3) {
   printf("; BOOLAND .L%d,.L%d,.L%d\n", lab1, lab2, lab3);
   vmJmp(lab3);
-  vmTmpLab(lab1);
+  vmLab(lab1);
   vmLdCns(0);
   if (lab2!=-1) {
     vmJmp(lab3);
-    vmTmpLab(lab2);
+    vmLab(lab2);
     vmLdCns(1);
   }
-  vmTmpLab(lab3);
+  vmLab(lab3);
   printf("; ----\n");
 }
 
@@ -382,7 +383,7 @@ void vmDwName(int idx) {
 // DW .Ln       (ポインタデータの生成)
 void vmDwLab(int lab) {
   printf("\tDW\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // DW N         (整数データの生成)

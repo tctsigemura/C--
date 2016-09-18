@@ -24,6 +24,7 @@
  *
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
+ *                    : vmTmpLabをvmLab に変更
  * 2012.09.12         : FLAG に論理値を残している場合の処理にバグがある=>未解決
  * 2012.09.09         : vmJmp, vmJT, vmJF でスタックの深さ制限をしていたのはバグ
  * 2012.08.15 v2.0.0  : *2, /2 をシフトに置換える
@@ -344,7 +345,7 @@ void vmName(int idx) {
 }
 
 // 番号で管理されるラベルを印刷する(実際は出力待ちに記録)
-void vmTmpLab(int lab) {
+void vmLab(int lab) {
   if (curLab!=-1) {                             // ローカルラベルが連続した
     printLab(curLab);                           //  .Ln
     dupLab = true;                              // 用心のために記録

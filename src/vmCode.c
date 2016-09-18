@@ -24,6 +24,7 @@
  *
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
+ *                    : vmTmpLabをvmLab に変更
  * 2016.05.20         : genProto, genStruc, genOn, genOff 関数廃止
  * 2016.05.05         : genBoolExpr() にバグチェックの error() 追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
@@ -116,7 +117,7 @@ static struct Expr *newExpr(void) {
 
 // 番号で管理されるラベルを出力する
 static void printLab(int lab) {
-  if (lab!=-1) vmTmpLab(lab);                     // -1 はラベル未割当てを表す
+  if (lab!=-1) vmLab(lab);                        // -1 はラベル未割当てを表す
 }
 
 // 式の値をスタックにロードする

@@ -25,6 +25,7 @@
  *
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
+ *                    : vmTmpLabをvmLab に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2016.01.18 v2.1.2  : vmPop() で BUG の警告を止める
  *                      ("a[3];"のような意味の無い式で警告が出てしまう。)
@@ -296,7 +297,7 @@ void vmName(int idx) {
 }
 
 // 番号で管理されるラベルを印刷する
-void vmTmpLab(int lab) {
+void vmLab(int lab) {
   printf(".L%d", lab);                          // .Ln
   if (inFunc) printf("\n");                     // 関数内部ではラベルが
 }                                               //   連続することがある
@@ -820,14 +821,14 @@ static void boolOrAnd(int lab1, int lab2, int lab3, int x, int nx) {
   loadStk(0);                                   //   Acc にロードする
   char *acc = regs[topAux];
   printf("\tJMP\t.L%d\n", lab3);                //       JMP .L3
-  vmTmpLab(lab1);                               //  .L1:
+  vmLab(lab1);                                  //  .L1:
   printf("\tLD\t%s,#%d\n", acc, x);             //       LD  Acc,#x
   if (lab2!=-1) {
     printf("\tJMP\t.L%d\n", lab3);              //       JMP .L3
-    vmTmpLab(lab2);                             //  .L2:
+    vmLab(lab2);                                //  .L2:
     printf("\tLD\t%s,#%d\n", acc, nx);          //       LD  Acc,#nx
   }
-  vmTmpLab(lab3);                               //  .L3:
+  vmLab(lab3);                                  //  .L3:
 }
 
 // フラグにある論理値を Acc に論理値をロードする
@@ -836,17 +837,17 @@ static void flagOrAnd(int lab1, int lab2, int lab3, char *jcc, int x, int nx) {
   if (lab2==-1) {                               //  lab2 が未割り当てなら
     printf("\tLD\t%s,#%d\n", acc, nx);          //         LD  Acc,#nx 
     printf("\t%s\t.L%d\n", jcc, lab3);          //         Jcc .L3
-    vmTmpLab(lab1);                             //    .L1:
+    vmLab(lab1);                                //    .L1:
     printf("\tLD\t%s,#%d\n", acc, x);           //         LD  Acc,#x 
   } else {                                      //  lab2 が割り当て済み
     printf("\t%s\t.L%d\n", jcc, lab2);          //         Jcc .L2
-    vmTmpLab(lab1);                             //    .L1:
+    vmLab(lab1);                                //    .L1:
     printf("\tLD\t%s,#%d\n", acc, x);           //         LD  Acc,#x 
     printf("\tJMP\t.L%d\n", lab3);              //         JMP .L3
-    vmTmpLab(lab2);                             //    .L2:
+    vmLab(lab2);                                //    .L2:
     printf("\tLD\t%s,#%d\n", acc, nx);          //         LD  Acc,#nx 
   }
-  vmTmpLab(lab3);                               //  .L3:
+  vmLab(lab3);                                  //  .L3:
   topSta = ACC;                                 //  状態は (ACC, Acc) になる
 }
 

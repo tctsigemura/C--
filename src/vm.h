@@ -25,6 +25,7 @@
  *
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
+ *                    : vmTmpLabをvmLab に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK を追加
  * 2010.12.23         : 仮想マシンのニーモニックを大幅に変更
@@ -45,7 +46,7 @@
  */
 
 void vmName(int idx);              // 名前を表現するラベルを印刷する
-void vmTmpLab(int lab);            // コンパイラが生成した番号のラベルを印刷する
+void vmLab(int lab);               // コンパイラが生成した一時ラベルを印刷する
 void vmEntry(int depth, int idx);  // 関数の入口
 void vmEntryK(int depth, int idx); // カーネル用、関数の入口
 void vmRet(void);                  // 関数の出口
