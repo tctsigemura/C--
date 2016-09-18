@@ -26,6 +26,7 @@
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
+ *                    : vmNameをvmNam に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK 追加
  * 2015.08.30         : vmStWrdのコメント誤り修正（バイト配列=>ワード配列）
@@ -52,7 +53,7 @@
 #include "vm.h"
 
 // 名前を表現するラベルを印刷する
-void vmName(int idx) {
+void vmNam(int idx) {
   if (ntGetPub(idx)) printf("_");                  // public なら '_' を付加
   else printf(".");                                // private なら '.' を付加
   printf("%s\n", ntGetName(idx));                  //   名前本体の出力
@@ -65,13 +66,13 @@ void vmLab(int lab) {
 
 // 関数の入口
 void vmEntry(int depth, int idx) {
-  vmName(idx);
+  vmNam(idx);
   printf("\tENTRY\t%d\n", depth);
 }
 
 // カーネル関数の入口
 void vmEntryK(int depth, int idx) {
-  vmName(idx);
+  vmNam(idx);
   printf("\tENTRYK\t%d\n", depth);
 }
 
@@ -82,7 +83,7 @@ void vmRet() {
 
 // 割り込み関数の入口
 void vmEntryI(int depth, int idx) {
-  vmName(idx);
+  vmNam(idx);
   printf("\tENTRYI\t%d\n", depth);
 }
 
@@ -104,13 +105,13 @@ void vmArg() {
 // 値を返さない関数を呼び出す
 void vmCallP(int n, int idx) {
   printf("\tCALLP\t%d,", n);
-  vmName(idx);
+  vmNam(idx);
 }
 
 // 値を返す関数を呼び出す
 void vmCallF(int n, int idx) {
   printf("\tCALLF\t%d,", n);
-  vmName(idx);
+  vmNam(idx);
 }
 
 // 無条件ジャンプ
@@ -139,7 +140,7 @@ void vmLdCns(int c) {
 // 大域変数の値をスタックに積む
 void vmLdGlb(int idx) {
   printf("\tLDG\t");
-  vmName(idx);
+  vmNam(idx);
 }
 
 // n番目のローカル変数の値をスタックに積む
@@ -173,13 +174,13 @@ void vmLdByt() {
 // 名前の参照(アドレス)をスタックに積む
 void vmLdNam(int idx) {
   printf("\tLDC\t");
-  vmName(idx);
+  vmNam(idx);
 }
 
 // スタックトップの値を大域変数にストアする(POPはしない)
 void vmStGlb(int idx) {
   printf("\tSTG\t");
-  vmName(idx);
+  vmNam(idx);
 }
 
 // スタックトップの値をn番目のローカル変数にストアする(POPはしない)
@@ -377,7 +378,7 @@ void vmBoolAND(int lab1, int lab2, int lab3) {
 // DW name      (ポインタデータの生成)
 void vmDwName(int idx) {
   printf("\tDW\t");
-  vmName(idx);
+  vmNam(idx);
 }
 
 // DW .Ln       (ポインタデータの生成)

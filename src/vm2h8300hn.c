@@ -25,6 +25,7 @@
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
+ *                    : vmNameをvmNam に変更
  * 2012.09.12         : FLAG に論理値を残している場合の処理にバグがある=>未解決
  * 2012.09.09         : vmJmp, vmJT, vmJF でスタックの深さ制限をしていたのはバグ
  * 2012.08.15 v2.0.0  : *2, /2 をシフトに置換える
@@ -339,8 +340,8 @@ static void antecedent(int newSeg) {
 }
 
 // グローバルな名前をラベル欄に出力(実際は出力待ちに記録)
-void vmName(int idx) {
-  if (curNam!=-1) error("バグ...vmName");       // 名前ラベルは連続しないはず
+void vmNam(int idx) {
+  if (curNam!=-1) error("バグ...vmNam");        // 名前ラベルは連続しないはず
   curNam = idx;                                 // 次に出力するラベル
 }
 
@@ -393,7 +394,7 @@ static void cancelFrame() {
 
 // 関数の入口
 void vmEntry(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを記憶させる
+  vmNam(idx);                                   // 関数名ラベルを記憶させる
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   makeFrame(depth);                             // スタックフレームを作る
 }
@@ -407,7 +408,7 @@ void vmRet() {
 
 // 割り込み関数の入口
 void vmEntryI(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを記憶させる
+  vmNam(idx);                                   // 関数名ラベルを記憶させる
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   printf("\tpush.l\ter0\n");                    //   push.l er0
   printf("\tpush.l\ter1\n");                    //   push.l er1

@@ -26,6 +26,7 @@
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
+ *                    : vmNameをvmNam に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2016.01.18 v2.1.2  : vmPop() で BUG の警告を止める
  *                      ("a[3];"のような意味の無い式で警告が出てしまう。)
@@ -292,7 +293,7 @@ static int rvCnt;                               // レジスタ変数の個数
 static int frSize;                              // スタックフレームの
                                                 //   ローカル変数領域サイズ
 // グローバルな名前をラベル欄に出力
-void vmName(int idx) {
+void vmNam(int idx) {
   printf("%c%s",getPref(idx),ntGetName(idx));   // '_' or '.' と 名前の出力
 }
 
@@ -333,14 +334,14 @@ static void cancelFrame() {
 
 // 関数の入口
 void vmEntry(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを印刷
+  vmNam(idx);                                   // 関数名ラベルを印刷
   makeFrame(depth);                             // スタックフレームを作る
   printf("\tCALL\t__stkChk\n");                 // スタックオーバーフローを
 }                                               //   チェックする
 
 // カーネル関数の入口
 void vmEntryK(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを印刷
+  vmNam(idx);                                   // 関数名ラベルを印刷
   makeFrame(depth);                             // スタックフレームを作る
 }
 
@@ -352,7 +353,7 @@ void vmRet() {
 
 // 割り込み関数の入口
 void vmEntryI(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを印刷
+  vmNam(idx);                                   // 関数名ラベルを印刷
   for (int gr = 0; gr < AccSIZ; gr = gr + 1)    // アキュムレータを全て
     printf("\tPUSH\t%s\n", regs[gr]);           //   保存する
   makeFrame(depth);                             // スタックフレームを作る

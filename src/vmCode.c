@@ -25,6 +25,7 @@
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
+ *                    : vmNameをvmNam に変更
  * 2016.05.20         : genProto, genStruc, genOn, genOff 関数廃止
  * 2016.05.05         : genBoolExpr() にバグチェックの error() 追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
@@ -783,13 +784,13 @@ void genData(int idx) {
   if (typ==SyLIST) genList(root,dim);            // 初期化された配列
   else if (typ==SyARRY) genArray(root);          // 非初期化配列[array(n1,...)]
 
-  vmName(idx);                                   // 次のような出力をする
+  vmNam(idx);                                    // 次のような出力をする
   genDW(root);                                   //   Name  DW xx
 }
 
 // 非初期化データの生成
 void genBss(int idx) {                           // 次のような出力をする
-  vmName(idx);                                   //   Name  WS 1
+  vmNam(idx);                                    //   Name  WS 1
   vmWs(1);
 }
 
