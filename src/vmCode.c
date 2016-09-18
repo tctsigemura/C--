@@ -22,6 +22,12 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2016.09.18         : vmLdLabをvmLdNam に変更
+ *                    : vmLdStrをvmLdLab に変更
+ *                    : vmTmpLabをvmLab に変更
+ *                    : vmNameをvmNam に変更
+ *                    : vmCharをvmChr に変更
+ *                    : SyCHARをSyCHRに変更
  * 2016.05.20         : genProto, genStruc, genOn, genOff 関数廃止
  * 2016.05.05         : genBoolExpr() にバグチェックの error() 追加
  * 2016.05.04         : SyARG を SyPRM(パラメータ)に変更
@@ -114,7 +120,7 @@ static struct Expr *newExpr(void) {
 
 // 番号で管理されるラベルを出力する
 static void printLab(int lab) {
-  if (lab!=-1) vmTmpLab(lab);                     // -1 はラベル未割当てを表す
+  if (lab!=-1) vmLab(lab);                        // -1 はラベル未割当てを表す
 }
 
 // 式の値をスタックにロードする
@@ -126,8 +132,8 @@ static void load(struct Expr *c) {
     else if (p == GVAR) vmLdGlb(v);               //   大域変数の値をロード
     else if (p == LVAR) vmLdLoc(v);               //   ローカル変数の値をロード
     else if (p == PRM)  vmLdPrm(v);               //   仮引数の値をロード
-    else if (p == STR)  vmLdStr(v);               //   一時ラベル値をロード
-    else if (p == LABL) vmLdLab(v);               //   通常ラベル値をロード
+    else if (p == STR)  vmLdLab(v);               //   ラベルの参照をロード
+    else if (p == LABL) vmLdNam(v);               //   名前の参照をロード
     else if (p == STKW) vmLdWrd();                //   ワード配列からロード
     else if (p == STKB) vmLdByt();                //   バイト配列からロード
     else error("バグ...load");                    //   それ以外ならエラー
@@ -222,7 +228,7 @@ static void gen1OpExpr(int node, struct Expr* c) {
   if      (typ == SyNEG)  vmNeg();                //     NEG  (2の補数)
   else if (typ == SyNOT)  vmNot();                //     NOT  (論理の否定)
   else if (typ == SyBNOT) vmBNot();               //     BNOT (1の補数)
-  else if (typ == SyCHAR) vmChar();               //     CHR  (文字型への変換)
+  else if (typ == SyCHR)  vmChr();                //     CHR  (文字型への変換)
   else if (typ == SyBOOL) vmBool();               //     BOOL (論理型への変換)
   else error("バグ...gen1OpExpr");
 }
@@ -780,13 +786,13 @@ void genData(int idx) {
   if (typ==SyLIST) genList(root,dim);            // 初期化された配列
   else if (typ==SyARRY) genArray(root);          // 非初期化配列[array(n1,...)]
 
-  vmName(idx);                                   // 次のような出力をする
+  vmNam(idx);                                    // 次のような出力をする
   genDW(root);                                   //   Name  DW xx
 }
 
 // 非初期化データの生成
 void genBss(int idx) {                           // 次のような出力をする
-  vmName(idx);                                   //   Name  WS 1
+  vmNam(idx);                                    //   Name  WS 1
   vmWs(1);
 }
 

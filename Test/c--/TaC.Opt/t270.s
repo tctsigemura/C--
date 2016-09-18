@@ -1,4 +1,7 @@
 .i	WS	1
+_stdin	WS	1
+_stdout	WS	1
+_stderr	WS	1
 .L1	STRING	"ABC"
 _main	PUSH	FP
 	LD	FP,SP

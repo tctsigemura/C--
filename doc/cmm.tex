@@ -1,6 +1,11 @@
 %
 % C-- 言語 ver.3.x の解説書
 %
+% 2016.09.18.V.3.1.6 : 中間言語の命令の名称を変更
+%                    : vmLdLab => vmLdNam, vmLdStr => vmLdLab,
+%                    : vmTmpLab => vmLab, vmName = > vmNam,
+%                    : vmChar => vmChr
+%                    : ニーモニックを変更 CHAR => CHR
 % 2016.09.10         : 文字列クラス分類関数にトランスレータの場合を追記
 % 2016.08.13 V.3.1.2 : ver.3.1.2 用に改訂
 %                    : feofの仕様変更
@@ -59,7 +64,7 @@
 %----------------------------------------------------------------------
 \newcommand{\figref}[1]{図~\ref{fig:#1}}
 \newcommand{\tabref}[1]{表~\ref{tab:#1}}
-\newcommand{\ver}{Ver. 3.1.2}
+\newcommand{\ver}{Ver. 3.1.6}
 \newcommand{\cmm}{{\tt C--}}
 \newcommand{\cmml}{\cmm 言語}
 \newcommand{\cmmc}{{\tt c--}}
@@ -159,6 +164,7 @@ Tokuyama College of Technology, JAPAN
 ~
 \subsubsection{変更履歴}
 \begin{flushleft}
+2016年09月18日 V.3.1.6 中間言語の仕様を変更 \\
 2016年09月10日 V.3.1.2a 文字列クラス分類関数にトランスレータの場合を追記 \\
 2016年08月13日 \cmm V.3.1.2 用(feofの仕様変更)  \\
 2016年06月03日 \cmm V.3.1.0 用作成  \\
@@ -170,7 +176,7 @@ Tokuyama College of Technology, JAPAN
 \subsubsection{対応ソフトウェアのバージョン}
 \begin{tabular}{|l|l|}
 \hline
-{\tt C--}      & Ver.3.1.2 \\
+{\tt C--}      & Ver.3.1.6 \\
 \hline
 {\tt AS--}     & Ver.2.1.1 \\
 \hline
@@ -189,7 +195,7 @@ Tokuyama College of Technology, JAPAN
 \fbox{\parbox{10cm}{ \vspace{0.3cm}
 \large{\bf　プログラミング言語 \cmm} \\
 \\
-　発行年月　２０１６年８月　\ver a\\
+　発行年月　２０１６年９月　\ver \\
 　発　　行　独立行政法人国立高等専門学校機構 \\
 　　　　　　徳山工業高等専門学校 \\
 　　　　　　情報電子工学科　重村哲至 \\

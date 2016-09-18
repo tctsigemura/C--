@@ -22,6 +22,11 @@
 /*
  * vm2h8300hn.c : 仮想マシンのコードから H8/300H Tiny の機械語を生成する
  *
+ * 2016.09.18         : vmLdLabをvmLdNam に変更
+ *                    : vmLdStrをvmLdLab に変更
+ *                    : vmTmpLabをvmLab に変更
+ *                    : vmNameをvmNam に変更
+ *                    : vmCharをvmChr に変更
  * 2012.09.12         : FLAG に論理値を残している場合の処理にバグがある=>未解決
  * 2012.09.09         : vmJmp, vmJT, vmJF でスタックの深さ制限をしていたのはバグ
  * 2012.08.15 v2.0.0  : *2, /2 をシフトに置換える
@@ -336,13 +341,13 @@ static void antecedent(int newSeg) {
 }
 
 // グローバルな名前をラベル欄に出力(実際は出力待ちに記録)
-void vmName(int idx) {
-  if (curNam!=-1) error("バグ...vmName");       // 名前ラベルは連続しないはず
+void vmNam(int idx) {
+  if (curNam!=-1) error("バグ...vmNam");        // 名前ラベルは連続しないはず
   curNam = idx;                                 // 次に出力するラベル
 }
 
 // 番号で管理されるラベルを印刷する(実際は出力待ちに記録)
-void vmTmpLab(int lab) {
+void vmLab(int lab) {
   if (curLab!=-1) {                             // ローカルラベルが連続した
     printLab(curLab);                           //  .Ln
     dupLab = true;                              // 用心のために記録
@@ -390,7 +395,7 @@ static void cancelFrame() {
 
 // 関数の入口
 void vmEntry(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを記憶させる
+  vmNam(idx);                                   // 関数名ラベルを記憶させる
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   makeFrame(depth);                             // スタックフレームを作る
 }
@@ -404,7 +409,7 @@ void vmRet() {
 
 // 割り込み関数の入口
 void vmEntryI(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを記憶させる
+  vmNam(idx);                                   // 関数名ラベルを記憶させる
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   printf("\tpush.l\ter0\n");                    //   push.l er0
   printf("\tpush.l\ter1\n");                    //   push.l er1
@@ -546,14 +551,14 @@ void vmLdArg(int n) {
   stkPush(ARG, (n+1)*2);                        // 仮想スタックに (ARG,offs)
 }
 
-// 文字列のアドレスをスタックに積む
-void vmLdStr(int lab) {
+// ラベルの参照(アドレス)をスタックに積む
+void vmLdLab(int lab) {
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   stkPush(STR, lab);                            // 仮想スタックに (STR,lab)
 }
 
-// ラベルの値(アドレス)をスタックに積む
-void vmLdLab(int idx) {
+// 名前の参照(アドレス)をスタックに積む
+void vmLdNam(int idx) {
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   stkPush(ADDR, idx);                           // 仮想スタックに (ADDR,idx)
 }
@@ -699,7 +704,7 @@ void vmBNot() {
 
 // まず、スタックから整数を取り出し文字型で有効なビット数だけ残しマスクする
 // 次に、計算結果をスタックに積む
-void vmChar() {
+void vmChr() {
   antecedent(SEG_TEXT);                         // .section 等を必要なら出力
   loadStk(0);                                   // スタックトップを Rd に移動
   char* reg = regs[topAux];

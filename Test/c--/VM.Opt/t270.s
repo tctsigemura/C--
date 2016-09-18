@@ -1,5 +1,11 @@
 .i
 	WS	1
+_stdin
+	WS	1
+_stdout
+	WS	1
+_stderr
+	WS	1
 .L1
 	STRING	"ABC"
 _main
@@ -10,7 +16,8 @@ _main
 	ADD
 	LDB
 	ARG
-	CALLP	1,_putchar
+	CALLF	1,_putchar
+	POP
 	LDC	0
 	MREG
 	RET

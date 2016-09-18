@@ -13,7 +13,7 @@
 	EQ
 	JF	.L1
 	LDL	1
-	CHAR
+	CHR
 	MREG
 	JMP	.L2
 .L1
@@ -22,7 +22,7 @@
 	EQ
 	JF	.L3
 	LDL	1
-	CHAR
+	CHR
 	MREG
 	JMP	.L2
 .L3
@@ -77,7 +77,7 @@
 	JMP	.L6
 .L7
 	LDL	1
-	CHAR
+	CHR
 	MREG
 .L2
 	RET

@@ -144,7 +144,7 @@ __alcAddr
 	STL	1
 	POP
 	LDL	1
-	CHAR
+	CHR
 	STG	.b
 	POP
 	LDG	.b
@@ -242,7 +242,7 @@ __alcAddr
 	STL	4
 	POP
 	LDG	.a
-	CHAR
+	CHR
 	LDG	.b
 	NE
 	STL	5

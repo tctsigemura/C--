@@ -23,6 +23,12 @@
  * vm2vm.c : 仮想マシンのコードから実際のコードを生成するプログラムのサンプル
  *           (このプログラムは仮想マシンのコードを出力する)
  *
+ * 2016.09.18         : vmLdLabをvmLdNam に変更
+ *                    : vmLdStrをvmLdLab に変更
+ *                    : vmTmpLabをvmLab に変更
+ *                    : vmNameをvmNam に変更
+ *                    : vmCharをvmChr に変更
+ *                    : ニーモニックCHARをCHR に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2015.08.31 v2.1.0  : vmEntryK 追加
  * 2015.08.30         : vmStWrdのコメント誤り修正（バイト配列=>ワード配列）
@@ -49,26 +55,26 @@
 #include "vm.h"
 
 // 名前を表現するラベルを印刷する
-void vmName(int idx) {
+void vmNam(int idx) {
   if (ntGetPub(idx)) printf("_");                  // public なら '_' を付加
   else printf(".");                                // private なら '.' を付加
   printf("%s\n", ntGetName(idx));                  //   名前本体の出力
 }
 
 // 番号で管理されるコンパイラが生成したラベルを印刷する
-void vmTmpLab(int lab) {
+void vmLab(int lab) {
   printf(".L%d\n", lab);
 }
 
 // 関数の入口
 void vmEntry(int depth, int idx) {
-  vmName(idx);
+  vmNam(idx);
   printf("\tENTRY\t%d\n", depth);
 }
 
 // カーネル関数の入口
 void vmEntryK(int depth, int idx) {
-  vmName(idx);
+  vmNam(idx);
   printf("\tENTRYK\t%d\n", depth);
 }
 
@@ -79,7 +85,7 @@ void vmRet() {
 
 // 割り込み関数の入口
 void vmEntryI(int depth, int idx) {
-  vmName(idx);
+  vmNam(idx);
   printf("\tENTRYI\t%d\n", depth);
 }
 
@@ -101,31 +107,31 @@ void vmArg() {
 // 値を返さない関数を呼び出す
 void vmCallP(int n, int idx) {
   printf("\tCALLP\t%d,", n);
-  vmName(idx);
+  vmNam(idx);
 }
 
 // 値を返す関数を呼び出す
 void vmCallF(int n, int idx) {
   printf("\tCALLF\t%d,", n);
-  vmName(idx);
+  vmNam(idx);
 }
 
 // 無条件ジャンプ
 void vmJmp(int lab) {
   printf("\tJMP\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // スタックから論理値を取り出し true ならジャンプ
 void vmJT(int lab) {
   printf("\tJT\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // スタックから論理値を取り出し false ならジャンプ
 void vmJF(int lab) {
   printf("\tJF\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // 定数をスタックにロードする
@@ -136,7 +142,7 @@ void vmLdCns(int c) {
 // 大域変数の値をスタックに積む
 void vmLdGlb(int idx) {
   printf("\tLDG\t");
-  vmName(idx);
+  vmNam(idx);
 }
 
 // n番目のローカル変数の値をスタックに積む
@@ -149,10 +155,10 @@ void vmLdPrm(int n) {
   printf("\tLDP\t%d\n", n);
 }
 
-// 文字列のアドレスをスタックに積む
-void vmLdStr(int lab) {
+// ラベルの参照(アドレス)をスタックに積む
+void vmLdLab(int lab) {
   printf("\tLDC\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // まず、スタックから添字とワード配列の番地を取り出す
@@ -167,16 +173,16 @@ void vmLdByt() {
   printf("\tLDB\n");
 }
 
-// ラベルの値(アドレス)をスタックに積む
-void vmLdLab(int idx) {
+// 名前の参照(アドレス)をスタックに積む
+void vmLdNam(int idx) {
   printf("\tLDC\t");
-  vmName(idx);
+  vmNam(idx);
 }
 
 // スタックトップの値を大域変数にストアする(POPはしない)
 void vmStGlb(int idx) {
   printf("\tSTG\t");
-  vmName(idx);
+  vmNam(idx);
 }
 
 // スタックトップの値をn番目のローカル変数にストアする(POPはしない)
@@ -223,8 +229,8 @@ void vmBNot() {
 
 // まず、スタックから整数を取り出し文字型で有効なビット数だけ残しマスクする
 // 次に、計算結果をスタックに積む
-void vmChar() {
-  printf("\tCHAR\n");
+void vmChr() {
+  printf("\tCHR\n");
 }
 
 // まず、スタックから整数を取り出し最下位ビットだけ残しマスクする
@@ -342,14 +348,14 @@ void vmPop() {
 void vmBoolOR(int lab1, int lab2, int lab3) {
   printf("; BOOLOR .L%d,.L%d,.L%d\n", lab1, lab2, lab3);
   vmJmp(lab3);
-  vmTmpLab(lab1);
+  vmLab(lab1);
   vmLdCns(1);
   if (lab2!=-1) {
     vmJmp(lab3);
-    vmTmpLab(lab2);
+    vmLab(lab2);
     vmLdCns(0);
   }
-  vmTmpLab(lab3);
+  vmLab(lab3);
   printf("; ----\n");
 }
 
@@ -357,14 +363,14 @@ void vmBoolOR(int lab1, int lab2, int lab3) {
 void vmBoolAND(int lab1, int lab2, int lab3) {
   printf("; BOOLAND .L%d,.L%d,.L%d\n", lab1, lab2, lab3);
   vmJmp(lab3);
-  vmTmpLab(lab1);
+  vmLab(lab1);
   vmLdCns(0);
   if (lab2!=-1) {
     vmJmp(lab3);
-    vmTmpLab(lab2);
+    vmLab(lab2);
     vmLdCns(1);
   }
-  vmTmpLab(lab3);
+  vmLab(lab3);
   printf("; ----\n");
 }
 
@@ -374,13 +380,13 @@ void vmBoolAND(int lab1, int lab2, int lab3) {
 // DW name      (ポインタデータの生成)
 void vmDwName(int idx) {
   printf("\tDW\t");
-  vmName(idx);
+  vmNam(idx);
 }
 
 // DW .Ln       (ポインタデータの生成)
 void vmDwLab(int lab) {
   printf("\tDW\t");
-  vmTmpLab(lab);
+  vmLab(lab);
 }
 
 // DW N         (整数データの生成)

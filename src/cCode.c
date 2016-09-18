@@ -20,8 +20,9 @@
  */
 
 /*
- * syntax.c : C--トランスレータのコード生成部
+ * cCode.c : C--トランスレータのコード生成部
  *
+ * 2016.09.18         : SyCHARをSyCHRに変更
  * 2016.06.12 v3.1.0  : 安定版完成
  * 2016.05.04 v3.0.0  : 重村が引き継ぐ
  * 2014.04.29 v2.1.0  : 初期バージョン(柳くん)
@@ -163,7 +164,7 @@ static void printExp(int node){
     printExp(lVal);                                 //   "左辺式->フィールド名"
     printf("->");                                   //
     printf("%s", ntGetName(syGetLVal(rVal)));       //
-  } else if (typ==SyCHAR) {                         // chr() なら
+  } else if (typ==SyCHR) {                          // chr() なら
     printf("(0xff&");                               //   念のため0xffでマスク
     printExp(lVal);                                 //   "(0xff & 式)"
     printf(")");                                    //

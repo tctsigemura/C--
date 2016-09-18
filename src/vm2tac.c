@@ -23,6 +23,13 @@
  * vm2tac.c : 仮想スタックマシンのコードから TaC-CPU V2 の機械語を生成する
  *            (仮想スタックマシンをシミュレーションする機械語を生成する)
  *
+ * 2016.09.18         : vmLdLabをvmLdNam に変更
+ *                    : vmLdStrをvmLdLab に変更
+ *                    : vmTmpLabをvmLab に変更
+ *                    : vmNameをvmNam に変更
+ *                    : vmCharをvmChr に変更
+ *                    : ADDRをNAME に変更
+ *                    : STRをLABEL に変更
  * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
  * 2016.01.18 v2.1.2  : vmPop() で BUG の警告を止める
  *                      ("a[3];"のような意味の無い式で警告が出てしまう。)
@@ -114,8 +121,8 @@ char*   jcc[] = { "JLT", "JLE", "JZ", "JGE", "JGT", "JNZ"};
 #define LVAR  3                                 // ローカル変数    (未ロード)
 #define RVAR  4                                 // レジスタ変数    (未ロード)
 #define PRM   5                                 // 仮引数          (未ロード)
-#define STR   6                                 // 文字列のラベル  (未ロード)
-#define ADDR  7                                 // アドレス(ラベル)(未ロード)
+#define LABEL 6                                 // ラベル参照      (未ロード)
+#define NAME  7                                 // 名前参照        (未ロード)
 #define WINDR 8                                 // ワードデータの間接アドレス
 #define BINDR 9                                 // バイトデータの間接アドレス
 #define ACC   10                                // Acc にある      (既ロード)
@@ -177,9 +184,9 @@ static void calReg(char *op, int r, int p) {
     printf("\t%s\t%s,%s\n", op,reg,regs[aux]);  //   op Reg,RVar
   } else if (sta==PRM) {                        // 仮引数なら
     printf("\t%s\t%s,%d,FP\n", op, reg, aux);   //   op Reg,n,FP
-  } else if (sta==STR) {                        // 文字列のラベルなら
+  } else if (sta==LABEL) {                      // ラベル参照（アドレス）なら
     printf("\t%s\t%s,#.L%d\n", op, reg, aux);   //   op Reg,#.Ln
-  } else if (sta==ADDR) {                       // グローバルラベルなら
+  } else if (sta==NAME) {                       // 名前参照（アドレス）なら
     printf("\t%s\t%s,#%c%s\n", op, reg,         //   op Reg,#_name
 	   getPref(aux), ntGetName(aux));       //
   } else if (sta==WINDR) {                      // 間接ワードなら
@@ -289,12 +296,12 @@ static int rvCnt;                               // レジスタ変数の個数
 static int frSize;                              // スタックフレームの
                                                 //   ローカル変数領域サイズ
 // グローバルな名前をラベル欄に出力
-void vmName(int idx) {
+void vmNam(int idx) {
   printf("%c%s",getPref(idx),ntGetName(idx));   // '_' or '.' と 名前の出力
 }
 
 // 番号で管理されるラベルを印刷する
-void vmTmpLab(int lab) {
+void vmLab(int lab) {
   printf(".L%d", lab);                          // .Ln
   if (inFunc) printf("\n");                     // 関数内部ではラベルが
 }                                               //   連続することがある
@@ -330,14 +337,14 @@ static void cancelFrame() {
 
 // 関数の入口
 void vmEntry(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを印刷
+  vmNam(idx);                                   // 関数名ラベルを印刷
   makeFrame(depth);                             // スタックフレームを作る
   printf("\tCALL\t__stkChk\n");                 // スタックオーバーフローを
 }                                               //   チェックする
 
 // カーネル関数の入口
 void vmEntryK(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを印刷
+  vmNam(idx);                                   // 関数名ラベルを印刷
   makeFrame(depth);                             // スタックフレームを作る
 }
 
@@ -349,7 +356,7 @@ void vmRet() {
 
 // 割り込み関数の入口
 void vmEntryI(int depth, int idx) {
-  vmName(idx);                                  // 関数名ラベルを印刷
+  vmNam(idx);                                   // 関数名ラベルを印刷
   for (int gr = 0; gr < AccSIZ; gr = gr + 1)    // アキュムレータを全て
     printf("\tPUSH\t%s\n", regs[gr]);           //   保存する
   makeFrame(depth);                             // スタックフレームを作る
@@ -464,14 +471,14 @@ void vmLdPrm(int n) {                           // n は仮引数番号(n>=1)
   pushStk(PRM, (n+1)*2);                        // 仮想スタックに (PRM,offs)
 }                                               //   (offs は FP からの距離)
 
-// 文字列のアドレスをスタックに積む
-void vmLdStr(int lab) {                         // lab はラベル番号
-  pushStk(STR, lab);                            // 仮想スタックに (STR,lab)
+// ラベルの参照(アドレス)をスタックに積む
+void vmLdLab(int lab) {                         // lab はラベル番号
+  pushStk(LABEL, lab);                          // 仮想スタックに (LABEL,lab)
 }
 
-// ラベルの値(アドレス)をスタックに積む
-void vmLdLab(int idx) {                         // idx は名前表のインデクス
-  pushStk(ADDR, idx);                           // 仮想スタックに (ADDR,idx)
+// 名前の参照(アドレス)をスタックに積む
+void vmLdNam(int idx) {                         // idx は名前表のインデクス
+  pushStk(NAME, idx);                           // 仮想スタックに (NAME,idx)
 }
 
 // スタックトップの値を大域変数にストアする(POPはしない)
@@ -599,7 +606,7 @@ void vmBNot() {
 
 // まず、スタックから整数を取り出し文字型で有効なビット数だけ残しマスクする
 // 次に、計算結果をスタックに積む
-void vmChar() {
+void vmChr() {
   clearFlg();                                   // フラグ値の変化にそなえる
   loadStk(0);                                   // スタックトップを Acc に移動
   printf("\tAND\t%s,#0x00ff\n", regs[topAux]);  //   AND Acc,#0x00ff
@@ -818,14 +825,14 @@ static void boolOrAnd(int lab1, int lab2, int lab3, int x, int nx) {
   loadStk(0);                                   //   Acc にロードする
   char *acc = regs[topAux];
   printf("\tJMP\t.L%d\n", lab3);                //       JMP .L3
-  vmTmpLab(lab1);                               //  .L1:
+  vmLab(lab1);                                  //  .L1:
   printf("\tLD\t%s,#%d\n", acc, x);             //       LD  Acc,#x
   if (lab2!=-1) {
     printf("\tJMP\t.L%d\n", lab3);              //       JMP .L3
-    vmTmpLab(lab2);                             //  .L2:
+    vmLab(lab2);                                //  .L2:
     printf("\tLD\t%s,#%d\n", acc, nx);          //       LD  Acc,#nx
   }
-  vmTmpLab(lab3);                               //  .L3:
+  vmLab(lab3);                                  //  .L3:
 }
 
 // フラグにある論理値を Acc に論理値をロードする
@@ -834,17 +841,17 @@ static void flagOrAnd(int lab1, int lab2, int lab3, char *jcc, int x, int nx) {
   if (lab2==-1) {                               //  lab2 が未割り当てなら
     printf("\tLD\t%s,#%d\n", acc, nx);          //         LD  Acc,#nx 
     printf("\t%s\t.L%d\n", jcc, lab3);          //         Jcc .L3
-    vmTmpLab(lab1);                             //    .L1:
+    vmLab(lab1);                                //    .L1:
     printf("\tLD\t%s,#%d\n", acc, x);           //         LD  Acc,#x 
   } else {                                      //  lab2 が割り当て済み
     printf("\t%s\t.L%d\n", jcc, lab2);          //         Jcc .L2
-    vmTmpLab(lab1);                             //    .L1:
+    vmLab(lab1);                                //    .L1:
     printf("\tLD\t%s,#%d\n", acc, x);           //         LD  Acc,#x 
     printf("\tJMP\t.L%d\n", lab3);              //         JMP .L3
-    vmTmpLab(lab2);                             //    .L2:
+    vmLab(lab2);                                //    .L2:
     printf("\tLD\t%s,#%d\n", acc, nx);          //         LD  Acc,#nx 
   }
-  vmTmpLab(lab3);                               //  .L3:
+  vmLab(lab3);                                  //  .L3:
   topSta = ACC;                                 //  状態は (ACC, Acc) になる
 }
 
