@@ -22,7 +22,8 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
- * 2016.09.18         : SyCHARをSyCHRに変更
+ * 2016.09.19         : SyLABL を SyADDR に変更
+ * 2016.09.18         : SyCHAR を SyCHR に変更
  * 2016.09.16         : syLn[], syGetLn(), sySetLn() をコメントアウト
  * 2016.09.15         : syGetSize() を削除
  *                      sySetSize() を syClear() に名前変更
@@ -63,7 +64,7 @@ int syRVal[SyMAX];                           // ノードの値２
 #define SyGLB         0x105                 // グローバル変数
 #define SySTR         0x106                 // 文字列
 #define SyFUNC        0x107                 // 関数コール
-#define SyLABL        0x108                 // 大域ラベル(addrof 演算子が使用)
+#define SyADDR        0x108                 // addrof 演算子
 #define SySIZE        0x109                 // sizeof 演算子
 
 #define SyIS1OPR(c)   (((c)&0xf00)==0x200)  // 単項演算子かどうか判定
