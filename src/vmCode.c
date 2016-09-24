@@ -22,6 +22,8 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
+ *                    : SyLABLをSyADDR に変更
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
@@ -196,7 +198,7 @@ static void genFactor(int node, struct Expr* c) {
   } else if (typ == SyGLB) {                      // 大域変数の場合
     c->place = GVAR;
     c->value = lVal;
-  } else if (typ == SyLABL) {                     // 大域ラベルの場合
+  } else if (typ == SyADDR) {                     // addrof 演算子の場合
     c->place = LABL;
     c->value = lVal;
   } else if (typ == SyLOC) {                      // ローカル変数の場合
@@ -655,12 +657,13 @@ static void traceTree(int node) {
 
 // 関数１個分のコード生成
 void genFunc(int funcIdx, int depth, boolean krnFlg) {
+  vmNam(funcIdx);                                // 関数名出力
   if (ntGetType(funcIdx)==TyINTR) {              // 割込み関数の場合は
-    vmEntryI(depth, funcIdx);                    //   割込み関数用の Entry
+    vmEntryI(depth);                             //   割込み関数用の Entry
   } else if (krnFlg) {                           // カーネルモードなら
-    vmEntryK(depth, funcIdx);                    //   カーネル用の Entry
+    vmEntryK(depth);                             //   カーネル用の Entry
   } else {                                       // そうでなければ
-    vmEntry(depth, funcIdx);                     //   通常の Entry
+    vmEntry(depth);                              //   通常の Entry
   }
 
   retLab = -1;                                   // return 用のラベル
@@ -692,7 +695,7 @@ static void genDW(int node) {
   } else {                                       // 初期化単純変数
     typ  = syGetType(node);                      //   計算後の状態へ変更
     lVal = syGetLVal(node);                      //
-    if      (typ==SyLABL) vmDwName(lVal);        //   DW  name を出力
+    if      (typ==SyADDR) vmDwName(lVal);        //   DW  name を出力
     else if (typ==SyCNST) vmDwCns(lVal);         //   DW  N  を出力
     else error("バグ...genDW");                  // 定数でなければエラー
   }

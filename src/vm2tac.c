@@ -23,6 +23,7 @@
  * vm2tac.c : 仮想スタックマシンのコードから TaC-CPU V2 の機械語を生成する
  *            (仮想スタックマシンをシミュレーションする機械語を生成する)
  *
+ * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
  *                    : vmTmpLabをvmLab に変更
@@ -336,15 +337,13 @@ static void cancelFrame() {
 }
 
 // 関数の入口
-void vmEntry(int depth, int idx) {
-  vmNam(idx);                                   // 関数名ラベルを印刷
+void vmEntry(int depth) {
   makeFrame(depth);                             // スタックフレームを作る
   printf("\tCALL\t__stkChk\n");                 // スタックオーバーフローを
 }                                               //   チェックする
 
 // カーネル関数の入口
-void vmEntryK(int depth, int idx) {
-  vmNam(idx);                                   // 関数名ラベルを印刷
+void vmEntryK(int depth) {
   makeFrame(depth);                             // スタックフレームを作る
 }
 
@@ -355,8 +354,7 @@ void vmRet() {
 }
 
 // 割り込み関数の入口
-void vmEntryI(int depth, int idx) {
-  vmNam(idx);                                   // 関数名ラベルを印刷
+void vmEntryI(int depth) {
   for (int gr = 0; gr < AccSIZ; gr = gr + 1)    // アキュムレータを全て
     printf("\tPUSH\t%s\n", regs[gr]);           //   保存する
   makeFrame(depth);                             // スタックフレームを作る

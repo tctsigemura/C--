@@ -22,7 +22,8 @@
 /*
  * cCode.c : C--トランスレータのコード生成部
  *
- * 2016.09.18         : SyCHARをSyCHRに変更
+ * 2016.09.19         : SyLABL を SyADDR に変更
+ * 2016.09.18         : SyCHAR を SyCHR に変更
  * 2016.06.12 v3.1.0  : 安定版完成
  * 2016.05.04 v3.0.0  : 重村が引き継ぐ
  * 2014.04.29 v2.1.0  : 初期バージョン(柳くん)
@@ -149,7 +150,7 @@ static void printExp(int node){
     printParam(lVal);                               //   "仮引数名"
   } else if (typ==SyGLB) {                          // グローバル変数なら
     printf("%s", ntGetName(lVal));                  //   "変数名"
-  } else if (typ==SyLABL) {                         // addrofなら
+  } else if (typ==SyADDR) {                         // addrofなら
     printf("((int)&%s)", ntGetName(lVal));          //   "((int)(&変数))"
   } else if (typ==SyFUNC) {                         // 関数なら
     printf("%s(", ntGetName(lVal));                 //   "関数名([実引数,...])"

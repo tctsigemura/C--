@@ -22,7 +22,8 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
- * 2016.09.18         : SyCHARをSyCHRに変更
+ * 2016.09.19         : SyLABL を SyADDRに変更
+ * 2016.09.18         : SyCHAR を SyCHR
  * 2016.09.16         : sySetLn() の使用をコメントアウト
  * 2016.09.15         : syGetSize() を削除
  *                      sySetSize() を syClear() に名前変更
@@ -102,7 +103,7 @@ static struct D d[] = {
   { "SyGLB",  SyGLB},                  // グローバル変数
   { "SySTR",  SySTR},                  // 文字列
   { "SyFUNC", SyFUNC},                 // 関数コール
-  { "SyLABL", SyLABL},                 // ラベル(addrof 演算子が使用)
+  { "SyADDR", SyADDR},                 // ラベル(addrof 演算子が使用)
 
   { "SyNEG",  SyNEG},                  // 単項演算 -
   { "SyNOT",  SyNOT},                  // 単項演算 !

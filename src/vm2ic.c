@@ -20,29 +20,9 @@
  */
 
 /*
- * vm2vm.c : 仮想マシンのコードから実際のコードを生成するプログラムのサンプル
- *           (このプログラムは仮想マシンのコードを出力する)
+ * vm2ic.c : 中間コードをそのまま出力する（仮想マシンのニーモニックにもしない）
  *
- * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
- * 2016.09.18         : vmLdLabをvmLdNam に変更
- *                    : vmLdStrをvmLdLab に変更
- *                    : vmTmpLabをvmLab に変更
- *                    : vmNameをvmNam に変更
- *                    : vmCharをvmChr に変更
- *                    : ニーモニックCHARをCHR に変更
- * 2016.05.04         : vmLdArg, vmStArg を vmLdPrm, vmStPrm(パラメータ)に変更
- * 2015.08.31 v2.1.0  : vmEntryK 追加
- * 2015.08.30         : vmStWrdのコメント誤り修正（バイト配列=>ワード配列）
- * 2012.09.08         : BOOLOR, BOORAND の位置が分かるようにコメントを出力
- * 2010.09.12 v1.0.0  : 最適化と外部変数の定数式による初期化ができる H8 統合版
- * 2010.09.09         : 初期化データでaddrofを使用できるようにvmDcNameを追加
- * 2010.08.31         : AADD を削除し、SCALE を追加
- * 2010.08.23         : MREG を追加 (RetP, RetFを統合)
- *                    : ラベル欄を印刷したときは必ず改行するようにした
- * 2010.08.16         : アドレス計算用の命令 AADD を追加
- * 2010.07.20         : Subversion による管理を開始
- * 2010.04.10         : データ生成機能を追加
- * 2010.04.01 v0.9.11 : 初期バージョン
+ * 2016.09.24         : vm2vm をもとに作成
  *
  * $Id$
  *
@@ -51,291 +31,279 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "util.h"
-#include "namtbl.h"
 #include "vm.h"
 
 // 名前を表現するラベルを印刷する
 void vmNam(int idx) {
-  if (ntGetPub(idx)) printf("_");                  // public なら '_' を付加
-  else printf(".");                                // private なら '.' を付加
-  printf("%s\n", ntGetName(idx));                  //   名前本体の出力
+  printf("vmNam(%d)\n", idx);
 }
 
 // 番号で管理されるコンパイラが生成したラベルを印刷する
 void vmLab(int lab) {
-  printf(".L%d\n", lab);
+  printf("vmLab(%d)\n", lab);
 }
 
 // 関数の入口
 void vmEntry(int depth) {
-  printf("\tENTRY\t%d\n", depth);
+  printf("vmEntry(%d)\n", depth);
 }
 
 // カーネル関数の入口
 void vmEntryK(int depth) {
-  printf("\tENTRYK\t%d\n", depth);
+  printf("vmEntryK(%d)\n", depth);
 }
 
 // 関数の出口
 void vmRet() {
-  printf("\tRET\n");
+  printf("vmRet()\n");
 }
 
 // 割り込み関数の入口
 void vmEntryI(int depth) {
-  printf("\tENTRYI\t%d\n", depth);
+  printf("vmEntryI(%d)\n", depth);
 }
 
 // 割り込み関数の出口
 void vmRetI() {
-  printf("\tRETI\n");
+  printf("vmRetI()\n");
 }
 
 // 関数の返り値をハードウェアレジスタに移動
 void vmMReg() {
-  printf("\tMREG\n");
+  printf("vmMReg()\n");
 }
 
 // スタックトップの値を引数領域に移動
 void vmArg() {
-  printf("\tARG\n");
+  printf("vmArg()\n");
 }
 
 // 値を返さない関数を呼び出す
 void vmCallP(int n, int idx) {
-  printf("\tCALLP\t%d,", n);
-  vmNam(idx);
+  printf("vmCallP(%d, %d)\n", n, idx);
 }
 
 // 値を返す関数を呼び出す
 void vmCallF(int n, int idx) {
-  printf("\tCALLF\t%d,", n);
-  vmNam(idx);
+  printf("vmCallF(%d, %d)\n", n, idx);
 }
+
 
 // 無条件ジャンプ
 void vmJmp(int lab) {
-  printf("\tJMP\t");
-  vmLab(lab);
+  printf("vmJmp(%d)\t", lab);
 }
 
 // スタックから論理値を取り出し true ならジャンプ
 void vmJT(int lab) {
-  printf("\tJT\t");
-  vmLab(lab);
+  printf("vmJT(%d)\t", lab);
 }
 
 // スタックから論理値を取り出し false ならジャンプ
 void vmJF(int lab) {
-  printf("\tJF\t");
-  vmLab(lab);
+  printf("vmJF(%d)\t", lab);
 }
 
 // 定数をスタックにロードする
 void vmLdCns(int c) {
-  printf("\tLDC\t%d\n", c);
+  printf("vmLdCns(%d)\n", c);
 }
 
 // 大域変数の値をスタックに積む
 void vmLdGlb(int idx) {
-  printf("\tLDG\t");
-  vmNam(idx);
+  printf("vmLdGlb(%d)\n", idx);
 }
 
 // n番目のローカル変数の値をスタックに積む
 void vmLdLoc(int n) {
-  printf("\tLDL\t%d\n", n);
+  printf("vmLdLoc(%d)\n", n);
 }
 
 // n番目の引数の値をスタックに積む
 void vmLdPrm(int n) {
-  printf("\tLDP\t%d\n", n);
+  printf("vmLdPrm(%d)\n", n);
 }
 
 // ラベルの参照(アドレス)をスタックに積む
 void vmLdLab(int lab) {
-  printf("\tLDC\t");
-  vmLab(lab);
+  printf("vmLdLab(%d)\n", lab);
 }
 
 // まず、スタックから添字とワード配列の番地を取り出す
 // 次にワード配列の要素の内容をスタックに積む
 void vmLdWrd() {
-  printf("\tLDW\n");
+  printf("vmLdWrd()\n");
 }
 
 // まず、スタックから添字とバイト配列の番地を取り出す
 // 次にバイト配列の要素の内容をスタックに積む
 void vmLdByt() {
-  printf("\tLDB\n");
+  printf("vmLdByt()\n");
 }
 
 // 名前の参照(アドレス)をスタックに積む
 void vmLdNam(int idx) {
-  printf("\tLDC\t");
-  vmNam(idx);
+  printf("vmLdNam(%d)\n", idx);
 }
 
 // スタックトップの値を大域変数にストアする(POPはしない)
 void vmStGlb(int idx) {
-  printf("\tSTG\t");
-  vmNam(idx);
+  printf("vmStGlb(%d)\n", idx);
 }
 
 // スタックトップの値をn番目のローカル変数にストアする(POPはしない)
 void vmStLoc(int n) {
-  printf("\tSTL\t%d\n", n);
+  printf("vmStLoc(%d)\n", n);
 }
 
 // スタックトップの値をn番目の引数にストアする(POPはしない)
 void vmStPrm(int n) {
-  printf("\tSTP\t%d\n", n);
+  printf("vmStPrm(%d)\n", n);
 }
 
 // まず、スタックから添字とワード配列の番地を取り出す
 // 次に、配列の要素に新しいスタックトップの値を
 // ストアする(後半でPOPはしない)
 void vmStWrd() {
-  printf("\tSTW\n");
+  printf("vmStWrd()\n");
 }
 
 // まず、スタックから添字とバイト配列の番地を取り出す
 // 次に、配列の要素に新しいスタックトップの値(バイト)を
 // ストアする(後半でPOPはしない)
 void vmStByt() {
-  printf("\tSTB\n");
+  printf("vmStByt()\n");
 }
 
 // まず、スタックから整数を取り出し２の補数を計算する
 // 次に、計算結果をスタックに積む
 void vmNeg() {
-  printf("\tNEG\n");
+  printf("vmNeg()\n");
 }
 
 // まず、スタックから論理値を取り出し否定を計算する
 // 次に、計算結果をスタックに積む
 void vmNot() {
-  printf("\tNOT\n");
+  printf("vmNot()\n");
 }
 
 // まず、スタックから整数を取り出し１の補数を計算する
 // 次に、計算結果をスタックに積む
 void vmBNot() {
-  printf("\tBNOT\n");
+  printf("vmBNot()\n");
 }
 
 // まず、スタックから整数を取り出し文字型で有効なビット数だけ残しマスクする
 // 次に、計算結果をスタックに積む
 void vmChr() {
-  printf("\tCHR\n");
+  printf("vmChr()\n");
 }
 
 // まず、スタックから整数を取り出し最下位ビットだけ残しマスクする
 // 次に、計算結果をスタックに積む
 void vmBool() {
-  printf("\tBOOL\n");
+  printf("vmBool()\n");
 }
 
 // まず、スタックから整数を二つ取り出し和を計算する
 // 次に、計算結果をスタックに積む
 void vmAdd() {
-  printf("\tADD\n");
+  printf("vmAdd()\n");
 }
 
 // まず、スタックから整数を二つ取り出し差を計算する
 // 次に、計算結果をスタックに積む
 void vmSub() {
-  printf("\tSUB\n");
+  printf("vmSub()\n");
 }
 
 // まず、スタックからシフトするビット数、シフトされるデータの順で取り出す。
 // 次に、左シフトした結果をスタックに積む
 void vmShl() {
-  printf("\tSHL\n");
+  printf("vmShl()\n");
 }
 
 // まず、スタックからシフトするビット数、シフトされるデータの順で取り出す。
 // 次に、右シフトした結果をスタックに積む
 void vmShr() {
-  printf("\tSHR\n");
+  printf("vmShr()\n");
 }
 
 // まず、スタックから整数を二つ取り出しビット毎の論理積を計算する
 // 次に、計算結果をスタックに積む
 void vmBAnd() {
-  printf("\tBAND\n");
+  printf("vmBAnd()\n");
 }
 
 // まず、スタックから整数を二つ取り出しビット毎の排他的論理和を計算する
 // 次に、計算結果をスタックに積む
 void vmBXor() {
-  printf("\tBXOR\n");
+  printf("vmBXor()\n");
 }
 
 // まず、スタックから整数を二つ取り出しビット毎の論理和を計算する
 // 次に、計算結果をスタックに積む
 void vmBOr() {
-  printf("\tBOR\n");
+  printf("vmBOr()\n");
 }
 
 // まず、スタックから整数を二つ取り出し積を計算する
 // 次に、計算結果をスタックに積む
 void vmMul() {
-  printf("\tMUL\n");
+  printf("vmMul()\n");
 }
 
 // まず、スタックから整数を二つ取り出し商を計算する
 // 次に、計算結果をスタックに積む
 void vmDiv() {
-  printf("\tDIV\n");
+  printf("vmDiv()\n");
 }
 
 // まず、スタックから整数を二つ取り出し剰余を計算する
 // 次に、計算結果をスタックに積む
 void vmMod() {
-  printf("\tMOD\n");
+  printf("vmMod()\n");
 }
 
 // まず、スタックから整数を二つ取り出し比較する
 // 次に、比較結果(論理値)をスタックに積む
 void vmGt() {
-  printf("\tGT\n");
+  printf("vmGt()\n");
 }
 
 // まず、スタックから整数を二つ取り出し比較する
 // 次に、比較結果(論理値)をスタックに積む
 void vmGe() {
-  printf("\tGE\n");
+  printf("vmGe()\n");
 }
 
 // まず、スタックから整数を二つ取り出し比較する
 // 次に、比較結果(論理値)をスタックに積む
 void vmLt() {
-  printf("\tLT\n");
+  printf("vmLt()\n");
 }
 
 // まず、スタックから整数を二つ取り出し比較する
 // 次に、比較結果(論理値)をスタックに積む
 void vmLe() {
-  printf("\tLE\n");
+  printf("vmLe()\n");
 }
 
 // まず、スタックから整数を二つ取り出し比較する
 // 次に、比較結果(論理値)をスタックに積む
 void vmEq() {
-  printf("\tEQ\n");
+  printf("vmEq()\n");
 }
 
 // まず、スタックから整数を二つ取り出し比較する
 // 次に、比較結果(論理値)をスタックに積む
 void vmNe() {
-  printf("\tNE\n");
+  printf("vmNe()\n");
 }
 
 // スタックから値を一つ取り出し捨てる
 void vmPop() {
-  printf("\tPOP\n");
+  printf("vmPop()\n");
 }
 
 /*
@@ -344,32 +312,12 @@ void vmPop() {
  */
 // BOOLOR .L1,.L2,.L3
 void vmBoolOR(int lab1, int lab2, int lab3) {
-  printf("; BOOLOR .L%d,.L%d,.L%d\n", lab1, lab2, lab3);
-  vmJmp(lab3);
-  vmLab(lab1);
-  vmLdCns(1);
-  if (lab2!=-1) {
-    vmJmp(lab3);
-    vmLab(lab2);
-    vmLdCns(0);
-  }
-  vmLab(lab3);
-  printf("; ----\n");
+  printf("vmBoolOR(%d, %d, %d)\n", lab1, lab2, lab3);
 }
 
 // BOOLAND .L1,.L2,.L3
 void vmBoolAND(int lab1, int lab2, int lab3) {
-  printf("; BOOLAND .L%d,.L%d,.L%d\n", lab1, lab2, lab3);
-  vmJmp(lab3);
-  vmLab(lab1);
-  vmLdCns(0);
-  if (lab2!=-1) {
-    vmJmp(lab3);
-    vmLab(lab2);
-    vmLdCns(1);
-  }
-  vmLab(lab3);
-  printf("; ----\n");
+  printf("vmBoolAND(%d, %d, %d)\n", lab1, lab2, lab3);
 }
 
 /*
@@ -377,37 +325,35 @@ void vmBoolAND(int lab1, int lab2, int lab3) {
  */
 // DW name      (ポインタデータの生成)
 void vmDwName(int idx) {
-  printf("\tDW\t");
-  vmNam(idx);
+  printf("vmDwName(%d)\n", idx);
 }
 
 // DW .Ln       (ポインタデータの生成)
 void vmDwLab(int lab) {
-  printf("\tDW\t");
-  vmLab(lab);
+  printf("vmDwLab(%d)\n", lab);
 }
 
 // DW N         (整数データの生成)
 void vmDwCns(int n) {
-  printf("\tDW\t%d\n", n);
+  printf("vmDwCns(%d)\n", n);
 }
 
 // DB N         (バイトデータの生成、バイト配列の初期化で使用)
 void vmDbCns(int n) {
-  printf("\tDB\t%d\n", n);
+  printf("vmDbCns(%d)\n", n);
 }
 
 // WS N         (ワード領域の生成)
 void vmWs(int n) {
-  printf("\tWS\t%d\n", n);
+  printf("vmWs(%d)\n", n);
 }
 
 // BS N         (バイト配列領域の生成)
 void vmBs(int n) {
-  printf("\tBS\t%d\n", n);
+  printf("vmBs(%d)\n", n);
 }
 
 // STRING "..." (文字列データ(バイト配列)の生成)
 void vmStr(char *s) {
-  printf("\tSTRING\t\"%s\"\n", s);
+  printf("vmStr(\"%s\")\n", s);
 }

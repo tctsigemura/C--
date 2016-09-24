@@ -22,7 +22,8 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
- * 2016.09.18         : SyCHARをSyCHRに変更
+ * 2016.09.19         : SyLABL を SyADDR に変更
+ * 2016.09.18         : SyCHAR を SyCHR に変更
  * 2016.09.15         : sySetSize(0) を syClear() に変更
  * 2016.09.14         : ファイル名の管理をlexicalからutilに移動
  * 2016.07.29         : SyCNSTノードに型情報を追加
@@ -398,7 +399,7 @@ static void getAddrof(struct watch* w) {
   int s = ntGetScope(n);                      // それのスコープを調べ
   if (s==ScPROT || s==ScFUNC ||               // 関数名または
       s==ScCOMM || s==ScGVAR) {               // 大域変数なら OK
-    int a = syNewNode(SyLABL, n, SyNULL);     //   ラベル定数を表現するノード
+    int a = syNewNode(SyADDR, n, SyNULL);     //   ラベル定数を表現するノード
     setWatch(w, TyINT, 0, false, a);          //   addrof は整数型の定数
   } else error("addrof( に大域名が続かない"); // それ以外の名前はあり得ない
   chkTok(')', "addrof が ')' で終わらない");
@@ -1025,7 +1026,7 @@ static int getCnst(int typ) {
   freeWatch(w);                              // 式(w)は役目を終えた
   optTree(tree);                             // 定数式を計算する
   int ty = syGetType(tree);
-  if (ty!=SyCNST && ty!=SyLABL && ty!=SySTR && ty!=SySIZE)
+  if (ty!=SyCNST && ty!=SyADDR && ty!=SySTR && ty!=SySIZE)
     error("定数式が必要");
   return tree;
 }
@@ -1165,6 +1166,7 @@ static void getGVar(void) {
       getStructInit();                       //   構造体の初期化部分 '{ ... }'
     } else error("バグ...getGVar");
     genData(curIdx);                         // 初期化済みデータを生成
+    //syPrintTree();                         // ### デバッグ用 ###
     syClear();                               // データ生成終了で木を消去する
     if (idx>=0) {                            // 既に登録されていた場合
       if (ntGetScope(idx)!=ScCOMM) error("2重定義"); // コモン以外は2重定義
