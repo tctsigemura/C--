@@ -1166,6 +1166,7 @@ static void getGVar(void) {
       getStructInit();                       //   構造体の初期化部分 '{ ... }'
     } else error("バグ...getGVar");
     genData(curIdx);                         // 初期化済みデータを生成
+    //syPrintTree();                         // ### デバッグ用 ###
     syClear();                               // データ生成終了で木を消去する
     if (idx>=0) {                            // 既に登録されていた場合
       if (ntGetScope(idx)!=ScCOMM) error("2重定義"); // コモン以外は2重定義

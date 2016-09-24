@@ -19,6 +19,7 @@
 #
 # Makefile : c-- の makefile
 #
+# 2016.09.24         : ic-c--, cm2i を追加（中間コードを出力するバージョン）
 # 2016.09.16 v3.1.6  : 中間言語の仕様変更
 # 2016.09.14 v3.1.5  : トランスレータのテストでエラーになる問題を解決
 # 2016.09.12 v3.1.4  : バグ修正(doc,字句解析)
@@ -54,7 +55,7 @@ CC=cc -std=c99 -Wall
 VER=\"3.1.6\"
 DATE="\"`date`\""
 
-all : c-- vm-c-- c-c--
+all : c-- vm-c-- c-c-- ic-c--
 
 c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
@@ -80,6 +81,14 @@ c-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
 	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
 
+ic-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
+      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2ic.c \
+      optree.h optree.c
+	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"IC\" \
+	-DNWORD=16 -DNBYTE=8 -o ic-c-- \
+	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
+	vmCode.c vm2ic.c optree.c
+
 #h8300hn-c-- : Makefile syntax.c lexical.c lexical.h util.h util.c \
 #      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2h8300hn.c \
 #      optree.h optree.c
@@ -88,17 +97,19 @@ c-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
 #	syntax.c lexical.c namtbl.c util.c sytree.c vmCode.c vm2h8300hn.c \
 #	optree.c
 
-install : c-- vm-c-- c-c-- # h8300hn-c--
+install : c-- vm-c-- c-c-- ic-c-- # h8300hn-c--
 	install -d -m 755 /usr/local/bin
 	install -m 755 c-- /usr/local/bin
 	install -m 755 vm-c-- /usr/local/bin
 	install -m 755 c-c-- /usr/local/bin
+	install -m 755 ic-c-- /usr/local/bin
 	install -m 755 cm2c /usr/local/bin
 	install -m 755 cm2e /usr/local/bin
 	install -m 755 cm2v /usr/local/bin
+	install -m 755 cm2i /usr/local/bin
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+	rm -f c-- vm-c-- c-c-- ic-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 #	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 

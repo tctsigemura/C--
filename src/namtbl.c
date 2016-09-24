@@ -22,6 +22,7 @@
 /*
  * namtbl.c : 名前表(Name Table)の管理プログラム
  *
+ * 2016.09.24         : デバッグ用の ntPrint() 追加
  * 2015.08.31 v2.1.0  : CLang の警告が出ないように変更
  * 2012.12.30         : error2 関数を使用するように変更
  * 2010.07.20         : Subversion による管理を開始
@@ -105,8 +106,24 @@ void ntDefName(char *name, int scope, int type, int dim, int cnt, boolean pub){
   ntNextIdx = ntNextIdx + 1;
 }
 
-/* 名前表をもとに戻す */
+// 名前表を印刷する（デバッグ用）
+/*
+static void ntPrint() {
+  for (int i=0; i<ntNextIdx; i=i+1) {
+    printf("%3d ",     i);
+    printf("%-8s ",    ntName[i] );
+    printf("%2d ",     ntScope[i]);
+    printf("%2d ",     ntType[i] );
+    printf("%d ",      ntDim[i]  );
+    printf("%2d ",     ntCnt[i]  );
+    printf("%d\n",     ntPub[i]  );
+  }
+}
+*/
+
+// 名前表をもとに戻す
 void ntUndefName(int idx) {                      // idx まで戻す
+  //ntPrint();                                   // ＃デバッグ用
   for (int i=idx; i<ntNextIdx; i=i+1)            // 名前のつづり用の領域を順に
     free(ntName[i]);                             // 解放していく
   ntNextIdx = idx;                               // nextIdx を戻せば完成
