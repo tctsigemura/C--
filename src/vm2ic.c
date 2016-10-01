@@ -91,17 +91,17 @@ void vmCallF(int n, int idx) {
 
 // 無条件ジャンプ
 void vmJmp(int lab) {
-  printf("vmJmp(%d)\t", lab);
+  printf("vmJmp(%d)\n", lab);
 }
 
 // スタックから論理値を取り出し true ならジャンプ
 void vmJT(int lab) {
-  printf("vmJT(%d)\t", lab);
+  printf("vmJT(%d)\n", lab);
 }
 
 // スタックから論理値を取り出し false ならジャンプ
 void vmJF(int lab) {
-  printf("vmJF(%d)\t", lab);
+  printf("vmJF(%d)\n", lab);
 }
 
 // 定数をスタックにロードする
