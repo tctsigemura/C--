@@ -206,7 +206,7 @@ static void printEls(int node){
   int nodeIf = syGetLVal(node);                     // if文
   printf("if (");                                   // if(
   printExp(syGetLVal(nodeIf));                      // 条件式
-  printf(") ");                                     // )
+  printf(")");                                     // )
   int nodeThen = syGetRVal(nodeIf);                 // if-else文の本体が
   int typeThen = syGetType(nodeThen);               // else無しif文なら"{}"必要
   if (typeThen==SyIF) printf("{\n");                // {
