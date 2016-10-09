@@ -101,6 +101,35 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 \end{description}
 \end{quote}
 
+\section{{\cmi}コマンド}
+
+{\cmm}プログラムをコンパイルして中間言語に変換します。
+{\cmi}コマンドは、
+内部で「\ref{command:vcmmc} {\icmmc}コマンド」を呼び出すシェルスクリプトです。
+
+\begin{flushleft}
+{\bf 形式 : }~~~\verb/cm2i [-h] [-E] [-Dxx=yy] <file>.../
+\end{flushleft}
+
+{\tt <file>...}の各ファイルについて、
+プリプロセッサ({\tt cpp})、
+コンパイラ({\tt ic-c--})
+を順に呼び出し中間言語({\tt .i})を出力します。
+{\cmi}コマンドに指定できるファイルは、
+拡張子「{\tt .cmm}」の{\cmml}ソースプログラムだけです。
+
+\begin{quote}
+\hspace{-1em}以下のオプションが使用できます。
+
+\begin{description}
+\item[{\tt -h}] : 使用方法メッセージを表示します。
+\item[{\tt -E}] : プリプロセッサで処理した{.cmm}ファイルの内容を
+標準出力ストリームに書き出します。
+それより後の処理を行いません。
+\item[{\tt -D}] : このオプションは、そのままプリプロセッサに渡されます。
+\end{description}
+\end{quote}
+
 \section{{\cmv}コマンド}
 
 {\cmm}プログラムをコンパイルして仮想スタックマシンのニーモニックに変換します。
@@ -221,6 +250,22 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 %hello,world
 %\end{verbatim}
 %\end{mylist}
+
+\section{{\icmmc}コマンド}
+\label{command:icmmc}
+
+中間言語を出力する{\cmm}コンパイラです。
+{\bf 通常は{\cmi}から起動されユーザが直接使用することはありません。}
+
+中間言語の仕様は、\pageref{app:vm}ページに掲載してあります。
+コンパイラの仕組みを学習したいときに利用します。
+{\icmmc}コマンドの書式は次の通りです。
+
+\begin{flushleft}
+{\bf 形式 : }~~~\verb/ic-c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]/
+\end{flushleft}
+
+引数の意味は{\cmmc}コマンドと同様です。
 
 \section{{\vcmmc}コマンド}
 \label{command:vcmmc}

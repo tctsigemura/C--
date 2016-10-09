@@ -35,7 +35,7 @@
 \begin{mylist}
 \begin{verbatim}
 $ make
-cc -std=c99 -Wall  -DDATE="\"`date`\"" -DVER=\"3.1.0\" ...
+cc -std=c99 -Wall  -DDATE="\"`date`\"" -DVER=\"3.1.7\" ...
 ...
 $ sudo make install
 Password:
@@ -46,9 +46,9 @@ install -m 755 vm-c-- /usr/local/bin
 \end{verbatim}
 \end{mylist}
 
-以上で、{\cme}、{\cmc}、{\cmv}、{\cmmc}、{\vcmmc}、{\ccmmc}の
-六つのプログラムが作成され\verb;/usr/local/bin;にインストールされました。
-{\cme}、{\cmc}、{\cmv}は、
+以上で、{\cme}、{\cmc}、{\cmi}、{\cmv}、{\cmmc}、{\ccmmc}、{\icmmc}、{\vcmmc}の
+八つのプログラムが作成され\verb;/usr/local/bin;にインストールされました。
+{\cme}、{\cmc}、{\cmi}、{\cmv}は、
 {\cmml}をコンパイルするために使用するシェルスクリプトです。
 これらのシェルスクリプトは、
 与えられたファイルの拡張子から処理するべき手順を判断し、
@@ -59,6 +59,8 @@ install -m 755 vm-c-- /usr/local/bin
 {\cmm}プログラムを{\tac}で実行できる「{\tt .exe}」ファイルに変換します。
 \item {\cmc}は、
 {\cmm}プログラムをUNIXやMacで実行できるファイルに変換します。
+\item {\cmi}は、
+{\cmm}プログラムを中間コードに変換します。
 \item {\cmv}は、
 {\cmm}プログラムをスタックマシンのニーモニックに変換します。
 \item {\cmmc}は、{\tac}用の{\cmml}コンパイラ本体です。
@@ -67,13 +69,16 @@ install -m 755 vm-c-- /usr/local/bin
 \item {\ccmmc}は、{\cmm}プログラムを{\cl}に変換するトランスレータです。
 変換された{\cl}プログラムはUNIXやMacで実行できます。
 通常{\cmc}から呼び出され、ユーザが直接使用することはありません。
+\item {\icmmc}は、コンパイラの勉強をしたい人のために、
+中間言語(\pageref{app:vm}ページ)を出力して見せるコンパイラです。
+通常{\cmi}から呼び出され、ユーザが直接使用することはありません。
 \item {\vcmmc}は、コンパイラの勉強をしたい人のために、
 中間言語(\pageref{app:vm}ページ)をよく反映した、
 仮想スタックマシンのニーモニックを出力して見せるコンパイラです。
 通常{\cmv}から呼び出され、ユーザが直接使用することはありません。
 \end{itemize}
 
-なお、これら六つのプログラムの使用方法は、
+なお、これら八つのプログラムの使用方法は、
 コマンドリファレンス(\pageref{app:command}ページ)で紹介します。
 
 \subsection{ヘッダファイルのインストール}
@@ -107,7 +112,7 @@ cm2e -c  printf.cmm
 cm2e -c  stdlib.cmm
 cm2e -c  string.cmm
 as-- syslib.s
-ld-- libtac.o crt0.o ctype.o stdio.o printf.o stdlib.o string.o ...
+ld-- libtac.o crt0.o ctype.o stdio.o printf.o stdlib.o ...
 \end{verbatim}
 \end{mylist}
 
@@ -132,7 +137,8 @@ ln -fs wrapper.h /usr/local/cmmLib/crt0.h
 いくつかのファイルがインストールされました。
 \verb;libtac.o;は{\cmml}で記述した{\tacos}用のライブラリ関数です。
 \verb;cfunc.hmm;は{\cmm}プログラムがパソコンで実行される際に
-{\cmml}ライブラリ関数の代用として使用される{\cl}ライブラリ関数を定義します。
+{\cmml}ライブラリ関数の代用として使用される{\cl}ライブラリ関数を
+定義（\verb;#define;）します。
 \verb;wrapper.c;は{\cmm}プログラムがパソコンで実行される際に使用される
 {\cl}で記述された{\cmm}ライブラリ関数です。
 \verb;cfunc.hmm;による置き換えができない関数が記述してあります。
@@ -211,7 +217,6 @@ $ ls -l
 
 \begin{mylist}
 \begin{verbatim}
-// hello.c
 #include <stdio.h>
 #define _cmm_0S "hello,world\n"
 int main(){
@@ -248,8 +253,37 @@ _main   PUSH    FP
 \end{verbatim}
 \end{mylist}
 
+\item {\tt hello.i}は、{\tt hello.cmm}を{\cmi}により
+中間言語に変換したプログラムです。\\
+「\verb/$ cm2i hello.cmm/」のように実行します。
+中間言語の詳細は、
+\pageref{app:vm}ページで紹介します。
+
+\begin{mylist}
+\begin{verbatim}
+vmNam(25)
+vmWs(1)
+vmNam(26)
+vmWs(1)
+vmNam(27)
+vmWs(1)
+vmLab(1)
+vmStr("hello,world\n")
+vmNam(65)
+vmEntry(0)
+vmLdLab(1)
+vmArg()
+vmCallF(1, 62)
+vmPop()
+vmLdCns(0)
+vmMReg()
+vmRet()
+\end{verbatim}
+\end{mylist}
+
 \item {\tt hello.v}は、{\tt hello.cmm}を{\cmv}により
 仮想スタックマシンのニーモニックに変換したプログラムです。
+中間言語とニーモニックは一対一に対応しています。\\
 「\verb/$ cm2v hello.cmm/」のように実行します。
 仮想スタックマシンのニーモニックの詳細は、
 \pageref{app:vm}ページで紹介します。
