@@ -22,6 +22,7 @@
 /*
  * cCode.c : C--トランスレータのコード生成部
  *
+ * 2016.10.09         : if-else 文の本体が if 文の場合"{}"を出力する
  * 2016.09.19         : SyLABL を SyADDR に変更
  * 2016.09.18         : SyCHAR を SyCHR に変更
  * 2016.06.12 v3.1.0  : 安定版完成
@@ -202,7 +203,15 @@ static void printIf(int node){
 
 // if-else文を印刷する
 static void printEls(int node){
-  printIf(syGetLVal(node));                         // if文
+  int nodeIf = syGetLVal(node);                     // if文
+  printf("if (");                                   // if(
+  printExp(syGetLVal(nodeIf));                      // 条件式
+  printf(")");                                     // )
+  int nodeThen = syGetRVal(nodeIf);                 // if-else文の本体が
+  int typeThen = syGetType(nodeThen);               // else無しif文なら"{}"必要
+  if (typeThen==SyIF) printf("{\n");                // {
+  traceTree(nodeThen);                              // 文
+  if (typeThen==SyIF) printf("}");                  // }
   printf("else ");                                  // else
   traceTree(syGetRVal(node));                       // 文
 }
