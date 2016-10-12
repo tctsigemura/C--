@@ -208,10 +208,14 @@ static void printEls(int node){
   printExp(syGetLVal(nodeIf));                      // 条件式
   printf(")");                                     // )
   int nodeThen = syGetRVal(nodeIf);                 // if-else文の本体が
-  int typeThen = syGetType(nodeThen);               // else無しif文なら"{}"必要
-  if (typeThen==SyIF) printf("{\n");                // {
-  traceTree(nodeThen);                              // 文
-  if (typeThen==SyIF) printf("}");                  // }
+  if (nodeThen==SyNULL) {                           // 空文なら
+    printf(";");                                    //   ;
+  } else {                                          // 空文以外なら
+    int typeThen = syGetType(nodeThen);             // else無しif文だけ"{}"必要
+    if (typeThen==SyIF) printf("{\n");              // {
+    traceTree(nodeThen);                            // 文
+    if (typeThen==SyIF) printf("}");                // }
+  }
   printf("else ");                                  // else
   traceTree(syGetRVal(node));                       // 文
 }
