@@ -22,6 +22,7 @@
 /*
  * cCode.c : C--トランスレータのコード生成部
  *
+ * 2016.10.16         : elseなしif文だけ"{if(e)...}"と出力する方がスマート
  * 2016.10.14         : 2016.10.09 の変更はNG、if文は"if(e){}else{}"と出力する
  * 2016.10.09         : if-else 文の本体が if 文の場合"{}"を出力する
  * 2016.09.19         : SyLABL を SyADDR に変更
@@ -196,19 +197,22 @@ static void printExp(int node){
 
 // if文を印刷する
 static void printIf(int node){
-  printf("if (");                                   // if(
+  printf("{if(");                                   // {if(
   printExp(syGetLVal(node));                        // 条件式
-  printf("){");                                     // ){
+  printf(")");                                      // )
   traceTree(syGetRVal(node));                       // 文
-  printf("}\n");                                    // }
+  printf("}");                                      // }
 }
 
 // if-else文を印刷する
 static void printEls(int node){
-  printIf(syGetLVal(node));
-  printf("else{");                                  // else{
+  int nodeIf = syGetLVal(node);
+  printf("if(");                                    // if(
+  printExp(syGetLVal(nodeIf));                      // 条件式
+  printf(")");                                      // )
+  traceTree(syGetRVal(nodeIf));                     // 文
+  printf("else ");                                  // else
   traceTree(syGetRVal(node));                       // 文
-  printf("}\n");                                    // }
 }
 
 // while文を印刷する
