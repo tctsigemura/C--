@@ -90,13 +90,13 @@ int _cmm_2L;
 int _cmm_3L;
 int *_cmm_4L;
 (_cmm_4L=_mAlloc((sizeof(int )*10)));
-if ((_cmm_4L[0]==0))(_cmm_4L[1]=1);
+if((_cmm_4L[0]==0))(_cmm_4L[1]=1);
 else (_cmm_4L[1]=0);
-if ((_cmm_4L[0]==1))(_cmm_4L[1]=1);
-if ((_cmm_1L==1))(_cmm_1L=2);
-if ((_cmm_1L!=0))(_cmm_1L=3);
+{if((_cmm_4L[0]==1))(_cmm_4L[1]=1);
+}{if((_cmm_1L==1))(_cmm_1L=2);
+}if((_cmm_1L!=0))(_cmm_1L=3);
 else (_cmm_1L=4);
-if ((_cmm_1L!=1)){
+if((_cmm_1L!=1)){
 (_cmm_1L=5);
 (_cmm_2L=6);
 }
@@ -121,13 +121,13 @@ while((_cmm_1L<3)){
 }
 while((((_cmm_1L==2)||(_cmm_2L==2))||(_cmm_3L==2))){
 {
-if ((_cmm_3L==1))continue;
-while((_cmm_2L==2)){
-if ((_cmm_3L==3))break;
-;
+{if((_cmm_3L==1))continue;
+}while((_cmm_2L==2)){
+{if((_cmm_3L==3))break;
+};
 }
-if ((_cmm_3L==4))break;
-}
+{if((_cmm_3L==4))break;
+}}
 ;
 }
 free(_cmm_4L);
