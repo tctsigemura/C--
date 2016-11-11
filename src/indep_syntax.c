@@ -799,12 +799,15 @@ static int getArray(int dim) {
   return syNewNode(SyARRY, node, d);         // 構造体と配列と同じ扱い
 }
 
+static boolean iniArrFlag;               // {...} の形の初期化か
+
 // 配列初期化('{ ... }'の ... を読み込む
 static int getGArrayInit0(int dim) {
   int node = SyNULL;                     // 最初はリスト要素が空
   int n = getCnst();
   node = syCatNode(node, n);
   while (isTok(',')) {
+    if (!iniArrFlag) error("'{' がない");// '{'がないのに','がある
     int n = getGArrayInit(dim);          //     定数式を読み込む
     node = syCatNode(node, n);           //     リストにつなぐ
   }                                      //     ',' が続く間、繰り返す
@@ -815,6 +818,7 @@ static int getGArrayInit0(int dim) {
 static int getGArrayInit(int dim) {
   int node = SyNULL;
   if (isTok('{')) {                          // '{ ... ' の初期化の場合
+    iniArrFlag = true;                       // '{'がある
     do {
       int r = getGArrayInit(dim-1);          //   1次元低い配列の読み込み
       node = syCatNode(node, r);             //   リストにつなぐ
@@ -837,13 +841,10 @@ static int getGArrayInit(int dim) {
 // 大域変数
 static void getGVar(void) {
   int curIdx = ntGetSize()-1;                // 処理中の変数
+  iniArrFlag = false;
   if (isTok('=')) {                          // '='が続けば初期化部分がある
     ntSetScope(curIdx, ScGVAR);              // 初期化された大域変数
-    if (curType==TyINT  ||
-        curType==TyCHAR ||
-        curType==TyBOOL)                     // 基本型の初期化なら
-      getCnst();                             //   整数定数式を入力する
-    else getGArrayInit(curDim);              // それ以外は配列or構造体
+    getGArrayInit(curDim);                   // 初期化式の構文木を作成
   }
   //ntDebPrintTable();
   semChkGVar(curIdx);                        // 意味解析

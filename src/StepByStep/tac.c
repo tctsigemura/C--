@@ -77,6 +77,7 @@ static void callfunc0(int op){
   else if(op==49) vmEq();
   else if(op==50) vmNe();
   else if(op==51) vmPop();
+  else if(op==60) vmOrd();
 }
 
 static void callfunc1(int op, int a1){

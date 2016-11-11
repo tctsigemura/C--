@@ -8,7 +8,7 @@ for i in $*; do
    echo '[!!!' ${j} '!!!]'
    n=`expr ${j} : '\([^\.]*\)'`
    cc -E -DC -Wno-comment -std=c99 -nostdinc -I${INCDIR} -I${LIBDIR} - < ${i} |
-   ../../../src/c-- -O > t.$$
+   ../../../src/t-c-- -O > t.$$
    diff ${n}.s t.$$
 done
 

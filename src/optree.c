@@ -86,7 +86,7 @@ static boolean getBool(int node) {
 }
 
 // ノードに整数定数を書き込む
-#define setUInt(node, v) (setNode((node),SyCNST,(v),SyNULL))
+#define setUInt(node, v) (setNode((node),SyCNST,(v),2))
 #define setSInt(node, v) (setUInt((node), (v)))
 
 // ノードにブール定数を書き込む

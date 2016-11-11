@@ -101,6 +101,7 @@ void vmLe(void){                   fprintf(fpout, "48\n"); }
 void vmEq(void){                   fprintf(fpout, "49\n"); }
 void vmNe(void){                   fprintf(fpout, "50\n"); }
 void vmPop(void){                  fprintf(fpout, "51\n"); }
+void vmOrd(void){                  fprintf(fpout, "60\n"); }
 
 void vmBoolOR(int L1, int L2, int L3){
   fprintf(fpout, "57 %d %d %d\n", L1, L2, L3); }

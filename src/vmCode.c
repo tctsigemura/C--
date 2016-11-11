@@ -786,7 +786,7 @@ static void genList(int node, int dim) {         // 開始位置と配列の次�
 }
 
 // 初期化データの生成
-static void genData(int idx) {
+void genData(int idx) {
   int root = syGetRoot();
   int typ  = syGetType(root);
   int dim  = ntGetDim(idx);
@@ -799,7 +799,7 @@ static void genData(int idx) {
 }
 
 // 非初期化データの生成
-static void genBss(int idx) {                           // 次のような出力をする
+void genBss(int idx) {                           // 次のような出力をする
   vmName(idx);                                   //   Name  WS 1
   vmWs(1);
 }

@@ -98,6 +98,12 @@ void genFunc(int funcIdx, int depth, boolean krnFlg) {
   syPrintTree(fpout);
   fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
 }
+// データの生成
+void genGVar(int idx) {
+  syPrintTree(fpout);
+  fprintf(fpout, "%d G %d\n", lxGetLn(), idx);
+}
+
 // 初期化データの生成
 void genData(int idx) {
   syPrintTree(fpout);
@@ -132,6 +138,8 @@ int genStr(char *str) {
 
 // 段階版のためにダミーのoptTree
 void optTree(int node){}
+void semChkFunc(int node, int idx, boolean krnFlag){}
+void semChkGVar(int curIdx){}
 
 int main(int argc, char *argv[]) {
   // FILE *fp;
@@ -148,7 +156,7 @@ int main(int argc, char *argv[]) {
   }
   lxSetFp(fp);                                // 字句解析に fp を知らせる
   char *fn = lxGetFname();
-  fpout = openDstWithExt(lxGetFname(), ".sm");// 拡張子を".sm"に変更しOpen
+  fpout = openDstWithExt(lxGetFname(), ".sn");// 拡張子を".sn"に変更しOpen
   snGetSrc();                                 // fp からソースコードを入力
   ntPrintTable(fn);                           // 最終的な名前表をファイル出力
   return 0;

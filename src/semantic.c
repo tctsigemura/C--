@@ -83,8 +83,10 @@ static void chkCmpat(struct watch* w, int type, int dim) {
       !(type==TyVOID && dim>0 && w->dim>0) &&
       !(w->type==TyVOID && w->dim==1 && type<=0)&&  // void[] と構造体は OK
       !(type==TyVOID && dim==1 && w->type<=0) &&
-      (w->type!=type || w->dim!=dim))               // それ以外は正確に型が合
+      (w->type!=type || w->dim!=dim)){               // それ以外は正確に型が合
+    printf("%d, %d", type, w->type);
     error("代入/比較/初期化/引数/returnの型が合わない");// わないと代入できない
+  }
 }
 
 // プロトタイプ宣言
@@ -573,7 +575,7 @@ static void semChkData(int curIdx, int idx) {
       chkCmpat(w, ltype, ldim);            //  代入可能かチェック
     }
   }
-  syDebPrintTree();
+  //syDebPrintTree();
 }
 
 // 非初期化データの意味解析
@@ -592,7 +594,7 @@ static void semChkBss(int curIdx, int idx) {
 
 // 関数の意味解析
 void semChkFunc(int node, int fidx, boolean kFlag){
-  syDebPrintTree();                        // ### DEBUG ###
+  //syDebPrintTree();                        // ### DEBUG ###
   funcIdx = fidx;                          // 名前表上の関数名の番号
   krnFlag = kFlag;
   int curType = ntGetType(funcIdx);        // 扱う関数の型

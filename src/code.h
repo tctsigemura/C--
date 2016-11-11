@@ -37,8 +37,8 @@
 
 void genFunc(int funcIdx, int depth, boolean krnFlg); // 関数単位でコードを生成
 void genGVar(int idx);                                // 大域変数を生成
-//void genData(int idx);                                // 初期化データを生成
-//void genBss(int idx);                                 // 非初期化データを生成
+void genData(int idx);                                // 初期化データを生成
+void genBss(int idx);                                 // 非初期化データを生成
 int  genStr(char *s);                                 // 文字列を生成し
                                                       //   ラベル番号を返す
 // 以下はトランスレータのみで必要
