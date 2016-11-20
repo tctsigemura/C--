@@ -17,10 +17,8 @@ int main(){
 {
 int _cmm_1L;
 (_cmm_1L=a);
-while((_cmm_1L<b)){
+for(;(_cmm_1L<b);(_cmm_1L=(_cmm_1L+c)))
 (c=((a+b)+f((_cmm_1L*_cmm_1L),_cmm_0S)));
-(_cmm_1L=(_cmm_1L+c));
-}
 }
 return 0;
 }

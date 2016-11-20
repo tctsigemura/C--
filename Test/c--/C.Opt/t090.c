@@ -21,17 +21,13 @@ static char f1(char _cmm_1P){
 (b=(_cmm_1P&&(a<0)));
 (b=0);
 (b=1);
-while((b==1)){
+for(;(b==1);)
 (b=(!b));
-;
-}
 {
 int _cmm_1L;
 (_cmm_1L=0);
-while((_cmm_1L==10)){
+for(;(_cmm_1L==10);(_cmm_1L=(_cmm_1L+1)))
 ;
-(_cmm_1L=(_cmm_1L+1));
-}
 }
 return (b==0);
 }

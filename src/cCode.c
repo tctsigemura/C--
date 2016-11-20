@@ -22,6 +22,7 @@
 /*
  * cCode.c : C--トランスレータのコード生成部
  *
+ * 2016.11.20         : for 中の continue が最初期化を行わないバグ
  * 2016.10.16         : elseなしif文だけ"{if(e)...}"と出力する方がスマート
  * 2016.10.14         : 2016.10.09 の変更はNG、if文は"if(e){}else{}"と出力する
  * 2016.10.09         : if-else 文の本体が if 文の場合"{}"を出力する
@@ -215,19 +216,20 @@ static void printEls(int node){
   traceTree(syGetRVal(node));                       // 文
 }
 
-// while文を印刷する
+// while文（for文も含む）を印刷する
 static void printWhl(int node){
   int lVal = syGetLVal(node);                       // 条件式
-  int rVal = syGetRVal(node);                       // 本体
-  printf("while(");                                 // "while("
-  if (lVal==SyNULL)                                 // 条件式がない場合は
-    printf("1");                                    //   "1" (無限ループ)
-  else                                              // 条件式があれば
-    printExp(lVal);                                 //   "条件式"
-  printf(")");                                      // ")"
-  printf("{\n");
-  traceTree(rVal);                                  // "{ 本体; 再初期化式 }"
-  printf("}\n");
+  int rVal = syGetRVal(node);                       // 本体と 再初期化式
+  printf("for(;");                                  // "for(;"
+  // 条件式
+  if (lVal!=SyNULL) printExp(lVal);                 // 条件式があれば "条件式"
+  printf(";");                                      // ";"
+  // 再初期化式
+  int rIni = syGetRVal(rVal);                       // 再初期化式があれば
+  if (rIni!=SyNULL) printExp(rIni);                 //   "再初期化式"
+  printf(")\n");                                    // ")"
+  // 本体
+  traceTree(syGetLVal(rVal));                       // "本体"
 }
 
 // do-while文を印刷する

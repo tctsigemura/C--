@@ -33,29 +33,21 @@ char _cmm_2L;
 (_cmm_2L=_cmm_2L);
 (_cmm_2L=_cmm_2L);
 e((3+a),0);
-while((a<c)){
+for(;(a<c);)
 ;
+for(;(a<c);)
 ;
-}
-while((a<c)){
-;
-;
-}
 (_cmm_2L=(0x01&a));
 {
 char _cmm_3L;
 (_cmm_3L=0);
-while((_cmm_3L==97)){
+for(;(_cmm_3L==97);(_cmm_3L=(0xff&(_cmm_3L+-1))))
 ;
-(_cmm_3L=(0xff&(_cmm_3L+-1)));
-}
 }
 {
 char _cmm_3L;
 (_cmm_3L=0);
-while((_cmm_3L==1)){
+for(;(_cmm_3L==1);(_cmm_3L=(0x01&(_cmm_3L+-1))))
 ;
-(_cmm_3L=(0x01&(_cmm_3L+-1)));
-}
 }
 }
