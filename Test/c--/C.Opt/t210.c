@@ -2,24 +2,20 @@ int main(){
 int _cmm_1L;
 {
 ;
-while(1){
+for(;;)
 {
 continue;
 {
 int _cmm_2L;
 (_cmm_2L=0);
-while((_cmm_2L<100)){
+for(;(_cmm_2L<100);(_cmm_2L=(_cmm_2L+1)))
 {
 {if((_cmm_2L<0))continue;
 }(_cmm_1L=3);
 {if((_cmm_2L<0))break;
 }}
-(_cmm_2L=(_cmm_2L+1));
-}
 }
 break;
-}
-;
 }
 }
 return 0;

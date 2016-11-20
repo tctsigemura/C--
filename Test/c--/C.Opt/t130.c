@@ -13,17 +13,13 @@ struct X *_cmm_3L;
 }(_cmm_1L=(_cmm_2L=(_cmm_1L*2)));
 {
 ((_cmm_1L=0),(_cmm_2L=0));
-while((_cmm_1L<10)){
+for(;(_cmm_1L<10);(_cmm_1L=(_cmm_1L+1)))
 (_cmm_2L=(_cmm_2L*2));
-(_cmm_1L=(_cmm_1L+1));
-}
 }
 {
 (_cmm_1L=(_cmm_2L=0));
-while((_cmm_1L<10)){
+for(;(_cmm_1L<10);(_cmm_1L=(_cmm_1L+1)))
 (_cmm_2L=(_cmm_2L*2));
-(_cmm_1L=(_cmm_1L+1));
-}
 }
 return (0xff&_cmm_1L);
 }

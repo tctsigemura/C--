@@ -104,32 +104,24 @@ else {
 (_cmm_1L=7);
 (_cmm_2L=8);
 }
-while((_cmm_1L==0)){
+for(;(_cmm_1L==0);)
 {
 int _cmm_5L;
 (_cmm_5L=1);
 (_cmm_5L=(_cmm_5L+1));
 }
-;
-}
 {
 (_cmm_1L=0);
-while((_cmm_1L<3)){
+for(;(_cmm_1L<3);(_cmm_1L=(_cmm_1L+1)))
 (_cmm_4L[_cmm_1L]=_cmm_1L);
-(_cmm_1L=(_cmm_1L+1));
 }
-}
-while((((_cmm_1L==2)||(_cmm_2L==2))||(_cmm_3L==2))){
+for(;(((_cmm_1L==2)||(_cmm_2L==2))||(_cmm_3L==2));)
 {
 {if((_cmm_3L==1))continue;
-}while((_cmm_2L==2)){
+}for(;(_cmm_2L==2);)
 {if((_cmm_3L==3))break;
-};
-}
-{if((_cmm_3L==4))break;
+}{if((_cmm_3L==4))break;
 }}
-;
-}
 free(_cmm_4L);
 return _cmm_3L;
 }
@@ -150,10 +142,8 @@ static void f3(){
 ;
 {
 ;
-while(1){
+for(;;)
 ;
-;
-}
 }
 }
 static void f4(){
@@ -161,10 +151,8 @@ int _cmm_1L;
 (_cmm_1L=0);
 int _cmm_2L;
 (_cmm_2L=1);
-while((_cmm_1L<10)){
+for(;(_cmm_1L<10);(_cmm_1L=(_cmm_1L+1)))
 (_cmm_1L=((_cmm_2L+1)*2));
-(_cmm_1L=(_cmm_1L+1));
-}
 }
 static int _cmm_50T[5];
 static int *x=_cmm_50T;
@@ -248,10 +236,8 @@ int _cmm_2L;
 (_cmm_2L=0);
 int _cmm_3L;
 (_cmm_3L=0);
-while((_cmm_2L==_cmm_3L)){
+for(;(_cmm_2L==_cmm_3L);(_cmm_2L=(_cmm_2L+1)))
 (_cmm_3L=(_cmm_3L+1));
-(_cmm_2L=(_cmm_2L+1));
-}
 }
 }
 #define _cmm_12S "aaa"

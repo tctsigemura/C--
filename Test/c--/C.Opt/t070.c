@@ -5,10 +5,8 @@ do{
 (_cmm_1L=f1(1));
 if((_cmm_1L>10))break;
 else continue;
-while(1){
+for(;;)
 break;
-;
-}
 break;
 }
 while((_cmm_1L==0));
