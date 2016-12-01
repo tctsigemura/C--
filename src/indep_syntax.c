@@ -767,7 +767,7 @@ static void getFunc(void) {
 static int getGArrayInit(int dim);           // 再帰呼出があるので宣言必要
 
 // 初期化に使用される定数式を読み込む     **********optTreeに移植予定
-static int getCnst() {
+/*static int getCnst() {
   int tree = getAsExpr();                    // 初期化式にはカンマ式不可
   optTree(tree);                             // 定数式を計算する
   int ty = syGetType(tree);
@@ -775,13 +775,12 @@ static int getCnst() {
     error("定数式が必要");
   return tree;
 }
-
+*/
 // array(n1 [, n2] ...) を読み込む */
 static int getArray0(int dim) {
   //if (dim<=0) error("array の次元が配列の次元を超える");
-  int node = getCnst();                 // 整数定数式を読み込む
-  if (syGetLVal(node)<=0)
-    error("配列のサイズは正であるべき");
+  //int node = getCnst();                 // 整数定数式を読み込む
+  int node = getAsExpr();                    // 整数定数式を読み込む
   if (isTok(',')) {                          // ',' が続くなら
     int lVal = getArray0(dim - 1);           //   ','の右側を先に読み
     node = syCatNode(lVal, node);            //   リストの左につなぐ
@@ -804,7 +803,8 @@ static boolean iniArrFlag;               // {...} の形の初期化か
 // 配列初期化('{ ... }'の ... を読み込む
 static int getGArrayInit0(int dim) {
   int node = SyNULL;                     // 最初はリスト要素が空
-  int n = getCnst();
+  //int n = getCnst();
+  int n = getAsExpr();
   node = syCatNode(node, n);
   while (isTok(',')) {
     if (!iniArrFlag) error("'{' がない");// '{'がないのに','がある

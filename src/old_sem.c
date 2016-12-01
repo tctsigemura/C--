@@ -473,147 +473,6 @@ static boolean chkNull(int node, int rval, int lval, int dim, int type) {
   return true;                     // null初期化ではない
 }
 
-// ノードの内容を上書きする
-static void setNode(int node, int typ, int l, int r) {
-  if (node==SyNULL) error("BUG : setNode");
-  sySetType(node, typ);
-  sySetLVal(node, l);
-  sySetRVal(node, r);
-}
-
-// この演算子は左辺式を必要とする
-static boolean needLeft(int node) {
-  int op = syGetType(node);
-  return SyIS1OPR(op)|| SyIS2OPR(op) || SyISCMP(op) || SyISLOPR(op);
-}
-
-// この演算子は右辺式を必要とする
-static boolean needRight(int node) {
-  int op = syGetType(node);
-  return SyIS2OPR(op) || SyISCMP(op) || SyISLOPR(op);
-}
-
-static int setBool(boolean flag) {
-  if (flag) return 1;
-  else      return 0;
-}
-// 式の定数を計算する
-static int calExp(int node) {
-  int ty = syGetType(node);                       // 演算子
-  int l  = syGetLVal(node);                       // 左辺
-  int r  = syGetRVal(node);                       // 右辺
-
-  // 先に演算の対象を最適化する
-  if (needLeft(node))  l = calExp(l);             // 左辺あるので処理する
-  if (needRight(node)) r = calExp(r);             // 右辺あるので処理する
-
-  // 演算子に応じた最適化を行う
-  if (ty==SyNEG) {
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, -syGetLVal(l), syGetRVal(l));
-  } else if (ty==SyNOT) { 
-    if(syGetRVal(l)!=TyBOOL) error("論理式が必要");
-    setNode(node, SyCNST, setBool(!(syGetLVal(l)==1)), syGetRVal(l));
-  } else if (ty==SyBNOT) { 
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, ~syGetLVal(l), syGetRVal(l));
-  } else if (ty==SyCHAR) { 
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) & BMSK, TyCHAR);
-  } else if (ty==SyBOOL) { 
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) & 1, syGetRVal(l));
-  } else if (ty==SySIZE) { 
-    /*           ???              */
-  } else if (ty==SyADD) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l)+syGetLVal(r), syGetRVal(l));
-  } else if (ty==SySUB) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l)-syGetLVal(r), syGetRVal(l));
-  } else if (ty==SySHL) { 
-    int n = syGetLVal(r);
-    if(n<0 || NWORD<=n) error("<< シフト桁数が範囲外");
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) << n, syGetRVal(l));
-  } else if (ty==SySHR) { 
-    int n = syGetLVal(r);
-    if(n<0 || NWORD<=n) error(">> シフト桁数が範囲外");
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) >> n, syGetRVal(l));
-  } else if (ty==SyBAND) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) & syGetLVal(r), syGetRVal(l));
-  } else if (ty==SyBOR) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) | syGetLVal(r), syGetRVal(l));
-  } else if (ty==SyBXOR) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) ^ syGetLVal(r), syGetRVal(l));
-  } else if (ty==SyMUL) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) * syGetLVal(r), syGetRVal(l));
-  } else if (ty==SyDIV) {
-    if(syGetLVal(r)==0) error("0 での割算");
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) / syGetLVal(r), syGetRVal(l));
-  } else if (ty==SyMOD) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, syGetLVal(l) % syGetLVal(r), syGetRVal(l));
-  } else if (ty==SyGT) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, setBool(syGetLVal(l) > syGetLVal(r)), TyBOOL);
-  } else if (ty==SyGE) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, setBool(syGetLVal(l) >= syGetLVal(r)), TyBOOL);
-  } else if (ty==SyLT) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, setBool(syGetLVal(l) < syGetLVal(r)), TyBOOL);
-  } else if (ty==SyLE) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("整数式が必要");
-    if(syGetRVal(l)!=TyINT) error("整数式が必要");
-    setNode(node, SyCNST, setBool(syGetLVal(l) <= syGetLVal(r)), TyBOOL);
-  } else if (ty==SyEQU) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("比較する型が合わない");
-    setNode(node, SyCNST, setBool(syGetLVal(l) == syGetLVal(r)), TyBOOL);
-  } else if (ty==SyNEQ) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("比較する型が合わない");
-    setNode(node, SyCNST, setBool(syGetLVal(l) != syGetLVal(r)), TyBOOL);
-  } else if (ty==SyOR) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("論理式が必要");
-    if(syGetRVal(l)!=TyBOOL) error("論理式が必要");
-    setNode(node, SyCNST, setBool((syGetLVal(l)==1) || (syGetLVal(r)==1))
-            , TyBOOL);
-  } else if (ty==SyAND) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("論理式が必要");
-    if(syGetRVal(l)!=TyBOOL) error("論理式が必要");
-    setNode(node, SyCNST, setBool((syGetLVal(l)==1) && (syGetLVal(r)==1))
-            , TyBOOL);
-  } else if (ty==SyCNST || ty==SySTR) {
-    ;
-  } else error("定数式が必要");                     // それ以外はこない
-  // 最適化終了後
-  
-  if (syGetType(node)==SyCNST)                    // 定数になっていたら
-    sySetLVal(node, syGetLVal(node) & WMSK);        //   値のオーバーフローを訂正
-                                                  //  (全てのノードは計算前に
-                                                  //   ここで訂正を受ける)
-  return node;
-}
- 
 static void chkStrc(int node, int maxIdx);
 static void chkStrc(int node, int maxIdx) {
   struct watch *w = null;
@@ -632,7 +491,6 @@ static void chkStrc(int node, int maxIdx) {
   if (chkNull(syGetType(node), syGetRVal(node),
               syGetLVal(node), nDim, nType)) { // null初期化かチェック
     chkCmpat(w, nType, nDim);                  //  式を引数に代入可能か
-    calExp(node);                              //  定数式の計算
   }
   strcIdx = strcIdx + 1;                       //  仮引数番号を進める
 }
@@ -658,6 +516,7 @@ static void chkLstSemi(int node, int type, int dim) {
       if (dim<=0) error("配列初期化の次元が多すぎる");
       if (type!=TyCHAR && type!=TyBOOL)        // バイト単位の配列以外
         sySetRVal(node, 0);                    //  右値が0
+
       chkLstSemi(syGetLVal(node), type, dim-1);//  LIST初期化
     }
   } else {                                     // それ以外ならば
@@ -665,12 +524,13 @@ static void chkLstSemi(int node, int type, int dim) {
             syGetLVal(node), dim, type)) {     // null初期化かチェック
       struct watch *w = chkBiExpr(node);       //  式解析
       chkCmpat(w, type, dim);                  //  代入可能かチェック
-      calExp(node);                            //  定数式の計算
     }
   }
 }
 
-  /*
+// 初期化に使用される整数式をチェック
+static void chkCnst(int node) {
+  int ty = syGetType(node);
   if (SyIS2OPR(ty)) {             // 2項演算ならば
     chkCnst(syGetLVal(node));
     chkCnst(syGetRVal(node));
@@ -682,32 +542,29 @@ static void chkLstSemi(int node, int type, int dim) {
     if (ty!=SyCNST && ty!=SyLABL && ty!=SySTR && ty!=SySIZE)
       error("定数式が必要");
   }
-  */
+}
 
 static int chkArry(int node);
 // SyARRYのSySEMIを読む
 static int chkArry(int node) {
   int cnt;                                     // 式の数を数える
-  int n;
-  struct watch *w = newWatch();
+  struct watch *w;
   if (syGetType(node)==SySEMI) {               // SySEMIならば
     cnt = chkArry(syGetLVal(node)) + 1;        //  式の数をカウント
     w = chkBiExpr(syGetRVal(node));            //  右辺を演算式解析
-    n = calExp(syGetRVal(node));           //  定数式かチェック
+    chkCnst(syGetRVal(node));                  //  定数式かチェック
   } else {                                     // SySEMIでなければ
     cnt = 1;                                   //  1つ目の式
     w = chkBiExpr(node);                       //  自身を演算式解析
-    n = calExp(node);                      //  定数式かチェック
+    chkCnst(node);                             //  定数式かチェック
   }
-  if (syGetLVal(n)<=0)
-    error("配列のサイズは正");
   chkType(w, TyINT);                           // INT型かチェック
   return cnt;
 }
 
 // 初期化データの意味解析
 static void semChkData(int curIdx, int idx) {
-  //syDebPrintTree();
+  syDebPrintTree();
   if (idx>=0) {                            // 既に登録されていた場合
     if (ntGetScope(idx)!=ScCOMM)
       error("2重定義");                    // コモン以外は2重定義
@@ -732,7 +589,6 @@ static void semChkData(int curIdx, int idx) {
     if (chkNull(syGetType(node), syGetRVal(node),
         syGetLVal(node), ldim, ltype)){    // null初期化かチェック
       struct watch *w = chkBiExpr(node);   //  式として解析
-      calExp(node);
       chkCmpat(w, ltype, ldim);            //  代入可能かチェック
     }
   }
