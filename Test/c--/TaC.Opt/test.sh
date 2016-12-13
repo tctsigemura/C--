@@ -12,4 +12,4 @@ for i in $*; do
    diff ${n}.s t.$$
 done
 
-rm t.$$ ../*.lx ../*.sm ../*.op ../*.vm
+rm t.$$

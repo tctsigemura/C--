@@ -79,12 +79,13 @@ static void chkType(struct watch *w, int type) {
 
 // 式(w)の値を type, dim 型へ代入可能か調べる
 static void chkCmpat(struct watch* w, int type, int dim) {
+  //printf("chkCmpat\n");
   if (!(w->type==TyVOID && w->dim>0 && dim>0) &&    // void[] はどの [] にも OK
       !(type==TyVOID && dim>0 && w->dim>0) &&
       !(w->type==TyVOID && w->dim==1 && type<=0)&&  // void[] と構造体は OK
       !(type==TyVOID && dim==1 && w->type<=0) &&
       (w->type!=type || w->dim!=dim)){               // それ以外は正確に型が合
-    printf("%d, %d", type, w->type);
+    printf("type=%d, w->type=%d\n", type, w->type);
     error("代入/比較/初期化/引数/returnの型が合わない");// わないと代入できない
   }
 }
@@ -121,7 +122,7 @@ static void chkArgs(int node, int func) {      // 引数の型，次元チェッ
   chkFcSemi(node, lastIdx);                    // 引数を読む
   if (ntGetType(lastIdx)!=TyDOTDOTDOT &&       // 引数最後が'...'でなく
       prmIdx<=lastIdx) error("引数が少ない");  // prmIdxが小さい
-  if (prmIdx!=lastIdx+1) error("バグ...chkArgs");
+  //if (prmIdx!=lastIdx+1) error("バグ...chkArgs");
 }
 
 // 因子
@@ -133,10 +134,16 @@ static struct watch *chkFactor(int node) {
   if(syGetType(node)==SyCNST) {                // 定数ならば
     type = syGetRVal(node);                    //  右値に型が入っている
     dim = 0;                                   //  次元は0
+    if (type==TyREF) {
+      type = TyVOID;
+      dim = 1;
+    }
   } else if(syGetType(node)==SyLOC) {          // ローカル変数ならば
     int idx = syGetLVal(node);                 //  左値に通し番号
-    type = ntGetType(locIdx + idx);            //  通し番号がオフセット
-    dim  = ntGetDim(locIdx + idx);             //  次元を読むときも同様
+    type = ntGetType(locIdx + idx);        //  通し番号がオフセット
+    dim  = ntGetDim(locIdx + idx);         //  次元を読むときも同様
+    //ntDebPrintTable();
+    //printf("%d, %d\n",locIdx,idx);
     lhs  = true;
   } else if(syGetType(node)==SyPRM) {          // 仮引数ならば
     int idx = syGetLVal(node);                 //  左値に通し番号
@@ -152,14 +159,15 @@ static struct watch *chkFactor(int node) {
     int r = syGetRVal(node);
     type = ntGetType(l);                       //  名前表から型を読む
     dim  = ntGetDim(l);                        //  名前表から次元を読む
+    //printf("%s, type=%d, dim=%d\n",ntGetName(l),type,dim);
     if (ntGetType(l)==TyINTR)
       error("interrupt型関数は呼び出せない");
     if (r==SyNULL && ntGetCnt(l)!=0)           // 引数が必要なのに ない
       error("引数がない");
     else chkArgs(r, l);                        // 引数をチェック
   } else if(syGetType(node)==SyLABL) {         // 大域ラベルならば
-    type = ntGetType(syGetLVal(node));         //  名前表から型を読む
-    dim  = ntGetDim(syGetLVal(node));          //    次元を読む
+    type = TyINT;                              //   整数型
+    dim  = 0;                                  //   次元0
     int s = ntGetScope(syGetLVal(node));       //    スコープを読む
     if (s!=ScPROT && s!=ScFUNC &&              //  関数名でも
         s!=ScCOMM && s!=ScGVAR)                //  大域変数でもなければ
@@ -169,7 +177,7 @@ static struct watch *chkFactor(int node) {
     dim = 1;                                   //  次元は1
   } else if(syGetType(node)==SySIZE) {         // sizeofならば
     type = syGetLVal(node);                    //  左値が型
-    dim  = syGetRVal(node);                    //  右値が次元？
+    dim  = syGetRVal(node);                    //  右値が次元
     if (type<=0&&ntGetType(-type)==TyREF)      // typedef なら
       error("typedefされた型はsizeofで使用できない");
 #ifdef C                                       // トランスレータは sizeof を
@@ -186,8 +194,10 @@ static struct watch *chkFactor(int node) {
     sySetType(node,SyCNST);                    //   定数
     sySetLVal(node, s);                        //   サイズ
     sySetRVal(node, TyINT);                    //   型はINT
+    type = TyINT;
 #endif
   } else {                                     // これら以外は渡されないはず
+    printf("ty=%d\n", syGetType(node));
     error("バグ...semantic.c : chkFactor(watch *w);");
   }
   setWatch(w, type, dim, lhs);                 //  型と次元とlhsを返す
@@ -303,6 +313,7 @@ static struct watch *chkBiExpr(int node) {
   if (syGetType(node)==SyIDXW) {               // 配列参照ならば
     w = chkExpr(syGetLVal(node));              //  左辺式を解析
     int stype = w->type;
+    w->dim = w->dim - 1;                       //  次元を1つ下げる
     if (w->dim>0 || stype<=0) stype = SyIDXW;  // 参照はワード配列
     else if (stype==TyINT)    stype = SyIDXW;  // int はワード配列
     else if (stype==TyCHAR)   stype = SyIDXB;  // char はバイト配列
@@ -312,7 +323,6 @@ static struct watch *chkBiExpr(int node) {
     r = chkExpr(syGetRVal(node));              //  右辺を式解析
     if (r->type!=TyINT || r->dim!=0)           //  右はINT型
       error("配列の添字が整数以外になっている");
-    w->dim = w->dim - 1;                       //  次元を1つ下げる
     if(w->dim<0) error("添字が多すぎる");
     w->lhs = true;
   } else if (syGetType(node)==SyDOT) {         // 構造体ならば
@@ -391,13 +401,15 @@ static void chkEls(int node) {
 
 // while 文 と for 文
 static void chkWhl(int node) {
-  struct watch *w = chkExpr(syGetLVal(node));     // 条件式の解析
-  chkType(w, TyBOOL);                             // 条件式は論理型
+  if(syGetLVal(node)!=SyNULL) {                   // 条件式がある場合
+    struct watch *w = chkExpr(syGetLVal(node));   //   条件式の解析
+    chkType(w, TyBOOL);                           // 条件式は論理型
+    freeWatch(w);
+  }
   int sta = syGetRVal(node);                      // 本文 + 再初期化
   traceTree(syGetLVal(sta));                      // 本文の解析
   if (syGetRVal(sta)!=SyNULL)                     // 再初期化がある場合
     traceTree(syGetRVal(sta));                    //   再初期化を解析
-  freeWatch(w);
 }
 
 // do-while 文
@@ -448,13 +460,22 @@ static void traceTree(int node) {
   else if (ty==SyBRK) chkBrk(node);               // break 文
   else if (ty==SyCNT) chkCnt(node);               // continue 文
   else if (ty==SyRET) chkRet(node);               // retrun 文
-  else if (ty==SyBLK || ty==SySEMI) {             // ブロック
+  else if (ty==SyBLK) {                           // ブロック
+    int tmpIdx = ntGetSize();                     // 局所変数を捨てる
+    int tmpCnt = locIdx;                          //  ために保持
+    traceTree(syGetLVal(node));                   //   先に左側を解析
+    traceTree(syGetRVal(node));                   //   次に右側を解析
+    ntUndefName(tmpIdx);
+    locIdx = tmpCnt;
+  } else if (ty==SySEMI) {                        // SEMI
     traceTree(syGetLVal(node));                   //   先に左側を解析
     traceTree(syGetRVal(node));                   //   次に右側を解析
   } else if (ty==SyVAR) {                         // ローカル変数宣言
     int curType = syGetLVal(syGetRVal(node));
     int curDim  = syGetRVal(syGetRVal(node));
+    int num = syGetLVal(node);
     chkName(curType, curDim, ScLVAR);
+    ntDefName("", ScLVAR, curType, curDim, locIdx+num, false);
   } else {                                        // 式文
     chkExpr(node);                                //  式 解析
   }
@@ -638,6 +659,7 @@ static void chkStrc(int node, int maxIdx) {
 }
 
 static void chkLstSemi(int node, int type, int dim);
+static int chkArry(int node);
 
 // SyLISTのSySEMIを読む
 static void chkLstSemi(int node, int type, int dim) {
@@ -661,30 +683,21 @@ static void chkLstSemi(int node, int type, int dim) {
       chkLstSemi(syGetLVal(node), type, dim-1);//  LIST初期化
     }
   } else {                                     // それ以外ならば
-    if (chkNull(syGetType(node), syGetRVal(node),
-            syGetLVal(node), dim, type)) {     // null初期化かチェック
-      struct watch *w = chkBiExpr(node);       //  式解析
-      chkCmpat(w, type, dim);                  //  代入可能かチェック
-      calExp(node);                            //  定数式の計算
+    if (syGetType(node)==SyARRY) {
+        int cnt = chkArry(syGetLVal(node));    //  式の個数を調べる
+        if (dim<cnt)
+          error("array の次元が配列の次元を超える");
+    } else {
+      if (chkNull(syGetType(node), syGetRVal(node),
+              syGetLVal(node), dim, type)) {     // null初期化かチェック
+        struct watch *w = chkBiExpr(node);       //  式解析
+        chkCmpat(w, type, dim);                  //  代入可能かチェック
+        calExp(node);                            //  定数式の計算
+      }
     }
   }
 }
 
-  /*
-  if (SyIS2OPR(ty)) {             // 2項演算ならば
-    chkCnst(syGetLVal(node));
-    chkCnst(syGetRVal(node));
-  } else if (SyIS1OPR(ty)) {      // 単項演算ならば
-    if (ty==SyNOT || ty==SyCHAR || ty==SyBOOL)
-      error("定数式が必要");
-    chkCnst(syGetLVal(node));
-  } else {
-    if (ty!=SyCNST && ty!=SyLABL && ty!=SySTR && ty!=SySIZE)
-      error("定数式が必要");
-  }
-  */
-
-static int chkArry(int node);
 // SyARRYのSySEMIを読む
 static int chkArry(int node) {
   int cnt;                                     // 式の数を数える
@@ -730,10 +743,10 @@ static void semChkData(int curIdx, int idx) {
     if (syGetType(node)==SySEMI)
       error("バグ...SySEMIは来ないはず, semChkData");
     if (chkNull(syGetType(node), syGetRVal(node),
-        syGetLVal(node), ldim, ltype)){    // null初期化かチェック
-      struct watch *w = chkBiExpr(node);   //  式として解析
+          syGetLVal(node), ldim, ltype)){    // null初期化かチェック
+      struct watch *w = chkBiExpr(node); //  式として解析
       calExp(node);
-      chkCmpat(w, ltype, ldim);            //  代入可能かチェック
+      chkCmpat(w, ltype, ldim);          //  代入可能かチェック
     }
   }
   //syDebPrintTree();
@@ -782,7 +795,11 @@ void semChkFunc(int node, int fidx, boolean kFlag){
   }
   if (ntGetType(funcIdx)==TyINTR && ntGetCnt(funcIdx)!=0)
     error("interrupt関数は引数を持てない");
+  //ntDebPrintTable();
+  //printf("%d, %d\n",idx,ntGetScope(idx));
   if (idx>=0 && ntGetScope(idx)!=ScPROT) error("関数の2重定義");
+  if (idx>=0) ntSetScope(idx, ScFUNC);     // 以前の宣言を定義に変更
+  ntSetScope(funcIdx, ScFUNC);             // 今回の宣言を定義に変更
   locIdx  = funcIdx + ntGetCnt(funcIdx);   // 1つ目のローカル変数の1つ前
   traceTree(node);                         // 構文木をトレースする
   int lastNode;                            //  関数最後の文のノード
@@ -795,6 +812,7 @@ void semChkFunc(int node, int fidx, boolean kFlag){
        ntGetType(funcIdx)!=TyINTR &&       // interupt型以外の関数が
        syGetType(lastNode)!=SyRET)         // return文で終わっていない
       error("関数が値を返していない");
+  //syDebPrintTree();                        // ### DEBUG ###
 }
 
 void semChkGVar(int curIdx) {

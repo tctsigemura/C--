@@ -735,8 +735,8 @@ static void getFunc(void) {
     ntSetCnt(funcIdx, prmCnt);                 // 関数に引数の個数を記録
   int locIdx = ntGetSize();                  // ローカル変数の先頭を記録
   if (isTok('{')) {                          // 関数本体がある場合
-    if (idx>=0) ntSetScope(idx, ScFUNC);     // 以前の宣言を定義に変更
-    ntSetScope(funcIdx, ScFUNC);             // 今回の宣言を定義に変更
+    //if (idx>=0) ntSetScope(idx, ScFUNC);     // 以前の宣言を定義に変更
+    //ntSetScope(funcIdx, ScFUNC);             // 今回の宣言を定義に変更
     maxCnt = 0;                              // 最大の変数番号
     curCnt = 0;                              // 次出現変数の番号
     getBlock();                              // 関数本体を読み込む
@@ -806,11 +806,11 @@ static int getGArrayInit0(int dim) {
   //int n = getCnst();
   int n = getAsExpr();
   node = syCatNode(node, n);
-  while (isTok(',')) {
-    if (!iniArrFlag) error("'{' がない");// '{'がないのに','がある
+  //if (!iniArrFlag) return node;          // '{'がないのに','がある
+  /*while (isTok(',')) {
     int n = getGArrayInit(dim);          //     定数式を読み込む
     node = syCatNode(node, n);           //     リストにつなぐ
-  }                                      //     ',' が続く間、繰り返す
+  } */                                     //     ',' が続く間、繰り返す
   return node;
 }
 

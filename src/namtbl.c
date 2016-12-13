@@ -89,12 +89,13 @@ int ntSrcGlob(int n) {                           // n は名前表の添字
 
 // ２重定義にならないかチェック(ntDefNameから呼ばれ、関数名と大域変数名を除く)
 static int ntChkName(char *str, int scope) {
+  if(strcmp("",str)==0) return -1;
   for (int i=0; i<ntNextIdx; i=i+1) {            // 表全体について
     if (ntScope[i]!=ScVOID && strcmp(ntName[i],str)==0){// 衝突の可能性を調べる
       if (scope==ScSTRC||ntScope[i]==ScSTRC)     // 構造体名は他の全てと衝突
-	return i;
+        return i;
       if (scope>=ScLVAR)                         // 局所変数、仮引数、構造体
-	if (ntScope[i]==scope) return i;         // フィールド名はスコープが
+        if (ntScope[i]==scope) return i;         // フィールド名はスコープが
     }                                            // 同じものとだけ衝突
   }
   return -1;
@@ -124,6 +125,12 @@ void ntUndefName(int idx) {                      // idx まで戻す
     free(ntName[i]);                            // 解放していく
   ntNextIdx = idx;                               // nextIdx を戻せば完成
 }
+void ntDebPrintTable(){
+  for (int i=0; i<ntNextIdx; i=i+1)              // 表全体について
+    printf("%s %d %d %d %d %d\n"
+      , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
+}
+
 
 //---------------------------------------------------------------------------
 // STEP BY STEPの場合は以下の関数が必要
@@ -153,12 +160,6 @@ void ntPrintTable(char *name){
   fp = openDstWithExt(name, ".nt");              // 拡張子を".nt"にしてOpen
   for (int i=0; i<ntNextIdx; i=i+1)              // 表全体について
     fprintf(fp, "%s %d %d %d %d %d\n"
-      , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
-}
-
-void ntDebPrintTable(){
-  for (int i=0; i<ntNextIdx; i=i+1)              // 表全体について
-    printf("%s %d %d %d %d %d\n"
       , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
 }
 
