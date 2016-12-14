@@ -198,7 +198,8 @@ static struct watch *chkFactor(int node) {
 #endif
   } else {                                     // これら以外は渡されないはず
     printf("ty=%d\n", syGetType(node));
-    error("バグ...semantic.c : chkFactor(watch *w);");
+    printf("%d : ",node);
+    error("バグ...semantic.c : chkFactor");
   }
   setWatch(w, type, dim, lhs);                 //  型と次元とlhsを返す
   return w;
@@ -332,8 +333,9 @@ static struct watch *chkBiExpr(int node) {
     int idx = syGetRVal(node);                 //  右値はフィールド名のidx
     if (syGetType(idx)!=SyCNST)
       error("バグ...SyDOT");
-    idx = syGetLVal(idx);                      //  SyCNSTの左値がインデクス
-    int n = ntSrcField(w->type,ntGetName(idx));//  構造体をフィールド名で検索
+    int n = ntSrcField(w->type, ntGetName(syGetLVal(idx)));
+                                               //  構造体をフィールド名で検索
+    sySetLVal(idx, n);                         //  インデクスを本物に書き換え
     w->type = ntGetType(n);                    // 式(w)をフィールドの型と
     w->dim  = ntGetDim(n);                     //   次元に変更する
     w->lhs  = true;
@@ -371,9 +373,10 @@ static struct watch *chkExpr(int node) {
   struct watch *w;
   struct watch *r;                             // 右辺式用
   if (syGetType(node)==SyCOMM) {               // カンマ式ならば
-    w = chkAsExpr(syGetLVal(node));            //  左辺は代入式として解析
-    r = chkExpr(syGetRVal(node));              //  右辺もカンマ式かも
-    chkType(r, w->type);                       //  左右は同じ型
+    r = chkAsExpr(syGetRVal(node));            //  右辺は代入式として解析
+    w = chkExpr(syGetLVal(node));              //  左辺はカンマ式かも
+    if(r->type!=w->type)                       //  左右は同じ型のはず
+      error("カンマの前後は同じ型");
     w->lhs = false;
   } else {                                     // カンマ式でないなら
     w = chkAsExpr(node);                       //  代入式として解析
