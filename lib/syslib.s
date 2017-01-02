@@ -47,10 +47,13 @@ _errno  dw      0           ; エラー番号
 ; 11     write
 ; 12     seek
 ; 13     conRead
-; 14     conWrite 
-; 15     malloc
-; 16     free
- 
+; 14     conWrite
+; 15     comTec
+; 16     putSIO
+; 17     getSIO
+; 18     getPS2
+; 19     malloc
+; 20     free
 
 ; ユーザスタックに積まれたパラメータをカーネルスタックに積み直す
 ; ここでは、ユーザスタックから G1~G3 レジスタに取り出してレジスタ渡しを行う
@@ -71,6 +74,15 @@ _errno  dw      0           ; エラー番号
 ;       SP+8            prm3
 ; FF
         
+; パラメータが0の場合の処理
+.l0
+        push    g3              ; G3 はレジスタ変数なため破壊してはいけない
+        ;  **  この時点で上のスタックの状態になっている  **
+        ld      g1,#0           ; G1 に 0 を格納
+        ld      g2,#0           ; G2 に 0 を格納
+        ld      g3,#0           ; G3 に 0 を格納
+        jmp     .cmn            ; 共通処理にジャンプ
+
 ; パラメータが1つの場合の処理
 .l1
         push    g3              ; G3 はレジスタ変数なので破壊してはいけない
@@ -166,5 +178,21 @@ _conWrite
         ld      g0,#14          ; G0 にシステムコール番号を格納
         jmp     .l1
       
-; malloc(#15) と free(#16) システムコールはユーザプロセスでは使用できない
+_comTec
+        ld      g0,#15
+        jmp     .l2
+
+_putSIO
+        ld      g0,#16
+        jmp     .l1
+
+_getSIO
+       ld       g0,#17
+       jmp      .l0
+
+_getPS2
+       ld       g0,#18
+       jmp      .l0
+
+; malloc(#19) と free(#20) システムコールはユーザプロセスでは使用できない
 ; ユーザプロセスでは malloc と free はライブラリ関数として実現される

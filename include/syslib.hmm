@@ -49,3 +49,7 @@ public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
 public int conRead(char[] buf, int len);
 public int conWrite(char[] buf);
+public int comTec(int port, int value);
+public int putSIO(int c);
+public int getSIO();
+public int getPS2();

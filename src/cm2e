@@ -14,6 +14,7 @@ CPPFLAGS="-xc++ -nostdinc"
 myname=`basename $0`
 exefile="a.exe"
 stksize=600
+exeMode="USER"
 sflag="no"
 cflag="no"
 eflag="no"
@@ -22,6 +23,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
         -o) exefile=$2;  shift; shift;;
         -s) stksize=$2;  shift; shift;;
+        -m) exeMode=$2; shift; shift;;
         -S) sflag="yes"; shift;;
         -c) cflag="yes"; shift;;
         -E) eflag="yes"; shift;;
@@ -33,6 +35,7 @@ while [ $# -gt 0 ]; do
             echo  "     switches are :"                           1>&2
             echo  "       -o exec  executable file name"          1>&2
             echo  "       -s ###   stack size (default=600)"      1>&2
+            echo  "       -m exec  mode (default=\"USER\")"    1>&2
             echo  "       -S       leave .s file"                 1>&2
             echo  "       -c       leave .o file"                 1>&2
             echo  "       -E       run the preprocessor stage"    1>&2
@@ -57,6 +60,11 @@ fi
 
 if [ $# -le 0 ]; then
     echo "${myname} : no input files."                            1>&2
+    exit 1
+fi
+
+if [ "${exeMode}" != "KERN" -a "${exeMode}" != "USER" ]; then
+    echo "${myname} : ${exeMode} : can't use this mode."            1>&2
     exit 1
 fi
 
@@ -114,7 +122,7 @@ done
 exename=`expr "${exefile}" : '\(.*\)\.[^./]*$'`
 if [ "${eflag}" != "yes" -a "${sflag}" != "yes" -a "${cflag}" != "yes" ]; then
   ld-- $$.o  ${LIBDIR}/libtac.o ${objs} > /dev/null
-  objexe-- ${exefile} $$.o ${stksize} | sort --key=1 > ${exename}.map
+  objexe-- ${exefile} $$.o ${stksize} ${exeMode}| sort --key=1 > ${exename}.map
   rm -f ${tmps} $$.o
 fi
 
