@@ -131,7 +131,7 @@ int main(int argc, char *argv[]){
     op = getDec(fp);
     if(op==EOF)
       return 0;
-    if(22<=op && op<=51){                    // 引数0の関数
+    if((22<=op && op<=51) || op==60){                    // 引数0の関数
       callfunc0(op);
     }else if(0<=op && op<=21){   // 引数1の関数
       int a1 = getDec(fp);
@@ -158,6 +158,7 @@ int main(int argc, char *argv[]){
       str[i] = '\0';
       vmStr(str);
     }else{
+      printf("%d",op);
       error("bug");
     }
   }

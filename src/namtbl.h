@@ -56,6 +56,7 @@
 #define TyDOTDOTDOT 7     // ...
 #define TyREF       8     // 何か参照型
 #define TyNON       9     // 型ではない
+#define TyPNT       10
 
 /* 名前表 */
 #define NtMAX      400      // 表のサイズ
@@ -69,6 +70,7 @@ int     ntCnt [NtMAX];      // 局所変数、仮引数の場合は番号
 boolean ntPub [NtMAX];      // 名前が外部公開される
 
 /* 公開関数 */
+int ntPointer(int idx);
 int ntSrcName(char *str);         // str と同じ名前の関数、変数、仮引数を探索
 int ntSrcStruct(char *str);       // str と同じ名前の構造体を探索
 int ntSrcField(int n, char *str); // 構造体(n)のフィールドから str を探索
@@ -85,17 +87,17 @@ void ntDebPrintTable();
 
 #define ntGetSize()     (ntNextIdx)       // 名前表のサイズを返す
 
-#define ntGetName(idx)  (ntName[idx])    // 名前表からデータを取り出す。
-#define ntGetScope(idx) (ntScope[idx])
-#define ntGetType(idx)  (ntType[idx])
-#define ntGetDim(idx)   (ntDim[idx])
-#define ntGetCnt(idx)   (ntCnt[idx])
-#define ntGetPub(idx)   (ntPub[idx])
+#define ntGetName(idx)  (ntName[ntPointer(idx)])    // 名前表からデータを取り出す。
+#define ntGetScope(idx) (ntScope[ntPointer(idx)])
+#define ntGetType(idx)  (ntType[ntPointer(idx)])
+#define ntGetDim(idx)   (ntDim[ntPointer(idx)])
+#define ntGetCnt(idx)   (ntCnt[ntPointer(idx)])
+#define ntGetPub(idx)   (ntPub[ntPointer(idx)])
 
-#define ntSetName(idx,v)  (ntName[idx]=(v)) // 名前表にデータを書き込む
-#define ntSetScope(idx,v) (ntScope[idx]=(v))
-#define ntSetType(idx,v)  (ntType[idx]=(v))
-#define ntSetDim(idx,v)   (ntDim[idx]=(v))
-#define ntSetCnt(idx,v)   (ntCnt[idx]=(v))
-#define ntSetPub(idx,v)   (ntPub[idx]=(v))
+#define ntSetName(idx,v)  (ntName[ntPointer(idx)]=(v)) // 名前表にデータを書き込む
+#define ntSetScope(idx,v) (ntScope[ntPointer(idx)]=(v))
+#define ntSetType(idx,v)  (ntType[ntPointer(idx)]=(v))
+#define ntSetDim(idx,v)   (ntDim[ntPointer(idx)]=(v))
+#define ntSetCnt(idx,v)   (ntCnt[ntPointer(idx)]=(v))
+#define ntSetPub(idx,v)   (ntPub[ntPointer(idx)]=(v))
 

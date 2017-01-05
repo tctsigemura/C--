@@ -70,7 +70,7 @@ static void genFunc(int funcIdx, int depth, boolean krnFlg) {
 }
 // 初期化データの生成
 static void genData(int idx) {
-  optTree(syGetRoot());
+  //optTree(syGetRoot());
   syPrintTree(fpout);
   fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
 }

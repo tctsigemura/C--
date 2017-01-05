@@ -75,7 +75,7 @@ static void genData(int idx) {
 
 // 非初期化データの生成
 static void genBss(int idx) {
-  syPrintTree(fpout);
+  //syPrintTree(fpout);
   fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
 }
 
@@ -97,6 +97,7 @@ int main(int argc, char *argv[]){
     exit(1);
   }
   ntLoadTable(fn);                       // 名前表ファイルから名前表を作成
+  //ntDebPrintTable();
   fpout = openDstWithExt(fn, ".sm");     // 拡張子を".sm"に変更してOpen
   while(true){
     ln = getDec(fp);
@@ -117,7 +118,10 @@ int main(int argc, char *argv[]){
       genFunc(idx, depth, krn);
       sySetSize(0);
     }else if(op=='G'){
+      //ntDebPrintTable();                           //**********DEBUG
       idx = getDec(fp);
+      //printf("idx=%d, root=%d\n",idx,syGetRoot()); //**********DEBUG
+      //syDebPrintTree();
       semChkGVar(idx);
       if (syGetRoot()!=SyNULL) genData(idx);
       else genBss(idx);

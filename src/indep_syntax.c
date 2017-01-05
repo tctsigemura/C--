@@ -741,6 +741,7 @@ static void getFunc(void) {
     curCnt = 0;                              // 次出現変数の番号
     getBlock();                              // 関数本体を読み込む
     //syPrintTree();                         // ### デバッグ用 ###
+    //printf("%d\n",funcIdx);
     semChkFunc(syGetRoot(), funcIdx, krnFlag);// 意味解析を行う
     if (optFlag) optTree(syGetRoot());       // 木を最適化する
     //syPrintTree();                         // ### デバッグ用 ###
@@ -752,13 +753,15 @@ static void getFunc(void) {
     genProto(funcIdx);                       // プロトタイプ宣言を出力
 #endif                                       // (トランスレータ版だけで必要)
   }
+  /*
   if (idx>=0) {                              // 既に名前表にあれば
     ntUndefName(funcIdx);                    //   全体を削除
   } else {                                   // そうでなければ
+  */
     ntUndefName(locIdx);                     // シグネチャーだけ残す
     for (int i=prmIdx; i<locIdx; i=i+1)      // その際、仮引数は検索対象に
       ntSetScope(i, ScVOID);                 // ならないスコープに変更する．
-  }
+  //}
 }
 
 /*

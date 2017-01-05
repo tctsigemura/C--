@@ -44,6 +44,11 @@
 
 #define StrMAX 128
 
+int ntPointer(int idx) {
+  if(ntType[idx]==TyPNT) return ntCnt[idx];
+  return idx;
+}
+
 // 定義済みの関数名、変数名、仮引数名を探す(getFactorから呼ばれる)
 int ntSrcName(char *str) {
   for (int i=ntNextIdx-1; i>=0; i=i-1)           // 表の最後(深いスコープ)から
@@ -79,14 +84,14 @@ int ntSrcFieldName(char *str) {
 
 // 大域名(n)と２重定義になる関数名、大域変数名を探す
 int ntSrcGlob(int n) {                           // n は名前表の添字
-  for (int i=0; i<n; i=i+1)                      // n より前にあるはず
+  for (int i=0; i<n; i=i+1) {                     // n より前にあるはず
     if ((ntScope[i]==ScPROT || ntScope[i]==ScFUNC ||
 	 ntScope[i]==ScCOMM || ntScope[i]==ScGVAR) &&
 	strcmp(ntName[i], ntName[n])==0)
       return i;                                  // 見つかった
+  }
   return -1;                                     // 見つからなかった
 }
-
 // ２重定義にならないかチェック(ntDefNameから呼ばれ、関数名と大域変数名を除く)
 static int ntChkName(char *str, int scope) {
   if(strcmp("",str)==0) return -1;

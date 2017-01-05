@@ -41,13 +41,13 @@ snm : Makefile ../lexical.h ../util.h ../util.c util.h util.c \
   ../syntax.c ../namtbl.c ../sytree.c ../util.c util.c sn.c
   
 sn : Makefile ../lexical.h ../util.h ../util.c util.h util.c \
-     ../namtbl.h ../namtbl.c ../sytree.c ../sytree.h sn.c
+     ../namtbl.h ../namtbl.c ../sytree.c ../sytree.h ../indep_syntax.c sn.c
 	${CC} -DSTEPBY=1 -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
 	-DNWORD=16 -DNBYTE=8 -o sn \
   ../indep_syntax.c ../namtbl.c ../sytree.c ../util.c util.c sn.c
 
 sm : Makefile ../lexical.h ../util.h ../util.c util.h util.c \
-     ../namtbl.h ../namtbl.c ../sytree.c ../sytree.h sm.c
+     ../namtbl.h ../namtbl.c ../sytree.c ../sytree.h ../semantic.c sm.c
 	${CC} -DSTEPBY=1 -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
 	-DNWORD=16 -DNBYTE=8 -o sm \
   ../semantic.c ../namtbl.c ../sytree.c ../util.c util.c sm.c

@@ -143,7 +143,7 @@ static struct watch *chkFactor(int node) {
     type = ntGetType(locIdx + idx);        //  通し番号がオフセット
     dim  = ntGetDim(locIdx + idx);         //  次元を読むときも同様
     //ntDebPrintTable();
-    //printf("%d, %d\n",locIdx,idx);
+    //printf("%d, %d\n",locIdx, idx);
     lhs  = true;
   } else if(syGetType(node)==SyPRM) {          // 仮引数ならば
     int idx = syGetLVal(node);                 //  左値に通し番号
@@ -728,7 +728,9 @@ static void semChkData(int curIdx, int idx) {
     if (ntGetScope(idx)!=ScCOMM)
       error("2重定義");                    // コモン以外は2重定義
     ntSetScope(idx, ScGVAR);               // 初期化済データに変更
-    ntUndefName(curIdx);                   // 既に登録されているので削除
+    //ntUndefName(curIdx);                   // 既に登録されているので削除
+    ntSetCnt(curIdx, idx);
+    ntSetType(curIdx, TyPNT);
   }
   int ltype = ntGetType(curIdx);           // 処理中の変数の型と
   int ldim  = ntGetDim(curIdx);            //   次元を取ってくる
@@ -758,9 +760,11 @@ static void semChkData(int curIdx, int idx) {
 // 非初期化データの意味解析
 static void semChkBss(int curIdx, int idx) {
   if (idx>=0) {
-    if (ntGetScope(idx)==ScCOMM || ntGetScope(idx)==ScGVAR)
-      ntUndefName(curIdx);                 // 既に登録されている
-    else
+    if (ntGetScope(idx)==ScCOMM || ntGetScope(idx)==ScGVAR) {
+      ntSetCnt(curIdx, idx);
+      ntSetType(curIdx, TyPNT);
+      //ntUndefName(curIdx);                 // 既に登録されている
+    } else
       error("2重定義(以前は関数)");
   } 
 }
@@ -772,6 +776,8 @@ static void semChkBss(int curIdx, int idx) {
 // 関数の意味解析
 void semChkFunc(int node, int fidx, boolean kFlag){
   //syDebPrintTree();                        // ### DEBUG ###
+  //ntDebPrintTable();
+  //printf("%d,%d\n",node,fidx);
   funcIdx = fidx;                          // 名前表上の関数名の番号
   krnFlag = kFlag;
   int curType = ntGetType(funcIdx);        // 扱う関数の型
@@ -803,7 +809,7 @@ void semChkFunc(int node, int fidx, boolean kFlag){
   if (idx>=0 && ntGetScope(idx)!=ScPROT) error("関数の2重定義");
   if (idx>=0) ntSetScope(idx, ScFUNC);     // 以前の宣言を定義に変更
   ntSetScope(funcIdx, ScFUNC);             // 今回の宣言を定義に変更
-  locIdx  = funcIdx + ntGetCnt(funcIdx);   // 1つ目のローカル変数の1つ前
+  locIdx  = ntGetSize()-1; //funcIdx + ntGetCnt(funcIdx);   // 1つ目のローカル変数の1つ前
   traceTree(node);                         // 構文木をトレースする
   int lastNode;                            //  関数最後の文のノード
   if (syGetType(syGetRoot())!=SyBLK)       //  SyBLKでないなら
@@ -820,6 +826,7 @@ void semChkFunc(int node, int fidx, boolean kFlag){
 
 void semChkGVar(int curIdx) {
   int idx = ntSrcGlob(curIdx);             // 2重定義の可能性があるか？
+  //int idx = curIdx;
   if (syGetRoot()!=SyNULL) semChkData(curIdx, idx);
   else semChkBss(curIdx, idx);
   int curType = ntGetType(curIdx);
