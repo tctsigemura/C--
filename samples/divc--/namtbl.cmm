@@ -84,9 +84,9 @@ public int ntSrcField(int n, char[] str) {       // n は構造体型(非正値)
 }
 
 // 構造体参照時のフィールド名を探す (名前しか使わないため他は何でもよい)
-public int ntSrcFieldName(char *str) {
+public int ntSrcFieldName(char[] str) {
  for (int i=0; i<ntNextIdx; i=i+1)               // 表全体について
-	if(strcmp(ntName[i], str)==0) return i;        // 名前が同じものを探す
+	if(strCmp(ntName[i], str)==0) return i;        // 名前が同じものを探す
   error2("未定義の構造体フィールド名.", str);
   return -1;                                     // ここが実行されることはない
 }
@@ -103,7 +103,7 @@ public int ntSrcGlob(int n) {                    // n は名前表の添字
 
 // ２重定義にならないかチェック(ntDefNameから呼ばれ、関数名と大域変数名を除く)
 int ntChkName(char[] str, int scope) {
-  if(strcmp("",str)==0) return -1;
+  if(strCmp("",str)==0) return -1;
   for (int i=0; i<ntNextIdx; i=i+1) {            // 表全体について
     if (ntScope[i]!=ScVOID && strCmp(ntName[i],str)==0){// 衝突の可能性を調べる
       if (scope==ScSTRC||ntScope[i]==ScSTRC)     // 構造体名は他の全てと衝突
@@ -162,7 +162,7 @@ int getDecf(FILE fp) {
     minusflg = true;
     ch = fgetc(fp);
   }
-  while (isdigit(ch)) {                          // 10進数字の間
+  while (isDigit(ch)) {                          // 10進数字の間
     v = v*10 + ord(ch) - ord('0');               // 値を計算
     ch = fgetc(fp);                              // 次の文字を読む
   }
@@ -179,18 +179,20 @@ public void ntPrintTable(char[] name){
       , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
 }
 
+char[] str = array(StrMAX + 1);
+char[] ntfName = array(StrMAX + 1);
 /* 名前表の読み込み */
 public void ntLoadTable(char[] name){
   FILE fp;
-  int scp, type, dim, val, pub;
+  int scp, type, dim, val;
+  boolean pub;
   char c;
-  char[] str = array(StrMAX + 1);
-  char[] ntfName = array(StrMAX + 1);
-  strcpy(ntfName, name);
-  char[] lastDot = rindex(ntfName, '.');
-  if(lastDot!=NULL) lastDot='\0';
-  if (strlen(ntfName)+strlen(".nt")>StrMAX) error("ファイル名長い");
-  strcat(ntfName, ".nt");
+  strCpy(ntfName, name);
+  //char[] lastDot = rindex(ntfName, '.');
+  ntfName[strRchr(ntfName, '.')] = '\0';
+  //if(lastDot!=NULL) lastDot='\0';
+  if (strLen(ntfName)+strLen(".nt")>StrMAX) error("ファイル名長い");
+  strCat(ntfName, ".nt");
   fp = eOpen(ntfName, "r");
   while(!feof(fp)){
     c = fgetc(fp);
@@ -206,7 +208,7 @@ public void ntLoadTable(char[] name){
     type = getDecf(fp);
     dim  = getDecf(fp);
     val  = getDecf(fp);
-    pub  = getDecf(fp);
+    pub  = bool(getDecf(fp));
     ntDefName(str, scp, type, dim, val, pub);
   }
 }

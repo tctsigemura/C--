@@ -91,9 +91,9 @@ public boolean strEndsWith(char[] str, char[] suffix){
 }
 
 /* エラーチェック付きの fopen */
-FILE eOpen(char[] fname, char[] mod) {
+public FILE eOpen(char[] fname, char[] mod) {
   FILE fp = fopen(fname, mod);
-  if (fp==NULL) {
+  if (fp==null) {
     perror(fname);
     exit(1);
   }

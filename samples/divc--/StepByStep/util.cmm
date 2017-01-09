@@ -29,7 +29,7 @@
  */
 
 #include <stdio.hmm>
-#include <strings.hmm>
+#include <string.hmm>
 #include <ctype.hmm>
 
 #include "../sytree.hmm"
@@ -43,17 +43,16 @@ void tooLongFname() {
   error("ファイル名が長すぎる");
 }
 
+char[] dstName = array(StrMAX + 1);
 public FILE openDstWithExt(char[] srcName, char[] ext) {
-  char[] dstName = array(StrMAX + 1);
-
-  if (strlen(srcName)>StrMAX) tooLongFname();
-  strcpy(dstName, srcName);
+  if (strLen(srcName)>StrMAX) tooLongFname();
+  strCpy(dstName, srcName);
   
-  char[] lastDot = rindex(dstName, '.');
-  if (lastDot!=NULL) lastDot='\0';
+  dstName[strRchr(dstName, '.')] = '\0';
+  //if (lastDot!=null) lastDot='\0';
 
-  if (strlen(dstName)+strlen(ext)>StrMAX) tooLongFname();
-  strcat(dstName, ext);
+  if (strLen(dstName)+strLen(ext)>StrMAX) tooLongFname();
+  strCat(dstName, ext);
 
   return eOpen(dstName, "w");
 }
@@ -62,13 +61,13 @@ public FILE openDstWithExt(char[] srcName, char[] ext) {
 public int getDec(FILE fp) {
   int v = 0;                                     // 初期値は 0
   if (feof(fp)) return ord(EOF);
-  int ch = fgetc(fp);
+  char ch = fgetc(fp);
   boolean minusflg = false;
   if(ch=='-'){
     minusflg = true;
     ch = fgetc(fp);
   }
-  while (isdigit(ch)) {                          // 10進数字の間
+  while (isDigit(ch)) {                          // 10進数字の間
     v = v*10 + ord(ch) - ord('0');                         // 値を計算
     ch = fgetc(fp);                              // 次の文字を読む
   }

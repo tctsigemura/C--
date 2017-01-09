@@ -42,6 +42,7 @@
 P int[] syType;
 P int[] syLVal;
 P int[] syRVal;
+P int[] syLn;
 
 // 構文木のノード(LVal, Rval)に格納される特殊な値
 #define SyNULL        9999                  // 構文木のNULLポインタ
