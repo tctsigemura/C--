@@ -63,7 +63,7 @@ if [ $# -le 0 ]; then
     exit 1
 fi
 
-if [ "${exeMode}" != "KERN" -a "${exeMode}" != "USER" ]; then
+if [ "${exeMode}" != "IOPR" -a "${exeMode}" != "USER" ]; then
     echo "${myname} : ${exeMode} : can't use this mode."            1>&2
     exit 1
 fi
