@@ -2,7 +2,7 @@
 ; Programing Language C-- "Compiler"
 ;    Tokuyama kousen Advanced educational Computer
 ; 
-;  Copyright (C) 2016 by
+;  Copyright (C) 2016 - 2017 by
 ;                       Dept. of Computer Science and Electronic Engineering,
 ;                       Tokuyama College of Technology, JAPAN
 ; 
@@ -20,6 +20,8 @@
 ; 
 ; lib/syslib.s : システムコールに関するユーザ用ライブラリを集めたファイル
 ;
+; 2017.01.11 : comTec システムコールを削除
+; 2016.10.28 : comTec，putSIO，getSIO，getPS2 システムコールを追加
 ; 2016.02.27 : _exit を __exit に変更
 ; 2016.02.24 : TacOS の usr/lib からコピー
 ; 
@@ -48,12 +50,11 @@ _errno  dw      0           ; エラー番号
 ; 12     seek
 ; 13     conRead
 ; 14     conWrite
-; 15     comTec
-; 16     putSIO
-; 17     getSIO
-; 18     getPS2
-; 19     malloc
-; 20     free
+; 15     putSIO
+; 16     getSIO
+; 17     getPS2
+; 18     malloc
+; 19     free
 
 ; ユーザスタックに積まれたパラメータをカーネルスタックに積み直す
 ; ここでは、ユーザスタックから G1~G3 レジスタに取り出してレジスタ渡しを行う
@@ -178,21 +179,18 @@ _conWrite
         ld      g0,#14          ; G0 にシステムコール番号を格納
         jmp     .l1
       
-_comTec
-        ld      g0,#15
-        jmp     .l2
 
 _putSIO
-        ld      g0,#16
+        ld      g0,#15          ; G0 にシステムコール番号を格納
         jmp     .l1
 
 _getSIO
-       ld       g0,#17
+       ld       g0,#16          ; G0 にシステムコール番号を格納
        jmp      .l0
 
 _getPS2
-       ld       g0,#18
+       ld       g0,#17          ; G0 にシステムコール番号を格納
        jmp      .l0
 
-; malloc(#19) と free(#20) システムコールはユーザプロセスでは使用できない
+; malloc(#18) と free(#19) システムコールはユーザプロセスでは使用できない
 ; ユーザプロセスでは malloc と free はライブラリ関数として実現される
