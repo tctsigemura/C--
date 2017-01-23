@@ -49,6 +49,11 @@
 #define BUG(c,msg) {if(c) {fprintf(stderr,"BUG..."); error(msg);}}
 //#define BUG(c,msg) {}
 
+FILE fp;
+public void vmSetFp(FILE fpout) {
+  fp = fpout;
+}
+
 /*
  * レジスタの一覧と使用目的
  */
@@ -145,10 +150,10 @@ int tlab = 0;                            // 生成するラベル(.Tn)の番号
 void loadFlg(int r, int p) {
   BUG(flgPtr==-1 || flgPtr!=p || stkSta[p]!=FLAG, "loadFlg");
   char[] reg = regs[r];                         // レジスタの名称
-  printf("\tLD\t%s,#1\n", reg);                 //     LD Reg,#1 (true)
-  printf("\t%s\t.T%d\n", jcc[flgJcc], tlab);    //     Jcc .Tn
-  printf("\tLD\t%s,#0\n", reg);                 //     LD Reg,#0 (flase)
-  printf(".T%d\n", tlab);                       // .Tn
+  fprintf(fp,"\tLD\t%s,#1\n", reg);                 //     LD Reg,#1 (true)
+  fprintf(fp,"\t%s\t.T%d\n", jcc[flgJcc], tlab);    //     Jcc .Tn
+  fprintf(fp,"\tLD\t%s,#0\n", reg);                 //     LD Reg,#0 (flase)
+  fprintf(fp,".T%d\n", tlab);                       // .Tn
   tlab = tlab + 1;                              // ラベル番号を進める
 }
     
@@ -167,28 +172,28 @@ void calReg(char[] op, int r, int p) {
   int aux = stkAux[p];                          // 仮想スタックの付加情報
   char[] reg = regs[r];                         // レジスタの名称
   if (sta==CNST) {                              // 定数なら
-    printf("\t%s\t%s,#%d\n", op, reg, aux);     //   op Reg,#n
+    fprintf(fp,"\t%s\t%s,#%d\n", op, reg, aux);     //   op Reg,#n
   } else if (sta==GVAR) {                       // グローバル変数なら
-    printf("\t%s\t%s,%c%s\n", op, reg,          //   op Reg,_name
+    fprintf(fp,"\t%s\t%s,%c%s\n", op, reg,          //   op Reg,_name
 	   getPref(aux), ntGetName(aux));
   } else if (sta==LVAR) {                       // ローカル変数なら
-    printf("\t%s\t%s,-%d,FP\n", op, reg, aux);  //   op Reg,-n,FP
+    fprintf(fp,"\t%s\t%s,-%d,FP\n", op, reg, aux);  //   op Reg,-n,FP
   } else if (sta==RVAR) {                       // レジスタ変数なら
-    printf("\t%s\t%s,%s\n", op,reg,regs[aux]);  //   op Reg,RVar
+    fprintf(fp,"\t%s\t%s,%s\n", op,reg,regs[aux]);  //   op Reg,RVar
   } else if (sta==ARG) {                        // 関数引数なら
-    printf("\t%s\t%s,%d,FP\n", op, reg, aux);   //   op Reg,n,FP
+    fprintf(fp,"\t%s\t%s,%d,FP\n", op, reg, aux);   //   op Reg,n,FP
   } else if (sta==STR) {                        // 文字列のラベルなら
-    printf("\t%s\t%s,#.L%d\n", op, reg, aux);   //   op Reg,#.Ln
+    fprintf(fp,"\t%s\t%s,#.L%d\n", op, reg, aux);   //   op Reg,#.Ln
   } else if (sta==ADDR) {                       // グローバルラベルなら
-    printf("\t%s\t%s,#%c%s\n", op, reg,         //   op Reg,#_name
+    fprintf(fp,"\t%s\t%s,#%c%s\n", op, reg,         //   op Reg,#_name
 	   getPref(aux), ntGetName(aux));
   } else if (sta==WINDR) {                      // 間接ワードなら
- // printf("\t%s\t%s,%%%s\n",op,reg,regs[aux]); //   op Reg,%Acc
-    printf("\t%s\t%s,0,%s\n",op,reg,regs[aux]); //   op Reg,0,Acc
+ // fprintf(fp,"\t%s\t%s,%%%s\n",op,reg,regs[aux]); //   op Reg,%Acc
+    fprintf(fp,"\t%s\t%s,0,%s\n",op,reg,regs[aux]); //   op Reg,0,Acc
   } else if (sta==BINDR) {                      // 間接バイトなら
-    printf("\t%s\t%s,@%s\n",op,reg,regs[aux]);  //   op Reg,@Acc
+    fprintf(fp,"\t%s\t%s,@%s\n",op,reg,regs[aux]);  //   op Reg,@Acc
   } else if (sta==ACC) {                        // Acc に値があるなら
-    printf("\t%s\t%s,%s\n",op,reg,regs[aux]);   //   op Reg,Acc
+    fprintf(fp,"\t%s\t%s,%s\n",op,reg,regs[aux]);   //   op Reg,Acc
   } else BUG(true, "calReg");                   // それ以外は直接演算できない
 }
 
@@ -196,7 +201,7 @@ void calReg(char[] op, int r, int p) {
 void loadReg(int r, int p) {
   int sta = stkSta[p];
   if (sta==STK) {                               // 値は実スタックにある
-    printf("\tPOP\t%s\n",regs[r]);              //   POP Reg
+    fprintf(fp,"\tPOP\t%s\n",regs[r]);              //   POP Reg
   } else if (sta==FLAG) {                       // 値はフラグにある論理値
     loadFlg(r, p);                              //   論理値を r に移す
   } else {                                      // その他なら
@@ -252,7 +257,7 @@ void outStk() {
   int acc = stkAux[idx];                        // レジスタ番号
   if (sta!=ACC)                                 // FLAG か間接アドレスなら
     loadReg(acc, idx);                          //   値を Acc にロードし
-  printf("\tPUSH\t%s\n", regs[acc]);            //     PUSH Acc
+  fprintf(fp,"\tPUSH\t%s\n", regs[acc]);            //     PUSH Acc
   relAcc(acc);                                  // Acc を解放する
   stkSta[idx] = STK;                            // データが実スタックにある
 }
@@ -290,18 +295,18 @@ int frSize;                              // スタックフレームの
                                          //   ローカル変数領域サイズ
 // グローバルな名前をラベル欄に出力
 public void vmName(int idx) {
-  printf("%c%s",getPref(idx),ntGetName(idx));   // '_' or '.' と 名前の出力
+  fprintf(fp,"%c%s",getPref(idx),ntGetName(idx));   // '_' or '.' と 名前の出力
 }
 
 // 番号で管理されるラベルを印刷する
 public void vmTmpLab(int lab) {
-  printf(".L%d", lab);                          // .Ln
-  if (inFunc) printf("\n");                     // 関数内部ではラベルが
+  fprintf(fp,".L%d", lab);                          // .Ln
+  if (inFunc) fprintf(fp,"\n");                     // 関数内部ではラベルが
 }                                               //   連続することがある
 
 // 番号で管理されるSTRING用ラベルを印刷する
 public void vmTmpLabStr(int lab) {
-  printf(".S%d", lab);                          // .Sn
+  fprintf(fp,".S%d", lab);                          // .Sn
   BUG(inFunc, "関数内でSTRING出力");            // 関数内部では呼ばれない
 }
 
@@ -314,12 +319,12 @@ void makeFrame(int depth) {
     depth = RVarSIZ;                            //       分ける
   }
   rvCnt = depth;                                // レジスタ変数の個数決定
-  printf("\tPUSH\tFP\n");                       //   PUSH FP
-  printf("\tLD\tFP,SP\n");                      //   LD   FP,SP
+  fprintf(fp,"\tPUSH\tFP\n");                       //   PUSH FP
+  fprintf(fp,"\tLD\tFP,SP\n");                      //   LD   FP,SP
   if (frSize > 0)                               // レジスタ変数だけでは不足なら
-    printf("\tSUB\tSP,#%d\n", frSize);          //   SUB  SP,#n
+    fprintf(fp,"\tSUB\tSP,#%d\n", frSize);          //   SUB  SP,#n
   for (int i=0; i<depth; i=i+1)                 // 各レジスタ変数について
-    printf("\tPUSH\t%s\n", regs[i+AccSIZ]);     //   PUSH Rv
+    fprintf(fp,"\tPUSH\t%s\n", regs[i+AccSIZ]);     //   PUSH Rv
 }
 
 // スタックフレームの削除
@@ -327,10 +332,10 @@ void cancelFrame() {
   BUG(stkPtr!=-1, "cancelFrame(1)");            // 仮想スタックが元に戻ってない
   BUG(accCnt!=0,  "cancelFrame(2)");            // 解放されていない Acc あり
   for (int i=rvCnt-1; i>=0; i=i-1)              // 各レジスタ変数について
-    printf("\tPOP\t%s\n", regs[i+AccSIZ]);      //   POP Rv
+    fprintf(fp,"\tPOP\t%s\n", regs[i+AccSIZ]);      //   POP Rv
   if (frSize > 0)                               // ローカル変数領域があれば
-    printf("\tLD\tSP,FP\n");                    //   LD  SP,FP
-  printf("\tPOP\tFP\n");                        //   POP FP
+    fprintf(fp,"\tLD\tSP,FP\n");                    //   LD  SP,FP
+  fprintf(fp,"\tPOP\tFP\n");                        //   POP FP
   inFunc = false;                               // 関数内部のコード生成終了
 }
 
@@ -338,7 +343,7 @@ void cancelFrame() {
 public void vmEntry(int depth, int idx) {
   vmName(idx);                                  // 関数名ラベルを印刷
   makeFrame(depth);                             // スタックフレームを作る
-  printf("\tCALL\t__stkChk\n");                 // スタックオーバーフローを
+  fprintf(fp,"\tCALL\t__stkChk\n");                 // スタックオーバーフローを
 }                                               //   チェックする
 
 // カーネル関数の入口
@@ -350,14 +355,14 @@ public void vmEntryK(int depth, int idx) {
 // 関数の出口
 public void vmRet() {
   cancelFrame();                                // スタックフレームを削除し
-  printf("\tRET\n");                            //   RET
+  fprintf(fp,"\tRET\n");                            //   RET
 }
 
 // 割り込み関数の入口
 public void vmEntryI(int depth, int idx) {
   vmName(idx);                                  // 関数名ラベルを印刷
   for (int gr = 0; gr < AccSIZ; gr = gr + 1)    // アキュムレータを全て
-    printf("\tPUSH\t%s\n", regs[gr]);           //   保存する
+    fprintf(fp,"\tPUSH\t%s\n", regs[gr]);           //   保存する
   makeFrame(depth);                             // スタックフレームを作る
 }
 
@@ -365,8 +370,8 @@ public void vmEntryI(int depth, int idx) {
 public void vmRetI() {
   cancelFrame();                                // スタックフレームを削除し
   for (int gr=AccSIZ-1; gr>=0; gr=gr-1)         // アキュムレータを全て
-    printf("\tPOP\t%s\n", regs[gr]);            //   復元する
-  printf("\tRETI\n");                           //   RETI
+    fprintf(fp,"\tPOP\t%s\n", regs[gr]);            //   復元する
+  fprintf(fp,"\tRETI\n");                           //   RETI
 }
 
 // 関数の返り値をハードウェアレジスタ(G0)に移動
@@ -384,7 +389,7 @@ public void vmArg() {
     outStkAll();                                //   実スタックに移す
   } else {                                      // レジスタ変数なら
     outStkAll();                                //   Acc を実スタックに移す
-    printf("\tPUSH\t%s\n", regs[topAux]);       //   PUSH RVar
+    fprintf(fp,"\tPUSH\t%s\n", regs[topAux]);       //   PUSH RVar
   }
   popStk(1);                                    // 仮想スタックが 1 縮小
 }
@@ -392,10 +397,10 @@ public void vmArg() {
 // 関数を呼ぶ
 void call(int n, int idx) {
   outStkAll();                                  // Acc を全て実スタックに移動
-  printf("\tCALL\t%c%s\n",                      // 関数を呼び出す
+  fprintf(fp,"\tCALL\t%c%s\n",                      // 関数を呼び出す
 	 getPref(idx), ntGetName(idx));               //     CALL _name
   if (n!=0)                                     // 引数がスタックにあれば捨てる
-    printf("\tADD\tSP,#%d\n", n*2);             //     ADD SP,#(n*2)
+    fprintf(fp,"\tADD\tSP,#%d\n", n*2);             //     ADD SP,#(n*2)
 }
 
 // 値を返さない関数を呼び出す
@@ -413,7 +418,7 @@ public void vmCallF(int n, int idx) {
 
 // 無条件ジャンプ
 public void vmJmp(int lab) {                    // lab はラベル番号
-  printf("\tJMP\t.L%d\n", lab);                 //  JMP .Ln
+  fprintf(fp,"\tJMP\t.L%d\n", lab);                 //  JMP .Ln
 }
 
 // 論理値によりジャンプするプログラムを生成する
@@ -423,15 +428,15 @@ void boolJmp(boolean tf, int lab) {
     char[] op;                                  //   使用する bcc 命令
     if (tf) op = jcc[flgJcc];                   //   Trueでジャンプする Jcc命令
     else    op = jcc[(flgJcc+3)%6];             //   FalseでジャンプするJcc命令
-    printf("\t%s\t.L%d\n", op, lab);            //     Jcc .Ln
+    fprintf(fp,"\t%s\t.L%d\n", op, lab);            //     Jcc .Ln
   } else {                                      // 論理値がフラグ以外にある
     if (flgPtr!=stkPtr) {                       //  フラグに反映されていない
       clearFlg();                               //  フラグ値の変化にそなえる
       if (topSta!=RVAR) loadStk(0);             //  レジスタ変数以外ならロード
-      printf("\tCMP\t%s,#0\n", regs[topAux]);   //  フラグ値に反映させる
+      fprintf(fp,"\tCMP\t%s,#0\n", regs[topAux]);   //  フラグ値に反映させる
     }                                           //     CMP Acc,#0
-    if (tf) printf("\tJNZ\t.L%d\n", lab);       //     JNZ .Ln(Trueでジャンプ)
-    else    printf("\tJZ\t.L%d\n", lab);        //     JZ  .Ln(Falseでジャンプ)
+    if (tf) fprintf(fp,"\tJNZ\t.L%d\n", lab);       //     JNZ .Ln(Trueでジャンプ)
+    else    fprintf(fp,"\tJZ\t.L%d\n", lab);        //     JZ  .Ln(Falseでジャンプ)
   }
   if (isAcc(stkPtr)) relAcc(topAux);            // Acc を使用していたら解放
   popStk(1);                                    // スタックが 1 縮小
@@ -466,7 +471,7 @@ public void vmLdLoc(int n) {                    // n はローカル変数番号
 }                                               //   (offs は FP からの距離)
 
 // n番目の引数の値をスタックに積む
-public void vmLdPrg(int n) {                    // n は引数番号(n>=1)
+public void vmLdPrm(int n) {                    // n は引数番号(n>=1)
   pushStk(ARG, (n+1)*2);                        // 仮想スタックに (ARG,offs)
 }                                               //   (offs は FP からの距離)
 
@@ -483,7 +488,7 @@ public void vmLdLab(int idx) {                  // idx は名前表のインデ�
 // スタックトップの値を大域変数にストアする(POPはしない)
 public void vmStGlb(int idx) {                  // idx は名前表のインデクス
   if (topSta!=RVAR) loadStk(0);                 // レジスタにロードする
-  printf("\tST\t%s,%c%s\n", regs[topAux],       // グローバル変数へストア
+  fprintf(fp,"\tST\t%s,%c%s\n", regs[topAux],       // グローバル変数へストア
 	 getPref(idx), ntGetName(idx));               //   ST Reg,_name
 }
 
@@ -500,15 +505,15 @@ public void vmStLoc(int n) {                    // n はローカル変数番号
     }                                           //       ロードした値を使用する
   } else {                                      // メモリ上のローカル変数なら
     if (topSta!=RVAR) loadStk(0);               //   レジスタにロードし
-    printf("\tST\t%s,-%d,FP\n",                 //   ローカル変数へストア
+    fprintf(fp,"\tST\t%s,-%d,FP\n",                 //   ローカル変数へストア
 	   regs[topAux], (n-RVarSIZ)*2);              //   ST Acc,-n,FP
   }
 }
 
 // スタックトップの値をn番目の引数にストアする(POPはしない)
-public void vmStPrg(int n) {                    // n は引数番号(n>=1)
+public void vmStPrm(int n) {                    // n は引数番号(n>=1)
   if (topSta!=RVAR) loadStk(0);                 // レジスタにロードし
-  printf("\tST\t%s,%d,FP\n",                    // 引数へストアする
+  fprintf(fp,"\tST\t%s,%d,FP\n",                    // 引数へストアする
 	 regs[topAux], (n+1)*2);                      //   ST Acc,n,FP
 }
 
@@ -555,8 +560,8 @@ public void vmLdByt() {
 public void vmStWrd() {
   vmLdWrd();                                    // レジスタにアドレスを計算する
   if (secSta!=RVAR) loadStk(1);                 // Src を Acc にロード
-//printf("\tST\t%s,%%%s\n",                     //   ST Acc,%Dst
-  printf("\tST\t%s,0,%s\n",                     //   ST Acc,0,Dst
+//fprintf(fp,"\tST\t%s,%%%s\n",                     //   ST Acc,%Dst
+  fprintf(fp,"\tST\t%s,0,%s\n",                     //   ST Acc,0,Dst
 	 regs[secAux], regs[topAux]);
   if (topAux<AccSIZ) relAcc(topAux);            // Dst が Acc なら解放する
   popStk(1);                                    // アドレスは捨てる
@@ -568,7 +573,7 @@ public void vmStWrd() {
 public void vmStByt() {
   vmLdByt();                                    // レジスタにアドレスを計算する
   if (secSta!=RVAR) loadStk(1);                 // データを Acc にロード
-  printf("\tST\t%s,@%s\n",                      //   ST Acc,@Dst
+  fprintf(fp,"\tST\t%s,@%s\n",                      //   ST Acc,@Dst
 	 regs[secAux], regs[topAux]);
   if (topAux<AccSIZ) relAcc(topAux);            // Dst が Acc なら解放する
   popStk(1);                                    // アドレスは捨てる
@@ -580,8 +585,8 @@ public void vmNeg() {
   clearFlg();                                   // フラグ値の変化にそなえる
   loadStk(0);                                   // スタックトップを Acc に移動
   char[] reg = regs[topAux];                    // Acc のレジスタ名
-  printf("\tXOR\t%s,#-1\n", reg);               //   XOR Acc,#-1
-  printf("\tADD\t%s,#1\n", reg);                //   ADD Acc,#1
+  fprintf(fp,"\tXOR\t%s,#-1\n", reg);               //   XOR Acc,#-1
+  fprintf(fp,"\tADD\t%s,#1\n", reg);                //   ADD Acc,#1
   flgPtr = stkPtr;                              // フラグが有効
 }
 
@@ -590,7 +595,7 @@ public void vmNeg() {
 public void vmNot() {
   clearFlg();                                   // フラグ値の変化にそなえる
   loadStk(0);                                   // スタックトップを Acc に移動
-  printf("\tXOR\t%s,#1\n", regs[topAux]);       //   XOR Acc,#1
+  fprintf(fp,"\tXOR\t%s,#1\n", regs[topAux]);       //   XOR Acc,#1
   flgPtr = stkPtr;                              // フラグが有効
 }
 
@@ -599,7 +604,7 @@ public void vmNot() {
 public void vmBNot() {
   clearFlg();                                   // フラグ値の変化にそなえる
   loadStk(0);                                   // スタックトップを Acc に移動
-  printf("\tXOR\t%s,#-1\n", regs[topAux]);      //   XOR Acc,#-1
+  fprintf(fp,"\tXOR\t%s,#-1\n", regs[topAux]);      //   XOR Acc,#-1
   flgPtr = stkPtr;                              // フラグが有効
 }
 
@@ -608,7 +613,7 @@ public void vmBNot() {
 public void vmChar() {
   clearFlg();                                   // フラグ値の変化にそなえる
   loadStk(0);                                   // スタックトップを Acc に移動
-  printf("\tAND\t%s,#0x00ff\n", regs[topAux]);  //   AND Acc,#0x00ff
+  fprintf(fp,"\tAND\t%s,#0x00ff\n", regs[topAux]);  //   AND Acc,#0x00ff
   flgPtr = stkPtr;                              // フラグが有効
 }
 
@@ -617,7 +622,7 @@ public void vmChar() {
 public void vmBool() {
   clearFlg();                                   // フラグ値の変化にそなえる
   loadStk(0);                                   // スタックトップを Acc に移動
-  printf("\tAND\t%s,#1\n", regs[topAux]);       //   AND Acc,#1
+  fprintf(fp,"\tAND\t%s,#1\n", regs[topAux]);       //   AND Acc,#1
   flgPtr = stkPtr;                              // フラグが有効
 }
 
@@ -831,13 +836,13 @@ public void vmPop() {
 void boolOrAnd(int lab1, int lab2, int lab3, int x, int nx) {
   loadStk(0);                                   //   Acc にロードする
   char[] acc = regs[topAux];
-  printf("\tJMP\t.L%d\n", lab3);                //       JMP .L3
+  fprintf(fp,"\tJMP\t.L%d\n", lab3);                //       JMP .L3
   vmTmpLab(lab1);                               //  .L1:
-  printf("\tLD\t%s,#%d\n", acc, x);             //       LD  Acc,#x
+  fprintf(fp,"\tLD\t%s,#%d\n", acc, x);             //       LD  Acc,#x
   if (lab2!=-1) {
-    printf("\tJMP\t.L%d\n", lab3);              //       JMP .L3
+    fprintf(fp,"\tJMP\t.L%d\n", lab3);              //       JMP .L3
     vmTmpLab(lab2);                             //  .L2:
-    printf("\tLD\t%s,#%d\n", acc, nx);          //       LD  Acc,#nx
+    fprintf(fp,"\tLD\t%s,#%d\n", acc, nx);          //       LD  Acc,#nx
   }
   vmTmpLab(lab3);                               //  .L3:
 }
@@ -846,17 +851,17 @@ void boolOrAnd(int lab1, int lab2, int lab3, int x, int nx) {
 void flagOrAnd(int lab1, int lab2, int lab3, char[] jcc, int x, int nx) {
   char[] acc = regs[topAux];                    //  論理値を求める Acc
   if (lab2==-1) {                               //  lab2 が未割り当てなら
-    printf("\tLD\t%s,#%d\n", acc, nx);          //         LD  Acc,#nx 
-    printf("\t%s\t.L%d\n", jcc, lab3);          //         Jcc .L3
+    fprintf(fp,"\tLD\t%s,#%d\n", acc, nx);          //         LD  Acc,#nx 
+    fprintf(fp,"\t%s\t.L%d\n", jcc, lab3);          //         Jcc .L3
     vmTmpLab(lab1);                             //    .L1:
-    printf("\tLD\t%s,#%d\n", acc, x);           //         LD  Acc,#x 
+    fprintf(fp,"\tLD\t%s,#%d\n", acc, x);           //         LD  Acc,#x 
   } else {                                      //  lab2 が割り当て済み
-    printf("\t%s\t.L%d\n", jcc, lab2);          //         Jcc .L2
+    fprintf(fp,"\t%s\t.L%d\n", jcc, lab2);          //         Jcc .L2
     vmTmpLab(lab1);                             //    .L1:
-    printf("\tLD\t%s,#%d\n", acc, x);           //         LD  Acc,#x 
-    printf("\tJMP\t.L%d\n", lab3);              //         JMP .L3
+    fprintf(fp,"\tLD\t%s,#%d\n", acc, x);           //         LD  Acc,#x 
+    fprintf(fp,"\tJMP\t.L%d\n", lab3);              //         JMP .L3
     vmTmpLab(lab2);                             //    .L2:
-    printf("\tLD\t%s,#%d\n", acc, nx);          //         LD  Acc,#nx 
+    fprintf(fp,"\tLD\t%s,#%d\n", acc, nx);          //         LD  Acc,#nx 
   }
   vmTmpLab(lab3);                               //  .L3:
   topSta = ACC;                                 //  状態は (ACC, Acc) になる
@@ -883,41 +888,41 @@ public void vmBoolAND(int lab1, int lab2, int lab3) {
  */
 // DW name      (ポインタデータの生成)
 public void vmDwName(int idx) {
-  printf("\tDW\t%c%s\n",
+  fprintf(fp,"\tDW\t%c%s\n",
 	 getPref(topAux), ntGetName(topAux));         //    DW  _name
 }
 
 // DW .Ln       (ポインタデータの生成)
 public void vmDwLab(int lab) {
-  printf("\tDW\t.L%d\n", lab);                  //    DW  .Ln
+  fprintf(fp,"\tDW\t.L%d\n", lab);                  //    DW  .Ln
 }
 
 // DW .Sn       (STRING用ポインタデータの生成)
 public void vmDwLabStr(int lab) {
-  printf("\tDW\t.S%d\n", lab);                  //    DW  .Sn
+  fprintf(fp,"\tDW\t.S%d\n", lab);                  //    DW  .Sn
 }
 
 // DW N         (整数データの生成)
 public void vmDwCns(int n) {
-  printf("\tDW\t%d\n", n);                      //    DW  N
+  fprintf(fp,"\tDW\t%d\n", n);                      //    DW  N
 }
 
 // DB N         (整数データの生成)
 public void vmDbCns(int n) {
-  printf("\tDB\t%d\n", n);                      //    DB  N
+  fprintf(fp,"\tDB\t%d\n", n);                      //    DB  N
 }
 
 // WS N         (ワード領域の生成)
 public void vmWs(int n) {
-  printf("\tWS\t%d\n", n);                      //    WS  N
+  fprintf(fp,"\tWS\t%d\n", n);                      //    WS  N
 }
 
 // BS N         (バイト領域の生成)
 public void vmBs(int n) {
-  printf("\tBS\t%d\n", n);                      //    WS  N
+  fprintf(fp,"\tBS\t%d\n", n);                      //    WS  N
 }
 
 // STRING "..." (文字列データの生成)
 public void vmStr(char[] s) {
-  printf("\tSTRING\t\"%s\"\n", s);              //    STRING "str"
+  fprintf(fp,"\tSTRING\t\"%s\"\n", s);              //    STRING "str"
 }

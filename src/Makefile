@@ -59,10 +59,10 @@ c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
 
 t-c-- : Makefile main.c indep_syntax.c syntax.h lexical.c lexical.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
-      optree.h optree.c semantic.h semantic.c
+      optree.h optree.c semantic.h sem_func.c sem_gvar.c
 	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
 	-DNWORD=16 -DNBYTE=8 -o t-c-- \
-	main.c indep_syntax.c semantic.c lexical.c namtbl.c util.c sytree.c \
+	main.c indep_syntax.c sem_func.c sem_gvar.c lexical.c namtbl.c util.c sytree.c \
 	vmCode.c vm2tac.c optree.c
 
 vm-c-- : Makefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \

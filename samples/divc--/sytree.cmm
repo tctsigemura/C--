@@ -52,7 +52,7 @@ public int[] syRVal = array(SyMAX);
 // 構文木表に新しいノードを作る
 public int syNewNode(int type, int lVal, int rVal) {
   int idx = syNextIdx;
-  if (idx>=SyMAX) error("構文木が大き過ぎる");
+  if (idx>=SyMAX) error("too large syntax tree");
   sySetType(idx, type);
   sySetLVal(idx, lVal);
   sySetRVal(idx, rVal);
@@ -87,7 +87,7 @@ public int syGetRoot() {
 }
 
 // デバッグ用
-//#ifdef DEBUG
+#ifdef DEBUG
 struct D {char[]  a; int b; };
 D[] d = {
   // 特別な値
@@ -171,7 +171,7 @@ public void syDebPrintTree() {
       fprintf(stderr,"%4d)\n", syGetRVal(i));
   }
 }
-//#endif
+#endif
 
 //---------------------------------------------------------------------------
 // STEP BY STEPの場合は以下の関数が必要

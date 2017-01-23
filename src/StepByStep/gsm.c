@@ -20,9 +20,9 @@
  */
 
 /*
- * op.c : C--コンパイラの構文木最適化ルーチンのドライバ
+ * op.c : C--コンパイラの意味解析ルーチンのドライバ
  * 
- * 2016.07.10         : 初期バージョン
+ * 2016.11.11         : 初期バージョン
  *
  * $Id$
  *
@@ -35,7 +35,7 @@
 
 #include "util.h"
 #include "../util.h"
-#include "../optree.h"
+#include "../semantic.h"
 #include "../namtbl.h"
 #include "../sytree.h"
 
@@ -46,7 +46,7 @@ static FILE *fpout; // 出力ファイル
 static int curLab = 0;              // STRラベル用のカウンタ
 
 int lxGetLn(){ return ln; }
-char *lxGetFname() { return "ERROR lxGetFname"; } // optreeでは使われないはず
+char *lxGetFname() { return "Fname"; } 
 
 // ラベルを割り当てる
 static int newLab() {
@@ -64,30 +64,30 @@ static int genStr(char *str) {
 // コード生成処理の記録
 // 関数１個分のコード生成
 static void genFunc(int funcIdx, int depth, boolean krnFlg) {
-  optTree(syGetRoot());
   syPrintTree(fpout);
   fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
 }
 // 初期化データの生成
 static void genData(int idx) {
-  optTree(syGetRoot());
   syPrintTree(fpout);
   fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
 }
 
 // 非初期化データの生成
 static void genBss(int idx) {
-  syPrintTree(fpout);
+  //syPrintTree(fpout);
   fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
 }
+
+// 段階版のためにダミーのoptTree
+void optTree(int node){}
 
 int main(int argc, char *argv[]){
   int type, lval, rval, idx, depth, krn;
   char op;
   char *fn = "stdin";
   if (argc==2){
-    if (!(strEndsWith(argv[1], ".sm"))
-     && !(strEndsWith(argv[1], ".sn"))) error("入力ファイル形式が違う");
+    if (!strEndsWith(argv[1], ".fsm")) error("入力ファイル形式が違う");
     fp = eOpen(argv[1],"r");   // 中間ファイルをオープン
     fn = argv[1];
   }else if (argc==1){
@@ -97,7 +97,8 @@ int main(int argc, char *argv[]){
     exit(1);
   }
   ntLoadTable(fn);                       // 名前表ファイルから名前表を作成
-  fpout = openDstWithExt(fn, ".op");     // 拡張子を".op"に変更してOpen
+  //ntDebPrintTable();
+  fpout = openDstWithExt(fn, ".sm");     // 拡張子を".sm"に変更してOpen
   while(true){
     ln = getDec(fp);
     if(ln==EOF)
@@ -115,13 +116,15 @@ int main(int argc, char *argv[]){
       krn   = getDec(fp);
       genFunc(idx, depth, krn);
       sySetSize(0);
-    }else if(op=='D'){
+    }else if(op=='G'){
+      //ntDebPrintTable();                           //**********DEBUG
       idx = getDec(fp);
-      genData(idx);
+      //printf("idx=%d, root=%d\n",idx,syGetRoot()); //**********DEBUG
+      //syDebPrintTree();
+      semChkGVar(idx);
+      if (syGetRoot()!=SyNULL) genData(idx);
+      else genBss(idx);
       sySetSize(0);
-    }else if(op=='B'){
-      idx = getDec(fp);
-      genBss(idx);
     }else if(op=='S'){
       genStr(getStr(fp));
     }else{

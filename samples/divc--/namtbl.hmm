@@ -63,7 +63,7 @@
 #define TyPNT       10
 
 /* 名前表 */
-#define NtMAX      500    // 表のサイズ
+#define NtMAX      150    // 表のサイズ
 P int       ntNextIdx;    // 次に登録する位置、スコープにより逆戻りする
 P char[][]  ntName;       // 名前のつづり
 P int[]     ntScope;      // スコープ(ScXXXX を格納する)

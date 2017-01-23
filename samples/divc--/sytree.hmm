@@ -38,7 +38,7 @@
 #define P public
 
 // 構文木表の本体
-#define SyMAX 3000                          // 表の大きさ
+#define SyMAX 200                          // 表の大きさ
 P int[] syType;
 P int[] syLVal;
 P int[] syRVal;

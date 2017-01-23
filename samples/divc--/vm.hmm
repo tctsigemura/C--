@@ -44,6 +44,7 @@
 
 #define P public
 
+P void vmSetFp(FILE fp);
 
 P void vmName(int idx);              // 名前を表現するラベルを印刷する
 P void vmTmpLab(int lab);            // コンパイラが生成した番号のラベルを印刷

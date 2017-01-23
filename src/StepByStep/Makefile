@@ -26,7 +26,7 @@ CC=cc -std=c99 -Wall
 VER=\"3.1.0\"
 DATE="\"`date`\""
 
-all : lx snm sn sm op vm tac
+all : lx sn sm fsm gsm op vm tac
 
 lx : Makefile ../lexical.c ../lexical.h ../util.h ../util.c util.h util.c \
      ../sytree.c ../sytree.h lx.c
@@ -34,12 +34,6 @@ lx : Makefile ../lexical.c ../lexical.h ../util.h ../util.c util.h util.c \
 	-DNWORD=16 -DNBYTE=8 -o lx \
 	../lexical.c ../sytree.c ../util.c util.c lx.c
 
-snm : Makefile ../lexical.h ../util.h ../util.c util.h util.c \
-     ../namtbl.h ../namtbl.c ../sytree.c ../sytree.h sn.c
-	${CC} -DSTEPBY=1 -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
-	-DNWORD=16 -DNBYTE=8 -o snm \
-  ../syntax.c ../namtbl.c ../sytree.c ../util.c util.c sn.c
-  
 sn : Makefile ../lexical.h ../util.h ../util.c util.h util.c \
      ../namtbl.h ../namtbl.c ../sytree.c ../sytree.h ../indep_syntax.c sn.c
 	${CC} -DSTEPBY=1 -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
@@ -51,6 +45,18 @@ sm : Makefile ../lexical.h ../util.h ../util.c util.h util.c \
 	${CC} -DSTEPBY=1 -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
 	-DNWORD=16 -DNBYTE=8 -o sm \
   ../semantic.c ../namtbl.c ../sytree.c ../util.c util.c sm.c
+
+fsm : Makefile ../lexical.h ../util.h ../util.c util.h util.c \
+     ../namtbl.h ../namtbl.c ../sytree.c ../sytree.h ../sem_func.c fsm.c
+	${CC} -DSTEPBY=1 -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+	-DNWORD=16 -DNBYTE=8 -o fsm \
+  ../sem_func.c ../namtbl.c ../sytree.c ../util.c util.c fsm.c
+
+gsm : Makefile ../lexical.h ../util.h ../util.c util.h util.c \
+     ../namtbl.h ../namtbl.c ../sytree.c ../sytree.h ../sem_gvar.c gsm.c
+	${CC} -DSTEPBY=1 -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
+	-DNWORD=16 -DNBYTE=8 -o gsm \
+  ../sem_gvar.c ../namtbl.c ../sytree.c ../util.c util.c gsm.c
 
 op : Makefile ../optree.h ../optree.c ../util.h ../util.c util.h util.c \
      ../namtbl.h ../namtbl.c ../sytree.h ../sytree.c op.c
@@ -65,15 +71,15 @@ vm : Makefile ../code.h ../vmCode.c ../util.h ../util.c util.h util.c \
 		../vmCode.c ../util.c util.c ../namtbl.c ../sytree.c vm.c
 
 tac : Makefile ../vm.h ../vm2tac.c ../util.h ../util.c util.h util.c \
-     ../namtbl.h ../namtbl.c ../sytree.h ../sytree.c tac.c
+     ../namtbl.h ../namtbl.c tac.c
 		${CC} -DSTEPBY=1 -DDATE=${DATE} -DVER=${VER} -DARC=\"TaC\" \
 		-DNWORD=16 -DNBYTE=8 -o tac \
-		../vm2tac.c ../util.c util.c ../namtbl.c ../sytree.c tac.c
+		../vm2tac.c ../util.c util.c ../namtbl.c tac.c
 
 install : lx
 	install -d -m 755 /usr/local/bin
 	install -m 755 lx /usr/local/bin
 
 clean :
-	rm -f lx sn sm snm op vm tac *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+	rm -f lx sn sm fsm gsm op vm tac *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 

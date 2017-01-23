@@ -851,6 +851,7 @@ static void getGVar(void) {
   }
   //ntDebPrintTable();
   semChkGVar(curIdx);                        // 意味解析
+  if (optFlag) optTree(syGetRoot());         // 木を最適化する
   genGVar(curIdx);                           // 大域変数の生成
   sySetSize(0);                              // データ生成終了で木を消去する
 }

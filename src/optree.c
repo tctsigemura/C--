@@ -599,10 +599,23 @@ static void optBlk(int node) {
   optTree(syGetRVal(node));                       //   次に右側を最適化
 }
 
+static void chkNatNum(int node) {
+  int l = syGetLVal(node);
+  if (l==0 || l>=32768)
+    error("正の整数が必要");
+}
+
 // 初期化配列を最適化する
 static void optArr(int node){                     // !!分割版でのみ使用される!!
-  optBlk(syGetLVal(node));
-}
+  if (syGetType(node)==SySEMI) {
+    optArr(syGetLVal(node));
+    optTree(syGetRVal(node));
+    chkNatNum(syGetRVal(node));
+  } else {
+    optTree(node);
+    chkNatNum(node);
+  }
+ }
 
 // 構文木を最適化する
 void optTree(int node) {
@@ -618,7 +631,7 @@ void optTree(int node) {
   else if (ty==SyRET)  optRet(node);              // retrun 文
   else if (ty==SySEMI ||
 	         ty==SyBLK)  optBlk(node);              // ブロック
-  else if (ty==SyARRY ||                          // 分割版では初期化配列
-           ty==SyLIST) optArr(node);              // 　の最適化が必要
+  else if (ty==SyLIST) optTree(syGetLVal(node));  // 分割版では初期化配列
+  else if (ty==SyARRY) optArr(syGetLVal(node));   // 　の最適化が必要
   else                 optExp(node);              // 式文
-}    
+}

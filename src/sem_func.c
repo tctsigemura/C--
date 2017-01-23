@@ -27,17 +27,17 @@
  *
  */
 
-#include <stdio.hmm>
-#include <stdlib.hmm>
-#include <string.hmm>
-#include "util.hmm"
-#include "namtbl.hmm"
-#include "sytree.hmm"
-#include "semantic.hmm"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "util.h"
+#include "namtbl.h"
+#include "sytree.h"
+#include "semantic.h"
 
-int funcIdx;
-int locIdx;
-boolean krnFlag;
+static int funcIdx;
+static int locIdx;
+static boolean krnFlag;
 
 /*
  * 式の処理
@@ -50,54 +50,55 @@ struct watch {
 };
 
 // watch を割り当てる
-watch newWatch() {
-  return ealloc(sizeof(watch));
+static struct watch* newWatch(void) {
+  return ealloc(sizeof(struct watch));
 }
 
 // watch に値を設定する
-void setWatch(watch w, int t, int d, boolean l) {
-  w.type = t;
-  w.dim  = d;
-  w.lhs  = l;
+static void setWatch(struct watch *w, int t, int d, int l) {
+  w->type = t;
+  w->dim  = d;
+  w->lhs  = l;
+
 }
 
 // watch の領域を解放する
-void freeWatch(watch w) {
+static void freeWatch(struct watch *w) {
   free(w);                                       // 領域をシステムに返却する
 }
 
 // 式(w)の型が type 型の基本型か調べる
-void chkType(watch w, int type) {
-  if (w.dim>0)        error("配列型は使用できない");
-  if (w.type==TyVOID) error("void型は使用できない");
-  if (type==TyBOOL && w.type!=TyBOOL)  error("論理型が必要");
-  if (type==TyINT  && w.type!=TyINT )  error("整数型が必要");
-  if (type==TyCHAR && w.type!=TyCHAR)  error("文字型が必要");
+static void chkType(struct watch *w, int type) {
+  if (w->dim>0)        error("配列型は使用できない");
+  if (w->type==TyVOID) error("void型は使用できない");
+  if (type==TyBOOL && w->type!=TyBOOL)  error("論理型が必要");
+  if (type==TyINT  && w->type!=TyINT )  error("整数型が必要");
+  if (type==TyCHAR && w->type!=TyCHAR)  error("文字型が必要");
   if (type!=TyBOOL && type!=TyINT && type!=TyCHAR) error("バグ...chkType");
 }
 
 // 式(w)の値を type, dim 型へ代入可能か調べる
-void chkCmpat(watch w, int type, int dim) {
+static void chkCmpat(struct watch* w, int type, int dim) {
   //printf("chkCmpat\n");
-  if (!(w.type==TyVOID && w.dim>0 && dim>0) &&    // void[] はどの [] にも OK
-      !(type==TyVOID && dim>0 && w.dim>0) &&
-      !(w.type==TyVOID && w.dim==1 && type<=0)&&  // void[] と構造体は OK
-      !(type==TyVOID && dim==1 && w.type<=0) &&
-      (w.type!=type || w.dim!=dim)){               // それ以外は正確に型が合
-    printf("type=%d, w.type=%d\n", type, w.type);
+  if (!(w->type==TyVOID && w->dim>0 && dim>0) &&    // void[] はどの [] にも OK
+      !(type==TyVOID && dim>0 && w->dim>0) &&
+      !(w->type==TyVOID && w->dim==1 && type<=0)&&  // void[] と構造体は OK
+      !(type==TyVOID && dim==1 && w->type<=0) &&
+      (w->type!=type || w->dim!=dim)){               // それ以外は正確に型が合
+    printf("type=%d, w->type=%d\n", type, w->type);
     error("代入/比較/初期化/引数/returnの型が合わない");// わないと代入できない
   }
 }
 
 // プロトタイプ宣言
-watch chkExpr(int node);
-watch chkAsExpr(int node);
-void chkFcSemi(int node, int lastIdx);     // FuncCallのSySEMIを読む
+static struct watch *chkExpr(int node);
+static struct watch *chkAsExpr(int node);
+static void chkFcSemi(int node, int lastIdx);     // FuncCallのSySEMIを読む
 
-int prmIdx;
+static int prmIdx;
 
-void chkFcSemi(int node, int lastIdx) {
-  watch w;
+static void chkFcSemi(int node, int lastIdx) {
+  struct watch *w;
   if (syGetType(node)==SySEMI) {               // SySEMIならば
     chkFcSemi(syGetLVal(node), lastIdx);       //  左辺もSySEMIかも
     w = chkAsExpr(syGetRVal(node));            //  右辺を代入式解析
@@ -109,12 +110,12 @@ void chkFcSemi(int node, int lastIdx) {
     chkCmpat(w, ntGetType(prmIdx),             //  式を引数に代入可能か
                 ntGetDim(prmIdx));             //  チェックして 
     prmIdx = prmIdx + 1;                       //  仮引数番号を進める
-  } else if (w.type==TyVOID && w.dim==0) {   // 可変個引数でも
+  } else if (w->type==TyVOID && w->dim==0) {   // 可変個引数でも
     error("void型の関数は引数にできない");     //  void型は使用不可
   }
 }
 
-void chkArgs(int node, int func) {      // 引数の型，次元チェック
+static void chkArgs(int node, int func) {      // 引数の型，次元チェック
   if (node==SyNULL) return;                    // 引数がなければ帰る
   prmIdx = func + 1;                           // 仮引数を指すインデクス
   int lastIdx = func + ntGetCnt(func);         // 最後の仮引数のインデクス
@@ -125,8 +126,8 @@ void chkArgs(int node, int func) {      // 引数の型，次元チェック
 }
 
 // 因子
-watch chkFactor(int node) {
-  watch w = newWatch();
+static struct watch *chkFactor(int node) {
+  struct watch *w = newWatch();
   int type = 0;
   int dim = 0;
   boolean lhs = false;
@@ -205,12 +206,12 @@ watch chkFactor(int node) {
 }
 
 // 単項演算
-watch chkUniExpr(int node) {
-  watch w;
+static struct watch *chkUniExpr(int node) {
+  struct watch *w;
   if (syGetType(node)==SyPLS) {                // 単項演算'+'
     w = chkExpr(syGetLVal(node));              //  左辺を式解析
     chkType(w, TyINT);                         //  左辺はINT型
-    w.lhs = false;
+    w->lhs = false;
     int l = syGetLVal(node);                   // 左のノード
     sySetType(node,syGetType(l));              //   自身を左の値に
     sySetLVal(node,syGetLVal(l));              //     書き換えることで
@@ -219,31 +220,31 @@ watch chkUniExpr(int node) {
              (syGetType(node)==SyBNOT)) {      // INTに付く演算子
     w = chkExpr(syGetLVal(node));              //  左辺を式解析
     chkType(w, TyINT);                         //  左辺はINT型
-    w.lhs = false;
+    w->lhs = false;
   } else if(syGetType(node)==SyCHAR) {         // CHARを返す演算子
     w = chkExpr(syGetLVal(node));              //  左辺を式解析
-    if (w.dim!=0 || w.type!=TyINT)
+    if (w->dim!=0 || w->type!=TyINT)
       error("chr 括弧内が int 以外になっている");
-    w.type = TyCHAR;                          //  CHAR型を返す
-    w.lhs = false;
+    w->type = TyCHAR;                          //  CHAR型を返す
+    w->lhs = false;
   } else if(syGetType(node)==SyBOOL) {         // BOOLを返す演算子
     w = chkExpr(syGetLVal(node));              //  左辺を式解析
-    if (w.dim!=0 || w.type!=TyINT)
+    if (w->dim!=0 || w->type!=TyINT)
       error("bool 括弧内が int 以外になっている");
-    w.type = TyBOOL;                          //  BOOL型を返す
-    w.lhs = false;
+    w->type = TyBOOL;                          //  BOOL型を返す
+    w->lhs = false;
   } else if(syGetType(node)==SyORD) {          // INT型を返す演算子
     w = chkExpr(syGetLVal(node));              //  左辺を式解析
-    if ((w.dim!=0) || 
-        (w.type!=TyBOOL && w.type!=TyCHAR))
+    if ((w->dim!=0) || 
+        (w->type!=TyBOOL && w->type!=TyCHAR))
       error("ord 括弧内が char, boolean 以外になっている");
-    w.type = TyINT;                           //  INT型を返す
-    w.lhs = false;
+    w->type = TyINT;                           //  INT型を返す
+    w->lhs = false;
   } else if(syGetType(node)==SyNOT) {          // BOOLに付く演算子
     w = chkExpr(syGetLVal(node));              //  左辺を式解析
     chkType(w, TyBOOL);                        //  左辺はBOOL型
-    w.type = TyBOOL;                          //  BOOL型を返す
-    w.lhs = false;
+    w->type = TyBOOL;                          //  BOOL型を返す
+    w->lhs = false;
   } else {                                     // 単項演算子でないなら
     w = chkFactor(node);                       //  因子解析
   }
@@ -252,10 +253,10 @@ watch chkUniExpr(int node) {
 
 
 // 大小比較演算
-watch chkCmpExpr(int node) {
-  watch w;
-  watch l;                             // 左辺式用
-  watch r;                             // 右辺式用
+static struct watch *chkCmpExpr(int node) {
+  struct watch *w;
+  struct watch *l;                             // 左辺式用
+  struct watch *r;                             // 右辺式用
   if ((syGetType(node)==SyGT) ||
       (syGetType(node)==SyGE) ||
       (syGetType(node)==SyLT) ||
@@ -273,15 +274,15 @@ watch chkCmpExpr(int node) {
 }
 
 // 比較演算
-watch chkEquExpr(int node) {
-  watch w;
-  watch l;                             // 左辺式用
-  watch r;                             // 右辺式用
+static struct watch *chkEquExpr(int node) {
+  struct watch *w;
+  struct watch *l;                             // 左辺式用
+  struct watch *r;                             // 右辺式用
   if ((syGetType(node)==SyEQU) ||
       (syGetType(node)==SyNEQ)) {              // 比較演算式ならば
     l = chkExpr(syGetLVal(node));              //  左辺を式解析
     r = chkExpr(syGetRVal(node));              //  右辺を式解析
-    chkCmpat(r, l.type, l.dim);              //  代入可能ならば比較可能
+    chkCmpat(r, l->type, l->dim);              //  代入可能ならば比較可能
     w = newWatch();
     setWatch(w, TyBOOL, 0, false);             //  次元0のBOOL型を返す
   } else {                                     // 比較演算式でないなら
@@ -291,15 +292,15 @@ watch chkEquExpr(int node) {
 }
 
 // 論理積和
-watch chkLogExpr(int node) {
-  watch w;
-  watch r;                             // 右辺式用
+static struct watch *chkLogExpr(int node) {
+  struct watch *w;
+  struct watch *r;                             // 右辺式用
   if (SyISLOPR(syGetType(node))) {             // 論理積和式ならば
     w = chkExpr(syGetLVal(node));              //  左辺を式解析
     r = chkExpr(syGetRVal(node));              //  右辺を式解析
     chkType(w, TyBOOL);                        //  左右共にBOOL型
     chkType(r, TyBOOL);
-    w.lhs = false;
+    w->lhs = false;
   } else {                                     // 論理積和でないなら
     w = chkEquExpr(node);                      //  比較演算式解析
   }
@@ -307,43 +308,43 @@ watch chkLogExpr(int node) {
 }
 
 // 二項演算
-watch chkBiExpr(int node) {
-  watch w;                             // 左辺式用
-  watch r;                             // 右辺式用
+static struct watch *chkBiExpr(int node) {
+  struct watch *w;                             // 左辺式用
+  struct watch *r;                             // 右辺式用
   if (syGetType(node)==SyIDXW) {               // 配列参照ならば
     w = chkExpr(syGetLVal(node));              //  左辺式を解析
-    int stype = w.type;
-    w.dim = w.dim - 1;                       //  次元を1つ下げる
-    if (w.dim>0 || stype<=0) stype = SyIDXW;  // 参照はワード配列
+    int stype = w->type;
+    w->dim = w->dim - 1;                       //  次元を1つ下げる
+    if (w->dim>0 || stype<=0) stype = SyIDXW;  // 参照はワード配列
     else if (stype==TyINT)    stype = SyIDXW;  // int はワード配列
     else if (stype==TyCHAR)   stype = SyIDXB;  // char はバイト配列
     else if (stype==TyBOOL)   stype = SyIDXB;  // boolean はバイト配列
     else error("バグ...chkBiExpr, IDX判別");
     sySetType(node, stype);                    //  ワードかバイトかを設定
     r = chkExpr(syGetRVal(node));              //  右辺を式解析
-    if (r.type!=TyINT || r.dim!=0)           //  右はINT型
+    if (r->type!=TyINT || r->dim!=0)           //  右はINT型
       error("配列の添字が整数以外になっている");
-    if(w.dim<0) error("添字が多すぎる");
-    w.lhs = true;
+    if(w->dim<0) error("添字が多すぎる");
+    w->lhs = true;
   } else if (syGetType(node)==SyDOT) {         // 構造体ならば
     w = chkExpr(syGetLVal(node));              //  左辺式を解析
-    if (w.type>0 || w.dim>0)                 //   式(w)が基本型または配列の
+    if (w->type>0 || w->dim>0)                 //   式(w)が基本型または配列の
       error("構造体以外に'.' がある");         //   場合に'.'は続かない
     int idx = syGetRVal(node);                 //  右値はフィールド名のidx
     if (syGetType(idx)!=SyCNST)
       error("バグ...SyDOT");
-    int n = ntSrcField(w.type, ntGetName(syGetLVal(idx)));
+    int n = ntSrcField(w->type, ntGetName(syGetLVal(idx)));
                                                //  構造体をフィールド名で検索
     sySetLVal(idx, n);                         //  インデクスを本物に書き換え
-    w.type = ntGetType(n);                    // 式(w)をフィールドの型と
-    w.dim  = ntGetDim(n);                     //   次元に変更する
-    w.lhs  = true;
+    w->type = ntGetType(n);                    // 式(w)をフィールドの型と
+    w->dim  = ntGetDim(n);                     //   次元に変更する
+    w->lhs  = true;
   } else if (SyIS2OPR(syGetType(node))) {      // それ以外の二項演算式
     w = chkExpr(syGetLVal(node));              //  左辺を式解析
     r = chkExpr(syGetRVal(node));              //  右辺を式解析
     chkType(w, TyINT);                         //  左右共にINT型
     chkType(r, TyINT);
-    w.lhs = false;
+    w->lhs = false;
   } else {                                     // 二項演算式でないなら
     w = chkLogExpr(node);                      //  論理積和演算式解析
   }
@@ -351,15 +352,15 @@ watch chkBiExpr(int node) {
 }
 
 // 代入式
-watch chkAsExpr(int node) {
-  watch w;
-  watch r;                             // 右辺式用
+static struct watch *chkAsExpr(int node) {
+  struct watch *w;
+  struct watch *r;                             // 右辺式用
   if (syGetType(node)==SyASS) {                // 代入式ならば
     w = chkExpr(syGetLVal(node));              //  左辺を式解析
     r = chkExpr(syGetRVal(node));              //  右辺を式解析
-    if (!w.lhs) error("左辺が代入可能ではない");
-    chkCmpat(r, w.type, w.dim);              //  代入可能かチェック
-    w.lhs = false;
+    if (!w->lhs) error("左辺が代入可能ではない");
+    chkCmpat(r, w->type, w->dim);              //  代入可能かチェック
+    w->lhs = false;
   } else {                                     // 代入式でないなら
     w = chkBiExpr(node);                       //  二項演算演算式解析
   }
@@ -368,15 +369,15 @@ watch chkAsExpr(int node) {
 
 
 // カンマ式
-watch chkExpr(int node) {
-  watch w;
-  watch r;                             // 右辺式用
+static struct watch *chkExpr(int node) {
+  struct watch *w;
+  struct watch *r;                             // 右辺式用
   if (syGetType(node)==SyCOMM) {               // カンマ式ならば
     r = chkAsExpr(syGetRVal(node));            //  右辺は代入式として解析
     w = chkExpr(syGetLVal(node));              //  左辺はカンマ式かも
-    if(r.type!=w.type)                       //  左右は同じ型のはず
+    if(r->type!=w->type)                       //  左右は同じ型のはず
       error("カンマの前後は同じ型");
-    w.lhs = false;
+    w->lhs = false;
   } else {                                     // カンマ式でないなら
     w = chkAsExpr(node);                       //  代入式として解析
   }
@@ -384,27 +385,27 @@ watch chkExpr(int node) {
 }
 
 // 再帰のためのプロトタイプ宣言
-void traceTree(int node);
+static void traceTree(int node);
 
 // if 文
-void chkIf(int node) {
-  watch w = chkExpr(syGetLVal(node));     // 条件式の解析
+static void chkIf(int node) {
+  struct watch* w = chkExpr(syGetLVal(node));     // 条件式の解析
   chkType(w, TyBOOL);                             // 条件式は論理型
   traceTree(syGetRVal(node));                     // 本文の解析
   freeWatch(w);
 }
 
 // if-else 文
-void chkEls(int node) {
+static void chkEls(int node) {
   int ifNode = syGetLVal(node);                   // if 文部分
   chkIf(ifNode);                                  // if文解析
   traceTree(syGetRVal(node));                     // else 節の本文解析
 }
 
 // while 文 と for 文
-void chkWhl(int node) {
+static void chkWhl(int node) {
   if(syGetLVal(node)!=SyNULL) {                   // 条件式がある場合
-    watch w = chkExpr(syGetLVal(node));   //   条件式の解析
+    struct watch *w = chkExpr(syGetLVal(node));   //   条件式の解析
     chkType(w, TyBOOL);                           // 条件式は論理型
     freeWatch(w);
   }
@@ -415,34 +416,34 @@ void chkWhl(int node) {
 }
 
 // do-while 文
-void chkDo(int node) {
-  watch w = chkExpr(syGetRVal(node));     // 条件式の解析
+static void chkDo(int node) {
+  struct watch *w = chkExpr(syGetRVal(node));     // 条件式の解析
   chkType(w, TyBOOL);                             // 条件式は論理型
   traceTree(syGetLVal(node));                     // 本文の解析
   freeWatch(w);
 }
 
 // break 文
-void chkBrk(int node) {
+static void chkBrk(int node) {
   ;
 }
 
 // continue 文
-void chkCnt(int node) {
+static void chkCnt(int node) {
   ;
 }
 
 // return 文
-void chkRet(int node) {
+static void chkRet(int node) {
   if (syGetLVal(node)!=SyNULL) {                  // returnがあれば
-    watch w = chkExpr(syGetLVal(node));   //  式の解析
+    struct watch *w = chkExpr(syGetLVal(node));   //  式の解析
     int t = ntGetType(funcIdx);                   //  関数の型を読む
     int d = ntGetDim(funcIdx);                    //  関数の次元を読む
     chkCmpat(w, t, d);                            //  代入可能かチェック
   }
 }
 
-void chkName(int curType, int curDim, int curScope) {
+static void chkName(int curType, int curDim, int curScope) {
   if (curScope!=ScPROT && curType==TyVOID && curDim==0)  // 関数以外でvoid型は
     error("void型変数/引数は使用できない");              //   ポインタだけOK
   if (curScope!=ScPROT && curType==TyINTR)               // 関数以外でintrrupt
@@ -452,7 +453,7 @@ void chkName(int curType, int curDim, int curScope) {
 }
 
 // 構文木をトレースする
-void traceTree(int node) {
+static void traceTree(int node) {
   if (node==SyNULL) return;                       // 何も無い
   int ty = syGetType(node);
   if (ty==SyIF) chkIf(node);                      // if 文
@@ -482,120 +483,13 @@ void traceTree(int node) {
     chkExpr(node);                                //  式 解析
   }
 }
-int strcIdx;
-
-// null初期化が適切か調べる
-boolean chkNull(int node, int rval, int lval, int dim, int type) {
-  if((node==SyCNST) &&
-     (rval==TyREF)  &&
-     (lval==0)         ) {         // null初期化なら
-    if (!(dim!=0||type<=0))        // 構造体or配列のはず
-      error("nullの使用が不適切");
-    return false;                  // null初期化が適切
-  }
-  return true;                     // null初期化ではない
-}
-/*
-// ノードの内容を上書きする
-void setNode(int node, int typ, int l, int r) {
-  if (node==SyNULL) error("BUG : setNode");
-  sySetType(node, typ);
-  sySetLVal(node, l);
-  sySetRVal(node, r);
-}
-*/
-// この演算子は左辺式を必要とする
-boolean needLeft(int node) {
-  int op = syGetType(node);
-  return SyIS1OPR(op)|| SyIS2OPR(op) || SyISCMP(op) || SyISLOPR(op);
-}
-
-// この演算子は右辺式を必要とする
-boolean needRight(int node) {
-  int op = syGetType(node);
-  return SyIS2OPR(op) || SyISCMP(op) || SyISLOPR(op);
-}
-
-int setBool(boolean flag) {
-  if (flag) return 1;
-  return 0;
-}
-
-void errorInt() {
-  error("整数式が必要");
-}
-
-void errorLogic() {
-  error("論理式が必要");
-}
-
-void chkInt(int l, int r) {
-  if(syGetRVal(l)!=syGetRVal(r)) errorInt();
-  if(syGetRVal(l)!=TyINT) errorInt();
-}
-
-// 式の定数を計算する
-int calExp(int node) {
-  int ty = syGetType(node);                       // 演算子
-  int l  = syGetLVal(node);                       // 左辺
-  int r  = syGetRVal(node);                       // 右辺
-
-  // 先に演算の対象を最適化する
-  if (needLeft(node))  l = calExp(l);             // 左辺あるので処理する
-  if (needRight(node)) r = calExp(r);             // 右辺あるので処理する
-
-  // 演算子に応じた最適化を行う
-  if (ty==SyNEG) {
-    if(syGetRVal(l)!=TyINT) errorInt();
-  } else if (ty==SyNOT) { 
-    if(syGetRVal(l)!=TyBOOL) errorLogic();
-  } else if (ty==SyBNOT) { 
-    if(syGetRVal(l)!=TyINT) errorInt();
-  } else if (ty==SyCHAR) { 
-    if(syGetRVal(l)!=TyINT) errorInt();
-  } else if (ty==SyBOOL) { 
-    if(syGetRVal(l)!=TyINT) errorInt();
-  } else if (ty==SySIZE) { 
-    ;
-  } else if (ty==SyADD || ty==SySUB || ty==SyBAND || ty==SyBOR || ty==SyBXOR || ty==SyMOD
-             || ty==SyGT || ty==SyGE || ty==SyLT || ty==SyLE) { 
-    chkInt(l, r);
-  } else if (ty==SySHL) { 
-    int n = syGetLVal(r);
-    if(n<0 || NWORD<=n) error("<< シフト桁数が範囲外");
-    chkInt(l, r);
-  } else if (ty==SySHR) { 
-    int n = syGetLVal(r);
-    if(n<0 || NWORD<=n) error(">> シフト桁数が範囲外");
-    chkInt(l, r);
-  } else if (ty==SyMUL) { 
-    ;
-  } else if (ty==SyDIV) {
-    if(syGetLVal(r)==0) error("0 での割算");
-    chkInt(l, r);
-  } else if (ty==SyEQU || ty==SyNEQ) { 
-    if(syGetRVal(l)!=syGetRVal(r)) error("比較する型が合わない");
-  } else if (ty==SyOR || ty==SyAND) { 
-    if(syGetRVal(l)!=syGetRVal(r)) errorLogic();
-    if(syGetRVal(l)!=TyBOOL) errorLogic();
-  } else if (ty==SyCNST || ty==SySTR) {
-    ;
-  } else error("定数式が必要");                     // それ以外はこない
-  // 最適化終了後
-  
-  if (syGetType(node)==SyCNST)                    // 定数になっていたら
-    sySetLVal(node, syGetLVal(node) & WMSK);        //   値のオーバーフローを訂正
-                                                  //  (全てのノードは計算前に
-                                                  //   ここで訂正を受ける)
-  return node;
-}
 
 /***
  *** 公開関数
  ***/
 
 // 関数の意味解析
-public void semChkFunc(int node, int fidx, boolean kFlag){
+void semChkFunc(int node, int fidx, boolean kFlag){
   //syDebPrintTree();                        // ### DEBUG ###
   //ntDebPrintTable();
   //printf("%d,%d\n",node,fidx);

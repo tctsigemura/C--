@@ -40,13 +40,13 @@ static void procLex(FILE *ofp) {
   int tok = LxFILE;                            // ファイル名を出力するため
   while (tok!=EOF) {
     if(tok==LxNAME || tok==LxSTRING)
-      fprintf(ofp, "%d\t%d\t%s\n", lxGetLn(), tok, lxGetStr());
+      fprintf(ofp, "%d %d %s\n", lxGetLn(), tok, lxGetStr());
     else if(tok==LxINTEGER || tok==LxLOGICAL || tok==LxCHARACTER)
-      fprintf(ofp, "%d\t%d\t%d\n", lxGetLn(), tok, lxGetVal());
+      fprintf(ofp, "%d %d %d\n", lxGetLn(), tok, lxGetVal());
     else if(tok==LxFILE)
-      fprintf(ofp, "%d\t%d\t%s\n", lxGetLn(), tok, lxGetFname());
+      fprintf(ofp, "%d %d %s\n", lxGetLn(), tok, lxGetFname());
     else
-      fprintf(ofp, "%d\t%d\n", lxGetLn(), tok);
+      fprintf(ofp, "%d %d\n", lxGetLn(), tok);
     tok=lxGetTok();
   }
 }

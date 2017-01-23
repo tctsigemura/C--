@@ -42,7 +42,8 @@
 
 // 大域データ
 char[] str = array(StrMAX + 1);
-FILE fp;                                  // 入力ファイル
+FILE fpin;                                  // 入力ファイル
+FILE fp;
 public int lxGetLn(){ return 0; }                        // vm2tacでは使われないはず
 public char[] lxGetFname() { return "ERROR lxGetFname"; } // vm2tacでは使われないはず
 
@@ -118,38 +119,40 @@ public int main(int argc, char[][] argv){
   char[] fn = "stdin";
   if (argc==2){
     if (!strEndsWith(argv[1], ".vm")) error("入力ファイル形式が違う");
-    fp = eOpen(argv[1],"r");  // 中間ファイルをオープン
+    fpin = eOpen(argv[1],"r");  // 中間ファイルをオープン
     fn = argv[1];
   }else if(argc==1){
-    fp = stdin;
+    fpin = stdin;
   }else{
     fprintf(stderr, "使用方法 : %s [<srcfile>]\n", argv[0]);
     exit(1);
   }
   ntLoadTable(fn);                   // 名前表ファイルから名前表を作成
+  fp = openDstWithExt(fn, ".s");
+  vmSetFp(fp);
   while(true){
-    op = getDec(fp);
+    op = getDec(fpin);
     if(op==ord(EOF))
       return 0;
     if((22<=op && op<=51) || op==60){                    // 引数0の関数
       callfunc0(op);
     }else if(0<=op && op<=21){   // 引数1の関数
-      int a1 = getDec(fp);
+      int a1 = getDec(fpin);
       callfunc1(op, a1);
     }else if(52<=op && op<=56){              // 引数2の関数
-      int a1 = getDec(fp);
-      int a2 = getDec(fp);
+      int a1 = getDec(fpin);
+      int a2 = getDec(fpin);
       callfunc2(op, a1, a2);
     }else if(op==57 || op==58){              // 引数3の関数
-      int a1 = getDec(fp);
-      int a2 = getDec(fp);
-      int a3 = getDec(fp);
+      int a1 = getDec(fpin);
+      int a2 = getDec(fpin);
+      int a3 = getDec(fpin);
       if(op==57) vmBoolOR(a1, a2, a3);
       else       vmBoolAND(a1, a2, a3);
     }else if(op==59){
       int i=0;
       char ch;
-      while((ch=fgetc(fp))!='\n'){               // 改行がくるまで文字列
+      while((ch=fgetc(fpin))!='\n'){               // 改行がくるまで文字列
         if(i>StrMAX)
           error("文字列が長すぎる");
         str[i] = ch;

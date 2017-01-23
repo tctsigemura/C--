@@ -20,42 +20,42 @@
  */
 
 /*
- * op.c : C--コンパイラの構文木最適化ルーチンのドライバ
+ * op.c : C--コンパイラの意味解析ルーチンのドライバ
  * 
- * 2016.07.10         : 初期バージョン
+ * 2016.11.11         : 初期バージョン
  *
  * $Id$
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include <stdio.hmm>
+#include <stdlib.hmm>
+#include <string.hmm>
+#include <ctype.hmm>
 
-#include "util.h"
-#include "../util.h"
-#include "../optree.h"
-#include "../namtbl.h"
-#include "../sytree.h"
+#include "util.hmm"
+#include "../util.hmm"
+#include "../semantic.hmm"
+#include "../namtbl.hmm"
+#include "../sytree.hmm"
 
-static int ln;
-static FILE *fp;    // 入力ファイル
-static FILE *fpout; // 出力ファイル
+int ln;
+FILE fp;    // 入力ファイル
+FILE fpout; // 出力ファイル
 
-static int curLab = 0;              // STRラベル用のカウンタ
+int curLab = 0;              // STRラベル用のカウンタ
 
-int lxGetLn(){ return ln; }
-char *lxGetFname() { return "ERROR lxGetFname"; } // optreeでは使われないはず
+public int lxGetLn(){ return ln; }
+public char[] lxGetFname() { return "Fname"; } 
 
 // ラベルを割り当てる
-static int newLab() {
+int newLab() {
   curLab = curLab + 1;
   return curLab;
 }
 
 // 文字列を生成しラベル番号を返す
-static int genStr(char *str) {
+int genStr(char[] str) {
   int lab = newLab();                            // ラベルを割り付け
   fprintf(fpout, "%d S %s\n", lxGetLn(), str);   // 文字列をファイルに出力
   return lab;                                    // ラベル番号を返す
@@ -63,31 +63,32 @@ static int genStr(char *str) {
 
 // コード生成処理の記録
 // 関数１個分のコード生成
-static void genFunc(int funcIdx, int depth, boolean krnFlg) {
-  optTree(syGetRoot());
+void genFunc(int funcIdx, int depth, boolean krnFlg) {
   syPrintTree(fpout);
   fprintf(fpout, "%d F %d %d %d\n", lxGetLn(), funcIdx, depth, krnFlg);
 }
 // 初期化データの生成
-static void genData(int idx) {
-  optTree(syGetRoot());
+void genData(int idx) {
   syPrintTree(fpout);
   fprintf(fpout, "%d D %d\n", lxGetLn(), idx);
 }
 
 // 非初期化データの生成
-static void genBss(int idx) {
-  syPrintTree(fpout);
+void genBss(int idx) {
+  //syPrintTree(fpout);
   fprintf(fpout, "%d B %d\n", lxGetLn(), idx);
 }
 
-int main(int argc, char *argv[]){
-  int type, lval, rval, idx, depth, krn;
+// 段階版のためにダミーのoptTree
+public void optTree(int node){}
+
+public int main(int argc, char[][] argv){
+  int type, lval, rval, idx, depth;
+  boolean krn;
   char op;
-  char *fn = "stdin";
+  char[] fn = "stdin";
   if (argc==2){
-    if (!(strEndsWith(argv[1], ".sm"))
-     && !(strEndsWith(argv[1], ".sn"))) error("入力ファイル形式が違う");
+    if (!strEndsWith(argv[1], ".fsm")) error("入力ファイル形式が違う");
     fp = eOpen(argv[1],"r");   // 中間ファイルをオープン
     fn = argv[1];
   }else if (argc==1){
@@ -97,10 +98,11 @@ int main(int argc, char *argv[]){
     exit(1);
   }
   ntLoadTable(fn);                       // 名前表ファイルから名前表を作成
-  fpout = openDstWithExt(fn, ".op");     // 拡張子を".op"に変更してOpen
+  //ntDebPrintTable();
+  fpout = openDstWithExt(fn, ".sm");     // 拡張子を".sm"に変更してOpen
   while(true){
     ln = getDec(fp);
-    if(ln==EOF)
+    if(ln==ord(EOF))
       return 0;
     op = fgetc(fp);
     fgetc(fp);      // 空白読み捨て
@@ -112,16 +114,19 @@ int main(int argc, char *argv[]){
     }else if(op=='F'){
       idx   = getDec(fp);
       depth = getDec(fp);
-      krn   = getDec(fp);
+      krn   = bool(getDec(fp));
+      //semChkFunc(syGetRoot(), idx, krn);
       genFunc(idx, depth, krn);
       sySetSize(0);
-    }else if(op=='D'){
+    }else if(op=='G'){
+      //ntDebPrintTable();                           //**********DEBUG
       idx = getDec(fp);
-      genData(idx);
+      //printf("idx=%d, root=%d\n",idx,syGetRoot()); //**********DEBUG
+      //syDebPrintTree();
+      semChkGVar(idx);
+      if (syGetRoot()!=SyNULL) genData(idx);
+      else genBss(idx);
       sySetSize(0);
-    }else if(op=='B'){
-      idx = getDec(fp);
-      genBss(idx);
     }else if(op=='S'){
       genStr(getStr(fp));
     }else{

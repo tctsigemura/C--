@@ -122,7 +122,7 @@ int ntChkName(char[] str, int scope) {
 // 名前を登録する(getName, getParams から呼ばれる)
 public void ntDefName(char[] name, int scope,
                       int type, int dim, int cnt, boolean pub){
-  if (ntNextIdx>=NtMAX) error("名前が多すぎる"); // 名前表がパンクした
+  if (ntNextIdx>=NtMAX) error("too many Names"); // 名前表がパンクした
   if (ntChkName(name, scope)>=0) error2("名前の２重定義", name);
   ntName[ntNextIdx]= ealloc(strLen(name)+1);     // 名前のために領域を割り当て
   strCpy(ntName[ntNextIdx], name);               // 名前をコピーする
@@ -141,12 +141,13 @@ public void ntUndefName(int idx) {               // idx まで戻す
   ntNextIdx = idx;                               // nextIdx を戻せば完成
 }
 
+/*
 public void ntDebPrintTable(){
   for (int i=0; i<ntNextIdx; i=i+1)              // 表全体について
     printf("%s %d %d %d %d %d\n"
       , ntName[i], ntScope[i], ntType[i], ntDim[i], ntCnt[i], ntPub[i]);
 }
-
+*/
 
 //---------------------------------------------------------------------------
 // STEP BY STEPの場合は以下の関数が必要

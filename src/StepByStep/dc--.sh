@@ -1,9 +1,10 @@
 #!/bin/sh
 ./lx
 ./sn STDIN.lx
-./sm STDIN.sn
+./fsm STDIN.sn
+./gsm STDIN.fsm
 ./op STDIN.sm
 ./vm STDIN.op
 ./tac STDIN.vm
 
-rm *.nt *.lx *.sn *.sm *.op *.vm
+rm *.nt *.lx *.sn *.fsm *.sm *.op *.vm
