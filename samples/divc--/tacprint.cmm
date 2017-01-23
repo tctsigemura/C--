@@ -1,4 +1,0 @@
-#include "tacprint.hmm"
-public void tprintf(char[] str) {
-  printf(str);
-}
