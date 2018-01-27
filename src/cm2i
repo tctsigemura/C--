@@ -8,7 +8,7 @@ function error {
 INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib"
 LIBDIR=/usr/local/cmmLib
 
-CPPFLAGS="-xc++ -nostdinc"
+CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc"
 
 myname=`basename $0`
 eflag="no"
