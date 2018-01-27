@@ -5,7 +5,7 @@ function error {
   exit 1
 }
 
-INCDIR=/usr/local/cmmInclude
+INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib"
 LIBDIR=/usr/local/cmmLib
 
 CPPFLAGS="-xc++ -nostdinc"
@@ -15,14 +15,19 @@ eflag="no"
 while [ $# -gt 0 ]; do
     case "$1" in
         -E) eflag="yes"; shift;;
+        -nostdinc) INCDIR=""; shift;;
+        -I) incdir="$incdir -I$2" shift; shift;;
+        -I*)incdir="$incdir $1" shift;;
         -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
             CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
-        -*) echo  "\"${myname}\" is the C-- compiler driver."     1>&2
-            echo  "syntax: ${myname} [switches] <c-- source> ..." 1>&2
-            echo  "     switches are :"                           1>&2
-            echo  "       -E       run the preprocessor stage"    1>&2
-            echo  "       -Dxx=yy  define xx as yy"               1>&2
-            echo  "       -h       print this message"            1>&2
+        -*) echo  "\"${myname}\" is the C-- compiler driver."             1>&2
+            echo  "syntax: ${myname} [switches] <c-- source> ..."         1>&2
+            echo  "     switches are :"                                   1>&2
+            echo  "       -E       run the preprocessor stage"            1>&2
+            echo  "       -nostdinc Disable standard include directories" 1>&2
+            echo  "       -I dir    Add incude directory"                 1>&2
+            echo  "       -Dxx=yy  define xx as yy"                       1>&2
+            echo  "       -h       print this message"                    1>&2
             exit 1;;
         *)  break;;     # terminate while loop
     esac
@@ -40,9 +45,9 @@ while [ $# -gt 0 ]; do
     case "${ext}" in
         *.cmm)
             if [ "${eflag}" == "yes" ]; then
-                eval cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} $1 || error
+                eval cpp ${CPPFLAGS} ${INCDIR} ${incdir} $1 || error
             else
-                eval cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} $1 \
+                eval cpp ${CPPFLAGS} ${INCDIR} ${incdir} $1 \
                   > $$.tmp || error rm $$.tmp
                 ic-c-- -O $$.tmp > ${name}.i || error rm $$.tmp ${name}.i
                 rm $$.tmp
