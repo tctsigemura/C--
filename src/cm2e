@@ -6,7 +6,7 @@ function error {
   exit 1
 }
 
-INCDIR=/usr/local/cmmInclude
+INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib"
 LIBDIR=/usr/local/cmmLib
 
 CPPFLAGS="-xc++ -nostdinc"
@@ -18,6 +18,7 @@ sflag="no"
 cflag="no"
 eflag="no"
 kflag=""
+incdir=""
 while [ $# -gt 0 ]; do
     case "$1" in
         -o) exefile=$2;  shift; shift;;
@@ -26,19 +27,24 @@ while [ $# -gt 0 ]; do
         -c) cflag="yes"; shift;;
         -E) eflag="yes"; shift;;
         -K) kflag="-K"; shift;;
+        -nostdinc) INCDIR=""; shift;;
+        -I) incdir="$incdir -I$2" shift; shift;;
+        -I*)incdir="$incdir $1" shift;;
         -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
             CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
-        -*) echo  "\"${myname}\" is the C-- compiler driver."     1>&2
-            echo  "syntax: ${myname} [switches] <c-- source> ..." 1>&2
-            echo  "     switches are :"                           1>&2
-            echo  "       -o exec  executable file name"          1>&2
-            echo  "       -s ###   stack size (default=600)"      1>&2
-            echo  "       -S       leave .s file"                 1>&2
-            echo  "       -c       leave .o file"                 1>&2
-            echo  "       -E       run the preprocessor stage"    1>&2
-            echo  "       -K       kernel mode"                   1>&2
-            echo  "       -Dxx=yy  define xx as yy"               1>&2
-            echo  "       -h       print this message"            1>&2
+        -*) echo  "\"${myname}\" is the C-- compiler driver."             1>&2
+            echo  "syntax: ${myname} [switches] <c-- source> ..."         1>&2
+            echo  "     switches are :"                                   1>&2
+            echo  "       -o exec   executable file name"                 1>&2
+            echo  "       -s ###    stack size (default=600)"             1>&2
+            echo  "       -S        leave .s file"                        1>&2
+            echo  "       -c        leave .o file"                        1>&2
+            echo  "       -E        run the preprocessor stage"           1>&2
+            echo  "       -K        kernel mode"                          1>&2
+            echo  "       -nostdinc Disable standard include directories" 1>&2
+            echo  "       -I dir    Add incude directory"                 1>&2
+            echo  "       -Dxx=yy   define xx as yy"                      1>&2
+            echo  "       -h        print this message"                   1>&2
             exit 1;;
         *)  break;;     # terminate while loop
     esac
@@ -80,9 +86,9 @@ while [ $# -gt 0 ]; do
     case "${ext}" in
         *.cmm)
             if [ "${eflag}" == "yes" ]; then
-                eval cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} $1 || error
+                eval cpp ${CPPFLAGS} ${INCDIR} ${incdir} $1 || error
             else
-                eval cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} $1 \
+                eval cpp ${CPPFLAGS} ${INCDIR} ${incdir} $1 \
                   > $$.tmp || error rm $$.tmp
                 c-- -O ${kflag} $$.tmp > ${name}.s || error rm $$.tmp ${name}.s
                 rm $$.tmp

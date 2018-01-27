@@ -19,6 +19,7 @@
 #
 # GNUmakefile : c-- の makefile
 #
+# 2018.01.27 v3.1.10 : ドライバで -nostdinc -I オプションを使用できる
 # 2016.11.20 v3.1.9  : トランスレータのfor文中でcontinueを使用した時のバグ訂正
 # 2016.10.16 v3.1.8  : トランスレータのif文入れ子時のバグ対策，コンパクトな出力
 #                    : if文のテスト入力(t700.cmm)追加、Makefile改善
@@ -114,6 +115,7 @@ install : c-- vm-c-- c-c-- ic-c-- # h8300hn-c--
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- ic-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+	rm -f c-- vm-c-- c-c-- ic-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~ \
+	 cm2?~ GNUmakefile~
 #	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 
