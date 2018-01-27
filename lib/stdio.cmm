@@ -80,14 +80,11 @@ public boolean fflush(FILE fp) {
   if (fp.tty) {                                 // コンソールの場合
     fp.buf[fp.cnt]='\0';                        //  文字列として完成させる
     conWrite(fp.buf);                           //  コンソールに送信
-    fp.cnt=0;                                   // バッファは空
+    fp.cnt=0;                                   //  バッファは空
   } else {                                      // ファイルの場合
-    int l;
-    do {
-      l = write(fp.fd, fp.buf, fp.cnt);         // バッファを出力する
-      if (l>0) fp.cnt = fp.cnt - l;             // 出力しただけ cnt を減らす
-    } while (l>=0 && fp.cnt>0);                 // エラーが起こるか空になるまで
-  }                                             // (errnoがセットされるまで)
+    int l = write(fp.fd, fp.buf, fp.cnt);       //  バッファを出力する
+    if (l>0) fp.cnt = fp.cnt - l;               //  出力しただけ cnt を減らす
+  }
 
   return fp.eof = fp.err = fp.cnt!=0;           // バッファが空になっていない
 }                                               //  ならエラー
