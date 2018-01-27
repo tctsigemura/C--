@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lexical.c : C--コンパイラの字句解析ルーチン
  *
+ * 2018.01.27 v3.1.10 : # ディレクティプの行番号解釈が1行ずれるバグ訂正
  * 2016.09.12 v3.1.4  : getStr が最後に(\\)がある文字列を処理できないバグ訂正
  * 2016.05.10         : getSharp が val にも行番号を記録するように変更
  * 2016.02.24         : getSharp が str にもファイル名を記録するように変更
@@ -197,7 +198,7 @@ static int getSharp() {
   getCh();                                         // '#' を読み飛ばす
   skipSpc();                                       // 改行以外の空白をスキップ
   if (!isdigit(ch)) error("#に行番号がない");      // 行番号があるはず
-  val = ln2 = getDec();                            // 行番号の読み込み
+  val = getDec();                                  // 行番号の読み込み
   skipSpc();                                       // 改行以外の空白をスキップ
   if (ch!='"') error("#にファイル名がない");       // ファイル名は " で始まる
   getCh();                                         // '"'を読み飛ばす
@@ -210,6 +211,7 @@ static int getSharp() {
   str[i] = '\0';                                   // ファイル名を完成する
   if (ch!='"') error("#の\"が閉じてないか長すぎる");
   skipToEol();                                     // 行末まで読み飛ばす
+  ln2 = val;                                       // 指示された行を現在行にする
   return LxFILE;                                   // ファイル名を読んだ
 }
 
