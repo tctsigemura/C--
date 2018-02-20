@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Advanced educational Computer
 #
-# Copyright (C) 2016 by
+# Copyright (C) 2016 - 2018 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,6 +19,7 @@
 #
 # lib/Makefile : makefile
 #
+# 2018.01.31 : .s にも cm2e を使用するように変更
 # 2016.06.01 : シンボリックリンク crt0.h を追加
 # 2016.05.26 : cm2e を使用するように変更
 #              wrapper.h 追加
@@ -34,7 +35,7 @@
 
 # .cmm -> .o
 .s.o:
-	as-- $*.s
+	cm2e -c  $*.s
 
 # .cmm -> .o
 .cmm.o:
