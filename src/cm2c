@@ -14,7 +14,7 @@ CFLAGS="-g -O0 \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
    -Wno-dangling-else -include stdio.h -include ${LIBDIR}/wrapper.h"
 
-CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc"
+CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC"
 
 myname=`basename $0`
 exefile="a.out"
