@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * wrapper.c : C-- 版と C 版で仕様が異なる関数など
  *
+ * 2018.02.20 : fseek を追加
  * 2016.08.07 : feof を追加
  * 2016.05.26 : #include <wrapper.h> を追加
  * 2016.03.02 : mAlloc, fOpen を追加
@@ -80,6 +81,11 @@ int _feof(FILE *fp) {
   if (c==EOF) return 1;
   ungetc(c, fp);
   return 0;
+}
+
+// TaC 版ではオフセットが上位と下位に分かれている
+int _fseek(FILE *stream, int offsh, int offsl){
+  return fseek(stream,((long)offsh<<32)|(long)offsl,SEEK_SET);
 }
 
 // TaC 版では string.cmm に記述されている関数

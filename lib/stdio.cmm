@@ -2,7 +2,7 @@
  * Programingxx Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2018.02.20 : fseek 追加
  * 2016.02.25 : TacOS の usr/lib/lib.cmm をもとに作成
  *
  * $Id$
@@ -189,6 +190,18 @@ public char[] fgets(char[] str, int n, FILE fp) {
 
   if (i==0) str = null;                         // EOFかエラー
   return str;
+}
+
+// 読み込み位置を移動する
+public boolean fseek(FILE fp, int offsh, int offsl){
+  chkFp(fp);                                    // 妥当な fp かチェックする
+  if (fp.mode!=READ) fflush(fp);                // 出力ならバッファを空にする
+
+  int r=seek(fp.fd, offsh, offsl);              // seek する
+  if (r!=0) _exit(r);                           // seek エラーなら終了
+
+  if (fp.mode==READ) fillBuf(fp);               // 入力ならバッファを満たす
+  return false;                                 // 今のところいつも正常終了
 }
 
 // ------------------------- ファイルの open/close ----------------------------
