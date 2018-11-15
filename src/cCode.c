@@ -183,7 +183,7 @@ static void printExp(int node){
       /* 改定前
     printf("%s", ntGetName(lVal));                  //   "変数名"
        */
-    // 改定
+    // 改定　型変換
       
       int typ2 = ntGetType(lVal);
       if(idim>-1){
@@ -213,7 +213,7 @@ static void printExp(int node){
     printExp(rVal);                                 //
     printf("]");                                    //
      */
-    //改定
+    //改定　型変換
     printExp(lVal);                                 //   "左辺式[右辺式]"
     printf("->");
     printf("a");
@@ -362,8 +362,6 @@ static void traceTree(int node){
     traceTree(syGetRVal(node));                     // 次に右側をコード生成
   } else {                                          // 式文
     printExp(node);                                 // "式;"
-    printf(";\n");
-      cnti=0;
   }
 }    
 
