@@ -192,6 +192,7 @@ static void printExp(int node){
       }
       else{
           cntt=0;
+          cnti=1;
       }
       while(idim>0){
           printf("(RA*)(");
@@ -343,6 +344,7 @@ static void printBLK(int node){
   printf("}\n");                                    // "}"
 }
 
+/*
 // 任意の部分木を印刷する
 static void traceTree(int node){
   if (node==SyNULL) { printf(";\n"); return; }      // 何も無い ";"
@@ -362,9 +364,34 @@ static void traceTree(int node){
     traceTree(syGetRVal(node));                     // 次に右側をコード生成
   } else {                                          // 式文
     printExp(node);                                 // "式;"
+    printf(";\n");
   }
-}    
+}
+*/
 
+//  改定  任意の部分木を印刷する
+static void traceTree(int node){
+    if (node==SyNULL) { printf(";\n"); return; }      // 何も無い ";"
+    int typ = syGetType(node);
+    if      (typ==SyCNST) printf(";\n");              // 最適化で消えた文
+    else if (typ==SyIF)   printIf(node);              // if 文
+    else if (typ==SyELS)  printEls(node);             // if-else 文
+    else if (typ==SyWHL)  printWhl(node);             // while 文
+    else if (typ==SyDO)   printDo(node);              // do-while 文
+    else if (typ==SyBRK)  printBrk(node);             // break 文
+    else if (typ==SyCNT)  printCnt(node);             // continue 文
+    else if (typ==SyRET)  printRet(node);             // return 文
+    else if (typ==SyVAR)  printVAR(node);             // ローカル変数宣言
+    else if (typ==SyBLK)  printBLK(node);             // ブロック
+    else if (typ==SySEMI) {                           // セミコロン
+        traceTree(syGetLVal(node));                     // 先に左側をコード生成
+        traceTree(syGetRVal(node));                     // 次に右側をコード生成
+    } else {                                          // 式文
+        printExp(node);                                 // "式;"
+        printf(";\n");
+        cnti=0;
+    }
+}
 // 関数宣言を印刷する
 static void printFuncDcl(int idx) {
   printGlobDcl(idx);                                // "[static]型名[*...]名前"
@@ -636,9 +663,13 @@ static void printList0(int vType, int dim, int node) {
     int lab = newTmpLab();                            // このノードの名前を決定
     sySetRVal(node, lab);                             // 名前を記録
     printf("static ");                                // "[static ]"
-    printArrayType(vType);                            // " 型[*...]"
+    if (dim==0) {                                       //型名
+        printArrayType(vType);
+    }
+    else{
+        printf("RA ");
+    }
     printTmpLab(lab);                                 // "_cmm_%dT"
-    if (dim>=0) printf("[]");                         // "[]" (配列の初期化)
     listsize=0;
     printf("={");                                     //"={"
     printListsize(syGetLVal(node), dim);              // 配列サイズ
