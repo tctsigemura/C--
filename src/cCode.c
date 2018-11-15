@@ -93,7 +93,7 @@ static void printArrayType(int typ) {
   if (typ==TyVOID) printf("RA ");                 // "RA "
   else if (typ==TyINT) printf("IA ");              // "IA "
   else if (typ==TyBOOL) printf("CA ");            // booleanは"CA "に置換え
-  else if (typ==TyCHAR) printf("CA ");            // char なら "CA "      
+  else if (typ==TyCHAR) printf("CA ");            // char なら "CA "
   
 }
 // 改定  型変換を印刷する
@@ -527,7 +527,7 @@ static void printArray(int node, int idx){
     int typ = ntGetType(idx);                         // 配列のデータ型
     int dim = ntGetDim(idx) - 1;                      // インスタンスの次元数
     int ln = printArray0(typ, dim, lVal, 1);          // 配列インスタンス出力
-    boolean sta = !ntGetPub(idx);                     // static
+    boolean sta = !ntGetPub(idx);                     
     if (sta) printf("static ");                       // "[static ]"
     if(dim==0){                                       //一次元配列なら中間ポインタ配列を使わない
         printArrayType(typ);
