@@ -70,7 +70,7 @@ static void printTypeName(int typ) {
   else if (typ==TyINT) printf("int ");              // "int "
   else if (typ==TyBOOL) printf("char ");            // booleanは"char "に置換え
   else if (typ==TyCHAR) printf("char ");            // char なら "char "
-  else if (typ==TyINTR) error("interrupt使用禁止"); // エラー
+  else if (typ==TyINTR) error("interrupt使用禁止");  // エラー
   else if (typ==TyDOTDOTDOT) printf("...");         // "..."
   else if (typ<=0 && ntGetType(-typ)==TySTRUC)      // 構造体なら
       printf("struct %s ", ntGetName(-typ));        //   "struct 構造体名 "
@@ -88,38 +88,38 @@ static void printType(boolean sta, int typ, int nAst) {
     printf("*");                                    // 
 }
 
-// 改定  配列の型を印刷する
+// 改定  配列のデータ構造の型を印刷する
 static void printArrayType(int typ) {
-  if (typ==TyVOID) printf("RA ");                 // "RA "
-  else if (typ==TyINT) printf("IA ");              // "IA "
-  else if (typ==TyBOOL) printf("CA ");            // booleanは"CA "に置換え
-  else if (typ==TyCHAR) printf("CA ");            // char なら "CA "
-  
+  if (typ==TyINT) printf("IA ");                    // "IA "
+  else if (typ==TyBOOL) printf("CA ");              // booleanは"CA "に置換え
+  else if (typ==TyCHAR) printf("CA ");              // char なら "CA "
 }
-// 改定  型変換を印刷する
+
+// 改定  配列アクセス時の型変換を印刷する
 static void printArrayTypePoint(int typ) {
-    
-    if (typ==TyVOID) printf("((RA *)(");                 // "((RA *)( "
-    else if (typ==TyINT) printf("((IA *)(");              // "((IA *)( "
-    else if (typ==TyBOOL) printf("((CA *)(");            // booleanは"CA "に置換え
-    else if (typ==TyCHAR) printf("((CA *)(");            // char なら "CA "
-    
-}// 名前表からグローバル変数や関数の型と名前を印刷する
+    if (typ==TyVOID) printf("((RA *)(");            // "((RA *)( "
+    else if (typ==TyINT) printf("((IA *)(");        // "((IA *)( "
+    else if (typ==TyBOOL) printf("((CA *)(");       // booleanは"CA "に置換え
+    else if (typ==TyCHAR) printf("((CA *)(");       // char なら "CA "
+}
+
+// 名前表からグローバル変数や関数の型と名前を印刷する
 static void printGlobDcl(int idx) {
   boolean sta = !ntGetPub(idx);                     // static
   int typ = ntGetType(idx);                         // 型名
   int dim = ntGetDim(idx);                          // 次元
-  printType(sta,typ,dim);                        // "[static] 型名[*...]"
+  printType(sta, typ, dim);                         // "[static] 型名[*...]"
   printf("%s", ntGetName(idx));                     // "名前"
 }
 
 // 改定 配列の型と名前を印刷する
-/*static void printGlobDcl2(int idx) {                         // 次元
-    int typ = ntGetType(idx);                              // 型名
-    printArrayType(typ);                                 // "[static] 型名[*...]"
-    printf("*%s", ntGetName(idx));                     // "名前"
+/*static void printGlobDcl2(int idx) {              // 次元
+    int typ = ntGetType(idx);                       // 型名
+    printArrayType(typ);                            // "[static] 型名[*...]"
+    printf("*%s", ntGetName(idx));                  // "名前"
 }
  */
+
 // 後置演算以外の演算子を印刷する
 static void printOP(int op){
   if      (op==SyNEG)  printf("-");                 // 単項演算子 -
@@ -162,16 +162,26 @@ static void printArgs(int node){
   }
 }
 
-static int cnti=0;
-static int cntt=0;
+//cnttがfalseの時、配列は一次元配列なので型変換を行わない
+//四次元のchar型の配列アクセス時の型変換は((CA *)((RA*)((RA*)(z->a[0]))->a[1])->a[1])->a[1]
+//一番内側だけ一個括弧が多い
+//関数を使ってもっとわかりやすく書くようにする
+
+//cntiがfalseの時一番内側のカッコなのでひとつ多く閉じる
+static boolean cnti=false;
+//cnttがfalseの時、配列は一次元配列なので型変換を行わない
+static boolean cntt=false;
+//閉じる括弧の数
+static int idim2=0;
+
 // 式を印刷する
 static void printExp(int node){
   int typ = syGetType(node);
   int lVal = syGetLVal(node);
   int rVal = syGetRVal(node);
-  int idim=ntGetDim(lVal)-2;
-  
-    if (typ==SyCNST) {                                // 定数なら
+  int idim=ntGetDim(lVal)-2;                        //(次元の数-2)だけRAへの型変換を行う
+    
+    if (typ==SyCNST) {                              // 定数なら
     printf("%d", syGetLVal(node));                  //   "値"
   } else if (typ==SySTR) {                          // 文字列なら
     printStrLab(lVal);                              //   "文字列ラベル"
@@ -186,21 +196,20 @@ static void printExp(int node){
     // 改定　型変換
       
       int typ2 = ntGetType(lVal);
-      if(idim>-1){
-      printArrayTypePoint(typ2);
-          cntt=1;
+      if(idim>0){                                   //二次元以上の場合
+      printArrayTypePoint(typ2);                    //配列アクセス時の型変換を印刷
+          cntt=true;
       }
-      else{
-          cntt=0;
-          cnti=1;
+      else{                                         //一次元配列の時は型変換を行わない
+          cntt=false;
+          cnti=true;
       }
-      while(idim>0){
+      idim2=idim+1;                                 //idim+1の数だけか括弧を閉じる
+      while(idim>0){                                //(次元の数-2)だけRAへの型変換を行う
           printf("(RA*)(");
           idim=idim-1;
       }
-          
-      
-      printf("%s", ntGetName(lVal));                  //   "変数名"
+          printf("%s", ntGetName(lVal));                //   "変数名"
   } else if (typ==SyADDR) {                         // addrofなら
     printf("((int)&%s)", ntGetName(lVal));          //   "((int)(&変数))"
   } else if (typ==SyFUNC) {                         // 関数なら
@@ -216,17 +225,24 @@ static void printExp(int node){
      */
     //改定　型変換
     printExp(lVal);                                 //   "左辺式[右辺式]"
-    printf("->");
-    printf("a");
-    printf("[");                                    //
+    printf("->a[");                                 // "->a[
     printExp(rVal);                                 //
-    printf("]");                                    //
-      if(cnti==0){
+    printf("]");                                    // "]"
+    
+    //cntiがfalseの時一番内側のカッコなのでいひとつ多く閉じる
+    //cnttがfalseの時、配列は一次元配列なので型変換を行わない
+    //四次元のchar型の配列アクセス時の型変換は((CA *)((RA*)((RA*)(z->a[0]))->a[1])->a[1])->a[1]
+    //一番内側だけ一個括弧が多い
+      if(cnti==0){                                  //一番内側の括弧を閉じる
           printf(")");
-          cnti=cnti+1;
+          cnti=true;
       }
-      if(cntt==1){
-    printf(")");
+      if(cntt==true && idim2>0){                    //括弧を閉じる
+          printf(")");
+          idim2=idim2-1;
+      }
+      else if(idim2==0){                            //型変換が完了した後
+          cnti=false;                               //次の型変換のためにcntiを初期化
       }
       
     
@@ -344,7 +360,6 @@ static void printBLK(int node){
   printf("}\n");                                    // "}"
 }
 
-/*
 // 任意の部分木を印刷する
 static void traceTree(int node){
   if (node==SyNULL) { printf(";\n"); return; }      // 何も無い ";"
@@ -367,31 +382,7 @@ static void traceTree(int node){
     printf(";\n");
   }
 }
-*/
 
-//  改定  任意の部分木を印刷する
-static void traceTree(int node){
-    if (node==SyNULL) { printf(";\n"); return; }      // 何も無い ";"
-    int typ = syGetType(node);
-    if      (typ==SyCNST) printf(";\n");              // 最適化で消えた文
-    else if (typ==SyIF)   printIf(node);              // if 文
-    else if (typ==SyELS)  printEls(node);             // if-else 文
-    else if (typ==SyWHL)  printWhl(node);             // while 文
-    else if (typ==SyDO)   printDo(node);              // do-while 文
-    else if (typ==SyBRK)  printBrk(node);             // break 文
-    else if (typ==SyCNT)  printCnt(node);             // continue 文
-    else if (typ==SyRET)  printRet(node);             // return 文
-    else if (typ==SyVAR)  printVAR(node);             // ローカル変数宣言
-    else if (typ==SyBLK)  printBLK(node);             // ブロック
-    else if (typ==SySEMI) {                           // セミコロン
-        traceTree(syGetLVal(node));                     // 先に左側をコード生成
-        traceTree(syGetRVal(node));                     // 次に右側をコード生成
-    } else {                                          // 式文
-        printExp(node);                                 // "式;"
-        printf(";\n");
-        cnti=0;
-    }
-}
 // 関数宣言を印刷する
 static void printFuncDcl(int idx) {
   printGlobDcl(idx);                                // "[static]型名[*...]名前"
@@ -447,6 +438,7 @@ static void printPtrArray(int vType, int dim, int cnt, int lab) {
   printf("};\n");                                   // "};"
 }
  */
+
 // 改定　中間のポインタ配列を印刷する
 static void printPtrArray(int vType, int dim, int cnt, int lab) {
     printf("static ");                              // "[static ]"
@@ -456,7 +448,7 @@ static void printPtrArray(int vType, int dim, int cnt, int lab) {
     printf("%d,{",cnt);                             // "配列サイズ,{"
     printf("&");                                    // "&"
     printTmpLab(lab);                               // "_cmm_%dT"
-    for (int j=1; j<cnt; j=j+1) {                   // 要素数の数だけ
+    for (int j=1; j<cnt; j=j+1) {                   // 要素数の数だけ続ける
         printf(",");                                //  ","
         printf("&");                                // "&"
         printTmpLab(lab+j);                         // _cmm_%dT
@@ -503,35 +495,36 @@ static int printArray0(int vType, int dim, int node, int cnt) {
     int rVal = syGetRVal(node);
     int lVal = syGetLVal(node);
     int l = tmpLab;
-    if (typ==SySEMI) {                                  // 最後の次元でない時
-        if (syGetType(rVal)!=SyCNST)                    // 定数でなければエラー
+    if (typ==SySEMI) {                              // 最後の次元でない時
+        if (syGetType(rVal)!=SyCNST)                // 定数でなければエラー
             error("バグ...printArray0_1");
-        int size = syGetLVal(rVal);                     // 次の次元の要素数
+        int size = syGetLVal(rVal);                 // 次の次元の要素数
         // 次の次元の配列を生成
         int ln = printArray0(vType, dim-1, lVal, cnt*size);
         l = tmpLab;
-        for (int i=0; i<cnt; i++) {                     // 前の次元の要素数分
-            printPtrArray(vType, dim, size, ln);        // 中間のポインタ配列
+        for (int i=0; i<cnt; i++) {                 // 前の次元の要素数分
+            printPtrArray(vType, dim, size, ln);    // 中間のポインタ配列
             ln = ln + size;
         }
-    } else if (typ==SyCNST) {                           // 最後の次元の時
-        for (int i=0; i<cnt; i++) {                     // 前の次元の要素数分
-            printf("static ");                          // "[static ]"
-            printArrayType(vType);                      // "型名[*...]"
-            printTmpLab(newTmpLab());                   // "_cmm_%dT"
-            printf("=");                                // "="
-            printf("{%d,",lVal);                        //"{配列サイズ,"
-            printf("{");                                // "[]={"
-            printf("0");                                // "配列の初期化"
-            for (int j=1; j<lVal; j=j+1) {              // 要素数の数だけ
-                printf(",");                            //  ","
-                printf("0");                            // 配列の初期化
+    } else if (typ==SyCNST) {                       // 最後の次元の時
+        for (int i=0; i<cnt; i++) {                 // 前の次元の要素数分
+            printf("static ");                      // "[static ]"
+            printArrayType(vType);                  // "型名[*...]"
+            printTmpLab(newTmpLab());               // "_cmm_%dT"
+            printf("=");                            // "="
+            printf("{%d,",lVal);                    //"{配列サイズ,"
+            printf("{");                            // "{"
+            printf("0");                            // "0で配列を初期化"
+            for (int j=1; j<lVal; j=j+1) {          // 要素数の数だけ続ける
+                printf(",");                        //  ","
+                printf("0");                        // 配列の初期化
             }
-            printf("}};\n");                            // "}};\n"
+            printf("}};\n");                        // "}};\n"
         }
-    } else error("バグ...printArray0_2");               // それ以外ならバグ
+    } else error("バグ...printArray0_2");            // それ以外ならバグ
     return l;
 }
+
 /* // 非初期化配列を印刷する
 static void printArray(int node, int idx){
   int lVal = syGetLVal(node);                       // SyARRAY の左辺
@@ -547,26 +540,29 @@ static void printArray(int node, int idx){
 
 // 改定　非初期化配列を印刷する
 static void printArray(int node, int idx){
-    
-    int lVal = syGetLVal(node);                       // SyARRAY の左辺
-    int typ = ntGetType(idx);                         // 配列のデータ型
-    int dim = ntGetDim(idx) - 1;                      // インスタンスの次元数
-    int ln = printArray0(typ, dim, lVal, 1);          // 配列インスタンス出力
+
+    int lVal = syGetLVal(node);                     // SyARRAY の左辺
+    int typ = ntGetType(idx);                       // 配列のデータ型
+    int dim = ntGetDim(idx) - 1;                    // インスタンスの次元数
+    int ln = printArray0(typ, dim, lVal, 1);        // 配列インスタンス出力
     boolean sta = !ntGetPub(idx);                     
-    if (sta) printf("static ");                       // "[static ]"
-    if(dim==0){                                       //一次元配列なら中間ポインタ配列を使わない
+    if (sta) printf("static ");                     // "[static ]"
+    //一次元配列なら参照変数の型を配列を表す構造体と同じ型にする
+    if(dim==0){
         printArrayType(typ);
     }
+    //二次元以上なら中間ポインタ配列を用いるのでRA
     else{
-        printf("RA ");                                //二次元以上なら中間ポインタ配列を使う
+        printf("RA ");
     }
-    printf("*");                                      //"*"
-    printf("%s",ntGetName(idx));                      //"参照変数"
-    printf("=");                                      // "="
-    printf("&");                                      //"&"
-    printTmpLab(ln);                                  // "_cmm_%dT;
-    printf(";\n");                                    //";\n"
+    printf("*");                                    //"*"
+    printf("%s",ntGetName(idx));                    //"参照変数の名前"
+    printf("=");                                    //"="
+    printf("&");                                    //"&"
+    printTmpLab(ln);                                // "_cmm_%dT;
+    printf(";\n");                                  //";\n"
 }
+
 /*// 初期値のリストを印刷する
 static void printList2(int node, int dim) {
   int typ = syGetType(node);                        // ノードの種類
@@ -589,41 +585,42 @@ static void printList2(int node, int dim) {
 
 //  改定　初期値のリストを印刷する
 static void printList2(int node, int dim) {
-    int typ = syGetType(node);                          // ノードの種類
-    int lVal = syGetLVal(node);                         // 左辺
-    int rVal = syGetRVal(node);                         // 右辺
+    int typ = syGetType(node);                      // ノードの種類
+    int lVal = syGetLVal(node);                     // 左辺
+    int rVal = syGetRVal(node);                     // 右辺
     if (typ==SySEMI) {
-        printList2(lVal, dim);                          // 左辺を処理
-        printf(",");                                    // ","
-        printList2(rVal, dim);                          // 右辺を処理
+        printList2(lVal, dim);                      // 左辺を処理
+        printf(",");                                // ","
+        printList2(rVal, dim);                      // 右辺を処理
     } else if (typ==SyLIST || typ==SyARRY) {
-        printf("&");                                    // "&" (構造体の初期化)
-        printTmpLab(rVal);                              // "_cmm_%dT"
+        printf("&");                                // "&" (構造体の初期化)
+        printTmpLab(rVal);                          // "_cmm_%dT"
     } else if (typ==SyCNST) {
-        printf("%d", lVal);                             // "数値"
-    } else if (typ==SySTR) {                            // 文字列なら
-        printStrLab(lVal);                              //   "文字列ラベル"
-    } else error("バグ...printList2");
-}
-static int listsize=0;
-static int listptrsize=0;
-//  改定　リストのサイズをゲット
-static void printListsize(int node, int dim) {
-    int typ = syGetType(node);                           // ノードの種類
-    int lVal = syGetLVal(node);                          // 左辺
-    int rVal = syGetRVal(node);                         // 右辺
-    if (typ==SySEMI) {
-        printListsize(lVal,dim);                         // 左辺を処理
-        printListsize(rVal,dim);                         //右辺を処理
-    } else if (typ==SyLIST || typ==SyARRY) {
-        listptrsize=listptrsize+1;                       //中間ポインタ配列のサイズゲット
-    } else if (typ==SyCNST) {
-        listsize=listsize+1;                             // "配列のサイズゲット"
-    } else if (typ==SySTR) {                             // 文字列なら
-        printStrLab(lVal);                               //   "文字列ラベル"
+        printf("%d", lVal);                         // "数値"
+    } else if (typ==SySTR) {                        // 文字列なら
+        printStrLab(lVal);                          //   "文字列ラベル"
     } else error("バグ...printList2");
 }
 
+static int listsize=0;                              //Listの配列のサイズ
+static int listptrsize=0;                           //Listの中間ポインタ配列のサイズ
+
+//  改定　リストのサイズをゲット
+static void printListsize(int node, int dim) {
+    int typ = syGetType(node);                      // ノードの種類
+    int lVal = syGetLVal(node);                     // 左辺
+    int rVal = syGetRVal(node);                     // 右辺
+    if (typ==SySEMI) {
+        printListsize(lVal,dim);                    // 左辺を処理
+        printListsize(rVal,dim);                    //右辺を処理
+    } else if (typ==SyLIST || typ==SyARRY) {
+        listptrsize=listptrsize+1;                  //中間ポインタ配列のサイズゲット
+    } else if (typ==SyCNST) {
+        listsize=listsize+1;                        // "配列のサイズゲット"
+    } else if (typ==SySTR) {                        // 文字列なら
+        printStrLab(lVal);                          //   "文字列ラベル"
+    } else error("バグ...printList2");
+}
 
 // SyLIST の内部の各 SyLIST について printList0() を実行
 static void printList0(int vType, int dim, int node);
@@ -659,33 +656,31 @@ static void printList0(int vType, int dim, int node) {
 
 //改定 初期化データを印刷する
 static void printList0(int vType, int dim, int node) {
-    printList1(vType, dim-1, syGetLVal(node));        // 配下の各 SyLIST を処理
-    int lab = newTmpLab();                            // このノードの名前を決定
-    sySetRVal(node, lab);                             // 名前を記録
-    printf("static ");                                // "[static ]"
-    if (dim==0) {                                       //型名
+    printList1(vType, dim-1, syGetLVal(node));      // 配下の各 SyLIST を処理
+    int lab = newTmpLab();                          // このノードの名前を決定
+    sySetRVal(node, lab);                           // 名前を記録
+    printf("static ");                              // "[static ]"
+    if (dim==0) {                                   // "Listの配列の型名"
         printArrayType(vType);
     }
-    else{
+    else{                                           //"Listの中間ポインタ配列の型名"
         printf("RA ");
     }
-    printTmpLab(lab);                                 // "_cmm_%dT"
-    listsize=0;
-    printf("={");                                     //"={"
-    printListsize(syGetLVal(node), dim);              // 配列サイズ
-    if(listptrsize==0){                               //配列のサイズを出力
+    printTmpLab(lab);                               // "_cmm_%dT"
+    printf("={");                                   //"={"
+    printListsize(syGetLVal(node), dim);            // 配列サイズをゲット
+    if(listptrsize==0){                             //Listの配列のサイズを出力
         printf("%d,",listsize);
     }
-    else if(listsize==0) {                            //中間ポインタ配列のサイズを出力
+    else if(listsize==0) {                          //Listの中間ポインタ配列のサイズを出力
         printf("%d,",listptrsize);
     }
-    listptrsize=0;
-    listsize=0;
-    printf("{");                                      //"{"
-    printList2(syGetLVal(node), dim);                 // "1,2..."or"_cmm_%dT..."
-    printf("}};\n");                                   // "}};"
+    listptrsize=0;                                  //次の配列のために初期化する
+    listsize=0;                                     //次の配列のために初期化する
+    printf("{");                                    //"{"
+    printList2(syGetLVal(node), dim);               // "1,2..."or"_cmm_%dT..."
+    printf("}};\n");                                // "}};"
 }
-
 
 /*　// 初期化リスト({e1, e2, ...})を印刷する
 static void printList(int node, int idx) {
@@ -703,23 +698,25 @@ static void printList(int node, int idx) {
 
 // 改定 初期化リスト({e1, e2, ...})を印刷する
 static void printList(int node, int idx) {
-    int typ = ntGetType(idx);                         // 配列のデータ型
-    int dim = ntGetDim(idx);                          // インスタンスの次元数
-    printList0(typ, dim-1, node);                     // リストを出力する
-    boolean sta = !ntGetPub(idx);                     // static
-    if (sta) printf("static ");                       // "[static ]"
-    if(dim==0){                                       //型名
+    int typ = ntGetType(idx);                       // 配列のデータ型
+    int dim = ntGetDim(idx);                        // インスタンスの次元数
+    printList0(typ, dim-1, node);                   // リストを出力する
+    boolean sta = !ntGetPub(idx);                   // static
+    if (sta) printf("static ");                     // "[static ]"
+    //一次元配列なら参照変数の型を配列を表す構造体と同じ型にする
+    if(dim==0){
         printArrayType(typ);
     }
+    //二次元以上の配列なら中間ポインタ配列を用いるので型名がRA
     else{
         printf("RA ");
     }
-    printf("*");                                      //*
-    printf("%s",ntGetName(idx));                      //"_cmm_%d
-    printf("=");                                      // "="
-    printf("&");                                      //"&"
-    printTmpLab(syGetRVal(node));                     // "_cmm_%dT;
-    printf(";\n");                                    //"\n"
+    printf("*");                                    //*
+    printf("%s",ntGetName(idx));                    //"_cmm_%d
+    printf("=");                                    // "="
+    printf("&");                                    //"&"
+    printTmpLab(syGetRVal(node));                   // "_cmm_%dT;
+    printf(";\n");                                  //"\n"
     
 }
 
@@ -727,7 +724,7 @@ static void printList(int node, int idx) {
 void genData(int idx){                              // 引数は名前表の添字
   if (inhibitOut) return;                           // 出力抑制中
   int root = syGetRoot();                           // 構文木の先頭取得
-  if (root==SyNULL) error("バグ...genData");        // 構文木が必ず必要
+  if (root==SyNULL) error("バグ...genData");         // 構文木が必ず必要
   int typ = syGetType(root);                        // ノードの種類を取得
   if (typ==SyARRY) {                                // v=array(n1,...) の場合
     printArray(root, idx);                          //   非初期化配列出力
