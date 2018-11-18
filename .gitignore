@@ -1,2 +1,12 @@
 .DS_Store
+*.o
+*.sym
+*.aux
+*.dvi
+*.log
+*.out
+*.toc
+*.nav
+*.snm
+*.vrb
 *~

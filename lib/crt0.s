@@ -2,7 +2,7 @@
 ; Programing Language C-- "Compiler"
 ;    Tokuyama kousen Advanced educational Computer
 ;
-; Copyright (C) 2016 by
+; Copyright (C) 2016 - 2018 by
 ;                      Dept. of Computer Science and Electronic Engineering,
 ;                      Tokuyama College of Technology, JAPAN
 ;
@@ -19,6 +19,7 @@
 
 ; lib/crt0.s : ユーザプロセス用スタートアップ
 ;
+; 2018.11.14  32ビット演算を追加
 ; 2016.02.25  新規作成（TacOS の usr/lib/crt0.s をもとに）
 ;
 ; $Id$
@@ -28,7 +29,7 @@
 ; スタートアップルーチンに入った時点のスタックの状態
 ; addr SP からの相対 スタックの中身
 ; 00
-;       SP+0         argc                              今, SP はここを指している
+;       SP+0         argc                            今, SP はここを指している
 ;       SP+2         argv
 ;       SP+4         argv[0](argv[0]の文字列へのポインタ)
 ;       SP+6         argv[1](argv[1]の文字列へのポインタ)
@@ -84,10 +85,74 @@ __args                          ; void[] _args();
         add     g0,#4
         ret
 
+;; 32ビット加算ルーチン
+__add32                     ; int[] _add32(int[] dst, int[] src);
+        ld      g0,2,sp     ; ディスティネーション(アドレス)
+        ld      g1,4,sp     ; ソース(アドレス)
+        ld      g2,2,g0     ; ディスティネーション下位ワード
+        add     g2,2,g1     ; ソース下位ワード
+        st      g2,2,g0     ; ディスティネーション下位ワード
+        ld      g2,0,g0     ; ディスティネーション上位ワード
+        jnc     .L2
+        add     g2,#1       ; キャリーがあった場合は +1 する
+.L2
+        add     g2,0,g1     ; ソース上位ワード
+        st      g2,0,g0     ; ディスティネーション上位ワード
+        ret
+
+;; 32ビット減算ルーチン
+__sub32                     ; int[] _sub32(int[] dst, int[] src);
+        ld      g0,2,sp     ; ディスティネーション(アドレス)
+        ld      g1,4,sp     ; ソース(アドレス)
+        ld      g2,2,g0     ; ディスティネーション下位ワード
+        sub     g2,2,g1     ; ソース下位ワード
+        st      g2,2,g0     ; ディスティネーション下位ワード
+        ld      g2,0,g0     ; ディスティネーション上位ワード
+        jnc     .L3
+        sub     g2,#1       ; ボローがあった場合は -1 する
+.L3
+        sub     g2,0,g1     ; ソース上位ワード
+        st      g2,0,g0     ; ディスティネーション上位ワード
+        ret
+
+;; 32ビット掛け算ルーチン
+__mul32                     ; int[] _mul32(int[] dst, int src)
+        ld      g2,2,sp     ; ディスティネーション(アドレス)
+        ld      g0,2,g2     ; ディスティネーション下位ワード
+        mull    g0,4,sp     ; ソース
+        st      g1,0,g2     ; ディスティネーション上位ワード
+        st      g0,2,g2     ; ディスティネーション下位ワード
+        ld      g0,g2       ; ディスティネーションを返す
+        ret
+
+;; 32ビット割算ルーチン
+__div32                     ; int[] _div32(int[] dst, int src)
+        ld      g2,2,sp     ; ディスティネーション(アドレス)
+        ld      g1,#0       ; 上位用レジスタをクリア
+        ld      g0,0,g2     ; ティネーション上位ワードを下位用レジスタへ
+        divl    g0,4,sp     ; ソースで割る
+        st      g0,0,g2     ; 商をディスティネーション上位ワードへ
+;       ld      g1,g1       ; 余を上位用レジスタへ
+	ld      g0,2,g2     ; ディスティネーション下位ワードを下位用レジスタへ
+        divl    g0,4,sp     ; ソースで割る
+        st      g0,2,g2     ; 商をディスティネーション下位ワードへ
+        ld      g0,g2       ; ディスティネーションを返す
+        ret
+
+;; 32ビット剰余算ルーチン
+__mod32                     ; int _mod32(int[] dst, int src)
+        ld      g2,2,sp     ; ディスティネーション(アドレス)
+        ld      g1,#0       ; 上位用レジスタをクリア
+        ld      g0,0,g2     ; ディスティネーション上位ワードを下位用レジスタへ
+        divl    g0,4,sp     ; ソースで割る
+;       ld      g1,g1       ; 余を上位用レジスタへ
+	ld      g0,2,g2     ; ディスティネーション下位ワードを下位用レジスタへ
+        divl    g0,4,sp     ; ソースで割る
+        ld      g0,g1       ; 余りを返す
+        ret
+
 ;; SP の値を取得する
 __sp
-        ld      g0,sp
-        ret
 
 ;; ヒープとスタックの間に 10Byte 以上の余裕があるかチェックする 
 __stkChk
@@ -102,3 +167,4 @@ __stkChk
         ld      g0,#-24         ; パラメータ(EUSTK)
         push    g0              ;   をスタックに積む
         call    __exit          ; exit を呼ぶ
+

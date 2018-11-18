@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2018.02.22 : fsize 追加
  * 2018.02.20 : fseek 追加
  * 2016.02.25 : TacOS の usr/lib/lib.cmm をもとに作成
  *
@@ -31,6 +32,7 @@
 #include <stdio.hmm>
 #include <stdlib.hmm>
 #include <string.hmm>
+#include <ctype.hmm>
 #include <syslib.hmm>
 #include <errno.hmm>
 
@@ -202,6 +204,50 @@ public boolean fseek(FILE fp, int offsh, int offsl){
 
   if (fp.mode==READ) fillBuf(fp);               // 入力ならバッファを満たす
   return false;                                 // 今のところいつも正常終了
+}
+
+// ファイルサイズを調べる
+int fnameNcmp(char[] fname, char[] str, int n) {// ファイル名用の比較関数
+  for (int p=0; p<n; p=p+1) {
+    if (fname[p]==' ' && str[p]=='.') return 0;
+    if (fname[p]==' ' && str[p]=='\0') return 0;
+    int r = ord(fname[p]) - ord(toUpper(str[p]));
+    if (r!=0) return r;
+  }
+  return 0;
+}
+
+int fnameCmp(char[] fname, char[] str) {        // ファイル名用の比較関数
+  int r = fnameNcmp(fname, str, 8);             // 8文字を比較する
+  if (r!=0) return r;
+  int p = strChr(str, '.');                     // . を探す
+  if (p<0 && fname[8]==' ') return 0;           // 拡張子が無い
+  return fnameNcmp(subStr(fname,8), subStr(str, p+1), 3); // 拡張子の比較
+}
+
+#define MAXPATH 80
+char[] dirPath = array(MAXPATH+1);              // パスを組立てるための領域
+Dir dir = {"            ", 0, 0, 0, 0 };        // ディレクトリの読出しバッファ
+public boolean fsize(char[] path, int[] size) {
+  int pos = strRchr(path, '/');                 // / が見つからない時は -1
+  if (pos>MAXPATH-1) _exit(EPATH);              // パス名が長すぎる
+  strCpy(dirPath, "/");                         // 絶対パスにする
+  if (pos>0) strNcat(dirPath, path, pos);       // 最後の / 直前までコピーする
+  printf("dirPath=[%s]\n", dirPath);
+  int fd = open(dirPath, READ);                 // ディレクトリをオープン
+  if (fd<0) return true;                        // エラーなら終了
+  while (readDir(fd, dir)>0) {
+    printf("fnameCmp([%s],[%s])\n", dir.name, subStr(path, pos+1));
+    if (fnameCmp(dir.name, subStr(path, pos+1))==0) {
+      size[0] = dir.lenH;
+      size[1] = dir.lenL;
+      close(fd);
+      return false;                            // 正常終了
+    }
+  }
+  errno = ENOENT;                              // ファイルが見つからない
+  close(fd);
+  return true;                                 // エラー終了
 }
 
 // ------------------------- ファイルの open/close ----------------------------

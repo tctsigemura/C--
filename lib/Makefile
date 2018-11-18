@@ -19,6 +19,7 @@
 #
 # lib/Makefile : makefile
 #
+# 2018.02.24 : ../include の .hmm を使用するように変更
 # 2018.01.31 : .s にも cm2e を使用するように変更
 # 2016.06.01 : シンボリックリンク crt0.h を追加
 # 2016.05.26 : cm2e を使用するように変更
@@ -35,11 +36,11 @@
 
 # .cmm -> .o
 .s.o:
-	cm2e -c  $*.s
+	cm2e -c $*.s
 
 # .cmm -> .o
 .cmm.o:
-	cm2e -c  $*.cmm
+	cm2e -nostdinc -I../include -c $*.cmm
 
 OBJS= crt0.o ctype.o stdio.o printf.o stdlib.o string.o syslib.o
 

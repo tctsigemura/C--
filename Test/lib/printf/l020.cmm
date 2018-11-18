@@ -3,6 +3,14 @@
 //
 #include <stdio.hmm>
 
+#ifdef C
+//[7,1905262592]=[31970033664]
+int[] s = {7,1905262592};
+#else
+//[7,12345]=[471097]
+int[] s = {7,12345};
+#endif
+
 public int main() {
   printf("[100]: [%d]\n", 100);
   printf("[-100]: [%d]\n", -100);
@@ -21,5 +29,12 @@ public int main() {
   printf("[  ab]: [%4s]\n", "ab");
   printf("[ab  ]: [%-4s]\n", "ab");
   printf("[%%]: [%%]\n");
+#ifdef C
+  //[7,1905262592]=[31970033664]
+  printf("[31970033664]: [%ld]\n", lToL(s));
+#else
+  //[7,12345]=[471097]
+  printf("[471097]: [%ld]\n", lToL(s));
+#endif
   return 0;
 }

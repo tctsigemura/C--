@@ -14,8 +14,8 @@
 
 \begin{flushleft}
 \begin{tabular}{l l}
-{\bf 形式 : } & \verb/cm2e [-h] [-o exec] [-s ###] [-E] [-S] [-K] [-nostdinc]/\\
-              & ~~~ \verb/[-I <dir>] [-c] [-Dxx=yy] <file>.../
+{\bf 形式 : } & \|cm2e [-h] [-o exec] [-s ###] [-E] [-S] [-K] [-nostdinc]|\\
+              & ~~~ \|[-I <dir>] [-c] [-Dxx=yy] <file>...|
 \end{tabular}
 \end{flushleft}
 
@@ -60,7 +60,7 @@
 それより後の処理を行いません。
 \item[{\tt -D}] : このオプションは、そのままプリプロセッサに渡されます。
 次に使用例を示します。\\
-\verb/$ cm2e -DDEBUG=1 -o hello hello.cmm/
+\|$ cm2e -DDEBUG=1 -o hello hello.cmm|
 \end{description}
 \end{quote}
 
@@ -73,8 +73,8 @@
 
 \begin{flushleft}
 \begin{tabular}{l l}
-{\bf 形式 : } & \verb/cm2c [-h] [-o exec] [-S] [-E] [-nostdinc]/\\
-              & ~~~ \verb/[-I <dir>] [-c] [-Dxx=yy] <file>.../
+{\bf 形式 : } & \|cm2c [-h] [-o exec] [-S] [-E] [-nostdinc]|\\
+              & ~~~ \|[-I <dir>] [-c] [-Dxx=yy] <file>...|
 \end{tabular}
 \end{flushleft}
 
@@ -120,7 +120,7 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 内部で「\ref{command:vcmmc} {\icmmc}コマンド」を呼び出すシェルスクリプトです。
 
 \begin{flushleft}
-{\bf 形式 : }~~~\verb/cm2i [-h] [-E] [-nostdinc] [-I <dir>] [-Dxx=yy] <file>.../
+{\bf 形式 : }~~~\|cm2i [-h] [-E] [-nostdinc] [-I <dir>] [-Dxx=yy] <file>...|
 \end{flushleft}
 
 {\tt <file>...}の各ファイルについて、
@@ -152,7 +152,7 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 内部で「\ref{command:vcmmc} {\vcmmc}コマンド」を呼び出すシェルスクリプトです。
 
 \begin{flushleft}
-{\bf 形式 : }~~~\verb/cm2v [-h] [-E] [-nostdinc] [-I <dir>] [-Dxx=yy] <file>.../
+{\bf 形式 : }~~~\|cm2v [-h] [-E] [-nostdinc] [-I <dir>] [-Dxx=yy] <file>...|
 \end{flushleft}
 
 {\tt <file>...}の各ファイルについて、
@@ -187,7 +187,7 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 \cmmc コマンドの書式は次の通りです。
 
 \begin{flushleft}
-{\bf 形式 : }~~~\verb/c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]/\\
+{\bf 形式 : }~~~\|c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]|\\
 ({\bf 注意}：オプションは書式の順番で指定する必要があります。)
 \end{flushleft}
 
@@ -195,20 +195,20 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 指定されたファイルからソースプログラムを読み込みます。
 ファイルが省略された場合は標準入力ストリームからソースプログラムを読み込みます。
 どちらの場合もコンパイル結果は標準出力ストリームに出力します。
-ソースプログラムファイルの拡張子は「\verb/.cmm/」にします。
+ソースプログラムファイルの拡張子は「\|.cmm|」にします。
 
-\verb/-h/、\verb/-v/オプションは使用法メッセージを表示します。
-\verb/-O0/オプションを指定すると、
+\|-h|、\|-v|オプションは使用法メッセージを表示します。
+\|-O0|オプションを指定すると、
 ソースコード中の定数式をコンパイル時に計算したり、
 実行されることがないプログラムの部分を削除したりする等の最適化をしません。
-\verb/-O/、\verb/-O1/は最適化を促すオプションですが、
-デフォルトで\verb/ON/になっているので指定する必要はありません。
-\verb/-K/オプションを使うと、
+\|-O|、\|-O1|は最適化を促すオプションですが、
+デフォルトで\|ON|になっているので指定する必要はありません。
+\|-K|オプションを使うと、
 関数入口へのスタックオーバーフロー検出コードの埋め込みが抑制されます。
 \tacos のカーネルをコンパイルするときに使用するオプションです。
 
 %\cmmc コマンドは、\cl のプリプロセッサと組み合わせて次のように使用します。
-%コンパイル結果はリダイレクトを用いて拡張子「\verb/.s/」のファイルに出力します。
+%コンパイル結果はリダイレクトを用いて拡張子「\|.s|」のファイルに出力します。
 %
 %\begin{mylist}
 %\begin{verbatim}
@@ -218,9 +218,9 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 %\end{mylist}
 %
 %この実行例は、OSX 10.11 の場合です。
-%OSX 10.11 の\verb/cpp/コマンドは、
-%\verb;//;コメントをうまく処理できないようです。
-%\verb/cc -E/コマンドを代用にするとうまく処理できます。
+%OSX 10.11 の\|cpp|コマンドは、
+%\|//|コメントをうまく処理できないようです。
+%\|cc -E|コマンドを代用にするとうまく処理できます。
 %他の実行環境では、
 %その環境にあう実行方法を試行錯誤する必要があるかもしれません。
 
@@ -231,13 +231,13 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 {\bf 通常は{\cmc}から起動されユーザが直接使用することはありません。}
 
 \begin{flushleft}
-{\bf 形式 : }~~~\verb/c-c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]/\\
+{\bf 形式 : }~~~\|c-c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]|\\
 ({\bf 注意}：オプションは書式の順番で指定する必要があります。)
 \end{flushleft}
 
 %出力された{\cl}は、
-%\verb;/user/local/cmmLib/; にインストールされた、
-%\verb;cfunc.hmm; や \verb;wrapper.c; を用いて、
+%\|/user/local/cmmLib/| にインストールされた、
+%\|cfunc.hmm| や \|wrapper.c| を用いて、
 %UNIX や MacOS で実行できるようになります。
 
 引数の意味は{\cmmc}コマンドと同様です。
@@ -255,7 +255,7 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 %\end{verbatim}
 %\end{mylist}
 
-%次の実行例は変換結果を\verb/hello.c/ファイルに格納したあと、
+%次の実行例は変換結果を\|hello.c|ファイルに格納したあと、
 %{\cl}コンパイラでコンパイルして実行した例です。
 
 %\begin{mylist}
@@ -280,7 +280,7 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 {\icmmc}コマンドの書式は次の通りです。
 
 \begin{flushleft}
-{\bf 形式 : }~~~\verb/ic-c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]/
+{\bf 形式 : }~~~\|ic-c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]|
 \end{flushleft}
 
 引数の意味は{\cmmc}コマンドと同様です。
@@ -298,7 +298,7 @@ UNIXやMacのリロケータブルオブジェクトに変換します。
 {\vcmmc}コマンドの書式は次の通りです。
 
 \begin{flushleft}
-{\bf 形式 : }~~~\verb/vm-c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]/
+{\bf 形式 : }~~~\|vm-c-- [-h] [-v] [-O0] [-O] [-O1] [-K] [<source file>]|
 \end{flushleft}
 
 引数の意味は{\cmmc}コマンドと同様です。
