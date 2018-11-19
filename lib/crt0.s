@@ -153,6 +153,8 @@ __mod32                     ; int _mod32(int[] dst, int src)
 
 ;; SP の値を取得する
 __sp
+        ld      g0,sp
+        ret
 
 ;; ヒープとスタックの間に 10Byte 以上の余裕があるかチェックする 
 __stkChk
