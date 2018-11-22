@@ -233,11 +233,9 @@ public boolean fsize(char[] path, int[] size) {
   if (pos>MAXPATH-1) _exit(EPATH);              // パス名が長すぎる
   strCpy(dirPath, "/");                         // 絶対パスにする
   if (pos>0) strNcat(dirPath, path, pos);       // 最後の / 直前までコピーする
-  printf("dirPath=[%s]\n", dirPath);
   int fd = open(dirPath, READ);                 // ディレクトリをオープン
   if (fd<0) return true;                        // エラーなら終了
   while (readDir(fd, dir)>0) {
-    printf("fnameCmp([%s],[%s])\n", dir.name, subStr(path, pos+1));
     if (fnameCmp(dir.name, subStr(path, pos+1))==0) {
       size[0] = dir.lenH;
       size[1] = dir.lenL;
