@@ -22,7 +22,7 @@
 /*
  * fsize/fsize.cmm : fsize プログラム
  *
- * 2018.11.12 : 新規開発
+ * 2018.11.12 : 新規作成
  *
  * $Id$
  *
@@ -42,8 +42,9 @@ public int main(int argc, char[][] argv) {
     if (fsize(argv[i],size)) {
       perror(argv[i]);
       err = 1;
+    } else {
+      printf("%s : %ld\n", argv[i], lToL(size));
     }
-    printf("%s : %ld\n", argv[i], lToL(size));
   }
-  return 0;
+  return err;
 }
