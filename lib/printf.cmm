@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/printf.cmm : TacOS 用の入出力ルーチン
  *
+ * 2018.11.17 : "%ld" を 10 進数だけについてサポート
  * 2016.02.29 : TacOS の usr/lib/lib.cmm をもとに作成
  *
  * $Id$
@@ -122,8 +123,8 @@ void initArg(int[] arg, int offs) {             // 引数配列を記録
   pos  = offs;
 }
 
-// 書式文字列を解析して出力する
-void conv(char c, int w, boolean lf, char p) {
+// 書式文字列を解析して int を出力する
+void conv16(char c, int w, boolean lf, char p) {
   if (c=='o') {                                 // 8進数として出力
     uPutNum(getArg(),w,lf,p,8);
   } else if (c=='d') {                          // 10進数として出力
@@ -136,6 +137,28 @@ void conv(char c, int w, boolean lf, char p) {
     putS(_iToA(getArg()),w,lf);
   } else if (c=='%') {                          // '%' を出力
     putC('%');
+  } else exit(EUFMT);                           // どれでもなければエラー
+}
+
+// 書式文字列を解析して long（int[]）を出力する
+void conv32(char c, int w, boolean lf, char p) {
+  int[] arg = _iToA(getArg());
+  if (c=='d') {                                 // 符号なし10進数だけ利用可
+    int l = _mod32(arg, 10000);
+    _div32(arg, 10000);
+    int m = _mod32(arg, 10000);
+    _div32(arg, 10000);
+    int h = _mod32(arg, 10000);
+    if (h!=0) {
+      uPutNum(h, w-8, lf, p,   10);
+      uPutNum(m, 4,   lf, '0', 10);
+      uPutNum(l, 4,   lf, '0', 10);
+    } else if (m!=0) {
+      uPutNum(m, w-4, lf, p,   10);
+      uPutNum(l, 4,   lf, '0', 10);
+    } else {
+      uPutNum(l, w,   lf, p,   10);
+    }
   } else exit(EUFMT);                           // どれでもなければエラー
 }
 
@@ -159,7 +182,12 @@ int print(int[] arg, int offs) {
         w = w * 10 + (ord(c) - ord('0'));       //   幅指定がある
         c = fmt[i=i+1];
       }                                         //  cが'\0'の可能性がある！注意
-      conv(c, w, lf, p);                        //  arg を変換して出力
+      if (c=='l') {                             //  もしも long なら
+        c = fmt[i=i+1];                         //    次の文字に進む
+        conv32(c, w, lf, p);                    //  int[] を変換して出力
+      } else {
+        conv16(c, w, lf, p);                    //  int を変換して出力
+      }
     } else                                      // '%' 以外なら
       putC(c);                                  //   そのまま出力 
   }

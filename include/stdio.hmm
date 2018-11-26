@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,8 @@
 /*
  * include/stdio.hmm : lib/stdio.cmm, lib/printf.cmm の外部インタフェース
  *
+ * 2018.11.17 : lToL 追加
+ * 2018.02.20 : fseek 追加
  * 2016.02.26 : 新規作成
  *
  * $Id$
@@ -29,11 +31,13 @@
 
 #ifdef C
 // C トランスレータの場合
+int[] lToL(int[] a);
 typedef FILE;
 #include <cfunc.hmm>
 
 #else
 // TacOS の場合
+#define lToL(x) (x)         // lToL はC言語の printf などを使用するために必要
 struct FILE {
   int fd;                   // ファイルディスクリプタ
   int mode;                 // オープンモード
@@ -68,6 +72,8 @@ public FILE stderr;
 public boolean feof(FILE stream);
 public boolean ferror(FILE stream);
 public boolean fflush(FILE stream);
+public boolean fseek(FILE stream, int h, int l);
+public boolean fsize(char[] path, int[] size);
 
 public FILE fopen(char[] name, char[] mode);
 public boolean fclose(FILE stream);

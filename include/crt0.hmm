@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * include/crt0.hmm : lib/crt0.s の外部インタフェース
  *
+ * 2018.11.14 : 32ビット演算を追加
  * 2016.02.25 : 新規作成
  *
  * $Id$
@@ -36,4 +37,9 @@ public void[] _addrAdd(void[] a, int i);            // アドレス計算
 public int    _uCmp(int a, int b);                  // 符号無しの大小比較
 public int    _aCmp(void[] a, void[] b);            // アドレスの大小比較
 public void[] _args();                              // 関数の引数配列を返す
+public int[]  _add32(int[] dst, int[] src);         // 32ビット加算
+public int[]  _sub32(int[] dst, int[] src);         // 32ビット減算
+public int[]  _mul32(int[] dst, int src);           // 32ビット乗算
+public int[]  _div32(int[] dst, int src);           // 32ビット除算
+public int    _mod32(int[] dst, int src);           // 32ビット剰余算
 public int    _sp();                                // 現在の SP の値を返す

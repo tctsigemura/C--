@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/cfunc.hmm : C-- 関数と C 関数の読みかえを定義
  *
+ * 2018.02.20 : fseek を追加
  * 2016.08.07 : feof を追加
  * 2016.02.26 : 新規作成
  *
@@ -33,7 +34,7 @@
 #define malloc(s) _mAlloc(s)
 //#define fopen(n,m) _fOpen(n,m)
 #define feof(fp) _feof(fp)
-
+#define fseek(s,h,l) _fseek(s,h,l)
 
 // ctype, stringの関数は Lower Camel Case にする
 

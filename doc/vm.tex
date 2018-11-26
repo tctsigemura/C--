@@ -20,14 +20,14 @@
 \begin{itemize}
 \item 
 仮想スタックマシンが扱うデータは、基本的にワードデータ(16bit)です。
-{\cmml}の\verb/int/型、参照（アドレス）はワードデータにピッタリ格納されます。
-\verb/char/型はワードデータの下位8bit、
-\verb/boolean/型はワードデータの下位の1bitに格納されます。
+{\cmml}の\|int|型、参照（アドレス）はワードデータにピッタリ格納されます。
+\|char|型はワードデータの下位8bit、
+\|boolean|型はワードデータの下位の1bitに格納されます。
 
 \item
-\verb/char/型と\verb/boolean/型の{\bf 配列要素だけ}、
+\|char|型と\|boolean|型の{\bf 配列要素だけ}、
 メモリ節約のためバイトデータ(8bit)です。
-\verb/LDB/命令、\verb/STB/命令がバイト配列のデータをアクセスします。
+\|LDB|命令、\|STB|命令がバイト配列のデータをアクセスします。
 
 \item
 仮想スタックマシンのプログラムは次の書式のニーモニックで記述します。
@@ -64,10 +64,10 @@
 \subsubsection{vmNam}
 
 名前を表現するラベルを宣言します。
-名前表の\verb/idx/番目に登録されている名前を
+名前表の\|idx|番目に登録されている名前を
 ラベルとして定義するニーモニックを出力します。
-ラベルの先頭には\verb/'.'/または\verb/'_'/が付加されます。
-\cmml で\verb/public/修飾された名前に\verb/'_'/が付加されます。
+ラベルの先頭には\|'.'|または\|'_'|が付加されます。
+\cmml で\|public|修飾された名前に\|'_'|が付加されます。
 
 \begin{quote}
 \begin{verbatim}
@@ -82,7 +82,7 @@
 
 コンパイラが自動的に生成した番号で管理されるラベルを出力します。
 このラベルは\cmm プログラムソースには存在しない名前です。
-整数\verb/n/で区別できるラベル\verb/ln/をニーモニックに出力します。
+整数\|n|で区別できるラベル\|ln|をニーモニックに出力します。
 
 \begin{quote}
 \begin{verbatim}
@@ -101,9 +101,9 @@
 \subsubsection{vmEntry}
 
 関数の入口処理をする命令です。
-\verb/idx/は名前表で関数名が登録されている位置です。
-\verb/n/は関数の中で「{\bf 同時に使用される}ローカル変数の数」です。
-\verb/vmEntry/は、\verb/n/個のローカル変数領域を確保します。
+\|idx|は名前表で関数名が登録されている位置です。
+\|n|は関数の中で「{\bf 同時に使用される}ローカル変数の数」です。
+\|vmEntry|は、\|n|個のローカル変数領域を確保します。
 関数内でスコープが切り替わり
 同じ領域が複数のローカル変数で共用できる場合があるので、
 「{\bf 同時に使用される}ローカル変数の数」が指定されます。
@@ -120,9 +120,9 @@
 \subsubsection{vmEntryK}
 
 カーネル関数の入口処理をする命令です。
-引数の意味は\verb/vmEntry/と同じです。
-\cmm コンパイラに\verb/-K/オプションを付けて実行した場合は、
-\verb/vmEntry/のかわりに\verb/vmEntryK/が使用されます。
+引数の意味は\|vmEntry|と同じです。
+\cmm コンパイラに\|-K|オプションを付けて実行した場合は、
+\|vmEntry|のかわりに\|vmEntryK|が使用されます。
 
 \begin{quote}
 \begin{verbatim}
@@ -151,8 +151,8 @@
 
 \subsubsection{vmEntryI}
 
-\verb/interrupt/型関数の入口処理をする命令です。
-引数の意味は\verb/vmEntry/と同じです。
+\|interrupt|型関数の入口処理をする命令です。
+引数の意味は\|vmEntry|と同じです。
 
 \begin{quote}
 \begin{verbatim}
@@ -165,8 +165,8 @@
 
 \subsubsection{RETI}
 
-\verb/interrupt/関数の出口処理をする命令です。
-ローカル変数を捨てて\verb/interrupt/型関数から戻ります。
+\|interrupt|関数の出口処理をする命令です。
+ローカル変数を捨てて\|interrupt|型関数から戻ります。
 
 \begin{quote}
 \begin{verbatim}
@@ -200,7 +200,7 @@
 \end{verbatim}
 \end{quote}
 
-以下に二つの引数を持つ関数\verb/f/を呼び出す例を示します。
+以下に二つの引数を持つ関数\|f|を呼び出す例を示します。
 
 \begin{mylist}
 \begin{verbatim}
@@ -232,8 +232,8 @@ vmRet()
 \subsubsection{vmCallP}
 
 値を返さない関数を呼び出します。
-\verb/n/は関数引数の個数、
-\verb/idx/は名前表で関数名が登録されている位置です。
+\|n|は関数引数の個数、
+\|idx|は名前表で関数名が登録されている位置です。
 
 \begin{quote}
 \begin{verbatim}
@@ -247,8 +247,8 @@ vmRet()
 \subsubsection{vmCallF}
 
 値を返す関数を呼び出します。
-\verb/n/と\verb/idx/の意味は\verb/vmCallP/と同じです。
-\verb/vmCallF/は関数の実行が終了した時、
+\|n|と\|idx|の意味は\|vmCallP|と同じです。
+\|vmCallF|は関数の実行が終了した時、
 返り値をハードウェアレジスタから取り出しスタックに積みます。
 
 \begin{quote}
@@ -263,8 +263,8 @@ vmRet()
 \subsubsection{vmJmp}
 
 無条件ジャンプ命令です。
-整数\verb/n/はジャンプ先ラベルの番号を表します。
-ラベル\verb/ln/は\verb/vmLab/で出力される\verb/n/番目のラベルです。
+整数\|n|はジャンプ先ラベルの番号を表します。
+ラベル\|ln|は\|vmLab|で出力される\|n|番目のラベルです。
 
 \begin{quote}
 \begin{verbatim}
@@ -277,8 +277,8 @@ vmRet()
 
 \subsubsection{vmJT}
 
-スタックから論理値を取り出し\verb/true/ならジャンプします。
-\verb/n/、\verb/ln/の意味は\verb/vmJmp/と同じです。
+スタックから論理値を取り出し\|true|ならジャンプします。
+\|n|、\|ln|の意味は\|vmJmp|と同じです。
 
 \begin{quote}
 \begin{verbatim}
@@ -291,8 +291,8 @@ vmRet()
 
 \subsubsection{vmJF}
 
-スタックから論理値を取り出し\verb/false/ならジャンプします。
-\verb/n/、\verb/ln/の意味は\verb/vmJmp/と同じです。
+スタックから論理値を取り出し\|false|ならジャンプします。
+\|n|、\|ln|の意味は\|vmJmp|と同じです。
 
 \begin{quote}
 \begin{verbatim}
@@ -305,7 +305,7 @@ vmRet()
 
 \subsubsection{vmLdCns}
 
-定数\verb/c/をスタックに積みます。
+定数\|c|をスタックに積みます。
 
 \begin{quote}
 \begin{verbatim}
@@ -319,7 +319,7 @@ vmRet()
 \subsubsection{vmLdGlb}
 
 グローバル変数の値をスタックに積みます。
-\verb/idx/は名前表で変数名が登録されている位置です。
+\|idx|は名前表で変数名が登録されている位置です。
 
 \begin{quote}
 \begin{verbatim}
@@ -332,8 +332,8 @@ vmRet()
 
 \subsubsection{vmLdLoc}
 
-\verb/n/番目のローカル変数の値をスタックに積みます。
-ローカル変数の番号は\verb/1/から始まります。
+\|n|番目のローカル変数の値をスタックに積みます。
+ローカル変数の番号は\|1|から始まります。
 
 \begin{quote}
 \begin{verbatim}
@@ -346,8 +346,8 @@ vmRet()
 
 \subsubsection{vmLdPrm}
 
-現在の関数の\verb/n/番目の引数の値をスタックに積みます。
-引数の番号は第１引数から順に、\verb/1/以上の番号が割り振られます。
+現在の関数の\|n|番目の引数の値をスタックに積みます。
+引数の番号は第１引数から順に、\|1|以上の番号が割り振られます。
 
 \begin{quote}
 \begin{verbatim}
@@ -362,8 +362,8 @@ vmRet()
 
 %文字列リテラルの参照をスタックに積みます。
 ラベルの参照（アドレス）をスタックに積みます。
-整数\verb/n/はラベルの番号を表します。
-ラベル\verb/ln/は\verb/vmLab/で出力される\verb/n/番目のラベルです。
+整数\|n|はラベルの番号を表します。
+ラベル\|ln|は\|vmLab|で出力される\|n|番目のラベルです。
 
 \begin{quote}
 \begin{verbatim}
@@ -377,7 +377,7 @@ vmRet()
 \subsubsection{vmLdNam}
 
 名前の参照（アドレス）をスタックに積みます。
-\verb/idx/は名前表でラベルが登録されている位置です。
+\|idx|は名前表でラベルが登録されている位置です。
 
 \begin{quote}
 \begin{verbatim}
@@ -406,7 +406,7 @@ vmRet()
 バイト配列の要素を読み出すための命令です。
 まずスタックから、添字、バイト配列のアドレスの順に取り出します。
 次にバイト配列の要素の内容をワードに変換してスタックに積みます。
-変換はバイトデータの上位に\verb/0/のビットを付け加えることで行います。
+変換はバイトデータの上位に\|0|のビットを付け加えることで行います。
 
 \begin{quote}
 \begin{verbatim}
@@ -418,7 +418,7 @@ vmRet()
 \subsubsection{vmStGlb}
 
 スタックトップの値をグローバル変数にストアします。
-\verb/idx/は名前表で変数名が登録されている位置です。
+\|idx|は名前表で変数名が登録されている位置です。
 スタックをポップしません。
 
 \begin{quote}
@@ -432,7 +432,7 @@ vmRet()
 
 \subsubsection{vmStLoc}
 
-スタックトップの値を\verb/n/番目のローカル変数にストアします。
+スタックトップの値を\|n|番目のローカル変数にストアします。
 スタックをポップしません。
 
 \begin{quote}
@@ -446,7 +446,7 @@ vmRet()
 
 \subsubsection{vmStPrm}
 
-スタックトップの値を\verb/n/番目の引数にストアします。
+スタックトップの値を\|n|番目の引数にストアします。
 スタックをポップしません。
 
 \begin{quote}
@@ -770,11 +770,11 @@ vmRet()
 \subsubsection{vmBoolOR}
 
 論理OR式の最後で計算結果の論理値をスタックに積むマクロ命令です。
-整数\verb/n1/、\verb/n2/、\verb/n3/はラベルの番号を表します。
-論理式の途中から\verb/true/、\verb/false/が定まった時点で
-マクロを展開したニーモニック中の\verb/n1/、
-\verb/n2/ラベルにジャンプしてきます。
-\verb/n2/が\verb/-1/の場合は短く展開されます。
+整数\|n1|、\|n2|、\|n3|はラベルの番号を表します。
+論理式の途中から\|true|、\|false|が定まった時点で
+マクロを展開したニーモニック中の\|n1|、
+\|n2|ラベルにジャンプしてきます。
+\|n2|が\|-1|の場合は短く展開されます。
 
 \begin{quote}
 \begin{verbatim}
@@ -821,7 +821,7 @@ vmBoolAND(1, 2, 3) | vmBoolAND(1, -1, 3)
 \subsubsection{vmDwName}
 
 名前へのポインタを生成します。
-\verb/idx/は名前表で名前が登録されている位置です。
+\|idx|は名前表で名前が登録されている位置です。
 
 \begin{quote}
 \begin{verbatim}
@@ -834,9 +834,9 @@ vmBoolAND(1, 2, 3) | vmBoolAND(1, -1, 3)
 
 \subsubsection{vmDwLab}
 
-\verb/vmLab/で出力されるラベルへのポインタを生成します。
-整数\verb/n/はラベルの番号を表します。
-ラベル\verb/ln/は\verb/vmLab/で出力される\verb/n/番目のラベルです。
+\|vmLab|で出力されるラベルへのポインタを生成します。
+整数\|n|はラベルの番号を表します。
+ラベル\|ln|は\|vmLab|で出力される\|n|番目のラベルです。
 
 \begin{quote}
 \begin{verbatim}
@@ -850,7 +850,7 @@ vmBoolAND(1, 2, 3) | vmBoolAND(1, -1, 3)
 \subsubsection{vmDwCns}
 
 ワードデータを生成します。
-整数\verb/c/は生成するデータの値です。
+整数\|c|は生成するデータの値です。
 
 \begin{quote}
 \begin{verbatim}
@@ -864,8 +864,8 @@ vmBoolAND(1, 2, 3) | vmBoolAND(1, -1, 3)
 \subsubsection{vmDbCns}
 
 バイトデータを生成します。
-整数\verb/c/は生成するデータの値です。
-\verb/vmDbCns/はバイト配列の初期化で使用されます。
+整数\|c|は生成するデータの値です。
+\|vmDbCns|はバイト配列の初期化で使用されます。
 
 \begin{quote}
 \begin{verbatim}
@@ -879,7 +879,7 @@ vmBoolAND(1, 2, 3) | vmBoolAND(1, -1, 3)
 \subsubsection{vmWs}
 
 ワードデータ領域（配列）を生成します。
-整数\verb/n/は生成するワードの数です。
+整数\|n|は生成するワードの数です。
 
 \begin{quote}
 \begin{verbatim}
@@ -893,7 +893,7 @@ vmBoolAND(1, 2, 3) | vmBoolAND(1, -1, 3)
 \subsubsection{vmBs}
 
 バイトデータ領域（配列）を生成します。
-整数\verb/n/は生成するバイトの数です。
+整数\|n|は生成するバイトの数です。
 
 \begin{quote}
 \begin{verbatim}
@@ -907,7 +907,7 @@ vmBoolAND(1, 2, 3) | vmBoolAND(1, -1, 3)
 \subsubsection{vmStr}
 
 文字列を生成します。
-\verb/str/は文字列です。
+\|str|は文字列です。
 
 \begin{quote}
 \begin{verbatim}

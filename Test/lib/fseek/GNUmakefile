@@ -2,7 +2,7 @@
 # TacOS Source Code
 #    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2011 - 2016 by
+# Copyright (C) 2016 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -17,23 +17,26 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# Makefile : usr ディレクトリ用の Makefile
+# GNUmakefile : ユーザプログラム用の Makefile
 #
-# 2016.01.07         : 初期バージョン
+# 2016.08.11         : 初期バージョン
 #
 # $Id$
 #
-MAKEFLAGS=--no-print-directory
 
-# サブディレクトリ
-SUBDIRS:=cat dump echo fsize ls mkdir rm rmdir shell touch
+#----------------------------------------------------------------------------
+NAME=l030
+SRCS=${NAME}.cmm
+#----------------------------------------------------------------------------
 
-all :
-	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir); )
+all : clean ${NAME}.exe ${NAME}
+
+${NAME}.exe : ${SRCS}
+	cm2e -o ${NAME} ${SRCS}
+
+${NAME} : ${SRCS}
+	cm2c -o ${NAME} ${SRCS}
 
 clean :
-	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir) clean; )
-	rm -f *~
+	rm -f ${NAME} *.o *.lst *.sym *.exe *.map *~
 
-install :
-	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir) install; )

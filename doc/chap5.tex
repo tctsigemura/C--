@@ -5,23 +5,23 @@
 
 \tacos のシステムコールを呼び出す関数です。
 {\bf トランスレータ版では使用できません。}
-\verb/#include <syslib.hmm>/と書いた後で使用します。
+\|#include <syslib.hmm>|と書いた後で使用します。
 
 \section{プロセス関連}
 
 \tacos では、
-\verb/exec/で新しいプロセスを作ると同時に新しいプログラムを実行します。
-UNIXの\verb/fork-exec/方式とは異なります。
+\|exec|で新しいプロセスを作ると同時に新しいプログラムを実行します。
+UNIXの\|fork-exec|方式とは異なります。
 
 %\tac にはベースレジスタや多重仮想記憶のような機構がないので、
-%\verb/fork/システムコールが実現できませんでした。
+%\|fork|システムコールが実現できませんでした。
 
 \subsection{exec}
 
-\verb/name/でファイル名を指定して新しいプロセスでプログラムの実行を開始します。
-\verb/argv/は、開始するプログラムの\verb/main/関数の
-第２引数（\verb/char[][]argv/）に渡される文字列配列です。
-\verb/exec/は正常なら\verb/0/、エラー発生なら負のエラー番号を返します。
+\|name|でファイル名を指定して新しいプロセスでプログラムの実行を開始します。
+\|argv|は、開始するプログラムの\|main|関数の
+第２引数（\|char[][]argv|）に渡される文字列配列です。
+\|exec|は正常なら\|0|、エラー発生なら負のエラー番号を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -30,9 +30,9 @@ public int exec(char[] name, void[] argv);
 \end{verbatim}
 \end{quote}
 
-\verb/argv[0]/にプログラム名、
-\verb/argv[1]/に第１引数のように格納します。
-最後に\verb/null/を格納します。
+\|argv[0]|にプログラム名、
+\|argv[1]|に第１引数のように格納します。
+最後に\|null|を格納します。
 次に使用例を示します。
 
 \begin{mylist}
@@ -58,13 +58,13 @@ int main(int argc, char[][]argv) {
 
 \subsection{\ul exit}
 
-\verb/_exit/はプログラム（プロセス）を終了します。
-\verb/_exit/は入出力のバッファをフラッシュしません。
-\verb/_exit/は緊急終了用に使用し、
-普通は\verb/exit/を使用します。
+\|_exit|はプログラム（プロセス）を終了します。
+\|_exit|は入出力のバッファをフラッシュしません。
+\|_exit|は緊急終了用に使用し、
+普通は\|exit|を使用します。
 
-\verb/status/は、親プロセスに返す終了コードです。
-\verb/0/が正常終了の意味、\verb/1/以上はユーザが決めた終了コード、
+\|status|は、親プロセスに返す終了コードです。
+\|0|が正常終了の意味、\|1|以上はユーザが決めた終了コード、
 負の値は\tabref{chap4:err}に示す記号名で定義されています。
 負の値を返すと親プロセスがシェルの場合、
 シェル側でエラーメッセージを表示してくれます。
@@ -78,10 +78,10 @@ public void _exit(int status);
 
 \subsection{wait}
 
-\verb/wait/は子プロセスの終了を待ちます。
-\verb/stat/には大きさ１の\verb/int/配列を渡します。
-子プロセスが終了した際、\verb/stat[0]/に終了コードが書き込まれます。
-\verb/wait/は正常なら\verb/0/、エラー発生なら負のエラー番号を返します。
+\|wait|は子プロセスの終了を待ちます。
+\|stat|には大きさ１の\|int|配列を渡します。
+子プロセスが終了した際、\|stat[0]|に終了コードが書き込まれます。
+\|wait|は正常なら\|0|、エラー発生なら負のエラー番号を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -92,10 +92,10 @@ public int wait(int[] stat);
 
 \subsection{sleep}
 
-\verb/sleep/はプロセスを指定された時間だけ停止します。
-\verb/ms/はミリ秒単位で停止時間を指定します。
-\verb/ms/に負の値を指定すると\verb/EINVAL/エラーになります。
-それ以外では、\verb/sleep/は\verb/0/を返します。
+\|sleep|はプロセスを指定された時間だけ停止します。
+\|ms|はミリ秒単位で停止時間を指定します。
+\|ms|に負の値を指定すると\|EINVAL|エラーになります。
+それ以外では、\|sleep|は\|0|を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -111,9 +111,9 @@ VFATには対応していません。
 
 \subsection{creat}
 
-\verb/creat/は新規ファイルを作成します。
-\verb/path/は新しいファイルのパスです。
-\verb/creat/は正常なら\verb/0/、エラー発生なら負のエラー番号を返します。
+\|creat|は新規ファイルを作成します。
+\|path|は新しいファイルのパスです。
+\|creat|は正常なら\|0|、エラー発生なら負のエラー番号を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -124,9 +124,9 @@ public int creat(char[] path);
 
 \subsection{remove}
 
-\verb/remove/はファイルを削除します。
-\verb/path/は削除するファイルのパスです。
-\verb/remove/は正常なら\verb/0/、エラー発生なら負のエラー番号を返します。
+\|remove|はファイルを削除します。
+\|path|は削除するファイルのパスです。
+\|remove|は正常なら\|0|、エラー発生なら負のエラー番号を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -137,9 +137,9 @@ public int remove(char[] path);
 
 \subsection{mkDir}
 
-\verb/mkDir/は新規のディレクトリを作成します。
-\verb/path/は新しいディレクトリのパスです。
-\verb/mkDir/は正常なら\verb/0/、エラー発生なら負のエラー番号を返します。
+\|mkDir|は新規のディレクトリを作成します。
+\|path|は新しいディレクトリのパスです。
+\|mkDir|は正常なら\|0|、エラー発生なら負のエラー番号を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -150,9 +150,9 @@ public int mkDir(char[] path);
 
 \subsection{rmDir}
 
-\verb/rmDir/はディレクトリを削除します。
-\verb/path/は削除するディレクトリのパスです。
-\verb/rmDir/は正常なら\verb/0/、エラー発生なら負のエラー番号を返します。
+\|rmDir|はディレクトリを削除します。
+\|path|は削除するディレクトリのパスです。
+\|rmDir|は正常なら\|0|、エラー発生なら負のエラー番号を返します。
 削除するディレクトリが空でない場合はエラーになります。
 
 \begin{quote}
@@ -170,17 +170,17 @@ public int rmDir(char[] path);
 
 \subsection{open}
 
-\verb/open/はファイルを開きます
-\verb/path/は開くファイルのパスです。
-\verb/mode/には\verb/READ/、\verb/WRITE/、\verb/APPEND/のいずれかを指定します。
-\verb/open/は正常なら非負のファイル記述子、
+\|open|はファイルを開きます
+\|path|は開くファイルのパスです。
+\|mode|には\|READ|、\|WRITE|、\|APPEND|のいずれかを指定します。
+\|open|は正常なら非負のファイル記述子、
 エラー発生なら負のエラー番号を返します。
 ファイルが存在しない場合は、どのモードでもエラーになります。
 新規ファイルに書き込みたい場合は、
-事前に\verb/creat/システムコールを用いてファイルを作成しておく必要があります。
+事前に\|creat|システムコールを用いてファイルを作成しておく必要があります。
 
-\verb/open/はディレクトリを\verb/READ/モードで開くことができます。
-ディレクトリは\pageref{chap4:readDir}ページの\verb/readDir/関数で読みます。
+\|open|はディレクトリを\|READ|モードで開くことができます。
+ディレクトリは\pageref{chap4:readDir}ページの\|readDir|関数で読みます。
 
 \begin{quote}
 \begin{verbatim}
@@ -191,9 +191,9 @@ public int open(char[] path, int mode);
 
 \subsection{close}
 
-\verb/close/は\verb/open/で開いたファイルを閉じます。
-\verb/fd/は閉じるファイルのファイル記述子です。
-\verb/close/は正常なら\verb/0/、エラー発生なら負のエラー番号を返します。
+\|close|は\|open|で開いたファイルを閉じます。
+\|fd|は閉じるファイルのファイル記述子です。
+\|close|は正常なら\|0|、エラー発生なら負のエラー番号を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -204,14 +204,14 @@ public int close(int fd);
 
 \subsection{read}
 
-\verb/read/は\verb/open/を用い\verb/READ/モードで開いたファイルから
+\|read|は\|open|を用い\|READ|モードで開いたファイルから
 データを読みます。
-\verb/fd/はファイル記述子です。
-\verb/buf/はデータを読み込むバッファ、
-\verb/len/はバッファサイズ（バイト単位）です。
-\verb/read/は正常なら読み込んだバイト数、
+\|fd|はファイル記述子です。
+\|buf|はデータを読み込むバッファ、
+\|len|はバッファサイズ（バイト単位）です。
+\|read|は正常なら読み込んだバイト数、
 エラー発生なら負のエラー番号を返します。
-EOFでは\verb/0/を返します。
+EOFでは\|0|を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -222,12 +222,12 @@ public int read(int fd, void[] buf, int len);
 
 \subsection{write}
 
-\verb/write/は\verb/open/を用い\verb/WRITE/、
-\verb/APPEND/モードで開いたファイルからデータを読みます。
-\verb/fd/はファイル記述子です。
-\verb/buf/は書き込むデータが置いてあるバッファ、
-\verb/len/は書き込むデータのサイズ（バイト単位）です。
-\verb/write/は正常なら書き込んだバイト数、
+\|write|は\|open|を用い\|WRITE|、
+\|APPEND|モードで開いたファイルへデータを書き込みます。
+\|fd|はファイル記述子です。
+\|buf|は書き込むデータが置いてあるバッファ、
+\|len|は書き込むデータのサイズ（バイト単位）です。
+\|write|は正常なら書き込んだバイト数、
 エラー発生なら負のエラー番号を返します。
 
 \begin{quote}
@@ -239,11 +239,11 @@ public int write(int fd, void[] buf, int len);
 
 \subsection{seek}
 
-\verb/seek/は\verb/open/を用い開いたファイルの読み書き位置を変更します。
-\verb/fd/はファイル記述子です。
-seek位置は、上位16bit（\verb/ptrh/）と
-下位16bit（\verb/ptrl/）を組み合わせて指定します。
-\verb/seek/は正常なら\verb/0/、
+\|seek|は\|open|を用い開いたファイルの読み書き位置を変更します。
+\|fd|はファイル記述子です。
+seek位置は、上位16bit（\|ptrh|）と
+下位16bit（\|ptrl|）を組み合わせて指定します。
+\|seek|は正常なら\|0|、
 エラー発生なら負のエラー番号を返します。
 
 \begin{quote}
@@ -258,19 +258,19 @@ public int seek(int fd, int ptrh, int ptrl);
 コンソール入出力には、
 通常は\pageref{chap4:stdio}ページの標準入出力ライブラリ関数を用います。
 以下のシステムコールは、主にライブラリ関数の内部で使用されます。
-\verb/conRead/はライブラリ関数が\verb/stdin/からの読み込みをする場合に、
-\verb/conWrite/はライブラリ関数が\verb/stdout/、\verb/stderr/への
+\|conRead|はライブラリ関数が\|stdin|からの読み込みをする場合に、
+\|conWrite|はライブラリ関数が\|stdout|、\|stderr|への
 書き込みをする場合にライブラリ関数内部で使用されます。
 
 \subsection{conRead}
 
-\verb/conRead/はキーボードから１行入力します。
-読み込んだ内容は\verb/buf/で指定されるバッファに文字列として格納されます。
-\verb/len/は\verb/buf/のバイト数です。
-文字列の最後には\verb/'\0'/が格納されます。
-\verb/'\n'/は含まれません。
-\verb/buf/の大きさは入力可能な文字数より\verb/1/大きくする必要があります。
-\verb/conRead/はキーボードから入力した文字数を返します。
+\|conRead|はキーボードから１行入力します。
+読み込んだ内容は\|buf|で指定されるバッファに文字列として格納されます。
+\|len|は\|buf|のバイト数です。
+文字列の最後には\|'\0'|が格納されます。
+\|'\n'|は含まれません。
+\|buf|の大きさは入力可能な文字数より\|1|大きくする必要があります。
+\|conRead|はキーボードから入力した文字数を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -281,8 +281,8 @@ public int conRead(char[] buf, int len);
 
 \subsection{conWrite}
 
-\verb/conWrite/は画面に文字列を出力します。
-\verb/buf/には出力する文字列を格納して渡します。
+\|conWrite|は画面に文字列を出力します。
+\|buf|には出力する文字列を格納して渡します。
 
 \begin{quote}
 \begin{verbatim}
@@ -291,15 +291,15 @@ public int conWrite(char[] buf);
 \end{verbatim}
 \end{quote}
 
-\verb/conWrite/は以下の制御文字を解釈します。
+\|conWrite|は以下の制御文字を解釈します。
 
 \begin{quote}
 \begin{tabular}{c|l}
 \multicolumn{1}{c|}{制御文字} & \multicolumn{1}{c}{働き} \\\hline
-\verb/'\r'/ & カーソルを現在行の左端に移動する \\
-\verb/'\n'/ & カーソルを次の行の左端に移動する \\
-\verb/'\t'/ & カーソルを次のTABストップに移動する \\
-\verb/'\x08'/ & カーソルを右に１文字分移動する \\
-\verb/'\x0c'/ & 画面をクリアしカーソルを画面右上端に移動する \\
+\|'\r'| & カーソルを現在行の左端に移動する \\
+\|'\n'| & カーソルを次の行の左端に移動する \\
+\|'\t'| & カーソルを次のTABストップに移動する \\
+\|'\x08'| & カーソルを右に１文字分移動する \\
+\|'\x0c'| & 画面をクリアしカーソルを画面右上端に移動する \\
 \end{tabular}
 \end{quote}

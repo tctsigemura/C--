@@ -9,7 +9,7 @@
 \section{標準入出力ライブラリ}
 \label{chap4:stdio}
 
-\verb/#include <stdio.hmm>/を書いた後で使用します。
+\|#include <stdio.hmm>|を書いた後で使用します。
 トランスレータ版では\cl の高水準I/O関数の呼出しに変換されます。
 \tac 版でも入出力の自動的なバッファリングを行います。
 \tac 版ではバッファサイズは 128 バイトです。
@@ -17,7 +17,7 @@
 
 \subsection{printf 関数}
 
-標準出力ストリームに\verb/format/文字列を用いた変換付きで出力します。
+標準出力ストリームに\|format|文字列を用いた変換付きで出力します。
 出力した文字数を関数の値として返します。
 
 \begin{quote}
@@ -27,10 +27,10 @@ public int printf(char[] format, ...);
 \end{verbatim}
 \end{quote}
 
-トランスレータ版では\cl の\verb/printf/関数の呼出しに変換されます。
-\tac 版では簡易\verb/printf/関数を使用できます。
-\tac 版の簡易\verb/printf/関数では、
-\verb/format/文字列に以下のような変換を記述できます。
+トランスレータ版では\cl の\|printf|関数の呼出しに変換されます。
+\tac 版では簡易\|printf|関数を使用できます。
+\tac 版の簡易\|printf|関数では、
+\|format|文字列に以下のような変換を記述できます。
 
 \begin{quote}
 \begin{verbatim}
@@ -38,28 +38,56 @@ public int printf(char[] format, ...);
 \end{verbatim}
 \end{quote}
 
-\verb/-/を書くと左詰めで表示します。
+\|-|を書くと左詰めで表示します。
 数値は表示に使用するカラム数を表します。
-数値を\verb/0/で開始した場合は、
-数値の右づめ表示で空白の代わりに\verb/0/が用いられます。
+数値を\|0|で開始した場合は、
+数値の右づめ表示で空白の代わりに\|0|が用いられます。
 使用できる変換文字は次の表の通りです。
 
 \begin{quote}
 \begin{tabular}{c|l}
 \multicolumn{1}{c|}{変換文字} & \multicolumn{1}{c}{意味} \\\hline
-\verb/o/ & 整数値を8進数で表示する \\
-\verb/d/ & 整数値を10進数で表示する \\
-\verb/x/ & 整数値を16進数で表示する \\
-\verb/c/ & ASCIIコードに対応する文字を表示する \\
-\verb/s/ & 文字列を表示する \\
-\verb/%/ & \verb/%/を表示する \\
+\|o| & 整数値を8進数で表示する \\
+\|d| & 整数値を10進数で表示する \\
+\|x| & 整数値を16進数で表示する \\
+\|c| & ASCIIコードに対応する文字を表示する \\
+\|s| & 文字列を表示する \\
+\|%| & \|%|を表示する \\
+\|ld|& \|int|配列で表現した32ビット符号なし整数値を10進数で表示する \\
 \end{tabular}
+\end{quote}
+
+\subsection{lToL関数（マクロ）}
+
+\|int|配列で表現した\|long|型整数を\|printf|関数に渡す際に必要な変換関数です。
+\tac 版では何もしないマクロです。
+トランスレータ版では、{\cl}で記述された\|lToL|関数を呼び出します。
+{\cl}で記述された\|lToL|関数は\|int|配列を{\cl}の\|long|型に変換します。
+
+\begin{quote}
+\begin{verbatim}
+#include <stdio.hmm>
+// TaC版
+#define lToL(x) (x)
+// トランスレータ版
+public int[] lToL(int[] a);
+\end{verbatim}
+\end{quote}
+
+使用例を示します。
+
+\begin{quote}
+\begin{verbatim}
+int[] a = array(2);       // 32ビットデータ
+...
+printf("%ld\n",lToL(a)); // 32ビットデータをprintfに渡す際に必要
+\end{verbatim}
 \end{quote}
 
 \subsection{puts関数}
 
 標準出力ストリームへ１行出力します。
-エラーが発生した場合は\verb/null/を、正常時には\verb/s/を返します。
+エラーが発生した場合は\|null|を、正常時には\|s|を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -71,7 +99,7 @@ public char[] puts(char[] s);
 \subsection{putchar関数}
 
 標準出力ストリームへ１文字出力します。
-エラーが発生した場合は\verb/true/を、正常時には\verb/false/を返します。
+エラーが発生した場合は\|true|を、正常時には\|false|を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -83,7 +111,7 @@ public boolean putchar(char c);
 \subsection{getchar関数}
 
 標準入力ストリームから１文字入力します。
-\cl の\verb/getchar/関数と異なり\verb/char/型なので EOF チェックができません。
+\cl の\|getchar|関数と異なり\|char|型なので EOF チェックができません。
 現在のところ、\tacos では標準入力を EOF にする方法は準備されていません。
 
 \begin{quote}
@@ -96,12 +124,12 @@ public char getchar();
 \subsection{fopen関数}
 
 ファイルを開きます。
-\verb/path/引数はファイルへのパス、
-\verb/mode/引数はオープンのモードです。
-パスは``\verb;/;''区切りで表現します。
+\|path|引数はファイルへのパス、
+\|mode|引数はオープンのモードです。
+パスは``\|/|''区切りで表現します。
 \tacos にはカレントディレクトリはありません。
-\verb/fopen/は正常に\verb/FILE/構造体、
-エラー時に\verb/null/を返します。
+\|fopen|は正常時に\|FILE|構造体、
+エラー時に\|null|を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -110,18 +138,18 @@ public FILE fopen(char[] path, char[] mode);
 \end{verbatim}
 \end{quote}
 
-\verb/mode/の意味は次の通りです。
+\|mode|の意味は次の通りです。
 
 \begin{quote}
 \begin{tabular}{c|l}
 \multicolumn{1}{c|}{mode} & \multicolumn{1}{c}{意味} \\\hline
-\verb/"r"/ & 読み込みモードで開く \\
-\verb/"w"/ & 書き込みモードで開く（ファイルが無ければ作る） \\
-\verb/"a"/ & 追記モードで開く（ファイルが無ければ作る）
+\|"r"| & 読み込みモードで開く \\
+\|"w"| & 書き込みモードで開く（ファイルが無ければ作る） \\
+\|"a"| & 追記モードで開く（ファイルが無ければ作る）
 \end{tabular}
 \end{quote}
 
-\verb/fopen/は、
+\|fopen|は、
 書き込みモード、追記モードの時ファイルが存在しない場合、
 自動的にファイルを作成します。
 
@@ -129,10 +157,10 @@ public FILE fopen(char[] path, char[] mode);
 
 ストリームをクローズします。
 \tacos では、
-標準入出力ストリーム（\verb/stdin/、\verb/stdout/、\verb/stderr/）を
+標準入出力ストリーム（\|stdin|、\|stdout|、\|stderr|）を
 クローズすることはできません。
-\verb/fclose/は正常時に\verb/false/、
-エラー時に\verb/true/を返します。
+\|fclose|は正常時に\|false|、
+エラー時に\|true|を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -141,12 +169,52 @@ public boolean fclose(FILE stream);
 \end{verbatim}
 \end{quote}
 
+\subsection{fseek関数}
+
+\|stream|引数で指定したファイルの読み書き位置を変更します。
+seek 位置は、
+\tac 版では\|offsh|(16bit)、
+\|offsl|(16bit)を合わせた32bitで指定します。
+トランスレータ版では\|offsh|(32bit)、
+\|offsl|(32bit)を合わせた64bitで指定します。
+
+正常時は\|false|を返します。
+エラーが発生した場合、\tac 版ではプログラムを終了します。
+トランスレータ版では\|true|を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <stdio.hmm>
+public boolean fseek(FILE stream, int offsh, int offsl);
+\end{verbatim}
+\end{quote}
+
+\subsection{fsize関数}
+
+\|path|引数で指定したファイルのサイズを\|size|に書き込みます。。
+seek 位置は、
+\tac 版では\|size[0]|(上位16bit)、
+\|s[1]|(下位16bit)を合わせた32bitで指定します。
+トランスレータ版では\|size[0]|(上位32bit)、
+\|s[1]|(下位32bit)を合わせた64bitで指定します。
+
+正常時は\|false|を返します。
+エラーが発生した場合、\tac 版ではプログラムを終了します。
+トランスレータ版では\|true|を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <stdio.hmm>
+public boolean fsize(char[] path, int[] size);
+\end{verbatim}
+\end{quote}
+
 \subsection{fprintf関数}
 
-出力ストリームを明示できる\verb/printf/関数です。
-\verb/stream/引数に出力先を指定します。
-出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/、
-\verb/stderr/です。
+出力ストリームを明示できる\|printf|関数です。
+\|stream|引数に出力先を指定します。
+出力ストリームは、\|fopen|で開いたファイルか\|stdout|、
+\|stderr|です。
 
 \begin{quote}
 \begin{verbatim}
@@ -157,10 +225,10 @@ public int fprintf(FILE stream, char[] format, ...);
 
 \subsection{fputs関数}
 
-出力ストリームを明示できる\verb/puts/関数です。
-\verb/stream/引数に出力先を指定します。
-出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/、
-\verb/stderr/です。
+出力ストリームを明示できる\|puts|関数です。
+\|stream|引数に出力先を指定します。
+出力ストリームは、\|fopen|で開いたファイルか\|stdout|、
+\|stderr|です。
 
 \begin{quote}
 \begin{verbatim}
@@ -171,10 +239,10 @@ public char[] fputs(char[] s, FILE stream);
 
 \subsection{fputc関数}
 
-出力ストリームを明示できる\verb/putchar/関数です。
-\verb/stream/引数に出力先を指定します。
-出力ストリームは、\verb/fopen/で開いたファイルか\verb/stdout/、
-\verb/stderr/です。
+出力ストリームを明示できる\|putchar|関数です。
+\|stream|引数に出力先を指定します。
+出力ストリームは、\|fopen|で開いたファイルか\|stdout|、
+\|stderr|です。
 
 \begin{quote}
 \begin{verbatim}
@@ -186,11 +254,11 @@ public boolean fputc(char c, FILE stream);
 \subsection{fgets関数}
 
 任意の入力ストリームから１行入力します。
-入力は\verb/buf/に文字列として格納します。
-\verb/n/引数には\verb/buf/のサイズを渡します。
-通常、\verb/buf/には\verb/\n/も格納されます。
-\verb/fgets/は、EOFで\verb/null/を、
-正常時には\verb/buf/を返します。
+入力は\|buf|に文字列として格納します。
+\|n|引数には\|buf|のサイズを渡します。
+通常、\|buf|には\|\n|も格納されます。
+\|fgets|は、EOFで\|null|を、
+正常時には\|buf|を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -199,9 +267,9 @@ public char[] fgets(char[] buf, int n, FILE stream);
 \end{verbatim}
 \end{quote}
 
-\cmm では、\cl の\verb/gets/が使用できません。
-\verb/gets/はバッファオーバーフローの危険があるので\cmm には持込みませんでした。
-\cmm で、\verb/gets/を使用したい時は\verb/fgets/を使用して次のように書きます。
+\cmm では、\cl の\|gets|が使用できません。
+\|gets|はバッファオーバーフローの危険があるので\cmm には持込みませんでした。
+\cmm で、\|gets|を使用したい時は\|fgets|を使用して次のように書きます。
 
 \begin{quote}
 \begin{verbatim}
@@ -213,8 +281,8 @@ while (fgets(buf, N, stdin)!=null) { ...
 \subsection{fgetc関数}
 
 任意の入力ストリームから１文字入力します。
-\cl の\verb/fgetc/関数と異なり\verb/char/型なので EOF チェックができません。
-EOFチェックは\verb/feof/関数を用いて行います。
+\cl の\|fgetc|関数と異なり\|char|型なので EOF チェックができません。
+EOFチェックは\|feof|関数を用いて行います。
 
 \begin{quote}
 \begin{verbatim}
@@ -224,10 +292,10 @@ public char fgetc(FILE stream);
 \end{quote}
 
 \tac 版では安全のため、
-\verb/fgetc/関数がEOFに出会うと強制的にプログラムを終了する仕様になっています。
-\verb/fgetc/関数を実行する前に、必ず、
-\verb/feof/関数を用いて EOF チェックをする必要があります。
-\verb/cat/プログラムのソースコードに使用例があります。
+\|fgetc|関数がEOFに出会うと強制的にプログラムを終了する仕様になっています。
+\|fgetc|関数を実行する前に、必ず、
+\|feof|関数を用いて EOF チェックをする必要があります。
+\|cat|プログラムのソースコードに使用例があります。
 
 \begin{quote}
 \begin{verbatim}
@@ -238,11 +306,11 @@ while (!feof(fp))
 
 \subsection{feof関数}
 
-入力ストリームが EOF になっていると \verb/true/ を返します。
-\verb/fgetc/ を実行する前に EOF チェックのために使用します。
-{\bf \cl の\verb/feof/関数と仕様が異なります。}
-\cl の\verb/feof/関数はストリームが EOF になった後で \verb/true/ になりますが、
-\cmml の\verb/feof/関数は次回の操作で EOF になるタイミングで \verb/true/ に
+入力ストリームが EOF になっていると \|true| を返します。
+\|fgetc| を実行する前に EOF チェックのために使用します。
+{\bf \cl の\|feof|関数と仕様が異なります。}
+\cl の\|feof|関数はストリームが EOF になった後で \|true| になりますが、
+\cmml の\|feof|関数は次回の操作で EOF になるタイミングで \|true| に
 なります。
 
 \begin{quote}
@@ -254,7 +322,7 @@ public boolean feof(FILE stream);
 
 \subsection{ferror関数}
 
-ストリームがエラーを起こしていると \verb/true/ を返します。
+ストリームがエラーを起こしていると \|true| を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -267,8 +335,8 @@ public boolean ferror(FILE stream);
 
 出力ストリームのバッファをフラッシュします。
 入力ストリームをフラッシュすることはできません。
-正常時\verb/false/、エラー時\verb/true/ を返します。
-\verb/stderr/はバッファリングされていないので、
+正常時\|false|、エラー時\|true| を返します。
+\|stderr|はバッファリングされていないので、
 フラッシュしても何も起きません。
 
 \begin{quote}
@@ -283,12 +351,12 @@ public boolean fflush(FILE stream);
 
 ディレクトリファイルを読みます。
 {\tacos}版だけで使用できる関数です。
-\verb/fd/には\verb/open/システムコールでオープン済のファイル記述子を、
-\verb/dir/には\verb/Dir/構造体のインスタンスを渡します。
-\verb/Dir/構造体の\verb/name/メンバーは、
+\|fd|には\|open|システムコールでオープン済のファイル記述子を、
+\|dir|には\|Dir|構造体のインスタンスを渡します。
+\|Dir|構造体の\|name|メンバーは、
 大きさ12の文字配列で初期化されている必要があります。
 
-\verb/ls/プログラムのソースコードに使用例があります。
+\|ls|プログラムのソースコードに使用例があります。
 
 \begin{quote}
 \begin{verbatim}
@@ -306,9 +374,9 @@ public int readDir(int fd, Dir dir);
 
 \subsection{perror関数}
 
-現在の\verb/errno/グローバル変数の値に応じたエラーメッセージを表示します。
-\verb/msg/はエラーメッセージの先頭に付け加えます。
-\verb/errno/にはシステムコールやライブラリ関数がエラー番号をセットします。
+現在の\|errno|グローバル変数の値に応じたエラーメッセージを表示します。
+\|msg|はエラーメッセージの先頭に付け加えます。
+\|errno|にはシステムコールやライブラリ関数がエラー番号をセットします。
 \tabref{chap4:err}に\tac 版のエラーとメッセージの一覧を示します。
 
 \begin{quote}
@@ -325,9 +393,9 @@ public void perror(char[] msg);
 
 \subsubsection{TacOS 専用版のプログラム例}
 
-\tacos では、\verb/errno/変数にセットされるエラー番号が負の値になっています。
+\tacos では、\|errno|変数にセットされるエラー番号が負の値になっています。
 また、アプリケーションが負の終了コードで終わった場合、
-シェルが終了コードを\verb/errno/とみなし
+シェルが終了コードを\|errno|とみなし
 エラーメッセージを表示する仕様になっています。
 
 更にライブラリは、ユーザプログラムのバグが原因と考えられるエラーや、
@@ -336,18 +404,18 @@ public void perror(char[] msg);
 そこで、以下のようなエラー処理を簡略化したプログラムを書くことができます。
 
 このプログラムは、
-メモリ不足で\verb/FILE/構造体の割り付けができないような
+メモリ不足で\|FILE|構造体の割り付けができないような
 対処が難しいエラーの場合に、
-\verb/fopen/内部で自動的に\verb/errno/を終了コードにして終了します。
+\|fopen|内部で自動的に\|errno|を終了コードにして終了します。
 プログラムの終了コードによりシェルがエラーメッセージを表示します。
 
 ファイルが見つからないなどプログラムに知らせた方が良いエラーの場合は、
-\verb/fopen/がエラーを示す戻り値(\verb/null/)を持って返ります。
+\|fopen|がエラーを示す戻り値(\|null|)を持って返ります。
 可能なら{\cmm}プログラムがエラー回復を試みるべきです。
 下のプログラムはエラー回復を試みることなく
-\verb/errno/を終了コードとして終了した例になっています。
+\|errno|を終了コードとして終了した例になっています。
 エラーメッセージの表示をプログラム中で行っていませんが、
-シェルが\verb/errno/に対応したエラーメッセージを表示します。
+シェルが\|errno|に対応したエラーメッセージを表示します。
 
 \begin{mylist}
 \begin{verbatim}
@@ -374,7 +442,7 @@ public int main(int argc, char[][] argv) {
 次の例ではプログラムが自力でエラーメッセージを表示するので、
 エラーになったファイルの名前をエラーメッセージに含めることができます。
 
-エラー表示を行ったプログラムは終了コード\verb/1/で終わります。
+エラー表示を行ったプログラムは終了コード\|1|で終わります。
 終了コードが正なので、シェルはエラーメッセージを表示しません。
 
 \begin{mylist}
@@ -440,19 +508,19 @@ EUBADA    & free: Bad address           & mallocした領域ではない \\
 
 \section{標準ライブラリ}
 
-\verb/#include <stdlib.hmm>/を書いた後で使用します。
+\|#include <stdlib.hmm>|を書いた後で使用します。
 
 \subsection{malloc関数}
 
-ヒープ領域に\verb/size/バイトのメモリ領域を確保し、
+ヒープ領域に\|size|バイトのメモリ領域を確保し、
 領域を指す参照を返します。
-\verb/malloc/関数は\verb/void[]/型なので、
+\|malloc|関数は\|void[]|型なので、
 領域を指す参照は全ての参照変数に代入できます。
 
 \tac 版では、ヒープ領域に十分な空きが見つからないとき
-終了コード\verb/EUNOMEM/でプログラムを終了します。
+終了コード\|EUNOMEM|でプログラムを終了します。
 トランスレータ版では、エラーメッセージを表示したあと
-終了コード\verb/1/でプログラムを終了します。
+終了コード\|1|でプログラムを終了します。
 
 \begin{quote}
 \begin{verbatim}
@@ -463,10 +531,10 @@ public void[] malloc(int size);
 
 \subsection{free関数}
 
-\verb/malloc/関数で割当てた領域を解放します。
-\tac 版では、領域が\verb/malloc/関数で割当てたものではない可能性がある場合
+\|malloc|関数で割当てた領域を解放します。
+\tac 版では、領域が\|malloc|関数で割当てたものではない可能性がある場合
 （マジックナンバーが破壊されている、管理されている空き領域と重なる等）、
-終了コード\verb/EUBADA/でプログラムを終了します。
+終了コード\|EUBADA|でプログラムを終了します。
 
 \begin{quote}
 \begin{verbatim}
@@ -477,7 +545,7 @@ public void free(void[] mem);
 
 \subsection{atoi関数}
 
-\verb/atoi/関数は引数に渡した10進数文字列を解析して、
+\|atoi|関数は引数に渡した10進数文字列を解析して、
 それが表現する値を返します。
 
 \begin{quote}
@@ -489,7 +557,7 @@ public int atoi(char[] s);
 
 \subsection{srand関数}
 
-\verb/srand/関数は擬似乱数発生器を\verb/seed/で初期化します。
+\|srand|関数は擬似乱数発生器を\|seed|で初期化します。
 
 \begin{quote}
 \begin{verbatim}
@@ -500,7 +568,7 @@ public void srand(int seed);
 
 \subsection{rand関数}
 
-\verb/rand/関数は次の擬似乱数を発生します。
+\|rand|関数は次の擬似乱数を発生します。
 
 \begin{quote}
 \begin{verbatim}
@@ -511,10 +579,10 @@ public int rand();
 
 \subsection{exit関数}
 
-\verb/exit/関数はオープン済みのストリームをフラッシュしてから
+\|exit|関数はオープン済みのストリームをフラッシュしてから
 プログラムを終了します。
-\verb/status/は、親プロセスに返す終了コードです。
-\verb/0/が正常終了の意味、\verb/1/以上はユーザが決めた終了コードです。
+\|status|は、親プロセスに返す終了コードです。
+\|0|が正常終了の意味、\|1|以上はユーザが決めた終了コードです。
 
 {\tacos}版では、負の終了コードが使用できます。
 使用できるコードは\tabref{chap4:err}に記号定数として定義されています。
@@ -530,13 +598,13 @@ public void exit(int status);
 
 \section{文字列操作関数}
 
-\verb/#include <string.hmm>/を書いた後で使用します。
+\|#include <string.hmm>|を書いた後で使用します。
 
 \subsection{strCpy関数}
 
-文字列\verb/s/を文字配列\verb/d/にコピーし、
-\verb/d/を関数値として返します。
-トランスレータ版では\cl の\verb/strcpy/関数に置き換えられます。
+文字列\|s|を文字配列\|d|にコピーし、
+\|d|を関数値として返します。
+トランスレータ版では\cl の\|strcpy|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -547,12 +615,12 @@ public char[] strCpy(char[] d, char[] s);
 
 \subsection{strNcpy関数}
 
-文字列\verb/s/の最大\verb/n/文字を文字配列\verb/d/にコピーし、
-\verb/d/を関数値として返します。
-文字配列の使用されない部分には\verb/'\0'/が書き込まれます。
-文字列の長さが\verb/n/以上の場合は、
-\verb/'\0'/が書き込まれないので注意して下さい。
-トランスレータ版では\cl の\verb/strncpy/関数に置き換えられます。
+文字列\|s|の最大\|n|文字を文字配列\|d|にコピーし、
+\|d|を関数値として返します。
+文字配列の使用されない部分には\|'\0'|が書き込まれます。
+文字列の長さが\|n|以上の場合は、
+\|'\0'|が書き込まれないので注意して下さい。
+トランスレータ版では\cl の\|strncpy|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -563,9 +631,9 @@ public char[] strNcpy(char[] d, char[] s, int n);
 
 \subsection{strCat関数}
 
-文字列\verb/s/を文字配列\verb/d/に格納されている文字列の後ろに追加し、
-\verb/d/を関数値として返します。
-トランスレータ版では\cl の\verb/strcat/関数に置き換えられます。
+文字列\|s|を文字配列\|d|に格納されている文字列の後ろに追加し、
+\|d|を関数値として返します。
+トランスレータ版では\cl の\|strcat|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -576,11 +644,11 @@ public char[] strCat(char[] d, char[] s);
 
 \subsection{strNcat関数}
 
-文字列\verb/s/の先頭\verb/n/文字未満を、
-文字配列\verb/d/に格納されている文字列の後ろに追加し、
-\verb/d/を関数値として返します。
-\verb/d/に格納された文字列の最後には\verb/'\0'/が書き込まれます。
-トランスレータ版では\cl の\verb/stnrcat/関数に置き換えられます。
+文字列\|s|の先頭\|n|文字未満を、
+文字配列\|d|に格納されている文字列の後ろに追加し、
+\|d|を関数値として返します。
+\|d|に格納された文字列の最後には\|'\0'|が書き込まれます。
+トランスレータ版では\cl の\|stnrcat|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -591,10 +659,10 @@ public char[] strNcat(char[] d, char[] s, int n);
 
 \subsection{strCmp関数}
 
-文字列\verb/s1/と文字列\verb/s2/を比較します。
-\verb/strCmp/関数は、アスキーコード順で\verb/s1/が大きいとき正の値、
-\verb/s1/が小さいとき負の値、同じ時\verb/0/を返します。
-トランスレータ版では\cl の\verb/strcmp/関数に置き換えられます。
+文字列\|s1|と文字列\|s2|を比較します。
+\|strCmp|関数は、アスキーコード順で\|s1|が大きいとき正の値、
+\|s1|が小さいとき負の値、同じ時\|0|を返します。
+トランスレータ版では\cl の\|strcmp|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -605,10 +673,10 @@ public int strCmp(char[] s1, char[] s2);
 
 \subsection{strNcmp関数}
 
-文字列\verb/s1/と文字列\verb/s2/の先頭\verb/n/文字を比較します。
-\verb/strNcmp/関数は、
-\verb/strcmp/関数同様にアスキーコード順で大小を判断します。
-トランスレータ版では\cl の\verb/strncmp/関数に置き換えられます。
+文字列\|s1|と文字列\|s2|の先頭\|n|文字を比較します。
+\|strNcmp|関数は、
+\|strcmp|関数同様にアスキーコード順で大小を判断します。
+トランスレータ版では\cl の\|strncmp|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -619,9 +687,9 @@ public int strNcmp(char[] d, char[] s, int n);
 
 \subsection{strLen関数}
 
-文字列\verb/s/の長さを返します。
-長さに\verb/'\0'/は含まれません。
-トランスレータ版では\cl の\verb/strlen/関数に置き換えられます。
+文字列\|s|の長さを返します。
+長さに\|'\0'|は含まれません。
+トランスレータ版では\cl の\|strlen|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -632,10 +700,10 @@ public int strLen(char[] s);
 
 \subsection{strChr関数}
 
-文字列\verb/s/の中で最初に文字\verb/c/が現れる位置を、
-{\bf\verb/s/文字配列の添字}で返します。
-文字\verb/c/が含まれていない場合は\verb/-1/を返します。
-トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
+文字列\|s|の中で最初に文字\|c|が現れる位置を、
+{\bf\|s|文字配列の添字}で返します。
+文字\|c|が含まれていない場合は\|-1|を返します。
+トランスレータ版では\|lib/wrapper.c|の関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -646,10 +714,10 @@ public int strChr(char[] s, char c);
 
 \subsection{strRchr関数}
 
-文字列\verb/s/の中で最後に文字\verb/c/が現れる位置を、
-{\bf\verb/s/文字配列の添字}で返します。
-文字\verb/c/が含まれていない場合は\verb/-1/を返します。
-トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
+文字列\|s|の中で最後に文字\|c|が現れる位置を、
+{\bf\|s|文字配列の添字}で返します。
+文字\|c|が含まれていない場合は\|-1|を返します。
+トランスレータ版では\|lib/wrapper.c|の関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -660,10 +728,10 @@ public int strRchr(char[] s, char c);
 
 \subsection{strStr関数}
 
-文字列\verb/s1/の中に文字列\verb/s2/が現れる位置を、
-{\bf\verb/s1/文字配列の添字}で返します。
-文字列\verb/s2/が含まれていない場合は\verb/-1/を返します。
-トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
+文字列\|s1|の中に文字列\|s2|が現れる位置を、
+{\bf\|s1|文字配列の添字}で返します。
+文字列\|s2|が含まれていない場合は\|-1|を返します。
+トランスレータ版では\|lib/wrapper.c|の関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -674,9 +742,9 @@ public int strStr(char[] s1, char[] s2);
 
 \subsection{subStr関数}
 
-文字列\verb/s/の先頭\verb/pos/文字を省いた部分文字列を返します。
-返した文字列は\verb/s/とメモリ領域を共用していますので注意が必要です。
-トランスレータ版では\verb;lib/wrapper.c;の関数に置き換えられます。
+文字列\|s|の先頭\|pos|文字を省いた部分文字列を返します。
+返した文字列は\|s|とメモリ領域を共用していますので注意が必要です。
+トランスレータ版では\|lib/wrapper.c|の関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -687,12 +755,12 @@ public char[] subStr(char[] s, int pos);
 
 \section{文字クラス分類関数}
 
-\verb/#include <ctype.hmm>/を書いた後で使用します。
+\|#include <ctype.hmm>|を書いた後で使用します。
 
 \subsection{isAlpha関数}
 
-文字\verb/c/がアルファベットなら\verb/true/を返します。
-トランスレータ版では\cl の\verb/isalpha/関数に置き換えられます。
+文字\|c|がアルファベットなら\|true|を返します。
+トランスレータ版では\cl の\|isalpha|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -703,8 +771,8 @@ public boolean isAlpha(char c);
 
 \subsection{isDigit関数}
 
-文字\verb/c/が数字なら\verb/true/を返します。
-トランスレータ版では\cl の\verb/isdigit/関数に置き換えられます。
+文字\|c|が数字なら\|true|を返します。
+トランスレータ版では\cl の\|isdigit|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -715,8 +783,8 @@ public boolean isDigit(char c);
 
 \subsection{isAlnum関数}
 
-文字\verb/c/がアルファベットか数字なら\verb/true/を返します。
-トランスレータ版では\cl の\verb/isalnum/関数に置き換えられます。
+文字\|c|がアルファベットか数字なら\|true|を返します。
+トランスレータ版では\cl の\|isalnum|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -727,8 +795,8 @@ public boolean isAlnum(char c);
 
 \subsection{isPrint関数}
 
-文字\verb/c/が印刷可能文字なら\verb/true/を返します。
-トランスレータ版では\cl の\verb/isprint/関数に置き換えられます。
+文字\|c|が印刷可能文字なら\|true|を返します。
+トランスレータ版では\cl の\|isprint|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -739,8 +807,8 @@ public boolean isPrint(char c);
 
 \subsection{isLower関数}
 
-文字\verb/c/がアルファベット小文字なら\verb/true/を返します。
-トランスレータ版では\cl の\verb/islower/関数に置き換えられます。
+文字\|c|がアルファベット小文字なら\|true|を返します。
+トランスレータ版では\cl の\|islower|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -751,8 +819,8 @@ public boolean isLower(char c);
 
 \subsection{isUpper関数}
 
-文字\verb/c/がアルファベット大文字なら\verb/true/を返します。
-トランスレータ版では\cl の\verb/isupper/関数に置き換えられます。
+文字\|c|がアルファベット大文字なら\|true|を返します。
+トランスレータ版では\cl の\|isupper|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -763,8 +831,8 @@ public boolean isUpper(char c);
 
 \subsection{isXdigit関数}
 
-文字\verb/c/が16進数文字なら\verb/true/を返します。
-トランスレータ版では\cl の\verb/isxdigit/関数に置き換えられます。
+文字\|c|が16進数文字なら\|true|を返します。
+トランスレータ版では\cl の\|isxdigit|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -775,9 +843,9 @@ public boolean isXdigit(char c);
 
 \subsection{isSpace関数}
 
-文字\verb/c/が空白文字（\verb/'\t'/、\verb/'\n'/、\verb/'\v'/、
-\verb/'\f'/、\verb/'\r'/、\verb/' '/）なら\verb/true/を返します。
-トランスレータ版では\cl の\verb/isspace/関数に置き換えられます。
+文字\|c|が空白文字（\|'\t'|、\|'\n'|、\|'\v'|、
+\|'\f'|、\|'\r'|、\|' '|）なら\|true|を返します。
+トランスレータ版では\cl の\|isspace|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -788,9 +856,9 @@ public boolean isSpace(char c);
 
 \subsection{toLower関数}
 
-文字\verb/c/がアルファベット大文字なら小文字に変換して返します。
-文字\verb/c/がアルファベット大文字以外の場合は変換しないで返します。
-トランスレータ版では\cl の\verb/tolower/関数に置き換えられます。
+文字\|c|がアルファベット大文字なら小文字に変換して返します。
+文字\|c|がアルファベット大文字以外の場合は変換しないで返します。
+トランスレータ版では\cl の\|tolower|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -801,9 +869,9 @@ public char toLower(char c);
 
 \subsection{toUpper関数}
 
-文字\verb/c/がアルファベット小文字なら大文字に変換して返します。
-文字\verb/c/がアルファベット小文字以外の場合は変換しないで返します。
-トランスレータ版では\cl の\verb/toupper/関数に置き換えられます。
+文字\|c|がアルファベット小文字なら大文字に変換して返します。
+文字\|c|がアルファベット小文字以外の場合は変換しないで返します。
+トランスレータ版では\cl の\|toupper|関数に置き換えられます。
 
 \begin{quote}
 \begin{verbatim}
@@ -815,17 +883,17 @@ public char toUpper(char c);
 \section{特殊な関数}
 
 \cmml にはキャスティング演算や、ポインタ演算がありません。
-これらの代用となる関数が\verb/#include <crt0.hmm>/を書いた後で使用できます。
+これらの代用となる関数が\|#include <crt0.hmm>|を書いた後で使用できます。
 
 \subsection{{\ul}iToA関数}
 \label{chap4:itoa}
 
 整数から参照へ型を変換する関数です。
-整数を引数に \verb/void[]/ 参照(アドレス)を返します。
+整数を引数に \|void[]| 参照(アドレス)を返します。
 トランスレータ版で64bitの\cl 環境では、
-\verb/int/型とポインタ型のビット数が異なるので危険です。
+\|int|型とポインタ型のビット数が異なるので危険です。
 そこで、トランスレータ版では使用禁止になっています。
-関数の値は \verb/void[]/ 型の参照なので、
+関数の値は \|void[]| 型の参照なので、
 どのような参照型変数にも代入できます。
 
 \begin{quote}
@@ -840,9 +908,9 @@ public void[] _iToA(int a);
 参照から整数へ型を変換する関数です。
 参照(アドレス)を引数に整数を返します。
 トランスレータ版で64bitの\cl 環境では、
-\verb/int/型とポインタ型のビット数が異なるので危険です。
+\|int|型とポインタ型のビット数が異なるので危険です。
 そこで、トランスレータ版では使用禁止になっています。
-引数の型は \verb/void[]/ なので、
+引数の型は \|void[]| なので、
 参照型ならどんな型でも渡すことができます。
 
 \begin{quote}
@@ -882,12 +950,12 @@ public void[] _addrAdd(void[] a, int n);
 参照(アドレス)の大小比較を行う関数です。
 \cmml では参照の大小比較はできません。
 \javal でも参照の大小比較はできないので、通常はこの仕様で十分と考えられます。
-しかし、\verb/malloc/、\verb/free/ 関数等の実現には
+しかし、\|malloc|、\|free| 関数等の実現には
 アドレスの大小比較が必要です。
 そこで、アドレスの大小比較をする {\ul}aCmp 関数を用意しました。
-{\ul}aCmp 関数は、\verb/a/ の方が大きい場合は 1 を、
-\verb/b/ の方が大きい場合は -1 を、
-\verb/a/ と \verb/b/ が等しい場合は 0 を返します。
+{\ul}aCmp 関数は、\|a| の方が大きい場合は 1 を、
+\|b| の方が大きい場合は -1 を、
+\|a| と \|b| が等しい場合は 0 を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -899,9 +967,9 @@ public int _aCmp(void[] a, void[] b);
 \subsection{{\ul}uCmp関数}
 
 符号無し数の比較を行う関数です。
-{\ul}uCmp 関数は、\verb/a/ の方が大きい場合は 1 を、
-\verb/b/ の方が大きい場合は -1 を、
-\verb/a/ と \verb/b/ が等しい場合は 0 を返します。
+{\ul}uCmp 関数は、\|a| の方が大きい場合は 1 を、
+\|b| の方が大きい場合は -1 を、
+\|a| と \|b| が等しい場合は 0 を返します。
 
 \begin{quote}
 \begin{verbatim}
@@ -916,7 +984,7 @@ public int _uCmp(int a, int b);
 printf 関数のような可変個引数の関数を実現するために、
 可変個引数関数の内部で引数を配列としてアクセスできるようにする関数です。
 {\ul}args 関数は{\ul}args を呼び出した
-{\cmm}関数の第1引数を添字\verb/0/とする\verb/int/配列を返します。
+{\cmm}関数の第1引数を添字\|0|とする\|int|配列を返します。
 {\ul}args 関数は、{\cl}トランスレータ版では使用できません。
 
 \begin{quote}
@@ -926,7 +994,7 @@ public int[] _args();
 \end{verbatim}
 \end{quote}
 
-次に可変個引数関数の記述例を示します。
+次に可変個引数関数の使用例を示します。
 
 \begin{mylist}
 \begin{verbatim}
@@ -937,3 +1005,81 @@ int f(char[] s, ...) {         // ... は可変個引数の関数を表す
   printf("%d\n", args[2]);     // 引数 ... の２番に該当（第３引数）
 \end{verbatim}
 \end{mylist}
+
+\subsection{{\ul}add32関数}
+\label{chap4:add32}
+
+\tac で32ビットの計算を行うための関数です。
+計算の対象は\|int|配列で上位\|[0]|、下位\|[1]|の順に表現した
+符号なし32ビットデータです。
+引数の\|dst|、\|src|が32ビットデータを表現する\|int|配列です。
+$dst = dst + src$を計算します。
+{\ul}add32 関数が返す値は\|dst|配列の参照です。
+{\ul}add32 関数は、{\cl}トランスレータ版では使用できません。
+
+\begin{quote}
+\begin{verbatim}
+#include <crt0.hmm>
+public int[] _add32(int[] dst, int[] src);
+\end{verbatim}
+\end{quote}
+
+次に使用例を示します。
+\|a|、\|b|配列が32ビットデータを表します。
+これらは、２つの16ビットデータです。
+この例は{\ul}add32 関数が\|dst|の参照を返すことを利用しています。
+
+\begin{mylist}
+\begin{verbatim}
+int[] a = {12345,6789}:
+int[] b = {23456,7890}:
+...
+  _add32(_add32(a, b), b);  // a = a + b + b;
+\end{verbatim}
+\end{mylist}
+
+\subsection{{\ul}sub32関数}
+\label{chap4:sub32}
+
+\tac で32ビットの計算を行うための関数です。
+$dst = dst - src$を計算します。
+{\ul}sub32 関数が返す値は\|dst|配列の参照です。
+{\ul}sub32 関数は、{\cl}トランスレータ版では使用できません。
+
+\begin{quote}
+\begin{verbatim}
+#include <crt0.hmm>
+public int[] _sub32(int[] dst, int[] src);
+\end{verbatim}
+\end{quote}
+
+\subsection{{\ul}div32関数}
+\label{chap4:div32}
+
+\tac で32ビットの計算を行うための関数です。
+$dst = dst / src$を計算します。
+{\ul}div32 関数が返す値は\|dst|配列の参照です。
+{\ul}div32 関数は、{\cl}トランスレータ版では使用できません。
+
+\begin{quote}
+\begin{verbatim}
+#include <crt0.hmm>
+public int[] _div32(int[] dst, int[] src);
+\end{verbatim}
+\end{quote}
+
+\subsection{{\ul}mod32関数}
+\label{chap4:mod32}
+
+\tac で32ビットの計算を行うための関数です。
+\|dst|を\|src|で割った余りを返します。
+上記の３つの関数と異なり関数の返り値と\|src|が\|int|型、
+\|dst|の値は変化しないことに気を付けて下さい。
+{\ul}mod32 関数は、{\cl}トランスレータ版では使用できません。
+
+\begin{quote}
+\begin{verbatim}
+#include <crt0.hmm>
+public int _mod32(int[] dst, int src);
+\end{verbatim}
+\end{quote}
