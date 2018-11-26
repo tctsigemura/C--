@@ -26,7 +26,7 @@
 MAKEFLAGS=--no-print-directory
 
 # サブディレクトリ
-SUBDIRS:=cat dump echo fsize ls mkdir rm rmdir shell touch
+SUBDIRS:=cat dump echo edit fsize ls mkdir rm rmdir shell touch
 
 all :
 	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir); )
