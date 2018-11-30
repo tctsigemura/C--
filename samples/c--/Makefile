@@ -22,3 +22,4 @@ v-c--:
 
 clean:
 	rm -f *.cmm~ *.hmm~ Makefile~ c-- c-c-- v-c--
+	rm -rf *.dSYM

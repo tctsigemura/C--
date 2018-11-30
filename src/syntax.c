@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2018.11.30         : void[] に []演算をしたエラーを発見したときの処理にバグ
  * 2016.09.19         : SyLABL を SyADDR に変更
  * 2016.09.18         : SyCHAR を SyCHR に変更
  * 2016.09.15         : sySetSize(0) を syClear() に変更
@@ -299,12 +300,19 @@ static void getIdxOP(struct watch *w) {
   w->dim = w->dim - 1;                         // 式(w)の次元を下げる
 
   int stype = w->type;
-  if (w->dim>0 || stype<=0) stype = SyIDXW;    // 参照はワード配列
-  else if (stype==TyINT)    stype = SyIDXW;    // int はワード配列
-  else if (stype==TyCHAR)   stype = SyIDXB;    // char はバイト配列
-  else if (stype==TyBOOL)   stype = SyIDXB;    // boolean はバイト配列
-  else error("バグ...getIdxOP");
-
+  if (w->dim>0 || stype<=0) {
+    stype = SyIDXW;                            // 参照はワード配列
+  } else if (stype==TyINT)  {
+    stype = SyIDXW;                            // int はワード配列
+  } else if (stype==TyCHAR) {
+    stype = SyIDXB;                            // char はバイト配列
+  } else if (stype==TyBOOL) {
+    stype = SyIDXB;                            // boolean はバイト配列
+  } else if (stype==TyVOID) {
+    error("void型は使用できない");             // void 配列に[]演算はできない
+  } else {
+    error("バグ...getIdxOP");
+  }
   w->tree = syNewNode(stype, w->tree, w2->tree);//
   w->lhs = true;                               // 演算結果は代入可
   freeWatch(w2);
