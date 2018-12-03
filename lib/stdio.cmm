@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2018.12.03 : readDir が 0x05 のエントリを無視するバグ修正
  * 2018.02.22 : fsize 追加
  * 2018.02.20 : fseek 追加
  * 2016.02.25 : TacOS の usr/lib/lib.cmm をもとに作成
@@ -396,10 +397,13 @@ public int readDir(int fd, Dir dir) {
     char flag = buf[0];                        //   エントリの先頭１バイト
     int  attr = ord(buf[11]);                  //   属性
     if (flag=='\x00') return 0;                //   この先に有効エントリは無い
-    if (flag!='\xe5' && flag!='\x05' &&        //   有効なエントリでかつ
+    if (flag!='\xe5' &&                        //   有効なエントリでかつ
         (attr & 0x0a)==0) {                    //   通常ファイルかディレクトリ
       for (int i=0; i<11; i=i+1)               //     ファイル名をコピー
         dir.name[i]=buf[i];
+      if (flag=='\x05') {                      //     先頭バイトの0x05は
+        dir.name[0]='\xe5';                    //       SJISの0xe5にする
+      }
       dir.name[11]='\0';                       //     ファイル名を完成させる
       dir.attr = attr;                         //     属性
       dir.clst = wordLE(buf, 26);              //     先頭クラスタ番号
