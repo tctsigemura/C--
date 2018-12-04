@@ -231,13 +231,13 @@ static void printExp(int node,boolean func){
   int rVal = syGetRVal(node);
   int idim=ntGetDim(lVal)-2;                        //(次元の数-2)だけRAへの型変換を行う
   if (typ==SyCNST) {                                // 定数なら
-    printf("%d", syGetLVal(node));                //   "値"
+    printf("%d", syGetLVal(node));                  //   "値"
   } else if (typ==SySTR) {                          // 文字列なら
-    printStrLab(lVal,true,func);                  //   "文字列ラベル"
+    printStrLab(lVal,true,func);                    //   "文字列ラベル"
   } else if (typ==SyLOC) {                          // ローカル変数なら
-    printLocVar(lVal);                            //   "ローカル変数名"
+    printLocVar(lVal);                              //   "ローカル変数名"
   } else if (typ==SyPRM) {                          // 仮引数なら
-    printParam(lVal);                             //   "仮引数名"
+    printParam(lVal);                               //   "仮引数名"
   } else if (typ==SyGLB) {                          // グローバル変数なら
       int typ2 = ntGetType(lVal);
       if(idim>=0){                                  //二次元以上の場合
@@ -255,16 +255,16 @@ static void printExp(int node,boolean func){
       }
       printf("%s", ntGetName(lVal));                //   "変数名"
   } else if (typ==SyADDR) {                         // addrofなら
-    printf("((int)&%s)", ntGetName(lVal));        //   "((int)(&変数))"
+    printf("((int)&%s)", ntGetName(lVal));          //   "((int)(&変数))"
   } else if (typ==SyFUNC) {                         // 関数なら
-    printf("%s(", ntGetName(lVal));               //   "関数名([実引数,...])"
-    if (rVal!=SyNULL) printArgs(rVal);            //
-    printf(")");                                  //
+    printf("%s(", ntGetName(lVal));                 //   "関数名([実引数,...])"
+    if (rVal!=SyNULL) printArgs(rVal);              //
+    printf(")");                                    //
   } else if (typ==SyIDXW || typ==SyIDXB) {          // [] なら
-    printExp(lVal,func);                          //  "左辺式[右辺式]"
-    printf("->a[");                               // "->a[
-    printExp(rVal,func);                          //
-    printf("]");                                  // "]"
+    printExp(lVal,func);                            //  "左辺式[右辺式]"
+    printf("->a[");                                 // "->a[
+    printExp(rVal,func);                            //
+    printf("]");                                    // "]"
         
       //cntiがfalseの時一番内側のカッコなのでいひとつ多く閉じる
       //cnttがfalseの時、配列は一次元配列なので型変換を行わない
@@ -279,37 +279,37 @@ static void printExp(int node,boolean func){
         idim2=idim2-1;
       }
       else if(idim2<=0){                            //型変換が完了した後
-        cnti=false;                               //次の型変換のためにcntiを初期化
+        cnti=false;                                 //次の型変換のためにcntiを初期化
       }
   } else if (typ==SyDOT) {                          // . なら
-    printExp(lVal,func);                          //   "左辺式->フィールド名"
-    printf("->");                                 //
-    printf("%s", ntGetName(syGetLVal(rVal)));     //
+    printExp(lVal,func);                            //   "左辺式->フィールド名"
+    printf("->");                                   //
+    printf("%s", ntGetName(syGetLVal(rVal)));       //
   } else if (typ==SyCHR) {                          // chr() なら
-    printf("(0xff&");                             //   念のため0xffでマスク
-    printExp(lVal,func);                          //   "(0xff & 式)"
-    printf(")");                                  //
+    printf("(0xff&");                               //   念のため0xffでマスク
+    printExp(lVal,func);                            //   "(0xff & 式)"
+    printf(")");                                    //
   } else if (typ==SyBOOL) {                         // bool() なら
-    printf("(0x01&");                             //   念のため1でマスク
-    printExp(lVal,func);                          //   "(0x01 & 式)"
-    printf(")");                                  //
+    printf("(0x01&");                               //   念のため1でマスク
+    printExp(lVal,func);                            //   "(0x01 & 式)"
+    printf(")");                                    //
   } else if (typ==SySIZE) {                         // sizeof() なら
-    if (lVal<=0) rVal = rVal - 1;                 //   参照型は*を１つ減らす
-    printf("sizeof(");                            //
-    printType(false, lVal, rVal, false,false);    //改定
-    printf(")");                                  //
+    if (lVal<=0) rVal = rVal - 1;                   //   参照型は*を１つ減らす
+    printf("sizeof(");                              //
+    printType(false, lVal, rVal, false,false);      //改定
+    printf(")");                                    //
   } else if (SyIS1OPR(typ)) {                       // 後置以外の単項演算なら
-    printf("(");                                  //   "(演算子 式)"
-    printOP(typ);                                 //
-    printExp(lVal,func);                          //
-    printf(")");                                  //
+    printf("(");                                    //   "(演算子 式)"
+    printOP(typ);                                   //
+    printExp(lVal,func);                            //
+    printf(")");                                    //
   } else {                                          // それ以外なら２項演算
-    printf("(");                                  //   "(左辺 演算子 右辺)"
-    printExp(lVal,func);                          //
-    printOP(typ);                                 //
-    printExp(rVal,func);                          //
-    printf(")");                                  //
-    cnti=false;                                   // 改定次の型変換のためにcntiを初期化
+    printf("(");                                    //   "(左辺 演算子 右辺)"
+    printExp(lVal,func);                            //
+    printOP(typ);                                   //
+    printExp(rVal,func);                            //
+    printf(")");                                    //
+    cnti=false;                                     // 改定次の型変換のためにcntiを初期化
         
   }
 }
@@ -483,24 +483,24 @@ static int printArray0(int vType, int dim, int node, int cnt) {
   int lVal = syGetLVal(node);
   int l = tmpLab;
   if (typ==SySEMI) {                                // 最後の次元でない時
-    if (syGetType(rVal)!=SyCNST)                  // 定数でなければエラー
+    if (syGetType(rVal)!=SyCNST)                    // 定数でなければエラー
         error("バグ...printArray0_1");
-    int size = syGetLVal(rVal);                   // 次の次元の要素数
+    int size = syGetLVal(rVal);                     // 次の次元の要素数
     // 次の次元の配列を生成
     int ln = printArray0(vType, dim-1, lVal, cnt*size);
     l = tmpLab;
-    for (int i=0; i<cnt; i++) {                   // 前の次元の要素数分
-        printPtrArray(vType, dim, size, ln);      // 中間のポインタ配列
+    for (int i=0; i<cnt; i++) {                     // 前の次元の要素数分
+        printPtrArray(vType, dim, size, ln);        // 中間のポインタ配列
         ln = ln + size;
     }
   } else if (typ==SyCNST) {                         // 最後の次元の時
-    for (int i=0; i<cnt; i++) {                   // 前の次元の要素数分
-        printType(true,vType,dim,true,false);     // "static 型名[*...]"
-        printTmpLab(newTmpLab());                 // "_cmm_%dT"
-        printf("=");                              // "="
-        printcurly(lVal,0,true);                  //"構造体の初期化データを印刷"
+    for (int i=0; i<cnt; i++) {                     // 前の次元の要素数分
+        printType(true,vType,dim,true,false);       // "static 型名[*...]"
+        printTmpLab(newTmpLab());                   // "_cmm_%dT"
+        printf("=");                                // "="
+        printcurly(lVal,0,true);                    //"構造体の初期化データを印刷"
     }
-  } else error("バグ...printArray0_2");             // それ以外ならバグ
+  } else error("バグ...printArray0_2");              // それ以外ならバグ
   return l;
 }
 
