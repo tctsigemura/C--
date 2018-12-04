@@ -484,14 +484,14 @@ static int printArray0(int vType, int dim, int node, int cnt) {
   int l = tmpLab;
   if (typ==SySEMI) {                                // 最後の次元でない時
     if (syGetType(rVal)!=SyCNST)                    // 定数でなければエラー
-        error("バグ...printArray0_1");
+      error("バグ...printArray0_1");
     int size = syGetLVal(rVal);                     // 次の次元の要素数
     // 次の次元の配列を生成
     int ln = printArray0(vType, dim-1, lVal, cnt*size);
     l = tmpLab;
     for (int i=0; i<cnt; i++) {                     // 前の次元の要素数分
-        printPtrArray(vType, dim, size, ln);        // 中間のポインタ配列
-        ln = ln + size;
+      printPtrArray(vType, dim, size, ln);        // 中間のポインタ配列
+      ln = ln + size;
     }
   } else if (typ==SyCNST) {                         // 最後の次元の時
     for (int i=0; i<cnt; i++) {                     // 前の次元の要素数分
