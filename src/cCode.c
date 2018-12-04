@@ -500,7 +500,7 @@ static int printArray0(int vType, int dim, int node, int cnt) {
         printf("=");                                // "="
         printcurly(lVal,0,true);                    //"構造体の初期化データを印刷"
     }
-  } else error("バグ...printArray0_2");              // それ以外ならバグ
+  } else error("バグ...printArray0_2");             // それ以外ならバグ
   return l;
 }
 
