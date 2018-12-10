@@ -147,7 +147,7 @@ static void printcurly(int size,int youso,boolean ary){
   else if (ary==false) {                            // リストならば
           printf("&");                              // "&"
           printTmpLab(youso+j);                     // _cmm_%dT
-       for (int j=1; j<size; j=j+1) {                // 要素数の数だけ続ける
+       for (int j=1; j<size; j=j+1) {               // 要素数の数だけ続ける
           printf(",");                              // ","
           printf("&");                              // "&"
           printTmpLab(youso+j);                     // _cmm_%dT
@@ -190,11 +190,11 @@ static void printExp(int node,boolean func);
 // 関数呼び出し時に実引数を印刷する
 static void printArgs(int node){
   if (syGetType(node)==SySEMI) {                    // 引数リストなら
-    printArgs(syGetLVal(node));                     // 左ノード印刷
-    printf(",");                                    // 引数の間に","
-    printArgs(syGetRVal(node));                     // 右ノード印刷
+    printArgs(syGetLVal(node));                     //   左ノード印刷
+    printf(",");                                    //   引数の間に","
+    printArgs(syGetRVal(node));                     //   右ノード印刷
   } else {                                          // 引数なら
-    printExp(node,true);                            // 改定　引数式印刷(関数呼び出し時のみfuncをtrue)
+    printExp(node,true);                            //   改定　引数式印刷(関数呼び出し時のみfuncをtrue)
   }
 }
 
@@ -220,18 +220,18 @@ static void printExp(int node,boolean func){
   int rVal = syGetRVal(node);
   int idim=ntGetDim(lVal)-2;                        // (次元の数-2)だけRAへの型変換を行う
     if (typ==SyCNST) {                              // 定数なら
-    printf("%d", syGetLVal(node));                  // "値"
+    printf("%d", syGetLVal(node));                  //   "値"
   } else if (typ==SySTR) {                          // 文字列なら
-    printStrLab(lVal,true,func);                    // "文字列ラベル"
+    printStrLab(lVal,true,func);                    //   "文字列ラベル"
   } else if (typ==SyLOC) {                          // ローカル変数なら
-    printLocVar(lVal);                              // "ローカル変数名"
+    printLocVar(lVal);                              //   "ローカル変数名"
   } else if (typ==SyPRM) {                          // 仮引数なら
-    printParam(lVal);                               // "仮引数名"
+    printParam(lVal);                               //   "仮引数名"
   } else if (typ==SyGLB) {                          // グローバル変数なら
       int typ2 = ntGetType(lVal);
-      if (cnts>=2) {                                  // 参照の深さが2以上の時,型変換を行う
+      if (cnts>=2) {                                // 参照の深さが2以上の時,型変換を行う
       cas=true;
-      if (idim>=0) {                                  // 二次元以上の場合
+      if (idim>=0) {                                // 二次元以上の場合
       printArrayTypePoint(typ2);                    // 配列アクセス時の型変換を印刷
           cntt=true;
       } else {                                      // 一次元配列の時は型変換を行わない
@@ -247,17 +247,17 @@ static void printExp(int node,boolean func){
       printf("%s", ntGetName(lVal));                // "変数名"
       
   } else if (typ==SyADDR) {                         // addrofなら
-    printf("((int)&%s)", ntGetName(lVal));          // "((int)(&変数))"
+    printf("((int)&%s)", ntGetName(lVal));          //   "((int)(&変数))"
   } else if (typ==SyFUNC) {                         // 関数なら
-    printf("%s(", ntGetName(lVal));                 // "関数名([実引数,...])"
+    printf("%s(", ntGetName(lVal));                 //   "関数名([実引数,...])"
     if (rVal!=SyNULL) printArgs(rVal);              //
     printf(")");                                    //
   } else if (typ==SyIDXW || typ==SyIDXB) {          // [] なら
-      cnts=cnts+1;                                  //参照の深さ
-    printExp(lVal,func);                            // "左辺式[右辺式]"
-    printf("->a[");                                 // "->a[
+      cnts=cnts+1;                                  //  参照の深さ
+    printExp(lVal,func);                            //   "左辺式[右辺式]"
+    printf("->a[");                                 //   "->a[
     printExp(rVal,func);                            //
-    printf("]");                                    // "]"
+    printf("]");                                    //   "]"
         
       // cntiがfalseの時一番内側のカッコなのでいひとつ多く閉じる
       // cnttがfalseの時、配列は一次元配列なので型変換を行わない
