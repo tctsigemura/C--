@@ -88,9 +88,9 @@ static void printTypeName(int typ) {
 static void printArrayType(int typ,int dim) {
 // 一次元配列の参照変数は配列を表す構造体と同じ型にしたい
   if (dim<1) {
-    if (typ==TyINT) printf("IA ");                    // "IA "
-    else if (typ==TyBOOL) printf("CA ");              // booleanは"CA "に置換え
-    else if (typ==TyCHAR) printf("CA ");              // char なら "CA "
+    if (typ==TyINT) printf("IA ");                  // "IA "
+    else if (typ==TyBOOL) printf("CA ");            // booleanは"CA "に置換え
+    else if (typ==TyCHAR) printf("CA ");            // char なら "CA "
     } else {
     printf("RA ");
     }
