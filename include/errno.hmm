@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * include/errno.hmm : errno とエラー番号の定義
  *
+ * 2019.01.10 : エラー番号(EMEMVIO)追加
  * 2016.03.04 : 新規作成（TacOS の usr/include/syslib.h をもとに）
  *
  *$Id$
@@ -38,13 +39,13 @@ public int errno;
 #define ENFILE          (-5)      // ファイルを開きすぎている
 #define EBADF           (-6)      // 不正なファイル記述子
 #define ENOSPC          (-7)      // 空き領域が不足
-#define EPATH           (-8)      // パスが不正（ディレクトリでない、存在しない)
+#define EPATH           (-8)      // パスが不正(ディレクトリでない、存在しない)
 #define EMODE           (-9)      // アクセスモードが一致しない
 #define EFATTR          (-10)     // ファイルの属性が不正
 #define ENOTEMP         (-11)     // ディレクトリの中身が空でない
 #define EINVAL          (-12)     // 引数が不正
 #define EMPROC          (-13)     // プロセスが多すぎる
-#define ENOEXEC         (-14)     // EXE ファイルが不正(見つからない、開けない）
+#define ENOEXEC         (-14)     // EXE ファイルが不正(見つからない、開けない)
 #define EMAGIC          (-15)     // 不正なマジック番号
 #define EMFILE          (-16)     // 1プロセスがファイルを開きすぎている
 #define ECHILD          (-17)     // 子プロセスが存在しない
@@ -56,17 +57,16 @@ public int errno;
 #define EZERODIV        (-21)     // ゼロ割算
 #define EPRIVVIO        (-22)     // 特権例外
 #define EILLINST        (-23)     // 不正命令
-#define ESTKOVRFLW      (-24)     // スタックオーバーフロー
-#define EMEMVIO         (-25)     // メモリ保護違反
+#define EMEMVIO         (-24)     // メモリ保護違反
 
 // ライブラリが検知するユーザプロセスのエラー
-#define EUSTK           (-24)     // スタックオーバーフロー
-#define EUMODE          (-25)     // オープンモードと使用方法が合わない
-#define EUBADF          (-26)     // 不正なファイルポインタ
-#define EUEOF           (-27)     // fgetc の前に EOF チェックすべき
-#define EUNFILE         (-28)     // オープンファイル数が多すぎる
-#define EUSTDIO         (-29)     // 標準入出力をクローズしようとした
-#define EUFMT           (-30)     // fprintfの書式文字列に不正な変換指定
-#define EUNOMEM         (-31)     // ヒープ領域が不足
-#define EUBADA          (-32)     // 不正なアドレスが free に渡された
-#define ELAST           (-33)     // 最後のエラー番号
+#define EUSTK           (-25)     // スタックオーバーフロー
+#define EUMODE          (-26)     // オープンモードと使用方法が合わない
+#define EUBADF          (-27)     // 不正なファイルポインタ
+#define EUEOF           (-28)     // fgetc の前に EOF チェックすべき
+#define EUNFILE         (-29)     // オープンファイル数が多すぎる
+#define EUSTDIO         (-30)     // 標準入出力をクローズしようとした
+#define EUFMT           (-31)     // fprintfの書式文字列に不正な変換指定
+#define EUNOMEM         (-32)     // ヒープ領域が不足
+#define EUBADA          (-33)     // 不正なアドレスが free に渡された
+#define ELAST           (-34)     // 最後のエラー番号
