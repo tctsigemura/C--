@@ -23,7 +23,7 @@
  * include/errno.hmm : errno とエラー番号の定義
  *
  * 2016.03.04 : 新規作成（TacOS の usr/include/syslib.h をもとに）
- * 
+ *
  *$Id$
  *
  */
@@ -56,6 +56,8 @@ public int errno;
 #define EZERODIV        (-21)     // ゼロ割算
 #define EPRIVVIO        (-22)     // 特権例外
 #define EILLINST        (-23)     // 不正命令
+#define ESTKOVRFLW      (-24)     // スタックオーバーフロー
+#define EMEMVIO         (-25)     // メモリ保護違反
 
 // ライブラリが検知するユーザプロセスのエラー
 #define EUSTK           (-24)     // スタックオーバーフロー
