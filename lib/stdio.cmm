@@ -2,7 +2,7 @@
  * Programingxx Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2018 by
+ * Copyright (C) 2016 - 2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2019.01.10 : perror にエラー追加（EMEMVIO）
  * 2018.12.03 : readDir が 0x05 のエントリを無視するバグ修正
  * 2018.02.22 : fsize 追加
  * 2018.02.20 : fseek 追加
@@ -362,21 +363,22 @@ char[][] errList = {                            // エラーメッセージリ�
   "Zero division",                              // -21 ゼロ割り算
   "Privilege violation",                        // -22 特権例外
   "Illegal instruction",                        // -23 不正命令
+  "Memory violation",                           // -24 メモリ保護違反
 
   // ライブラリ(ユーザプロセス自身)が検知するエラー
-  "Stack overflow",                             // -24 スタックオーバーフロー
-  "stdio: Bad open mode",                       // -25 READにfputc/WRITEにfgetc
-  "stdio: Bad file pointer",                    // -26 不正な fp が使用された
-  "fgetc: EOF was ignored",                     // -27 fgetc前にEOFチェック必要
-  "fopen: Too many open files",                 // -28 プロセス毎のオープン超過
-  "fclose: Standard i/o should not be closed",  // -29 標準ioはクローズできない
-  "fprintf: Invalid conversion",                // -30 書式文字列に不正な変換
-  "malloc: Insufficient memory",                // -31 ヒープ領域が不足
-  "free: Bad address"                           // -32 mallocした領域ではない
+  "Stack overflow",                             // -25 スタックオーバーフロー
+  "stdio: Bad open mode",                       // -26 READにfputc/WRITEにfgetc
+  "stdio: Bad file pointer",                    // -27 不正な fp が使用された
+  "fgetc: EOF was ignored",                     // -28 fgetc前にEOFチェック必要
+  "fopen: Too many open files",                 // -29 プロセス毎のオープン超過
+  "fclose: Standard i/o should not be closed",  // -30 標準ioはクローズできない
+  "fprintf: Invalid conversion",                // -31 書式文字列に不正な変換
+  "malloc: Insufficient memory",                // -32 ヒープ領域が不足
+  "free: Bad address"                           // -33 mallocした領域ではない
 };
 
 public void _perror(char[] msg, int err) {
-  if (err<ELAST || 0<=err) err = 0;             // 不正な err は Undefined error
+  if (err<ELAST || 0<=err) err = 0;             // 不正なerrは Undefined error
   if (msg!=null && msg[0]!='\0')                // msg があるなら
     fprintf(stderr, "%s: ", msg);               // "xxxx: "と表示
   fprintf(stderr, "%s\n", errList[-err]);       // エラーメッセージを表示

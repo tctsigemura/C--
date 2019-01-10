@@ -2,7 +2,7 @@
 ; Programing Language C-- "Compiler"
 ;    Tokuyama kousen Advanced educational Computer
 ;
-; Copyright (C) 2016 - 2018 by
+; Copyright (C) 2016 - 2019 by
 ;                      Dept. of Computer Science and Electronic Engineering,
 ;                      Tokuyama College of Technology, JAPAN
 ;
@@ -19,6 +19,7 @@
 
 ; lib/crt0.s : ユーザプロセス用スタートアップ
 ;
+; 2019.01.10  エラー番号が変更になった（EUSTK）
 ; 2018.11.14  32ビット演算を追加
 ; 2016.02.25  新規作成（TacOS の usr/lib/crt0.s をもとに）
 ;
@@ -166,7 +167,7 @@ __stkChk
         
 ; スタックがオーバーフローした場合、 _exit(EUSTK) を実行
 .stkOverFlow
-        ld      g0,#-24         ; パラメータ(EUSTK)
+        ld      g0,#-25         ; パラメータ(EUSTK)
         push    g0              ;   をスタックに積む
         call    __exit          ; exit を呼ぶ
 
