@@ -18,6 +18,7 @@ sflag="no"
 cflag="no"
 eflag="no"
 kflag=""
+pflag=""
 incdir=""
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -27,6 +28,7 @@ while [ $# -gt 0 ]; do
         -c) cflag="yes"; shift;;
         -E) eflag="yes"; shift;;
         -K) kflag="-K"; shift;;
+        -P) pflag="-P"; shift;;
         -nostdinc) INCDIR=""; shift;;
         -I) incdir="$incdir -I$2" shift; shift;;
         -I*)incdir="$incdir $1" shift;;
@@ -41,6 +43,7 @@ while [ $# -gt 0 ]; do
             echo  "       -c        leave .o file"                        1>&2
             echo  "       -E        run the preprocessor stage"           1>&2
             echo  "       -K        kernel mode"                          1>&2
+            echo  "       -P        I/O privileg mode"                    1>&2
             echo  "       -nostdinc Disable standard include directories" 1>&2
             echo  "       -I dir    Add incude directory"                 1>&2
             echo  "       -Dxx=yy   define xx as yy"                      1>&2
@@ -120,7 +123,7 @@ done
 exename=`expr "${exefile}" : '\(.*\)\.[^./]*$'`
 if [ "${eflag}" != "yes" -a "${sflag}" != "yes" -a "${cflag}" != "yes" ]; then
   ld-- $$.o  ${LIBDIR}/libtac.o ${objs} > /dev/null
-  objexe-- ${exefile} $$.o ${stksize} | sort --key=1 > ${exename}.map
+  objexe-- ${pflag} ${exefile} $$.o ${stksize} | sort --key=1 > ${exename}.map
   rm -f ${tmps} $$.o
 fi
 

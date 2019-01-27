@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2018 by
+ * Copyright (C) 2016 - 2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
+ * 2019.01.27 : htoi を追加
  * 2018.11.17 : lToL を追加
  * 2018.02.26 : fsize を追加
  * 2018.02.20 : fseek を追加
@@ -55,6 +56,9 @@ int _fseek(FILE *stream, int offsh, int offsl);
 
 // ファイルサイズを返す
 int fsize(char *path, int *size);
+
+// TaC 版では stdlib.cmm に記述されている関数
+int htoi(char *s);
 
 // TaC 版では string.cmm に記述されている関数
 int strChr(char *s, int c);

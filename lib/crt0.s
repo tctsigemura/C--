@@ -19,6 +19,7 @@
 
 ; lib/crt0.s : ユーザプロセス用スタートアップ
 ;
+; 2019.01.20  in()，out() 追加
 ; 2019.01.10  エラー番号が変更になった（EUSTK）
 ; 2018.11.14  32ビット演算を追加
 ; 2016.02.25  新規作成（TacOS の usr/lib/crt0.s をもとに）
@@ -157,6 +158,19 @@ __sp
         ld      g0,sp
         ret
 
+;; ワード(16bit)を I/O ポートから入力する
+__in                            ; int in(int p);
+        ld      g1,2,sp	        ; ポートアドレス
+        in      g0,g1	        ; I/O ポートから入力する
+        ret
+
+;; ワードを I/O ポートへ出力する
+__out                           ; void out(int p,int v);
+        ld      g0,2,sp	        ; ポートアドレス
+        ld      g1,4,sp	        ; 出力データ
+        out     g1,g0	        ; I/O ポートへ出力する
+        ret
+
 ;; ヒープとスタックの間に 10Byte 以上の余裕があるかチェックする 
 __stkChk
         ld      g0,__alcAddr    ; G0 にヒープ領域の最後をロード
@@ -170,4 +184,3 @@ __stkChk
         ld      g0,#-25         ; パラメータ(EUSTK)
         push    g0              ;   をスタックに積む
         call    __exit          ; exit を呼ぶ
-

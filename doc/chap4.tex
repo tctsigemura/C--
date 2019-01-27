@@ -556,6 +556,18 @@ public int atoi(char[] s);
 \end{verbatim}
 \end{quote}
 
+\subsection{htoi関数}
+
+\|htoi|関数は引数に渡した16進数文字列を解析して、
+それが表現する値を返します。
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public int htoi(char[] s);
+\end{verbatim}
+\end{quote}
+
 \subsection{srand関数}
 
 \|srand|関数は擬似乱数発生器を\|seed|で初期化します。
@@ -1082,5 +1094,35 @@ public int[] _div32(int[] dst, int[] src);
 \begin{verbatim}
 #include <crt0.hmm>
 public int _mod32(int[] dst, int src);
+\end{verbatim}
+\end{quote}
+
+\subsection{{\ul}in関数}
+\label{chap4:in}
+
+\tac のI/Oポートをアクセスする関数です。
+I/O特権モードのアプリケーションプログラムだけが使用できます。
+I/O空間の\|p|番地からワード（16ビット）のデータを入力します。
+{\ul}in 関数は、{\cl}トランスレータ版では使用できません。
+
+\begin{quote}
+\begin{verbatim}
+#include <crt0.hmm>
+public int _in(int p);
+\end{verbatim}
+\end{quote}
+
+\subsection{{\ul}out関数}
+\label{chap4:out}
+
+\tac のI/Oポートをアクセスする関数です。
+I/O特権モードのアプリケーションプログラムだけが使用できます。
+I/O空間の\|p|番地に\|v|のワード（16ビット）データを出力します。
+{\ul}in 関数は、{\cl}トランスレータ版では使用できません。
+
+\begin{quote}
+\begin{verbatim}
+#include <crt0.hmm>
+public vod _out(int p, int v);
 \end{verbatim}
 \end{quote}
