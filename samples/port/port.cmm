@@ -1,8 +1,8 @@
 /*
- * Programing Language C-- "Compiler"
+ * TacOS Source Code
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2019 by
+ * Copyright (C) 2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,30 +20,36 @@
  */
 
 /*
- * include/stdlib.hmm : lib/stdlib.cmm の外部インタフェース
+ * port/port.cmm : port プログラム
  *
- * 2019.01.27 : htoi() を追加
- * 2016.08.27 : Cトランスレータの場合を追加
- * 2016.02.26 : 新規作成
+ * 2019.01.27 : 新規作成
  *
  * $Id$
+ *
  */
 
-// C トランスレータの場合はC関数の定義を読む
-#ifdef C
-#include <cfunc.hmm>
+#include <stdio.hmm>
+#include <stdlib.hmm>
+#include <crt0.hmm>
+
+public int main(int argc, char[][] argv) {
+  if (argc!=3) {
+    fprintf(stderr, "Usage: %s <port> <value>\n", argv[0]);
+    fprintf(stderr, "example:\n");
+    fprintf(stderr, " $ %s 12 ab\n", argv[0]);
+    fprintf(stderr, " io_port(0x%02x) <--- 0x%02x\n", 0x12, 0xab);
+    return 1;
+  }
+
+  int p = htoi(argv[1]);
+  int v = htoi(argv[2]);
+
+  printf("io_port(0x%02x) <--- 0x%02x\n", p, v);
+
+#ifndef C
+  _out(p, v);
 #endif
 
-public void[] _alcAddr;                      // ヒープ領域終端を示すポインタ
-public void _stdlibInit();                   // stdlib の初期化
-
-public void[] malloc(int s);
-public void[] calloc(int c, int s);
-public void free(void[] m);
-
-public int atoi(char[] s);
-public int htoi(char[] s);
-public int rand();
-public void srand(int seed);
-public void exit(int status);
+  return 0;
+}
 

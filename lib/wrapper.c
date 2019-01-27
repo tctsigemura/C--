@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2018 by
+ * Copyright (C) 2016 - 2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * wrapper.c : C-- 版と C 版で仕様が異なる関数など
  *
+ * 2019.01.27 : htoi を追加
  * 2018.11.17 : lToL を追加
  * 2018.02.26 : fsize を追加
  * 2018.02.20 : fseek を追加
@@ -34,6 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #include <wrapper.h>
 
@@ -99,6 +101,21 @@ int fsize(char *path, int *size) {
   size[1] = sbuf.st_size & 0xffffffff;
   return 0;
 }
+
+// TaC 版では stdlib.cmm に記述されている関数
+int htoi(char *s) {
+  int v = 0;
+  for (int i=0; isxdigit(s[i]); i=i+1) {
+    char c = s[i];
+    if (isdigit(c)) {                            // 0-9
+      v = v * 16 + (c-'0');
+    } else {                                     // a-f または A-F
+      v = v * 16 + (10+toupper(c)-'A');
+    }
+  }
+  return v;
+}
+
 
 // TaC 版では string.cmm に記述されている関数
 
