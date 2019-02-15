@@ -514,8 +514,8 @@ static int printArray0(int vType, int dim, int node, int cnt) {
 static void printArray(int node, int idx){
   int lVal = syGetLVal(node);                       // SyARRAY の左辺
   int typ = ntGetType(idx);                         // 配列のデータ型
-  int dim = ntGetDim(idx);                          // 改定 インスタンスの次元数(参照配列の次元数がリストとかわるため-1を消す)
-  int ln = printArray0(typ, dim-1, lVal, 1);        // 改定 配列インスタンス出力(-1はこっちにつける)
+  int dim = ntGetDim(idx);                          // 改定 インスタンスの次元数
+  int ln = printArray0(typ, dim-1, lVal, 1);        // 改定 配列インスタンス出力
   printGlobDcl(idx,true,true);                      // "[static]型名[*...]名前"
   printf("=");                                      // "="
   printf("&");                                      // "&"
@@ -703,17 +703,17 @@ void genStruc(int idx){
 
 // インクルードディレクティブを印刷して以降の出力を禁止する
 // (# 行番号 "path")ディレクティブの処理
-#define  CMMINC "/cmmInclude/"                 // C--用システムヘッダの目印
+#define  CMMINC "/cmmInclude/"                // C--用システムヘッダの目印
 
-void genDirect(int ln, char *fname) {          // # 行番号 "ファイル名" の処理
-  if (strstr(fname, CMMINC)!=null &&           // システムディレクトリの
-      strEndsWith(fname, ".hmm")) {              // ヘッダファイルなら
-    if (ln==1) {                               //  そのファイルが初めてのとき
-      fname[strlen(fname)-2]='\0';             //    ".hmm" を ".h" に改変し
-      fname = strrchr(fname, '/')+1;           //     basename を切り出し
-      printf("#include <%s>\n", fname);        //     "#include <ファイル名>"
+void genDirect(int ln, char *fname) {         // # 行番号 "ファイル名" の処理
+  if (strstr(fname, CMMINC)!=null &&          // システムディレクトリの
+      strEndsWith(fname, ".hmm")) {            // ヘッダファイルなら
+    if (ln==1) {                              //  そのファイルが初めてのとき
+      fname[strlen(fname)-2]='\0';            //    ".hmm" を ".h" に改変し
+      fname = strrchr(fname, '/')+1;          //     basename を切り出し
+      printf("#include <%s>\n", fname);       //     "#include <ファイル名>"
     }
-    inhibitOut = true;                         //  システムヘッダ内部は出力しない
+    inhibitOut = true;                        //  システムヘッダ内部は出力しない
   } else {
     inhibitOut = false;                      // システムヘッダ以外は出力する
   }
