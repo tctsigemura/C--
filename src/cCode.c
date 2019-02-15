@@ -615,12 +615,12 @@ static void printList0(int vType, int dim, int node) {
 static void printList(int node, int idx) {
   int typ = ntGetType(idx);                         // 配列のデータ型
   int dim = ntGetDim(idx);                          // インスタンスの次元数
-    printList0(typ, dim-1, node);                   // リストを出力する
-    printGlobDcl(idx,true,true);                    // "[static]型名[*...]名前"
-    printf("=");                                    // "="
-    printf("&");                                    // "&"
-    printTmpLab(syGetRVal(node));                   // "_cmm_%dT;
-    printf(";\n");                                  // "\n"
+  printList0(typ, dim-1, node);                   // リストを出力する
+  printGlobDcl(idx,true,true);                    // "[static]型名[*...]名前"
+  printf("=");                                    // "="
+  printf("&");                                    // "&"
+  printTmpLab(syGetRVal(node));                   // "_cmm_%dT;
+  printf(";\n");                                  // "\n"
 }
 
 // 初期化データを印刷する
