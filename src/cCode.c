@@ -80,7 +80,7 @@ static void printTypeName(int typ) {
 }
 
 // 改定  配列のデータ構造の型を印刷する
-static void printArrayType(int typ,int dim,boolean ref) {
+static void printArrayType(int typ,int dim, boolean ref) {
   // 一次元配列の参照変数は配列を表す構造体と同じ型にしたい
   if (dim<=0 || (ref==true && dim==1)) {
     if (typ==TyINT) printf("IA ");                  // "IA "
@@ -116,7 +116,7 @@ static void printType(boolean sta, int typ, int nAst, boolean ary, boolean ref) 
 // 改定 名前表からグローバル変数や関数の型と名前を印刷する
 // ary : trueならばidxのグローバル変数や関数の次元数は1次元以上(つまり型を構造体型にする)
 // ref : trueならば構造体を指す参照変数（*を一つ印刷する）
-static void printGlobDcl(int idx,boolean ary,boolean ref) {
+static void printGlobDcl(int idx,boolean ary, boolean ref) {
   boolean sta = !ntGetPub(idx);                     // static
   int typ = ntGetType(idx);                         // 型名
   int dim = ntGetDim(idx);                          // 次元
@@ -125,7 +125,7 @@ static void printGlobDcl(int idx,boolean ary,boolean ref) {
 }
 
 // 改定　配列を表す構造体の初期化データを印刷
-static void printcurly(int size,int youso,boolean ins){
+static void printcurly(int size,int youso, boolean ins){
   int j=0;
     printf("{%d,",size);                            // "{配列サイズ,"
     printf("{");                                    // "{"
