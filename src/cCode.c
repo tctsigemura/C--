@@ -51,7 +51,7 @@ static void printTmpLab(int num) {
 
 // 文字列ラベルを印刷する
 static void printStrLab(int lab) {
-  printf("_cmm_%dS", lab);                          //  "_cmm_番号S"
+  printf("_cmm_%dS", lab);                          // "_cmm_番号S"
 }
 
 // ローカル変数名を印刷する（ローカル変数は番号で管理される）
@@ -270,7 +270,7 @@ static void printExp(int node){
   } else if (typ==SyFUNC) {                         // 関数なら
     printf("%s(", ntGetName(lVal));                 //   "関数名([実引数,...])"
     if (rVal!=SyNULL) printArgs(rVal);              //
-      printf(")");                                  //
+    printf(")");                                  //
   } else if (typ==SyIDXW || typ==SyIDXB) {          // [] なら
     printf("(*");                                   // "(*"
     TypePrint(node);                                // 添字チェック関数を印刷
@@ -343,7 +343,7 @@ static void printWhl(int node){
   printf(";");                                      // ";"
   // 再初期化式
   int rIni = syGetRVal(rVal);                       // 再初期化式があれば
-  if (rIni!=SyNULL) printExp(rIni);                 // "再初期化式"
+  if (rIni!=SyNULL) printExp(rIni);                 //  "再初期化式"
   printf(")\n");                                    // ")"
   // 本体
   traceTree(syGetLVal(rVal));                       // "本体"
@@ -400,7 +400,7 @@ static void printBLK(int node){
 static void traceTree(int node){
   if (node==SyNULL) { printf(";\n"); return; }      // 何も無い ";"
   int typ = syGetType(node);
-  if (typ==SyCNST) printf(";\n");                   // 最適化で消えた文
+  if (typ==SyCNST)      printf(";\n");              // 最適化で消えた文
   else if (typ==SyIF)   printIf(node);              // if 文
   else if (typ==SyELS)  printEls(node);             // if-else 文
   else if (typ==SyWHL)  printWhl(node);             // while 文
@@ -680,7 +680,7 @@ void genStruc(int idx){
   if (inhibitOut) return;                           // 出力抑制中
   int last = ntGetCnt(idx) + idx;                   // 構造体要素の最終位置
   printf("struct %s {\n", ntGetName(idx));          // "struct 名前 {"
-  for (int i=idx+1; i<=last; i++) {                 // 各構造体メンバについて
+  for (int i=idx+1; i<=last; i++){                 // 各構造体メンバについて
     int typ = ntGetType(i);                         // 型
     int dim = ntGetDim(i);                          // 次元
     // 改定　構造体のメンバが構造体の場合、型を"void*"とする
@@ -707,14 +707,14 @@ void genStruc(int idx){
 
 void genDirect(int ln, char *fname) {          // # 行番号 "ファイル名" の処理
   if (strstr(fname, CMMINC)!=null &&           // システムディレクトリの
-    strEndsWith(fname, ".hmm")) {              // ヘッダファイルなら
+      strEndsWith(fname, ".hmm")) {              // ヘッダファイルなら
     if (ln==1) {                               //  そのファイルが初めてのとき
       fname[strlen(fname)-2]='\0';             //    ".hmm" を ".h" に改変し
       fname = strrchr(fname, '/')+1;           //     basename を切り出し
       printf("#include <%s>\n", fname);        //     "#include <ファイル名>"
     }
     inhibitOut = true;                         //  システムヘッダ内部は出力しない
-    } else {
-      inhibitOut = false;                      // システムヘッダ以外は出力する
-    }
+  } else {
+    inhibitOut = false;                      // システムヘッダ以外は出力する
+  }
 }
