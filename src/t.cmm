@@ -1,0 +1,15 @@
+struct X {
+  int a;
+  int b;
+};
+
+int i;
+X s;
+int[] a;
+X[] ss;
+int[][] aa;
+X[][] sss;
+int[][] aaa;
+
+char[] l1="abc\n";
+char[] l2=array(10);
