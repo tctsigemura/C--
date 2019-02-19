@@ -127,7 +127,7 @@ char *subStr(char *s, int pos) {
   return s + pos;
 }
 
-
+// int型の配列チェック用関数
 int *_ICA(IA *x, int i, char *file, int line){
   if(NULL==x){
     fprintf(stderr,"nullPointer %s:%d行 添字%d \n",file,line,i);
@@ -140,6 +140,7 @@ int *_ICA(IA *x, int i, char *file, int line){
   return &(x->a[i]);
 }
 
+// char型の配列チェック用関数
 char *_CCA(CA *x, int i, char *file, int line){
   if(NULL==x){
     fprintf(stderr,"nullPointer %s:%d行 添字%d \n",file,line,i);
@@ -152,6 +153,7 @@ char *_CCA(CA *x, int i, char *file, int line){
   return &(x->a[i]);
 }
 
+// 参照配列の配列チェック用関数
 void **_RCA(RA *x, int i, char *file, int line){
   if(NULL==x){
     fprintf(stderr,"nullPointer %s:%d行 添字%d \n",file,line,i);
@@ -164,6 +166,7 @@ void **_RCA(RA *x, int i, char *file, int line){
   return &(((RA *)(x))->a[i]);
 }
 
+// 参照チェック関数
 void *_CP(void *p,char *file,int line){
   if(p==NULL){
     fprintf(stderr,"%d:%s Out of Bound \n",line,file);
