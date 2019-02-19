@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,9 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
+ * 2018.11.17 : lToL を追加
+ * 2018.02.26 : fsize を追加
+ * 2018.02.20 : fseek を追加
  * 2016.08.07 : feof を追加
  * 2016.05.26 : 初期バージョン
  *
@@ -47,8 +50,39 @@ FILE *_fOpen(char *n, char *m);
 // TaC 版では EOF になるタイミングが C 言語より早い
 int _feof(FILE *fp);
 
+// 配列を表現する構造体型
+// int型を表現する構造体型
+typedef struct intArray {
+  int l;
+  int a[];
+}IA;
+
+// char型を表現する構造体型
+typedef struct charArray {
+  int l;
+  char a[];
+}CA;
+
+// 参照の配列を表現する構造体型
+typedef struct refArray {
+  int l;
+  void *a[];
+}RA;
+
+// TaC 版ではオフセットが上位と下位に分かれている
+int _fseek(FILE *stream, int offsh, int offsl);
+
+// ファイルサイズを返す
+int fsize(char *path, int *size);
+
 // TaC 版では string.cmm に記述されている関数
 int strChr(char *s, int c);
 int strRchr(char *s, int c);
 int strStr(char *s1, char *s2);
 char *subStr(char *s, int pos);
+int *_ICA(IA *x, int i, char *file, int line);
+char *_CCA(CA *x, int i, char *file, int line);
+void **_RCA(RA *x, int i, char *file, int line);
+void *_CP(void *p, char *file, int line);
+// C-- の long（int[2]）を C の long に変換する
+long lToL(unsigned int l[]);
