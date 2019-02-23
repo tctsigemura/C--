@@ -22,6 +22,8 @@
 /*
  * wrapper.c : C-- 版と C 版で仕様が異なる関数など
  *
+ * 2019.02.23 : nullポインタ，配列境界チェック対応
+ * 2016.05.26 : #include <wrapper.h> を削除
  * 2019.01.27 : htoi を追加
  * 2018.11.17 : lToL を追加
  * 2018.02.26 : fsize を追加
@@ -37,8 +39,56 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/stat.h>
-#include <wrapper.h>
 
+// int型の配列チェック用関数
+int *_ICA(_IA *p, int i, char *file, int line) {
+  if (NULL==p) {
+    fprintf(stderr, "%s:%d Null Pointer idx=%d \n", file, line, i);
+    abort();
+  }
+  if (i<0 || p->l<=i) {
+    fprintf(stderr, "%s:%d Out of Bound idx=%d\n", file, line, i);
+    abort();
+  }
+  return &(p->a[i]);
+}
+
+// char型の配列チェック用関数
+char *_CCA(_CA *p, int i, char *file, int line) {
+  if (NULL==p) {
+    fprintf(stderr, "%s:%d Null Pointer(idx=%d)\n", file, line, i);
+    abort();
+  }
+  if (i<0 || p->l<=i) {
+    fprintf(stderr, "%s:%d Out of Bound(idx=%d)\n", file, line, i);
+    abort();
+  }
+  return &(p->a[i]);
+}
+
+// 参照配列の配列チェック用関数
+void **_RCA(_RA *p, int i, char *file, int line) {
+  if (NULL==p) {
+    fprintf(stderr, "%s:%d Null Pointer(idx=%d)\n", file, line, i);
+    abort();
+  }
+  if (i<0 || p->l<=i) {
+    fprintf(stderr, "%s:%d Out of Bound(idx=%d)\n", file, line, i);
+    abort();
+  }
+  return &(p->a[i]);
+}
+
+// 参照チェック関数
+void *_CP(void *p, char *file, int line) {
+  if(p==NULL){
+    fprintf(stderr, "%s:%d Null Pointer\n", file, line);
+    abort();
+  }
+  return p;
+}
+
+// 型変換など
 void *_addrAdd(void *a, int inc) {
   return (char *)a + inc;
 }
