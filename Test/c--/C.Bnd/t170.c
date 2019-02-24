@@ -5,54 +5,54 @@ static int d;
 static int e;
 static int f=10;
 static int g=20;
-static int *h;
-static int _cmm_0T[]={1000,2000,3000};
-static int *i=_cmm_0T;
-static int *j;
-static int **k;
-static int _cmm_1T[]={4000,5000};
-static int _cmm_2T[]={6000,7000,8000};
-static int *_cmm_3T[]={_cmm_1T,_cmm_2T};
-static int **l=_cmm_3T;
-static int _cmm_4T[]={1,2};
-static int _cmm_5T[]={3,4,5};
-static int *_cmm_6T[]={_cmm_4T,_cmm_5T};
-static int _cmm_7T[]={6};
-static int _cmm_8T[]={7,8};
-static int _cmm_9T[]={9};
-static int *_cmm_10T[]={_cmm_7T,_cmm_8T,_cmm_9T};
-static int **_cmm_11T[]={_cmm_6T,_cmm_10T};
-static int ***m=_cmm_11T;
-#define _cmm_0S "aaaa"
-static char *n=_cmm_0S;
-#define _cmm_1S "abc"
-static char _cmm_12T[]={97,98,0};
-static char *_cmm_13T[]={_cmm_1S,_cmm_12T};
-static char **o=_cmm_13T;
-static int *_cmm_14T[10];
-static int _cmm_15T[]={6};
-static int _cmm_16T[]={7,8};
-static int _cmm_17T[]={9};
-static int *_cmm_18T[]={_cmm_15T,_cmm_16T,_cmm_17T};
-static int **_cmm_19T[]={_cmm_14T,_cmm_18T};
-static int ***p=_cmm_19T;
-static int *pq;
+static _IA *h;
+static _IA _cmm_0T={3,{1000,2000,3000}};
+static _IA *i=&_cmm_0T;
+static _IA *j;
+static _RA *k;
+static _IA _cmm_1T={2,{4000,5000}};
+static _IA _cmm_2T={3,{6000,7000,8000}};
+static _RA _cmm_3T={2,{&_cmm_1T,&_cmm_2T}};
+static _RA *l=&_cmm_3T;
+static _IA _cmm_4T={2,{1,2}};
+static _IA _cmm_5T={3,{3,4,5}};
+static _RA _cmm_6T={2,{&_cmm_4T,&_cmm_5T}};
+static _IA _cmm_7T={1,{6}};
+static _IA _cmm_8T={2,{7,8}};
+static _IA _cmm_9T={1,{9}};
+static _RA _cmm_10T={3,{&_cmm_7T,&_cmm_8T,&_cmm_9T}};
+static _RA _cmm_11T={2,{&_cmm_6T,&_cmm_10T}};
+static _RA *m=&_cmm_11T;
+static _CA _cmm_0S={5,{"aaaa"}};
+static _CA *n=&_cmm_0S;
+static _CA _cmm_1S={4,{"abc"}};
+static _CA _cmm_12T={3,{97,98,0}};
+static _RA _cmm_13T={2,{&_cmm_1S,&_cmm_12T}};
+static _RA *o=&_cmm_13T;
+static _RA _cmm_14T={10,{[9]=0}};
+static _IA _cmm_15T={1,{6}};
+static _IA _cmm_16T={2,{7,8}};
+static _IA _cmm_17T={1,{9}};
+static _RA _cmm_18T={3,{&_cmm_15T,&_cmm_16T,&_cmm_17T}};
+static _RA _cmm_19T={2,{&_cmm_14T,&_cmm_18T}};
+static _RA *p=&_cmm_19T;
+static _IA *pq;
 static void f1(){
 int _cmm_1L;
 (_cmm_1L=1);
 }
-#define _cmm_2S "ab"
-#define _cmm_3S "cd"
-static char *_cmm_20T[]={_cmm_2S,_cmm_3S};
-static char *_cmm_21T[3];
-static char **_cmm_22T[]={_cmm_20T,_cmm_21T};
-static char ***q=_cmm_22T;
+static _CA _cmm_2S={3,{"ab"}};
+static _CA _cmm_3S={3,{"cd"}};
+static _RA _cmm_20T={2,{&_cmm_2S,&_cmm_3S}};
+static _RA _cmm_21T={3,{[2]=0}};
+static _RA _cmm_22T={2,{&_cmm_20T,&_cmm_21T}};
+static _RA *q=&_cmm_22T;
 #include <stdlib.h>
-#define _cmm_4S "ABCDE"
+static _CA _cmm_4S={6,{"ABCDE"}};
 static int f2(int _cmm_1P,int _cmm_2P){
 int _cmm_1L;
 int _cmm_2L;
-int *_cmm_3L;
+_IA *_cmm_3L;
 (_cmm_3L=_mAlloc(10));
 {
 int _cmm_4L;
@@ -62,18 +62,18 @@ int _cmm_5L;
 }
 int _cmm_4L;
 (_cmm_4L=30);
-char *_cmm_5L;
-(_cmm_5L=_cmm_4S);
+_CA *_cmm_5L;
+(_cmm_5L=&_cmm_4S);
 (_cmm_1L=10);
 (b=(0xff&_cmm_1L));
 (_cmm_2L=b);
-(i[_cmm_1L]=_cmm_2L);
+((*_ICA(i,_cmm_1L,__FILE__,__LINE__))=_cmm_2L);
 (_cmm_1L=(_cmm_2L=10));
-(i[_cmm_1L]=(_cmm_2L=10));
-(i[_cmm_1L]=(i[_cmm_2L]=(_cmm_2L=20)));
-(_cmm_1L=l[1][2]);
-(_cmm_1L=l[i[5]][i[_cmm_1L]]);
-(l[i[5]][i[_cmm_1L]]=(i[_cmm_1L]=20));
+((*_ICA(i,_cmm_1L,__FILE__,__LINE__))=(_cmm_2L=10));
+((*_ICA(i,_cmm_1L,__FILE__,__LINE__))=((*_ICA(i,_cmm_2L,__FILE__,__LINE__))=(_cmm_2L=20)));
+(_cmm_1L=(*_ICA((*_RCA(l,1,__FILE__,__LINE__)),2,__FILE__,__LINE__)));
+(_cmm_1L=(*_ICA((*_RCA(l,(*_ICA(i,5,__FILE__,__LINE__)),__FILE__,__LINE__)),(*_ICA(i,_cmm_1L,__FILE__,__LINE__)),__FILE__,__LINE__)));
+((*_ICA((*_RCA(l,(*_ICA(i,5,__FILE__,__LINE__)),__FILE__,__LINE__)),(*_ICA(i,_cmm_1L,__FILE__,__LINE__)),__FILE__,__LINE__))=((*_ICA(i,_cmm_1L,__FILE__,__LINE__))=20));
 return _cmm_1L;
 }
 static char f3(){
@@ -126,5 +126,5 @@ int _cmm_21L;
 (_cmm_21L=(((a*b)+6)+(c*d)));
 char _cmm_22L;
 (_cmm_22L=(_cmm_4L&&_cmm_5L));
-(pq[2]=2);
+((*_ICA(pq,2,__FILE__,__LINE__))=2);
 }

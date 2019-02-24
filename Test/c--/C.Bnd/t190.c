@@ -1,5 +1,5 @@
-static int _cmm_0T[10];
-static int *a=_cmm_0T;
+static _IA _cmm_0T={10,{[9]=0}};
+static _IA *a=&_cmm_0T;
 struct X {
 int a;
 int b;
@@ -12,9 +12,9 @@ struct X *_cmm_3L;
 (_cmm_1L=(_cmm_1L+1));
 (_cmm_2L=_cmm_2L);
 (_cmm_2L=(_cmm_2L+-1));
-(_cmm_1L=a[0]);
-(_cmm_2L=a[1]);
-(_cmm_1L=_cmm_3L->a);
-(_cmm_2L=_cmm_3L->b);
+(_cmm_1L=(*_ICA(a,0,__FILE__,__LINE__)));
+(_cmm_2L=(*_ICA(a,1,__FILE__,__LINE__)));
+(_cmm_1L=(((struct X*)_CP(_cmm_3L,__FILE__,__LINE__))->a));
+(_cmm_2L=(((struct X*)_CP(_cmm_3L,__FILE__,__LINE__))->b));
 return 0;
 }

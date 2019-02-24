@@ -1,14 +1,14 @@
 int f1();
-int *f2();
+_IA *f2();
 static int a=1;
 static int b=2;
-static int *c;
-static int **d;
+static _IA *c;
+static _RA *d;
 struct X {
 int b;
 int a;
 };
 static struct X *e;
 static void f3(){
-(c[1]=(b=((a*b)+d[3][((((c[4]+5)+c[6])+f1())+b)])));
+((*_ICA(c,1,__FILE__,__LINE__))=(b=((a*b)+(*_ICA((*_RCA(d,3,__FILE__,__LINE__)),(((((*_ICA(c,4,__FILE__,__LINE__))+5)+(*_ICA(c,6,__FILE__,__LINE__)))+f1())+b),__FILE__,__LINE__)))));
 }
