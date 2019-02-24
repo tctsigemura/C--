@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  *                    : SyLABLをSyADDR に変更
  * 2016.09.18         : vmLdLabをvmLdNam に変更
@@ -474,8 +475,10 @@ static void genBoolExpr(int node, struct Expr* c) {
   else if (op==SyCOMM)   genCommExpr(node, c);    //   カンマ演算
   else if (SyISFACT(op)) genFactor(node, c);      //   因子
   else if (SyIS1OPR(op)) gen1OpExpr(node, c);     //   単項演算
-  else if (op==SyIDXW)   genIdxExpr(node,c,STKW); //   ワード配列アクセス
-  else if (op==SyIDXB)   genIdxExpr(node,c,STKB); //   バイト配列アクセス
+  else if (op==SyIDXR)   genIdxExpr(node,c,STKW); //   参照配列アクセス
+  else if (op==SyIDXI)   genIdxExpr(node,c,STKW); //   int 配列アクセス
+  else if (op==SyIDXC)   genIdxExpr(node,c,STKB); //   char 配列アクセス
+  else if (op==SyIDXB)   genIdxExpr(node,c,STKB); //   boolean 配列アクセス
   else if (op==SyDOT)    genDotExpr(node, c);     //   構造体アクセス'.'
   else if (SyIS2OPR(op)) gen2OpExpr(node, c);     //   普通の二項演算
   else if (SyISCMP(op))  genCmpExpr(node, c);     //   比較演算

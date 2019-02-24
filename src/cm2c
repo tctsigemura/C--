@@ -12,7 +12,8 @@ LIBDIR=/usr/local/cmmLib
 CFLAGS="-g -O0 \
    -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
-   -Wno-dangling-else -include stdio.h -include ${LIBDIR}/wrapper.h"
+   -Wno-dangling-else -Wno-format-security \
+   -include stdio.h -include ${LIBDIR}/wrapper.h"
 
 CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC"
 

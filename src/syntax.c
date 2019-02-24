@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2018 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2018.11.30         : void[] に []演算をしたエラーを発見したときの処理にバグ
  * 2016.09.19         : SyLABL を SyADDR に変更
  * 2016.09.18         : SyCHAR を SyCHR に変更
@@ -301,13 +302,13 @@ static void getIdxOP(struct watch *w) {
 
   int stype = w->type;
   if (w->dim>0 || stype<=0) {
-    stype = SyIDXW;                            // 参照はワード配列
+    stype = SyIDXR;                            // 参照配列
   } else if (stype==TyINT)  {
-    stype = SyIDXW;                            // int はワード配列
+    stype = SyIDXI;                            // int 配列
   } else if (stype==TyCHAR) {
-    stype = SyIDXB;                            // char はバイト配列
+    stype = SyIDXC;                            // char 配列
   } else if (stype==TyBOOL) {
-    stype = SyIDXB;                            // boolean はバイト配列
+    stype = SyIDXB;                            // boolean 配列
   } else if (stype==TyVOID) {
     error("void型は使用できない");             // void 配列に[]演算はできない
   } else {
@@ -324,9 +325,9 @@ static void getDotOP(struct watch *w) {
     error("構造体以外に'.' がある");           //   場合は'.'が続いてはならない
   chkTok(LxNAME, "'.' の次に名前がない");      // '.'の次は必ず名前が必要
   int n = ntSrcField(w->type,lxGetStr());      // 構造体をフィールド名でサーチ
+  int cnst = syNewNode(SyCNST, n, w->type);    // フィールドと構造体を記録
   w->type = ntGetType(n);                      // 式(w)をフィールドの型と
   w->dim  = ntGetDim(n);                       //   次元に変更する
-  int cnst = syNewNode(SyCNST, n, TyINT);      // フィールドの名前表インデクス
   w->tree = syNewNode(SyDOT, w->tree, cnst);   // '.'演算を構文木に追加
   w->lhs = true;                               // 演算結果は代入可
 }

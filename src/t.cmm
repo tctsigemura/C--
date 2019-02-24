@@ -1,3 +1,5 @@
+#include <stdio.hmm>
+
 struct X {
   int a;
   int b;
@@ -13,3 +15,9 @@ int[][] aaa;
 
 char[] l1="abc\n";
 char[] l2=array(10);
+char[] l3={'a','b','c','\0'};
+
+public int main() {
+  putchar(l1[5]);
+  return 0;
+}

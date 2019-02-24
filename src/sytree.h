@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
+ * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2016.09.19         : SyLABL を SyADDR に変更
  * 2016.09.18         : SyCHAR を SyCHR に変更
  * 2016.09.16         : syLn[], syGetLn(), sySetLn() をコメントアウト
@@ -85,9 +86,12 @@ int syRVal[SyMAX];                           // ノードの値２
 #define SyMUL         0x307                 // ２項演算 *
 #define SyDIV         0x308                 // ２項演算 /
 #define SyMOD         0x309                 // ２項演算 %
-#define SyIDXW        0x30a                 // 後置演算子(ワード配列([ ]))
-#define SyIDXB        0x30b                 // 後置演算子(バイト配列([ ]))
-#define SyDOT         0x30c                 // 後置演算子(構造体(.))
+#define SyDOT         0x30a                 // 後置演算子(構造体(.))
+#define SyISIDX(c)    (((c)&0xf80)==0x380)  // 配列演算を判断
+#define SyIDXR        0x380                 // 後置演算子(参照配列([ ]))
+#define SyIDXI        0x381                 // 後置演算子(int配列([ ]))
+#define SyIDXC        0x382                 // 後置演算子(char配列([ ]))
+#define SyIDXB        0x383                 // 後置演算子(boolean配列([ ]))
 
 #define SyISCMP(c)    (((c)&0xf00)==0x400)  // 比較演算かどうか判定
 #define SyGT          0x404                 // ２項演算 >  (Greater Than)
