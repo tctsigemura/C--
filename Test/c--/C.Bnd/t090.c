@@ -2,18 +2,19 @@ static int a;
 static char b=1;
 static _CA _cmm_0T={2,{1,0}};
 static _CA *e=&_cmm_0T;
-struct X {
+typedef struct _X X;
+struct _X {
 int a;
 char b;
 _CA *c;
 };
 static _CA _cmm_0S={4,{"abc"}};
-static struct X _cmm_1T={1,1,&_cmm_0S};
-static struct X *h=&_cmm_1T;
+static X _cmm_1T={1,1,&_cmm_0S};
+static X *h=&_cmm_1T;
 static _CA _cmm_1S={4,{"abc"}};
 static _CA _cmm_2S={4,{"def"}};
-static struct X _cmm_2T={1,1,&_cmm_1S};
-static struct X _cmm_3T={2,0,&_cmm_2S};
+static X _cmm_2T={1,1,&_cmm_1S};
+static X _cmm_3T={2,0,&_cmm_2S};
 static _RA _cmm_4T={2,{&_cmm_2T,&_cmm_3T}};
 static _RA *i=&_cmm_4T;
 static char f1(char _cmm_1P){
