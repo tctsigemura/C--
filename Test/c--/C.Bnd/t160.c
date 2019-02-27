@@ -167,29 +167,31 @@ static void f5(int _cmm_1P,int _cmm_2P,_CA *_cmm_3P){
 ((*_ICA(x,((*_ICA(i,(*_ICA(x,1,__FILE__,__LINE__)),__FILE__,__LINE__))+1),__FILE__,__LINE__))=((*_ICA(i,_cmm_1P,__FILE__,__LINE__))=((*_ICA(i,5,__FILE__,__LINE__))=1)));
 (_cmm_2P=(*_ICA((*_RCA(y,1,__FILE__,__LINE__)),(((_cmm_1P*_cmm_2P)*(*_CCA(f2(),2,__FILE__,__LINE__)))*(*_ICA(x,3,__FILE__,__LINE__))),__FILE__,__LINE__)));
 }
-struct X {
+typedef struct _X X;
+struct _X {
 int a;
 int b;
 _RA *c;
 };
-struct Y {
+typedef struct _Y Y;
+struct _Y {
 int a;
 int b;
 _CA *c;
 };
-static struct X *z1;
-static struct X _cmm_57T={1,2,0};
-static struct X *z2=&_cmm_57T;
-static struct X _cmm_58T={1,2,0};
-static struct X _cmm_59T={3,4,0};
+static X *z1;
+static X _cmm_57T={1,2,0};
+static X *z2=&_cmm_57T;
+static X _cmm_58T={1,2,0};
+static X _cmm_59T={3,4,0};
 static _RA _cmm_60T={2,{&_cmm_58T,&_cmm_59T}};
 static _RA *z3=&_cmm_60T;
 static _CA _cmm_7S={3,{"ab"}};
-static struct Y _cmm_61T={1,2,&_cmm_7S};
-static struct Y *z4=&_cmm_61T;
-static struct Y *z5=0;
+static Y _cmm_61T={1,2,&_cmm_7S};
+static Y *z4=&_cmm_61T;
+static Y *z5=0;
 static _CA _cmm_8S={4,{"abc"}};
-static struct Y _cmm_62T={1,2,&_cmm_8S};
+static Y _cmm_62T={1,2,&_cmm_8S};
 static _RA _cmm_63T={3,{0,&_cmm_62T,0}};
 static _RA *z6=&_cmm_63T;
 static _RA _cmm_64T={3,{[2]=0}};
@@ -202,18 +204,18 @@ static _RA _cmm_68T={2,{[1]=0}};
 static _RA *z9=&_cmm_68T;
 static void f6(){
 (z1=z2);
-(z1=_mAlloc(sizeof(struct X )));
+(z1=_mAlloc(sizeof(X )));
 free(z1);
 (z1=(*_RCA(z3,3,__FILE__,__LINE__)));
-(a=(((struct X*)_CP((*_RCA(z3,3,__FILE__,__LINE__)),__FILE__,__LINE__))->a));
-(z1=(*_RCA((((struct X*)_CP((*_RCA(z3,3,__FILE__,__LINE__)),__FILE__,__LINE__))->c),1,__FILE__,__LINE__)));
-(a=(((struct X*)_CP((*_RCA((((struct X*)_CP((*_RCA((((struct X*)_CP(z2,__FILE__,__LINE__))->c),1,__FILE__,__LINE__)),__FILE__,__LINE__))->c),1,__FILE__,__LINE__)),__FILE__,__LINE__))->a));
-((*_RCA((*_RCA(z8,1,__FILE__,__LINE__)),1,__FILE__,__LINE__))=_mAlloc(sizeof(struct Y )));
-((((struct Y*)_CP((*_RCA((*_RCA(z8,1,__FILE__,__LINE__)),1,__FILE__,__LINE__)),__FILE__,__LINE__))->a)=1);
+(a=(((X*)_CP((*_RCA(z3,3,__FILE__,__LINE__)),__FILE__,__LINE__))->a));
+(z1=(*_RCA((((X*)_CP((*_RCA(z3,3,__FILE__,__LINE__)),__FILE__,__LINE__))->c),1,__FILE__,__LINE__)));
+(a=(((X*)_CP((*_RCA((((X*)_CP((*_RCA((((X*)_CP(z2,__FILE__,__LINE__))->c),1,__FILE__,__LINE__)),__FILE__,__LINE__))->c),1,__FILE__,__LINE__)),__FILE__,__LINE__))->a));
+((*_RCA((*_RCA(z8,1,__FILE__,__LINE__)),1,__FILE__,__LINE__))=_mAlloc(sizeof(Y )));
+((((Y*)_CP((*_RCA((*_RCA(z8,1,__FILE__,__LINE__)),1,__FILE__,__LINE__)),__FILE__,__LINE__))->a)=1);
 free(z8);
 }
-struct X *f7(int _cmm_1P);
-_RA *f8(struct X *_cmm_1P);
+X *f7(int _cmm_1P);
+_RA *f8(X *_cmm_1P);
 _RA *f9(_RA *_cmm_1P);
 void f10(_CA *_cmm_1P,...);
 static _CA _cmm_9S={4,{"aaa"}};
@@ -222,7 +224,7 @@ static _CA _cmm_11S={4,{"bbb"}};
 static void f11(int _cmm_1P,...){
 int _cmm_1L;
 (z1=f7(1));
-(_cmm_1P=(((struct X*)_CP(f7(1),__FILE__,__LINE__))->b));
+(_cmm_1P=(((X*)_CP(f7(1),__FILE__,__LINE__))->b));
 (z1=(*_RCA(f8(z1),1,__FILE__,__LINE__)));
 (z1=(*_RCA(f9(z3),1,__FILE__,__LINE__)));
 (z1=0);

@@ -14,18 +14,19 @@ static _CA _cmm_5T={2,{1,0}};
 static _CA _cmm_6T={2,{1,0}};
 static _RA _cmm_7T={2,{&_cmm_5T,&_cmm_6T}};
 static _RA *g=&_cmm_7T;
-struct X {
+typedef struct _X X;
+struct _X {
 int a;
 char b;
 _CA *c;
 };
 static _CA _cmm_1S={4,{"abc"}};
-static struct X _cmm_8T={1,1,&_cmm_1S};
-static struct X *h=&_cmm_8T;
+static X _cmm_8T={1,1,&_cmm_1S};
+static X *h=&_cmm_8T;
 static _CA _cmm_2S={4,{"abc"}};
 static _CA _cmm_3S={4,{"def"}};
-static struct X _cmm_9T={1,1,&_cmm_2S};
-static struct X _cmm_10T={2,0,&_cmm_3S};
+static X _cmm_9T={1,1,&_cmm_2S};
+static X _cmm_10T={2,0,&_cmm_3S};
 static _RA _cmm_11T={2,{&_cmm_9T,&_cmm_10T}};
 static _RA *i=&_cmm_11T;
 static void f0();
