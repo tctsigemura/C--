@@ -4,12 +4,13 @@ static int *_cmm_2T[]={_cmm_0T,_cmm_1T};
 static int **a=_cmm_2T;
 static int _cmm_3T[2];
 static int *b=_cmm_3T;
-struct T {
+typedef struct _T T;
+struct _T {
 int x;
 int *a;
-struct T *b;
+T *b;
 };
-static struct T *t;
+static T *t;
 int *f();
 int main(){
 (a[1][2]=2);
