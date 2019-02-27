@@ -1,7 +1,7 @@
 static int a=1;
 static int b=2;
-static int *c;
-static int **d;
+static _IA *c;
+static _RA *d;
 static void f3(){
-(b=d[1][((((a*b)+(a*b))+c[1])+(a*b))]);
+(b=(*_ICA((*_RCA(d,1,__FILE__,__LINE__)),((((a*b)+(a*b))+(*_ICA(c,1,__FILE__,__LINE__)))+(a*b)),__FILE__,__LINE__)));
 }

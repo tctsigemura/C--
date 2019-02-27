@@ -1,7 +1,7 @@
 static int i;
 #include <stdio.h>
-#define _cmm_0S "ABC"
+static _CA _cmm_0S={4,{"ABC"}};
 int main(){
-putchar(_cmm_0S[(i+-1)]);
+putchar((*_CCA(&_cmm_0S,(i+-1),__FILE__,__LINE__)));
 return 0;
 }
