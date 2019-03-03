@@ -22,6 +22,7 @@
 /*
  * vmCode.c : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2019.03.03         : genStr() に文字列長引数を追加
  * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  *                    : SyLABLをSyADDR に変更
@@ -803,7 +804,7 @@ void genBss(int idx) {                           // 次のような出力をす�
 }
 
 // 文字列を生成しラベル番号を返す
-int genStr(char *str) {
+int genStr(char *str, int len) {
   int lab = newLab();                            // ラベルを割り付け
   printLab(lab);
   vmStr(str);                                    //   .Ln STRING "xxxx" を出力

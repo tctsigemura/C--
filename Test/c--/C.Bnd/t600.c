@@ -1,5 +1,5 @@
 #include <stdio.h>
-static _CA _cmm_0S={7,{"\377\376"}};
+static _CA _cmm_0S={3,{"\377\376"}};
 static _CA _cmm_1S={14,{"a=%04x(00ff)\n"}};
 static _CA _cmm_2S={14,{"b=%04x(0100)\n"}};
 static _CA _cmm_3S={14,{"c=%04x(00ff)\n"}};
