@@ -33,13 +33,13 @@
  */
 
 // int型配列を表現する構造体型
-typedef struct __IA { int l; int a[]; } _IA;
+typedef struct { int l; int a[]; } _IA;
 
 // char型を表現する構造体型
-typedef struct __CA { int l; char a[]; } _CA;
+typedef struct { int l; char a[]; } _CA;
 
 // 参照の配列を表現する構造体型
-typedef struct __RA { int l; void *a[]; } _RA;
+typedef struct  { int l; void *a[]; } _RA;
 
 // nullポインタ，配列境界チェック関数
 int *_ICA(_IA *p, int i, char *file, int line);

@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * code.h : コード生成関係の外部仕様を定義
  *
+ * 2019.03.03         : genStr() に文字列長引数を追加
  * 2016.05.20         : genOn, genOff を廃止し genDirect を追加
  * 2016.02.03 v3.0.0  : トランスレータと統合
  *                      (genProto, genStruc, genOn, genOff 関数追加)
@@ -38,7 +39,7 @@
 void genFunc(int funcIdx, int depth, boolean krnFlg); // 関数単位でコードを生成
 void genData(int idx);                                // 初期化データを生成
 void genBss(int idx);                                 // 非初期化データを生成
-int  genStr(char *s);                                 // 文字列を生成し
+int  genStr(char *s, int len);                        // 文字列を生成し
                                                       //   ラベル番号を返す
 // 以下はトランスレータのみで必要
 #ifdef C

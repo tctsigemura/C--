@@ -233,6 +233,33 @@ static int getWord(){
   return LxNAME;                                   // tok=LxNAME, str=値
 }
 
+
+// エスケープ16進文字列を読む
+static int getHexStr() {
+  int v = 0;
+  if (!isxdigit(nextch)) error("16進エスケープの形式が不正");
+  while (isxdigit(nextch)) {                       // 16進が続く間
+    v = (v << 4) + hex(nextch);                    //   16進数として解釈する
+    if (v>255) error("16進エスケープが範囲外");    //   8ビットの範囲を超える
+    getCh();                                       //   次の文字に進む
+  }
+  return v;
+}
+
+// エスケープ8進文字列を読む
+static int getOctStr() {
+  int v = 0;
+  int i = 0;
+  for (;;) {
+    v = (v << 3) + ch - '0';                       // 8進数として解釈する
+    if (v>255) error("8進エスケープが範囲外");     // 8ビットの範囲を超える
+    if (!isOdigit(nextch)) break;                  // 8進が終わった
+    i = i + 1;
+    if (i>=3) break;                               // 3桁以内
+    getCh();                                       // 次の文字に進む
+  }
+  return v;
+}
 // エスケープ文字の読み込み
 static int getEsc() {
   int n  = 0;                                      // 文字コードの初期値は 0
@@ -247,10 +274,11 @@ static int getEsc() {
     n = '\r';                                      // n に CR を格納
     getCh();                                       // 'r' を読み飛ばす
   } else if (ch == 'x' || ch == 'X') {             // '\x' の場合
+    n = getHexStr();                               // n に16進数を読み込む
     getCh();                                       // 'x' を読み飛ばす
-    n = getHex();                                  // n に16進数を読み込む
   } else if (isOdigit(ch)) {                       // '\数値' の場合
-    n = getOct();                                  // n に8進数を読み込む
+    n = getOctStr();                               // n に8進数を読み込む
+    getCh();                                       // 'x' を読み飛ばす
   } else if (isprint(ch)) {                        // そのほか印刷可能文字の
     n = ch;                                        // 場合'\c'は'c'と同じ
     getCh();                                       // 文字を読み飛ばす
@@ -258,33 +286,51 @@ static int getEsc() {
   return n;                                        // 文字コードを返す
 }
 
+// エスケープ8進数を出力する
+static int putOctStr(int v, int p) {
+  if (p+4 >= StrMAX) error("文字列が長すぎる");    // str に入り切らない
+  str[p]='\\';                                     // (\)を書き込む
+  str[p+1] = ((v & 0700) >> 6) + '0';
+  str[p+2] = ((v & 0070) >> 3) + '0';
+  str[p+3] = (v & 0x07) + '0';
+  return p+4;                                      // 正常に処理できた
+}
+
 // 文字列 "..." の読み込み
 static int getStr(){
-  int i = 0;
+  int i = 0;                                       // str 上の格納位置
+  int cnt = 1;                                     // 文字列のバイト数
   while (getCh()!='"' && ch!=EOF && i<=StrMAX) {   // (")以外の間
     if (iscntrl(ch)) {                             // ch が制御文字なら
-      break;                                       // 異常終了
-    } else if (ch=='\\' && nextch=='\\') {         // (\\)はそのまま読み込み
-      str[i] = '\\';                               // アセンブラのソースに
-      i = i + 1;                                   // そのまま出力する
-      str[i] = '\\';
-      getCh();                                     // 通常より1文字余分に読む
-    } else if (ch=='\\' && nextch=='"') {          // (\")はそのまま読み込み
-      str[i] = '\\';                               // アセンブラのソースに
-      i = i + 1;                                   // そのまま出力する
-      str[i] = '\"';
-      getCh();                                     // 通常より1文字余分に読む
-    } else {
-      str[i] = ch;                                 // str に格納する
+      break;                                       //   異常終了
+    } else if (ch!='\\') {                         // (\)以外なら
+      str[i] = ch;                                 //   そのまま str に格納
+      i = i + 1;
+    } else {                                       // (\)なら特別な処理が必要
+      getCh();                                     //   (\)を読み飛ばす
+      int v;                                       //   vに文字コードを格納する
+      if (ch=='x') {                               //   (\x)なら16進
+        v = getHexStr();                           //     16進を読む
+	i = putOctStr(v, i);                       //     8進にして str に格納
+      } else if (isOdigit(ch)) {                   //   (\[0-7])なら8進数
+	v = getOctStr();                           //     8進を読む
+	i = putOctStr(v, i);                       //     8進にして str に格納
+      } else {                                     //   (\?)その他は
+	str[i] = '\\';                             //        (\)
+	i = i + 1;
+	str[i] = ch;                               //        (?)
+	i = i + 1;
+      }
     }
-    i = i + 1;
+    cnt = cnt + 1;                                 // 1バイトをカウント
   }
   if (ch!='\"') {                                  // 前のwhileが(")以外で終了
     error("文字列が正しく終わっていないか、長すぎる");
   }
   getCh();                                         // (")を読み飛ばす
   str[i] = '\0';                                   // 文字列を完成する
-  return LxSTRING;                                 // tok=LxSTRING, str=値
+  val = cnt;                                       // val=バイト数, str=値
+  return LxSTRING;                                 // tok=LxSTRING
 }
 
 // 文字定数 'x' を読み込む

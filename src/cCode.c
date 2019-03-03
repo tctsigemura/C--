@@ -75,7 +75,7 @@ static void printTypeName(int typ) {
   else if (typ==TyINTR) error("interrupt使用禁止"); // エラー
   else if (typ==TyDOTDOTDOT) printf("...");         // "..."
   else if (typ<=0 && ntGetType(-typ)==TySTRUC)      // 構造体なら
-      printf("struct %s ", ntGetName(-typ));        //   "struct 構造体名 "
+      printf("%s ", ntGetName(-typ));               //   "型名 "
   else if (typ<=0 && ntGetType(-typ)==TyREF)        // typedef なら
       printf("%s ", ntGetName(-typ));               //   "型名 "
   else error("バグ...printTypeName");               // 型ではなかったとき
@@ -86,8 +86,8 @@ static void printTypeName(int typ) {
 //    int a = 1;            <--- インスタンス生成
 //    int tmp[] = {1,2};    <--- インスタンス生成
 //    int *a=tmp;           <--- 参照変数生成
-//    struct X tmp = {1,2}; <--- インスタンス生成
-//    struct X *a=&tmp;     <--- 参照変数生成
+//    X tmp = {1,2};        <--- インスタンス生成
+//    X *a=&tmp;            <--- 参照変数生成
 #ifdef BOUNDCHECK
 static void printType(boolean sta, int typ, int dim, boolean inst) {
   if (sta) printf("static ");                       // "[static ]"
@@ -195,7 +195,7 @@ static void printArryOp(int typ, int lVal, int rVal) {
 static void printDotOp(int lVal, int rVal) {
   int typ=syGetRVal(rVal);                          // 構造体型のidx
   int fld=syGetLVal(rVal);                          // フィールドのidx
-  printf("(((struct %s*)_CP(", ntGetName(-typ));    // "((struct タグ*)_CP("
+  printf("(((%s*)_CP(", ntGetName(-typ));           // "((型名*)_CP("
   printExp(lVal);                                   // "左辺式"
   printf(",__FILE__,__LINE__))->");                 // ",__FILE__,__LINE__)->"
   printf("%s)", ntGetName(fld));                    // "フィールド名"
@@ -606,30 +606,14 @@ static int newStrLab(){
 }
 
 #ifdef BOUNDCHECK
-// 文字列のバイト数を調べる（暫定版）
-static int byteLen(char *str) {
-  int sta = 0;                                      // ステートマシン
-  int cnt = 1;                                      // 予め'\0'を考慮
-  for (int i=0; str[i]!='\0'; i=i+1) {              // 文字列全体について
-    if (sta==0 && str[i]=='\\') {                   //  エスケープ発見
-      sta = 1;                                      //   ステート遷移
-    } else {                                        //  エスケープ以外
-      cnt = cnt + 1;                                //   バイト数を増やす
-      sta = 0;                                      //   初期ステートに戻る
-    }
-  }
-  return cnt;
-}
-
 // 文字列リテラルを生成する
-static void genStrLit(char *str, int lab) {
-  int cnt = byteLen(str);                           // 文字列のバイト数を調べる
+static void genStrLit(char *str, int len, int lab) {
   printf("static _CA ");                            // "static _CA "
   printStrLab(lab);                                 // "_cmm%dS"
-  printf("={%d,{\"%s\"}};\n", cnt, str);            // "={%d,{"%s"}};\n"
+  printf("={%d,{\"%s\"}};\n", len, str);            // "={%d,{"%s"}};\n"
 }
 #else
-static void genStrLit(char *str, int lab) {
+static void genStrLit(char *str, int len, int lab) {
   printf("#define ");                               // "#define "
   printStrLab(lab);                                 // "_cmm%dS"
   printf(" \"%s\"\n", str);                         // "\"文字列\""
@@ -637,10 +621,10 @@ static void genStrLit(char *str, int lab) {
 #endif
 
 // 文字列を印刷する
-int genStr(char *str){
+int genStr(char *str, int len){
   if (inhibitOut) return 0;                         // 出力抑制中
   int lab = newStrLab();                            // ラベルを割り付ける
-  genStrLit(str, lab);
+  genStrLit(str, len, lab);
   return lab;                                       // ラベル番号を返す
 }
 
@@ -648,13 +632,15 @@ int genStr(char *str){
 void genStruc(int idx){
   if (inhibitOut) return;                           // 出力抑制中
   int last = ntGetCnt(idx) + idx;                   // 構造体要素の最終位置
-  printf("struct %s {\n", ntGetName(idx));          // "struct 名前 {"
+  printf("typedef struct _%s %s;\n",                // "typedef struct _名前
+         ntGetName(idx),  ntGetName(idx));          //                  名前;"
+  printf("struct _%s {\n", ntGetName(idx));         // "struct _名前 {"
   for (int i=idx+1; i<=last; i++){                  // 各構造体メンバについて
-    int typ = ntGetType(i);                         // 型
-    int dim = ntGetDim(i);                          // 次元
-    char *name = ntGetName(i);                      // 名前
-    printType(false, typ, dim, false);              // "型名[*...]"
-    printf("%s;\n", name);                          // "名前;"
+    int typ = ntGetType(i);                         //   型
+    int dim = ntGetDim(i);                          //   次元
+    char *name = ntGetName(i);                      //   名前
+    printType(false, typ, dim, false);              //   "型名[*...]"
+    printf("%s;\n", name);                          //   "名前;"
   }
   printf("};\n");                                   // "};"
 }

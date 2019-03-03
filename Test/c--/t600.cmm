@@ -6,7 +6,7 @@
 public int main() {
   int a = ord('\377');
   int b = ord('\377')+1;
-  char c = '\0377';
+  char c = '\377';
   int d = ord(c);
   char[] e = "\377\376";
   int f = ord(e[1]);

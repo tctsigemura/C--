@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2019.03.03         : genStr() に文字列長引数を追加
  * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2018.11.30         : void[] に []演算をしたエラーを発見したときの処理にバグ
  * 2016.09.19         : SyLABL を SyADDR に変更
@@ -487,7 +488,7 @@ static void getFactor(struct watch* w) {
     int a = syNewNode(SyCNST, lxGetVal(), TyBOOL); // 定数を格納するノード
     setWatch(w, TyBOOL, 0, false, a);         //   式(w)がboolean型定数になる
   } else if (isTok(LxSTRING)) {               // 文字列の場合は
-    int lab = genStr(lxGetStr());             // 文字列を出力しラベルを付ける
+    int lab = genStr(lxGetStr(), lxGetVal()); // 文字列を出力しラベルを付ける
     int a = syNewNode(SySTR, lab, SyNULL);    //    ラベル番号を格納するノード
     setWatch(w, TyCHAR, 1,  false, a);        //    式(w)が文字配列型になる
   } else if (isTok(LxNUL)) {                  // null の場合は
@@ -1078,7 +1079,7 @@ static int getStructInit0() {
       if (isTok(LxSTRING)) {                 // 入力が文字列なら
 	if (ntGetDim(i)!=1||ntGetType(i)!=TyCHAR)
 	  error("文字列で初期化できない");
-	int lab = genStr(lxGetStr());        // .Lx STRING "..." を出力
+	int lab = genStr(lxGetStr(), lxGetVal()); // .Lx STRING "..." を出力
 	n = syNewNode(SySTR, lab, SyNULL);
       } else if (isTok(LxNUL)) {             // 配列を null で初期化
 	n = syNewNode(SyCNST, 0, TyREF);
@@ -1149,7 +1150,7 @@ static int getGArrayInit(int dim) {
     chkTok('}', "初期化で '}'が不足");       // '}' をチェック
   } else if (isTok(LxSTRING)) {              // 文字列による初期化の場合
     if (curType!=TyCHAR || dim!=1) error("文字列による初期化の型");
-    int l = genStr(lxGetStr());              // .L STRING "..." を出力
+    int l = genStr(lxGetStr(), lxGetVal());  // .L STRING "..." を出力
     node = syNewNode(SySTR, l, SyNULL);      // 文字列を木に登録
   } else if (isTok(LxARRAY)) {               // 'array( ... ) の場合
     node = getArray(dim);                    // array の括弧の中を読み込む
