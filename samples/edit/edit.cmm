@@ -1,34 +1,34 @@
 /*
- * ´ÊÃ±¤Ê¥Æ¥­¥¹¥È¥¨¥Ç¥£¥¿
- * ¡ÊIE3 ¥Ç¡¼¥¿¹½Â¤ 2001.7.6 ¤Î²İÂê¤ò¥Ù¡¼¥¹¤Ë C-- ÈÇ¤Ë½ñ¤­´¹¤¨¤¿¡Ë
+ * ç°¡å˜ãªãƒ†ã‚­ã‚¹ãƒˆã‚¨ãƒ‡ã‚£ã‚¿
+ * ï¼ˆIE3 ãƒ‡ãƒ¼ã‚¿æ§‹é€  2001.7.6 ã®èª²é¡Œã‚’ãƒ™ãƒ¼ã‚¹ã« C-- ç‰ˆã«æ›¸ãæ›ãˆãŸï¼‰
  *
- * 2018.11.26 : ½é´ü¥Ğ¡¼¥¸¥ç¥ó
+ * 2018.11.26 : åˆæœŸãƒãƒ¼ã‚¸ãƒ§ãƒ³
  */
 #include <stdio.hmm>
 #include <stdlib.hmm>
 #include <string.hmm>
 #ifndef C
-#include <syslib.hmm>                    // TaCÈÇ¤Ï°ìÉô¤Î¥·¥¹¥Æ¥à¥³¡¼¥ë¤ò»È¤¦
+#include <syslib.hmm>                    // TaCç‰ˆã¯ä¸€éƒ¨ã®ã‚·ã‚¹ãƒ†ãƒ ã‚³ãƒ¼ãƒ«ã‚’ä½¿ã†
 #endif
 
-#define  LINES  300               /* ÊÔ½¸¤Ç¤­¤ëÊ¸½ñ¤ÏºÇÂç 300 ¹Ô */
-#define  CHARS  81                /* ÊÔ½¸¤Ç¤­¤ëÊ¸½ñ¤Î£±¹Ô¤ÏºÇÂç 80 Ê¸»ú */
-#define  BUFLEN 100               /* ¥Õ¥¡¥¤¥ëÌ¾¤äÌ¿Îá¤ÎÄ¹¤µ¤Ï99Ê¸»ú°ÊÆâ */
+#define  LINES  300               /* ç·¨é›†ã§ãã‚‹æ–‡æ›¸ã¯æœ€å¤§ 300 è¡Œ */
+#define  CHARS  81                /* ç·¨é›†ã§ãã‚‹æ–‡æ›¸ã®ï¼‘è¡Œã¯æœ€å¤§ 80 æ–‡å­— */
+#define  BUFLEN 100               /* ãƒ•ã‚¡ã‚¤ãƒ«åã‚„å‘½ä»¤ã®é•·ã•ã¯99æ–‡å­—ä»¥å†… */
 
 /*
- * ¥°¥í¡¼¥Ğ¥ëÊÑ¿ô
+ * ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°
  */
-char[][] textbuf=array(LINES,CHARS);                  // Ê¸½ñ¤òµ­²±¤¹¤ë¥Ğ¥Ã¥Õ¥¡
-int    lines;                                         // Ê¸½ñ¤¬Á´Éô¤Ç²¿¹Ô¤¢¤ë¤«
-int    current;                                       // ¸½ºßÂè²¿¹Ô¤Ë¤¤¤ë¤«
-char[] kbdBuf=array(BUFLEN);                          // ¥­¡¼¥Ü¡¼¥ÉÆşÎÏÍÑ
+char[][] textbuf=array(LINES,CHARS);                  // æ–‡æ›¸ã‚’è¨˜æ†¶ã™ã‚‹ãƒãƒƒãƒ•ã‚¡
+int    lines;                                         // æ–‡æ›¸ãŒå…¨éƒ¨ã§ä½•è¡Œã‚ã‚‹ã‹
+int    current;                                       // ç¾åœ¨ç¬¬ä½•è¡Œã«ã„ã‚‹ã‹
+char[] kbdBuf=array(BUFLEN);                          // ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å…¥åŠ›ç”¨
 
 /*
- * 1¹Ô¤òÆşÎÏ¤¹¤ë´Ø¿ô(¥µ¥Ö¥ë¡¼¥Á¥ó) ¹ÔËö¤Î²ş¹Ô¤Ï¼è¤êµî¤ë
- *     buf    : 1¹Ô¤ò³ÊÇ¼¤¹¤ëÊ¸»úÇÛÎó
- *     buflen : buf ¤ËÅÏ¤µ¤ì¤ëÊ¸»úÇÛÎó¤Î¥µ¥¤¥º
- *     fp     : ¥ª¡¼¥×¥óºÑ¤Î¥Õ¥¡¥¤¥ë¥İ¥¤¥ó¥¿
- *              stdin ¤¬ÅÏ¤µ¤ì¤ë¤È¥­¡¼¥Ü¡¼¥É¤«¤éÆşÎÏ¤¹¤ë
+ * 1è¡Œã‚’å…¥åŠ›ã™ã‚‹é–¢æ•°(ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³) è¡Œæœ«ã®æ”¹è¡Œã¯å–ã‚Šå»ã‚‹
+ *     buf    : 1è¡Œã‚’æ ¼ç´ã™ã‚‹æ–‡å­—é…åˆ—
+ *     buflen : buf ã«æ¸¡ã•ã‚Œã‚‹æ–‡å­—é…åˆ—ã®ã‚µã‚¤ã‚º
+ *     fp     : ã‚ªãƒ¼ãƒ—ãƒ³æ¸ˆã®ãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚¤ãƒ³ã‚¿
+ *              stdin ãŒæ¸¡ã•ã‚Œã‚‹ã¨ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã‹ã‚‰å…¥åŠ›ã™ã‚‹
  */
 boolean getLine(char[] buf, int buflen, FILE fp) {
   if (fgets(buf, buflen, fp)==null) {                 // EOF
@@ -38,38 +38,38 @@ boolean getLine(char[] buf, int buflen, FILE fp) {
     fprintf(stderr, "too long line\n");
     return false;                                     // EOF
   }
-  int pos =(strRchr(buf, '\n'));                      // ¹ÔËö¤Ë'\n'¤òÃµ¤¹
-  if (pos>=0) {                                       //   ¤¢¤ì¤Ğ
-    buf[pos] = '\0';                                  //     ºï½ü¤¹¤ë
+  int pos =(strRchr(buf, '\n'));                      // è¡Œæœ«ã«'\n'ã‚’æ¢ã™
+  if (pos>=0) {                                       //   ã‚ã‚Œã°
+    buf[pos] = '\0';                                  //     å‰Šé™¤ã™ã‚‹
   }
-  return true;                                        // Àµ¾ï¤ËÆşÎÏ¤Ç¤­¤¿
+  return true;                                        // æ­£å¸¸ã«å…¥åŠ›ã§ããŸ
 }
 
 /*
- * ¥Õ¥¡¥¤¥ë¤«¤éÊ¸½ñ¤ò textbuf ¤ØÆÉ¤ß¹ş¤à´Ø¿ô(¥µ¥Ö¥ë¡¼¥Á¥ó)
+ * ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰æ–‡æ›¸ã‚’ textbuf ã¸èª­ã¿è¾¼ã‚€é–¢æ•°(ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³)
  */
 void loadfile(char[] filename) {
-  FILE fp=fopen(filename,"r");                        // ¥Õ¥¡¥¤¥ë¤ò³«¤¯
-  lines = 0;                                          // ¥Ğ¥Ã¥Õ¥¡¤ò¶õ¤Ë¤¹¤ë
-  if (fp==null) {                                     // ¥ª¡¼¥×¥ó¼ºÇÔ
+  FILE fp=fopen(filename,"r");                        // ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã
+  lines = 0;                                          // ãƒãƒƒãƒ•ã‚¡ã‚’ç©ºã«ã™ã‚‹
+  if (fp==null) {                                     // ã‚ªãƒ¼ãƒ—ãƒ³å¤±æ•—
     perror(filename);
-  } else {                                            // ¥ª¡¼¥×¥óÀ®¸ù¡ª¡ª
-    while(getLine( textbuf[lines], CHARS, fp)) {      //   EOF ¤Ë¤Ê¤ë¤Ş¤Ç
-      lines = lines + 1;                              //    ¥Õ¥¡¥¤¥ë¤«¤éÆşÎÏ
+  } else {                                            // ã‚ªãƒ¼ãƒ—ãƒ³æˆåŠŸï¼ï¼
+    while(getLine( textbuf[lines], CHARS, fp)) {      //   EOF ã«ãªã‚‹ã¾ã§
+      lines = lines + 1;                              //    ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰å…¥åŠ›
     }
-    fclose(fp);                                       //   Ëº¤ì¤ºÊÄ¤¸¤ë
+    fclose(fp);                                       //   å¿˜ã‚Œãšé–‰ã˜ã‚‹
   }
 }
 
 /*
- * textbuf ¤ÎÊ¸½ñ¤ò¥Õ¥¡¥¤¥ë¤ØÊİÂ¸¤¹¤ë´Ø¿ô(¥µ¥Ö¥ë¡¼¥Á¥ó)
+ * textbuf ã®æ–‡æ›¸ã‚’ãƒ•ã‚¡ã‚¤ãƒ«ã¸ä¿å­˜ã™ã‚‹é–¢æ•°(ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³)
  */
 void savefile(char[] filename) {
 #ifndef C
-  remove(filename);                                   // TaCÈÇ¤Ç¤ÏÉ¬Í×
+  remove(filename);                                   // TaCç‰ˆã§ã¯å¿…è¦
 #endif
-  FILE fp=fopen(filename,"w");                        // ¥Õ¥¡¥¤¥ë¤ò³«¤¯
-  if (fp==null) {                                     // ¥ª¡¼¥×¥ó¼ºÇÔ
+  FILE fp=fopen(filename,"w");                        // ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã
+  if (fp==null) {                                     // ã‚ªãƒ¼ãƒ—ãƒ³å¤±æ•—
     perror(filename);
     return;
   }
@@ -80,8 +80,8 @@ void savefile(char[] filename) {
 }
 
 /*
- * ¥×¥ê¥ó¥È¥³¥Ş¥ó¥É¤ò¼Â¹Ô¤¹¤ë´Ø¿ô(¥µ¥Ö¥ë¡¼¥Á¥ó)
- *     ¥×¥ê¥ó¥È¥³¥Ş¥ó¥É¤Ï¸½ºß¹Ô¤Î¹ÔÈÖ¹æ¤ÈÆâÍÆ¤òÉ½¼¨¤¹¤ë
+ * ãƒ—ãƒªãƒ³ãƒˆã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹é–¢æ•°(ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³)
+ *     ãƒ—ãƒªãƒ³ãƒˆã‚³ãƒãƒ³ãƒ‰ã¯ç¾åœ¨è¡Œã®è¡Œç•ªå·ã¨å†…å®¹ã‚’è¡¨ç¤ºã™ã‚‹
  */
 void print() {
   if (current!=lines) {
@@ -93,8 +93,8 @@ void print() {
 
 
 /*
- * ¥ê¥¹¥È¥³¥Ş¥ó¥É¤ò¼Â¹Ô¤¹¤ë´Ø¿ô(¥µ¥Ö¥ë¡¼¥Á¥ó)
- *     ¥ê¥¹¥È¥³¥Ş¥ó¥É¤Ï¸½ºß¹Ô¤«¤éºÇ¸å¤Ş¤ÇÉ½¼¨¤¹¤ë
+ * ãƒªã‚¹ãƒˆã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹é–¢æ•°(ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³)
+ *     ãƒªã‚¹ãƒˆã‚³ãƒãƒ³ãƒ‰ã¯ç¾åœ¨è¡Œã‹ã‚‰æœ€å¾Œã¾ã§è¡¨ç¤ºã™ã‚‹
  */
 void list() {
   for (int i=current; i<lines; i=i+1) {
@@ -103,47 +103,47 @@ void list() {
 }
 
 /*
- * ¥¸¥ã¥ó¥×¥³¥Ş¥ó¥É¤ò¼Â¹Ô¤¹¤ë´Ø¿ô(¥µ¥Ö¥ë¡¼¥Á¥ó)
- *     ¥¸¥ã¥ó¥×¥³¥Ş¥ó¥É¤Ï¸½ºß¹Ô¤òÊÑ¹¹¤¹¤ë
+ * ã‚¸ãƒ£ãƒ³ãƒ—ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹é–¢æ•°(ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³)
+ *     ã‚¸ãƒ£ãƒ³ãƒ—ã‚³ãƒãƒ³ãƒ‰ã¯ç¾åœ¨è¡Œã‚’å¤‰æ›´ã™ã‚‹
  */
 void jump() {
   fprintf(stderr, "line number = ");
-  getLine(kbdBuf,BUFLEN,stdin);                       // ¥¸¥ã¥ó¥×Àè¤Î¹ÔÈÖ¹æ
-  current=atoi(kbdBuf);                               // Ê¸»úÎó"10" => À°¿ô10
-  if (current<0) current=0;                           // ¥¸¥ã¥ó¥×¤Ç¤­¤ëÈÏ°Ï¡©
+  getLine(kbdBuf,BUFLEN,stdin);                       // ã‚¸ãƒ£ãƒ³ãƒ—å…ˆã®è¡Œç•ªå·
+  current=atoi(kbdBuf);                               // æ–‡å­—åˆ—"10" => æ•´æ•°10
+  if (current<0) current=0;                           // ã‚¸ãƒ£ãƒ³ãƒ—ã§ãã‚‹ç¯„å›²ï¼Ÿ
   if (current>lines) current=lines;
-  print();                                            // ¥¸¥ã¥ó¥×·ë²Ì¤òÉ½¼¨
+  print();                                            // ã‚¸ãƒ£ãƒ³ãƒ—çµæœã‚’è¡¨ç¤º
 }
 
 /*
- * ¥Á¥§¥ó¥¸¥³¥Ş¥ó¥É¤ò¼Â¹Ô¤¹¤ë´Ø¿ô(¥µ¥Ö¥ë¡¼¥Á¥ó)
- *     ¥Á¥§¥ó¥¸¥³¥Ş¥ó¥É¤Ï¹Ô¤ÎÆâÍÆ¤òÊÑ¹¹¤¹¤ë
+ * ãƒã‚§ãƒ³ã‚¸ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹é–¢æ•°(ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³)
+ *     ãƒã‚§ãƒ³ã‚¸ã‚³ãƒãƒ³ãƒ‰ã¯è¡Œã®å†…å®¹ã‚’å¤‰æ›´ã™ã‚‹
  */
 void change() {
   if (current!=lines) {
-    fprintf(stderr,"%s\n",textbuf[current]);          // ¸½ºß¤Î¾õÂÖ¤ò½ĞÎÏ
+    fprintf(stderr,"%s\n",textbuf[current]);          // ç¾åœ¨ã®çŠ¶æ…‹ã‚’å‡ºåŠ›
     fprintf(stderr,"input new content ");
-    getLine(textbuf[current],CHARS,stdin);            // ¿·¤·¤¤ÆâÍÆ¤òÆşÎÏ
+    getLine(textbuf[current],CHARS,stdin);            // æ–°ã—ã„å†…å®¹ã‚’å…¥åŠ›
   } else {
     fprintf(stderr,"current line = EOF\n");
   }
 }
 
 /*
- * £±¹ÔÁŞÆş
+ * ï¼‘è¡ŒæŒ¿å…¥
  */
 void insert() {
   int i;
   for (i=lines; i>current; i=i+1)
     strCpy(textbuf[i], textbuf[i-1]);
   fprintf(stderr, "new line ");
-  getLine(textbuf[current],CHARS,stdin);              // ¿·¤·¤¤¹Ô¤òÆşÎÏ
+  getLine(textbuf[current],CHARS,stdin);              // æ–°ã—ã„è¡Œã‚’å…¥åŠ›
   lines = lines + 1;
   current = current + 1;
 }
 
 /*
- * 1¹Ôºï½ü
+ * 1è¡Œå‰Šé™¤
  */
 void delete() {
   int i;
@@ -157,7 +157,7 @@ void delete() {
 }
 
 /*
- * ¥Ø¥ë¥×
+ * ãƒ˜ãƒ«ãƒ—
  */
 void help() {
   fprintf(stderr,"j : jump\n");
@@ -170,7 +170,7 @@ void help() {
  }
 
 /*
- * ¥¨¥Ç¥£¥¿¥×¥í¥°¥é¥à¤Î¥á¥¤¥ó¥ë¡¼¥Á¥ó
+ * ã‚¨ãƒ‡ã‚£ã‚¿ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã®ãƒ¡ã‚¤ãƒ³ãƒ«ãƒ¼ãƒãƒ³
  */
 public int main(int argc, char[][] argv) {
   if (argc!=2) {
@@ -179,25 +179,25 @@ public int main(int argc, char[][] argv) {
   }
   char[] filename=argv[1];
   loadfile(filename);
-  current = 0;                                        // ¸½ºß¹Ô¤Ï1¹ÔÌÜ
+  current = 0;                                        // ç¾åœ¨è¡Œã¯1è¡Œç›®
 
   while(true) {
     fprintf(stderr,"[%d] command: ",current);
     if (!getLine(kbdBuf,BUFLEN,stdin)) {    // EOF
       break;
-    } else if (strCmp(kbdBuf,"j")==0) {     // j: ¥¸¥ã¥ó¥×¥³¥Ş¥ó¥É
+    } else if (strCmp(kbdBuf,"j")==0) {     // j: ã‚¸ãƒ£ãƒ³ãƒ—ã‚³ãƒãƒ³ãƒ‰
       jump();
-    } else if (strCmp(kbdBuf,"p")==0) {     // p: ¥×¥ê¥ó¥È¥³¥Ş¥ó¥É
+    } else if (strCmp(kbdBuf,"p")==0) {     // p: ãƒ—ãƒªãƒ³ãƒˆã‚³ãƒãƒ³ãƒ‰
       print();
-    } else if (strCmp(kbdBuf,"l")==0) {     // l: ¥ê¥¹¥È¥³¥Ş¥ó¥É
+    } else if (strCmp(kbdBuf,"l")==0) {     // l: ãƒªã‚¹ãƒˆã‚³ãƒãƒ³ãƒ‰
       list();
-    } else if (strCmp(kbdBuf,"c")==0) {     // c: ÊÑ¹¹¥³¥Ş¥ó¥É
+    } else if (strCmp(kbdBuf,"c")==0) {     // c: å¤‰æ›´ã‚³ãƒãƒ³ãƒ‰
       change();
-    } else if (strCmp(kbdBuf,"q")==0) {     // q: quit(½ªÎ»)¥³¥Ş¥ó¥É
+    } else if (strCmp(kbdBuf,"q")==0) {     // q: quit(çµ‚äº†)ã‚³ãƒãƒ³ãƒ‰
       break;
-    } else if (strCmp(kbdBuf,"i")==0) {     // i: £±¹ÔÁŞÆş¥³¥Ş¥ó¥É
+    } else if (strCmp(kbdBuf,"i")==0) {     // i: ï¼‘è¡ŒæŒ¿å…¥ã‚³ãƒãƒ³ãƒ‰
       insert();
-    } else if (strCmp(kbdBuf,"d")==0) {     // d: £±¹Ôºï½ü)¥³¥Ş¥ó¥É
+    } else if (strCmp(kbdBuf,"d")==0) {     // d: ï¼‘è¡Œå‰Šé™¤)ã‚³ãƒãƒ³ãƒ‰
       delete();
     } else {
       help();
