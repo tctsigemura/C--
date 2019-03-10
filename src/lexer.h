@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,12 +20,13 @@
  */
 
 /*
- * lexical.h : 字句解析部の外部仕様を定義
+ * lexer.h : 字句解析器の外部仕様を定義
  *
+ * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2016.09.16         : lxSetFname(), lxGetFname()を削除（utilに移動）
  * 2016.02.05 v3.0.0  : トランスレータ用と統合(LxTYPEDEF, LxFILE 追加)
  * 2011.01.12         : addr, refer 演算子を削除
- * 2010.12.15         : v2.0 に向けて ord, chr, bool, addr, refer 演算子等を追加
+ * 2010.12.15         : v2.0 に向けてord,chr,bool,addr,refer 演算子等を追加
  * 2010.07.20         : Subversion による管理を開始
  * 2010.03.12 v0.9.10 : 'public' 修飾子を追加
  * 2009.11.03 v0.9.9  : 'addrof' 演算子と interrupt 関数を追加

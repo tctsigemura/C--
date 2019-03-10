@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2019.03.03         : genStr() に文字列長引数を追加
  * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2018.11.30         : void[] に []演算をしたエラーを発見したときの処理にバグ
@@ -90,12 +91,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "util.h"                   // その他機能モジュール
-#include "lexical.h"                // 字句解析モジュール
+#include "lexer.h"                  // 字句解析器モジュール
 #include "optree.h"                 // 構文木最適化モジュール
 #include "code.h"                   // コード生成モジュール
 #include "namtbl.h"                 // 名前表モジュール
 #include "sytree.h"                 // 構文木モジュール
-#include "syntax.h"
+#include "parser.h"                 // 構文解析器モジュール（自身）
 
 /*
  * グローバルデータ
@@ -1246,15 +1247,15 @@ static void getProg(void) {
 }
 
 // フラグを操作する
-void snSetOptFlag(boolean f) { optFlag = f; };
-void snSetKrnFlag(boolean f) { krnFlag = f; };
+void psSetOptFlag(boolean f) { optFlag = f; };
+void psSetKrnFlag(boolean f) { krnFlag = f; };
 
 //-----------------------------------------------------------------------------
 // ソースの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
 //-----------------------------------------------------------------------------
 #ifndef C
 // コンパイラ版はディレクティブに興味がないので getProg() を繰り返すだけ
-void snGetSrc(void) {
+void psGetSrc(void) {
   getTok();                                  // 最初の tok を読み込む
   while (_tok!=EOF)                          // EOF になるまで
     getProg();                               //   C-- プログラムを処理
@@ -1262,7 +1263,7 @@ void snGetSrc(void) {
 //-----------------------------------------------------------------------------
 #else
 // トランスレータ版はディレクティブの処理と getProg() を繰り返す
-void snGetSrc(void) {
+void psGetSrc(void) {
   getTok();                                  // 最初の tok を読み込む
   while (_tok!=EOF) {                        // EOF になるまで
     if (_tok==LxFILE) {                      //  ディレクティブなら

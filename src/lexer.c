@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2018 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,8 +20,9 @@
  */
 
 /*
- * lexical.c : C--コンパイラの字句解析ルーチン
+ * lexer.c : C--コンパイラの字句器
  *
+ * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2018.01.27 v3.1.10 : # ディレクティプの行番号解釈が1行ずれるバグ訂正
  * 2016.09.12 v3.1.4  : getStr が最後に(\\)がある文字列を処理できないバグ訂正
  * 2016.05.10         : getSharp が val にも行番号を記録するように変更
@@ -50,7 +51,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "lexical.h"
+#include "lexer.h"
 #include "util.h"
 
 // 予約語の一覧表

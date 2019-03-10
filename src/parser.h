@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,14 +20,15 @@
  */
 
 /*
- * syntax.h : C--コンパイラの構文解析ルーチン
+ * parser.h : C--コンパイラの構文解析ルーチン
  *
+ * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2016.02.03         : 新規作成
  *
  * $Id$
  *
  */
 
-void snGetSrc(void);                       // C-- プログラムを読む
-void snSetOptFlag(boolean f);              // 最適化フラグを操作する
-void snSetKrnFlag(boolean f);              // カーネルフラグを操作する
+void psGetSrc(void);                       // C-- プログラムを読む
+void psSetOptFlag(boolean f);              // 最適化フラグを操作する
+void psSetKrnFlag(boolean f);              // カーネルフラグを操作する

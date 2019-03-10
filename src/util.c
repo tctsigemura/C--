@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * util.c : 良く使う関数
  *
+ * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2016.09.14         : setFname() を追加
  * 2016.06.04         : eOpen() を追加
  * 2016.03.01         : NULL を null に書き換え
@@ -42,7 +43,7 @@
 #include <ctype.h>
 #include <strings.h>
 
-#include "lexical.h"
+#include "lexer.h"
 #include "util.h"
 
 /* エラーメッセージに必要なファイル名を管理する */
