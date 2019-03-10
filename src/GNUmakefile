@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2009-2016 by
+# Copyright (C) 2009-2019 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,6 +19,7 @@
 #
 # GNUmakefile : c-- の makefile
 #
+# 2019.02.21         : 配列境界とnullポインタの実行時チェック
 # 2018.01.27 v3.1.10 : ドライバで -nostdinc -I オプションを使用できる
 # 2016.11.20 v3.1.9  : トランスレータのfor文中でcontinueを使用した時のバグ訂正
 # 2016.10.16 v3.1.8  : トランスレータのif文入れ子時のバグ対策，コンパクトな出力
@@ -60,7 +61,7 @@ CC=cc -std=c99 -Wall
 VER=\"`cat ../VERSION`\"
 DATE="\"`date`\""
 
-all : c-- vm-c-- c-c-- ic-c--
+all : c-- vm-c-- ic-c-- c-c-- cb-c--
 
 c-- : GNUmakefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
@@ -78,6 +79,14 @@ vm-c-- : GNUmakefile main.c syntax.c syntax.h lexical.c lexical.h util.h \
 	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
 	vmCode.c vm2vm.c optree.c
 
+ic-c-- : GNUmakefile main.c syntax.c syntax.h lexical.c lexical.h util.h \
+      util.c namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2ic.c \
+      optree.h optree.c
+	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"IC\" \
+	-DNWORD=16 -DNBYTE=8 -o ic-c-- \
+	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
+	vmCode.c vm2ic.c optree.c
+
 c-c-- : GNUmakefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
@@ -86,13 +95,13 @@ c-c-- : GNUmakefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
 	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
 
-ic-c-- : GNUmakefile main.c syntax.c syntax.h lexical.c lexical.h util.h \
-      util.c namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2ic.c \
+cb-c-- : GNUmakefile main.c syntax.c syntax.h lexical.c lexical.h util.h util.c \
+      namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"IC\" \
-	-DNWORD=16 -DNBYTE=8 -o ic-c-- \
+	${CC} ${CFLAGS} -DBOUNDCHECK -DDATE=${DATE} -DVER=${VER} \
+	-DARC=\"C\" -DC -DNWORD=32 -DNBYTE=8 -o cb-c-- \
 	main.c syntax.c lexical.c namtbl.c util.c sytree.c \
-	vmCode.c vm2ic.c optree.c
+	cCode.c optree.c
 
 #h8300hn-c-- : Makefile syntax.c lexical.c lexical.h util.h util.c \
 #      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2h8300hn.c \
@@ -102,12 +111,13 @@ ic-c-- : GNUmakefile main.c syntax.c syntax.h lexical.c lexical.h util.h \
 #	syntax.c lexical.c namtbl.c util.c sytree.c vmCode.c vm2h8300hn.c \
 #	optree.c
 
-install : c-- vm-c-- c-c-- ic-c-- # h8300hn-c--
+install : c-- vm-c--  ic-c-- c-c-- cb-c-- # h8300hn-c--
 	install -d -m 755 /usr/local/bin
 	install -m 755 c-- /usr/local/bin
 	install -m 755 vm-c-- /usr/local/bin
-	install -m 755 c-c-- /usr/local/bin
 	install -m 755 ic-c-- /usr/local/bin
+	install -m 755 c-c-- /usr/local/bin
+	install -m 755 cb-c-- /usr/local/bin
 	install -m 755 cm2c /usr/local/bin
 	install -m 755 cm2e /usr/local/bin
 	install -m 755 cm2v /usr/local/bin
@@ -115,7 +125,7 @@ install : c-- vm-c-- c-c-- ic-c-- # h8300hn-c--
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- ic-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~ \
-	 cm2?~ GNUmakefile~
+	rm -f c-- vm-c-- c-c-- cb-c-- ic-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ \
+	Makefile~  cm2?~ GNUmakefile~
 #	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 

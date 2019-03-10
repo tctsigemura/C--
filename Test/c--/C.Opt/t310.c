@@ -1,12 +1,13 @@
 void *__ItoA(int _cmm_1P);
-struct TCB {
+typedef struct _TCB TCB;
+struct _TCB {
 int pc;
 int sp;
 };
-static struct TCB _cmm_0T={0,20480};
-static struct TCB _cmm_1T={0,32768};
-static struct TCB *_cmm_2T[]={&_cmm_0T,&_cmm_1T};
-static struct TCB **tcbs=_cmm_2T;
+static TCB _cmm_0T={0,20480};
+static TCB _cmm_1T={0,32768};
+static TCB *_cmm_2T[]={&_cmm_0T,&_cmm_1T};
+static TCB **tcbs=_cmm_2T;
 static void task1(){
 ;
 }

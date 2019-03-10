@@ -22,6 +22,7 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
+ * 2019.02.23 : nullポインタ，配列境界チェック対応
  * 2019.01.27 : htoi を追加
  * 2018.11.17 : lToL を追加
  * 2018.02.26 : fsize を追加
@@ -31,6 +32,22 @@
  *
  */
 
+// int型配列を表現する構造体型
+typedef struct { int l; int a[]; } _IA;
+
+// char型を表現する構造体型
+typedef struct { int l; char a[]; } _CA;
+
+// 参照の配列を表現する構造体型
+typedef struct  { int l; void *a[]; } _RA;
+
+// nullポインタ，配列境界チェック関数
+int *_ICA(_IA *p, int i, char *file, int line);
+char *_CCA(_CA *p, int i, char *file, int line);
+void **_RCA(_RA *p, int i, char *file, int line);
+void *_CP(void *p, char *file, int line);
+
+// 型変換など
 void *_addrAdd(void *a, int inc);
 void *_aToA(void *a);
 
