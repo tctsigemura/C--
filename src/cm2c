@@ -9,7 +9,7 @@ function error {
 INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib"
 LIBDIR=/usr/local/cmmLib
 
-CMM="cb-c--"
+CMM="c-c--"
 
 CFLAGS="-g -O0 \
    -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
@@ -32,7 +32,7 @@ while [ $# -gt 0 ]; do
         -c) cflag="yes"; shift;;
         -E) eflag="yes"; shift;;
         -nostdinc) INCDIR=""; shift;;
-        -nortc) CMM="c-c--" shift;;
+        -rtc) CMM="cb-c--" shift;;
         -I) incdir="$incdir -I$2" shift; shift;;
         -I*)incdir="$incdir $1" shift;;
         -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
@@ -45,7 +45,8 @@ while [ $# -gt 0 ]; do
             echo  "       -c       leave .o file"                         1>&2
             echo  "       -E       run the preprocessor stage"            1>&2
             echo  "       -nostdinc Disable standard include directories" 1>&2
-            echo  "       -nortc    Disable Run Time Check"               1>&2
+            echo  "       -rtc      Enable Run Time Check"                1>&2
+            echo  "       -nortc    Disable Run Time Check[default]"      1>&2
             echo  "       -I dir    Add incude directory"                 1>&2
             echo  "       -Dxx=yy  define xx as yy"                       1>&2
             echo  "       -h       print this message"                    1>&2
