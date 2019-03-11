@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2019.03.11 : subStr()を使用しないようにfsize()を書き換え
  * 2019.01.10 : perror にエラー追加（EMEMVIO）
  * 2018.12.03 : readDir が 0x05 のエントリを無視するバグ修正
  * 2018.02.22 : fsize 追加
@@ -212,26 +213,26 @@ public boolean fseek(FILE fp, int offsh, int offsl){
 #define PSN(c) ((c)=='.'||(c)=='/'||(c)=='\0')  // ファイル名本体が終わっている
 #define SN(c)  ((c)=='/'||(c)=='\0')            // 拡張子を含めて終わっている
 
-boolean sameFname(char[] fname, char[] path, int o) { // ファイル名用の比較関数
-  char pc = path[o];                            // pathの着目位置の文字
+boolean sameFname(char[] fname, char[] path, int p) { // ファイル名用の比較関数
+  char pc = path[p];                            // pathの着目位置の文字
   for (int i=0; i<8; i=i+1) {                   // ファイル名8文字を比較する
     char fc = fname[i];
     if (PSN(pc) && fc==' ') break;              // ファイル名本体が一致
-    if (pc!=fc) return false;                   // 異なる文字が含まれる
-    o = o + 1;
-    pc = path[o];
+    if (toUpper(pc)!=toUpper(fc)) return false; // 異なる文字が含まれる
+    p = p + 1;
+    pc = path[p];
   }
   if (!PSN(pc)) return false;                   // ファイル名本体が8文字以上
   if (SN(pc)) return fname[8]==' ';             // パスが終わっている
   // ここからは pc が '.' のときしか実行されない．
-  o = o + 1;                                    // '.' を読み飛ばす
-  pc = path[o];
+  p = p + 1;                                    // '.' を読み飛ばす
+  pc = path[p];
   for (int i=8; i<11; i=i+1) {                  // 拡張子3文字を比較する
     char fc = fname[i];
     if (SN(pc) && fc==' ') break;               // 拡張子が一致して終わった
-    if (pc!=fc) return false;                   // 異なる文字が含まれる
-    o = o + 1;
-    pc = path[o];
+    if (toUpper(pc)!=toUpper(fc)) return false; // 異なる文字が含まれる
+    p = p + 1;
+    pc = path[p];
   }
   return SN(pc);                                // 拡張子の最後なら一致
 }
