@@ -9,7 +9,7 @@ for i in $*; do
    echo '[!!!' ${j} '!!!]'
    n=`expr ${j} : '\([^\.]*\)'`
    cpp -DC -xc++ -Wno-comment -nostdinc -I${INCDIR} -I${LIBDIR} ${i} |
-   ../../../src/cb-c-- -O > $$.c
+   ../../../src/rtc-c-- -O > $$.c
    diff ${n}.c $$.c
    cc -S -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
      -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \

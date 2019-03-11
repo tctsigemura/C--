@@ -32,7 +32,7 @@ while [ $# -gt 0 ]; do
         -c) cflag="yes"; shift;;
         -E) eflag="yes"; shift;;
         -nostdinc) INCDIR=""; shift;;
-        -rtc) CMM="cb-c--" shift;;
+        -rtc) CMM="rtc-c--" shift;;
         -I) incdir="$incdir -I$2" shift; shift;;
         -I*)incdir="$incdir $1" shift;;
         -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`

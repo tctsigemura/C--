@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Advanced educational Computer
 #
-# Copyright (C) 2016 - 2018 by
+# Copyright (C) 2016 - 2019 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -17,8 +17,9 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# lib/Makefile : makefile
+# lib/Makefile.tac : TaC用ライブラリのmakefile
 #
+# 2019.03.10 : 名前を Makefile.tac に変更
 # 2018.02.24 : ../include の .hmm を使用するように変更
 # 2018.01.31 : .s にも cm2e を使用するように変更
 # 2016.06.01 : シンボリックリンク crt0.h を追加

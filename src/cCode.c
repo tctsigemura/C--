@@ -22,7 +22,7 @@
 /*
  * cCode.c : C--トランスレータのコード生成部
  *
- * 2019.02.19         : 
+ * 2019.03.11         : Run Time Check が一応動作する
  * 2019.02.16         : 渡邉くんの成果をマージ
  * 2016.11.20         : for 中の continue が最初期化を行わないバグ
  * 2016.10.16         : elseなしif文だけ"{if(e)...}"と出力する方がスマート
@@ -88,7 +88,7 @@ static void printTypeName(int typ) {
 //    int *a=tmp;           <--- 参照変数生成
 //    X tmp = {1,2};        <--- インスタンス生成
 //    X *a=&tmp;            <--- 参照変数生成
-#ifdef BOUNDCHECK
+#ifdef _RTC
 static void printType(boolean sta, int typ, int dim, boolean inst) {
   if (sta) printf("static ");                       // "[static ]"
   if (dim==0) {                                     // 配列ではない
@@ -168,7 +168,7 @@ static void printArgs(int node){
 }
 
 // 配列アクセスの場合
-#ifdef BOUNDCHECK
+#ifdef _RTC
 static void printArryOp(int typ, int lVal, int rVal) {
   printf("(*");                                     // "(*"
   if (typ==SyIDXR)      printf("_RCA(");            // 参照型なら "_RCA("
@@ -191,7 +191,7 @@ static void printArryOp(int typ, int lVal, int rVal) {
 #endif
 
 // 構造体の場合
-#ifdef BOUNDCHECK
+#ifdef _RTC
 static void printDotOp(int lVal, int rVal) {
   int typ=syGetRVal(rVal);                          // 構造体型のidx
   int fld=syGetLVal(rVal);                          // フィールドのidx
@@ -216,7 +216,7 @@ static void printExp(int node){
   if (typ==SyCNST) {                                // 定数なら
     printf("%d", syGetLVal(node));                  //   "値"
   } else if (typ==SySTR) {                          // 文字列なら
-#ifdef BOUNDCHECK
+#ifdef _RTC
     printf("&");                                    //   "&"
 #endif
     printStrLab(lVal);                              //   "文字列ラベル"
@@ -411,7 +411,7 @@ static int newTmpLab(){
 }
 
 // 中間のポインタ配列を印刷する
-#ifdef BOUNDCHECK
+#ifdef _RTC
 static void printPtrArray(int vType, int dim, int cnt, int lab) {
   printType(true, vType, dim, true);                // "static _RA"
   printTmpLab(newTmpLab());                         // "_cmm_%dT"
@@ -463,7 +463,7 @@ static int printArray0(int vType, int dim, int node, int cnt) {
     for (int i=0; i<cnt; i++) {                     // 前の次元の要素数分
       printType(true, vType, dim, true);            // "static 型名[*...]"
       printTmpLab(newTmpLab());                     // "_cmm_%dT"
-#ifdef BOUNDCHECK
+#ifdef _RTC
       printf("={%d,{[%d]=0}};\n", lVal, lVal-1);    // "={%d,{[%d]=0}};"
 #else
       printf("[%d];\n", lVal);                      // "[%d];"
@@ -481,7 +481,7 @@ static void printArray(int node, int idx){
   int ln = printArray0(typ, dim, lVal, 1);          // 配列インスタンス出力
   printGlobDcl(idx);                                // "[static]型名[*...]名前"
   printf("=");                                      // "="
-#ifdef BOUNDCHECK
+#ifdef _RTC
   printf("&");                                      // "&"
 #endif
   printTmpLab(ln);                                  // "_cmm_%dT;"
@@ -498,11 +498,11 @@ static void printList2(int vType, int dim, int node, int cnt) {
     printf(",");                                    // ","
     printList2(vType, dim, rVal, 0);                // 右辺を処理
   } else {
-#ifdef BOUNDCHECK
+#ifdef _RTC
     if (cnt>0 && !(vType<=0 && dim<=0)) printf("%d,{", cnt);
 #endif
     if (typ==SyLIST || typ==SyARRY) {
-#ifdef BOUNDCHECK
+#ifdef _RTC
       printf("&");                                  // "&"
 #else
       if (vType<=0 && dim<=1) printf("&");            // 構造体インスタンスなら
@@ -511,13 +511,13 @@ static void printList2(int vType, int dim, int node, int cnt) {
     } else if (typ==SyCNST) {
       printf("%d", lVal);                             // "数値"
     } else if (typ==SySTR) {                          // 文字列なら
-#ifdef BOUNDCHECK
+#ifdef _RTC
       printf("&");                                  // "&"
 #endif
       printStrLab(lVal);                              //   "文字列ラベル"
     } else error("バグ...printList2");
   }
-#ifdef BOUNDCHECK
+#ifdef _RTC
   if (cnt==1 && !(vType<=0 && dim<=0)) printf("}");
 #endif
 }
@@ -548,7 +548,7 @@ static void printList0(int vType, int dim, int node) {
   sySetRVal(node, lab);                             // 名前を記録
   printType(true, vType, dim, true);                // "static 型[*...]"
   printTmpLab(lab);                                 // "_cmm_%dT"
-#ifndef BOUNDCHECK
+#ifndef _RTC
   if (dim>0) printf("[]");                          // "[]" (配列の初期化)
 #endif
   printf("={");                                     // "={"
@@ -563,7 +563,7 @@ static void printList(int node, int idx) {
   printList0(typ, dim, node);                       // リストを出力する
   printGlobDcl(idx);                                // "[static]型名[*...]名前"
   printf("=");                                      // "="
-#ifdef BOUNDCHECK
+#ifdef _RTC
   printf("&");                                      // "&"
 #else
   if (dim<=0) printf("&");                          // "&"（構造体の初期化）
@@ -605,7 +605,7 @@ static int newStrLab(){
   return l;
 }
 
-#ifdef BOUNDCHECK
+#ifdef _RTC
 // 文字列リテラルを生成する
 static void genStrLit(char *str, int len, int lab) {
   printf("static _CA ");                            // "static _CA "

@@ -19,6 +19,7 @@
 #
 # GNUmakefile : c-- の makefile
 #
+# 2019.03.11         : Run Time Check の略称を RTC にする
 # 2019.03.10         : ソースコードのファイル名変更
 # 2019.02.21         : 配列境界とnullポインタの実行時チェック
 # 2018.01.27 v3.1.10 : ドライバで -nostdinc -I オプションを使用できる
@@ -62,7 +63,7 @@ CC=cc -std=c99 -Wall
 VER=\"`cat ../VERSION`\"
 DATE="\"`date`\""
 
-all : c-- vm-c-- ic-c-- c-c-- cb-c--
+all : c-- vm-c-- ic-c-- c-c-- rtc-c--
 
 c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
@@ -96,11 +97,11 @@ c-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
 	main.c parser.c lexer.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
 
-cb-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
+rtc-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
-	${CC} ${CFLAGS} -DBOUNDCHECK -DDATE=${DATE} -DVER=${VER} \
-	-DARC=\"C\" -DC -DNWORD=32 -DNBYTE=8 -o cb-c-- \
+	${CC} ${CFLAGS} -D_RTC -DDATE=${DATE} -DVER=${VER} \
+	-DARC=\"C\" -DC -DNWORD=32 -DNBYTE=8 -o rtc-c-- \
 	main.c parser.c lexer.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
 
@@ -112,7 +113,7 @@ cb-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
 #	parser.c lexer.c namtbl.c util.c sytree.c vmCode.c vm2h8300hn.c \
 #	optree.c
 
-install : c-- vm-c-- ic-c-- c-c-- cb-c-- # h8300hn-c--
+install : c-- vm-c-- ic-c-- c-c-- rtc-c-- # h8300hn-c--
 	install -d -m 755 /usr/local/bin
 	install -m 755 c-- /usr/local/bin
 	install -m 755 vm-c-- /usr/local/bin
@@ -126,7 +127,7 @@ install : c-- vm-c-- ic-c-- c-c-- cb-c-- # h8300hn-c--
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- cb-c-- ic-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ \
+	rm -f c-- vm-c-- c-c-- rtc-c-- ic-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ \
 	Makefile~ cm2?~ GNUmakefile~
 #	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
 
