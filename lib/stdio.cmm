@@ -209,22 +209,31 @@ public boolean fseek(FILE fp, int offsh, int offsl){
 }
 
 // ファイルサイズを調べる
-int fnameNcmp(char[] fname, char[] str, int n) {// ファイル名用の比較関数
-  for (int p=0; p<n; p=p+1) {
-    if (fname[p]==' ' && str[p]=='.') return 0;
-    if (fname[p]==' ' && str[p]=='\0') return 0;
-    int r = ord(fname[p]) - ord(toUpper(str[p]));
-    if (r!=0) return r;
-  }
-  return 0;
-}
+#define PSN(c) ((c)=='.'||(c)=='/'||(c)=='\0')  // ファイル名本体が終わっている
+#define SN(c)  ((c)=='/'||(c)=='\0')            // 拡張子を含めて終わっている
 
-int fnameCmp(char[] fname, char[] str) {        // ファイル名用の比較関数
-  int r = fnameNcmp(fname, str, 8);             // 8文字を比較する
-  if (r!=0) return r;
-  int p = strChr(str, '.');                     // . を探す
-  if (p<0 && fname[8]==' ') return 0;           // 拡張子が無い
-  return fnameNcmp(subStr(fname,8), subStr(str, p+1), 3); // 拡張子の比較
+boolean sameFname(char[] fname, char[] path, int o) { // ファイル名用の比較関数
+  char pc = path[o];                            // pathの着目位置の文字
+  for (int i=0; i<8; i=i+1) {                   // ファイル名8文字を比較する
+    char fc = fname[i];
+    if (PSN(pc) && fc==' ') break;              // ファイル名本体が一致
+    if (pc!=fc) return false;                   // 異なる文字が含まれる
+    o = o + 1;
+    pc = path[o];
+  }
+  if (!PSN(pc)) return false;                   // ファイル名本体が8文字以上
+  if (SN(pc)) return fname[8]==' ';             // パスが終わっている
+  // ここからは pc が '.' のときしか実行されない．
+  o = o + 1;                                    // '.' を読み飛ばす
+  pc = path[o];
+  for (int i=8; i<11; i=i+1) {                  // 拡張子3文字を比較する
+    char fc = fname[i];
+    if (SN(pc) && fc==' ') break;               // 拡張子が一致して終わった
+    if (pc!=fc) return false;                   // 異なる文字が含まれる
+    o = o + 1;
+    pc = path[o];
+  }
+  return SN(pc);                                // 拡張子の最後なら一致
 }
 
 #define MAXPATH 80
@@ -238,7 +247,7 @@ public boolean fsize(char[] path, int[] size) {
   int fd = open(dirPath, READ);                 // ディレクトリをオープン
   if (fd<0) return true;                        // エラーなら終了
   while (readDir(fd, dir)>0) {
-    if (fnameCmp(dir.name, subStr(path, pos+1))==0) {
+    if (sameFname(dir.name, path, pos+1)) {
       size[0] = dir.lenH;
       size[1] = dir.lenL;
       close(fd);
