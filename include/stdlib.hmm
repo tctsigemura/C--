@@ -22,17 +22,13 @@
 /*
  * include/stdlib.hmm : lib/stdlib.cmm の外部インタフェース
  *
+ * 2019.03.12 : <cfunc.hmm> のインクルードはコンパイラドライバが指示する
  * 2019.01.27 : htoi() を追加
  * 2016.08.27 : Cトランスレータの場合を追加
  * 2016.02.26 : 新規作成
  *
  * $Id$
  */
-
-// C トランスレータの場合はC関数の定義を読む
-#ifdef C
-#include <cfunc.hmm>
-#endif
 
 public void[] _alcAddr;                      // ヒープ領域終端を示すポインタ
 public void _stdlibInit();                   // stdlib の初期化

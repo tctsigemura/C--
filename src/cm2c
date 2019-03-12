@@ -6,19 +6,17 @@ function error {
   exit 1
 }
 
-INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib"
-LIBDIR=/usr/local/cmmLib
-
-CMM="c-c--"
 RTC=""
+CMM="c-c--"
+INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibNortc"
+LIBDIR=/usr/local/cmmLib/LibNortc
 
 CFLAGS="-g -O0 \
    -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
-   -Wno-dangling-else -Wno-format-security \
-   -include stdio.h -include ${LIBDIR}/wrapper.h"
+   -Wno-dangling-else -Wno-format-security"
 
-CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC"
+CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC -include cfunc.hmm"
 
 myname=`basename $0`
 exefile="a.out"
@@ -33,8 +31,18 @@ while [ $# -gt 0 ]; do
         -c) cflag="yes";                 shift;;
         -E) eflag="yes";                 shift;;
         -nostdinc) INCDIR="";            shift;;
-        -rtc) CMM="rtc-c--"; RTC="_RTC"; shift;;
-        -nortc) CMM="c-c--"; RTC="";     shift;;
+        -rtc)
+	    RTC="-D_RTC"
+	    CMM="rtc-c--"
+	    INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibRtc"
+	    LIBDIR=/usr/local/cmmLib/LibRtc
+	    shift;;
+        -nortc)
+	    RTC=""
+	    CMM="c-c--"
+	    INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibNortc"
+	    LIBDIR=/usr/local/cmmLib/LibNortc
+	    shift;;
         -I) incdir="$incdir -I$2" shift; shift;;
         -I*)incdir="$incdir $1";         shift;;
         -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
@@ -82,7 +90,8 @@ while [ $# -gt 0 ]; do
                 if [ "${sflag}" != "yes" ]; then
                     objs="${objs} ${name}.o"
                     tmps="${tmps} ${name}.o"
-                    cc -c ${CFLAGS} -I${LIBDIR} ${name}.c || error rm ${name}.c
+                    cc -c ${CFLAGS} ${RTC} ${INCDIR} -include wrapper.h ${name}.c \
+		    || error rm ${name}.c
                     rm -f ${name}.c
                 fi
             fi ;;
@@ -103,7 +112,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "${eflag}" != "yes" -a "${sflag}" != "yes" -a "${cflag}" != "yes" ]; then
-    cc ${CFLAGS} -o ${exefile} -I${LIBDIR} ${LIBDIR}/wrapper.c ${objs} 
+    cc ${CFLAGS} -o ${exefile} -I${INCDIR} ${LIBDIR}/wrapper.c ${objs} 
     rm -f ${tmps}
 fi
 
