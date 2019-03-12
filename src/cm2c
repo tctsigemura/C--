@@ -10,6 +10,7 @@ INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib"
 LIBDIR=/usr/local/cmmLib
 
 CMM="c-c--"
+RTC=""
 
 CFLAGS="-g -O0 \
    -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
@@ -27,14 +28,15 @@ eflag="no"
 incdir=""
 while [ $# -gt 0 ]; do
     case "$1" in
-        -o) exefile=$2;  shift; shift;;
-        -S) sflag="yes"; shift;;
-        -c) cflag="yes"; shift;;
-        -E) eflag="yes"; shift;;
-        -nostdinc) INCDIR=""; shift;;
-        -rtc) CMM="rtc-c--" shift;;
+        -o) exefile=$2;                  shift; shift;;
+        -S) sflag="yes";                 shift;;
+        -c) cflag="yes";                 shift;;
+        -E) eflag="yes";                 shift;;
+        -nostdinc) INCDIR="";            shift;;
+        -rtc) CMM="rtc-c--"; RTC="_RTC"; shift;;
+        -nortc) CMM="c-c--"; RTC="";     shift;;
         -I) incdir="$incdir -I$2" shift; shift;;
-        -I*)incdir="$incdir $1" shift;;
+        -I*)incdir="$incdir $1";         shift;;
         -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
             CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
         -*) echo  "\"${myname}\" is the C-- compiler driver."             1>&2
@@ -65,7 +67,7 @@ objs=""
 tmps=""
 while [ $# -gt 0 ]; do
     j=`basename $1`
-    name=`expr "${j}" : '\(.*\)\.[^.]*'`
+    name=`dirname $1`/`expr "${j}" : '\(.*\)\.[^.]*'`
     ext=`expr "${j}" : '.*\(\.[^.]*\)'`
     case "${ext}" in
         *.cmm)
