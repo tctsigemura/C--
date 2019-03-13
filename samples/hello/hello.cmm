@@ -1,9 +1,0 @@
-//
-// hello.cmm : C--のサンプルプログラム
-//
-#include <stdio.hmm>
-
-public int main() {
-  printf("hello,world\n");
-  return 0;
-}
