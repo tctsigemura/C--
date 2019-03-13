@@ -39,6 +39,7 @@
 #include <string.hmm>
 #include <ctype.hmm>
 #include <syslib.hmm>
+#include <crt0.hmm>
 
 #define LMAX 80                                   // 1行最大 80 文字
 #define ARGMAX 30                                 // コマンド業引数は最大30個
@@ -72,7 +73,7 @@ boolean parse(char[] line) {
     p = skipSpc(line , p);                        // 余計な空白をスキップする
     if (line[p]=='\0') break;                     // 行末になった
 
-    argv[i] = subStr(line, p);                    // 文字列を記録する
+    argv[i] = _addrAdd(line, p);                  // 文字列を記録する
     i = i + 1;
 
     p = srchSpc(line , p);                        // 空白を探す

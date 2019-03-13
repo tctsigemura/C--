@@ -21,14 +21,17 @@
 
 /*
  * wrapper.c : C-- 版と C 版で仕様が異なる関数など
+ *            (主に stdlib.hmm の関数）
  *
- * 2019.02.23 : nullポインタ，配列境界チェック対応
- * 2016.05.26 : #include <wrapper.h> を削除
+ * 2019.03.11 : 実行時エラーチェック関数inline関数に変更しwrapper.hに移動
+ * 2019.03.11 : string.cmm の関数を削除(C--版を使用する）
+ * 2019.02.23 : 実行時エラーチェック関数を追加
  * 2019.01.27 : htoi を追加
  * 2018.11.17 : lToL を追加
  * 2018.02.26 : fsize を追加
  * 2018.02.20 : fseek を追加
  * 2016.08.07 : feof を追加
+ * 2016.05.26 : #include <wrapper.h> を削除（cc のオプションで指定する）
  * 2016.05.26 : #include <wrapper.h> を追加
  * 2016.03.02 : mAlloc, fOpen を追加
  * 2016.02.26 : 初期バージョン
@@ -36,77 +39,44 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
+#include <string.h>
 #include <sys/stat.h>
 
-// int型の配列チェック用関数
-int *_ICA(_IA *p, int i, char *file, int line) {
-  if (NULL==p) {
-    fprintf(stderr, "%s:%d Null Pointer idx=%d \n", file, line, i);
-    abort();
-  }
-  if (i<0 || p->l<=i) {
-    fprintf(stderr, "%s:%d Out of Bound idx=%d\n", file, line, i);
-    abort();
-  }
-  return &(p->a[i]);
-}
+#ifdef _RTC
+// C-- で記述した main 関数
+int __main(int argc, _RA* args, _RA* envs);
 
-// char型の配列チェック用関数
-char *_CCA(_CA *p, int i, char *file, int line) {
-  if (NULL==p) {
-    fprintf(stderr, "%s:%d Null Pointer(idx=%d)\n", file, line, i);
-    abort();
+// main 関数
+int main(int argc, char *argv[], char *envp[]) {
+  // argv を RTC 対応のデータ構造に作り直す
+  _RA *args = _mAlloc(sizeof(_RA)+sizeof(void*)*(argc+1));
+  args->l = argc + 1;
+  args->a[argc] = NULL;
+  for (int i=0; i<argc; i=i+1) {
+    args->a[i] = _mAlloc(sizeof(_CA)+strlen(argv[i])+1);
+    ((_CA*)(args->a[i]))->l = strlen(argv[i])+1;
+    strcpy(((_CA*)(args->a[i]))->a, argv[i]);
   }
-  if (i<0 || p->l<=i) {
-    fprintf(stderr, "%s:%d Out of Bound(idx=%d)\n", file, line, i);
-    abort();
+
+  // envpの長さを調べる
+  int envc=0;
+  while (envp[envc]!=NULL) {
+    envc = envc + 1;
   }
-  return &(p->a[i]);
-}
 
-// 参照配列の配列チェック用関数
-void **_RCA(_RA *p, int i, char *file, int line) {
-  if (NULL==p) {
-    fprintf(stderr, "%s:%d Null Pointer(idx=%d)\n", file, line, i);
-    abort();
+  // envp を RTC 対応のデータ構造に作り直す
+  _RA *envs = _mAlloc(sizeof(_RA)+sizeof(_RA*)*(envc+1));
+  envs->l = envc + 1;
+  envs->a[envc] = NULL;
+  for (int i=0; i<envc; i=i+1) {
+    envs->a[i] = _mAlloc(sizeof(_CA)+strlen(envp[i])+1);
+    strcpy(((_CA*)(envs->a[i]))->a, envp[i]);
   }
-  if (i<0 || p->l<=i) {
-    fprintf(stderr, "%s:%d Out of Bound(idx=%d)\n", file, line, i);
-    abort();
-  }
-  return &(p->a[i]);
-}
 
-// 参照チェック関数
-void *_CP(void *p, char *file, int line) {
-  if(p==NULL){
-    fprintf(stderr, "%s:%d Null Pointer\n", file, line);
-    abort();
-  }
-  return p;
+  return __main(argc, args, envs);
 }
-
-// 型変換など
-void *_addrAdd(void *a, int inc) {
-  return (char *)a + inc;
-}
-
-void *_aToA(void *a) {
-  return a;
-}
-
-// 以下は 64bit 環境では危険
-/*
-int _aToI(void *a) {
-  return (int)a;
-}
-
-void *_iToA(int i) {
-  return (void*)i;
-}
-*/
+#endif
 
 // TaC 版ではエラーチェックして終了する
 void * _mAlloc(int s) {
@@ -118,8 +88,7 @@ void * _mAlloc(int s) {
   return p;
 }
 
-/* TaC 版ではエラー原因により null を返すので、
- * 以下では再現しきれていない
+// TaC 版ではエラー原因により null を返すので、以下では再現しきれていない
 FILE *_fOpen(char *n, char *m) {
   FILE *fp = fopen(n, m);
   if (fp==NULL) {
@@ -128,7 +97,6 @@ FILE *_fOpen(char *n, char *m) {
   }
   return fp;
 }
-*/
 
 // TaC 版では EOF になるタイミングが早い
 int _feof(FILE *fp) {
@@ -164,35 +132,6 @@ int htoi(char *s) {
     }
   }
   return v;
-}
-
-
-// TaC 版では string.cmm に記述されている関数
-
-// 文字を探す
-int strChr(char *s, int c) {
-  char *p = strchr(s, c);
-  if (p==NULL) return -1;
-  return p - s;
-}
-
-// 最後の文字を探す
-int strRchr(char *s, int c) {
-  char *p = strrchr(s, c);
-  if (p==NULL) return -1;
-  return p - s;
-}
-
-// 文字列を探す
-int strStr(char *s1, char *s2) {
-  char *p = strstr(s1, s2);
-  if (p==NULL) return -1;
-  return p - s1;
-}
-
-// 部分文字列を返す
-char *subStr(char *s, int pos) {
-  return s + pos;
 }
 
 // C-- の long を C の long にする

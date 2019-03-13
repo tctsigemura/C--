@@ -16,7 +16,7 @@ CFLAGS="-g -O0 \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
    -Wno-dangling-else -Wno-format-security"
 
-CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC -include cfunc.hmm"
+CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC"
 
 myname=`basename $0`
 exefile="a.out"
@@ -32,17 +32,17 @@ while [ $# -gt 0 ]; do
         -E) eflag="yes";                 shift;;
         -nostdinc) INCDIR="";            shift;;
         -rtc)
-	    RTC="-D_RTC"
-	    CMM="rtc-c--"
-	    INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibRtc"
-	    LIBDIR=/usr/local/cmmLib/LibRtc
-	    shift;;
+            RTC="-D_RTC"
+            CMM="rtc-c--"
+            INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibRtc"
+            LIBDIR=/usr/local/cmmLib/LibRtc
+            shift;;
         -nortc)
-	    RTC=""
-	    CMM="c-c--"
-	    INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibNortc"
-	    LIBDIR=/usr/local/cmmLib/LibNortc
-	    shift;;
+            RTC=""
+            CMM="c-c--"
+            INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibNortc"
+            LIBDIR=/usr/local/cmmLib/LibNortc
+            shift;;
         -I) incdir="$incdir -I$2" shift; shift;;
         -I*)incdir="$incdir $1";         shift;;
         -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
@@ -80,18 +80,19 @@ while [ $# -gt 0 ]; do
     case "${ext}" in
         *.cmm)
             if [ "${eflag}" == "yes" ]; then
-                eval cpp ${CPPFLAGS} ${INCDIR} ${incdir} $1 || error
+                eval cpp ${CPPFLAGS} ${RTC} -include ${LIBDIR}/cfunc.hmm \
+                    ${INCDIR} ${incdir} $1 || error
             else
-                eval cpp ${CPPFLAGS} ${INCDIR} ${incdir} $1 \
-                  > $$.tmp || error rm $$.tmp
+                eval cpp ${CPPFLAGS} ${RTC} -include ${LIBDIR}/cfunc.hmm \
+                    ${INCDIR} ${incdir} $1 > $$.tmp || error rm $$.tmp
                 ${CMM} -O $$.tmp > ${name}.c || error rm $$.tmp ${name}.c
                 rm $$.tmp
 
                 if [ "${sflag}" != "yes" ]; then
                     objs="${objs} ${name}.o"
                     tmps="${tmps} ${name}.o"
-                    cc -c ${CFLAGS} ${RTC} ${INCDIR} -include wrapper.h ${name}.c \
-		    || error rm ${name}.c
+                    cc -c ${CFLAGS} ${RTC} -include ${LIBDIR}/wrapper.h \
+                         ${INCDIR} ${name}.c || error rm ${name}.c
                     rm -f ${name}.c
                 fi
             fi ;;
@@ -99,7 +100,8 @@ while [ $# -gt 0 ]; do
             if [ "${eflag}" != "yes" -a "${sflag}" != "yes" ]; then
                 objs="${objs} ${name}.o"
                 tmps="${tmps} ${name}.o"
-                cc -c ${CFLAGS} -I${LIBDIR} ${name}.c || error
+                cc -c ${CFLAGS} ${RTC} -include ${LIBDIR}/wrapper.h \
+                    ${INCDIR} ${name}.c || error
             fi ;;
         *.o)
             objs="${objs} ${name}.o" ;;
@@ -112,7 +114,8 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "${eflag}" != "yes" -a "${sflag}" != "yes" -a "${cflag}" != "yes" ]; then
-    cc ${CFLAGS} -o ${exefile} -I${INCDIR} ${LIBDIR}/wrapper.c ${objs} 
+    cc ${CFLAGS} ${RTC} -include ${LIBDIR}/wrapper.h \
+	-o ${exefile} -I${INCDIR} ${LIBDIR}/*.c ${objs} 
     rm -f ${tmps}
 fi
 

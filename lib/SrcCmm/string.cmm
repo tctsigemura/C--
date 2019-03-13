@@ -29,9 +29,6 @@
  * $Id$
  */
 
-#ifndef c
-#include <crt0.hmm>
-#endif
 #include <string.hmm>
 
 // 文字列コピー

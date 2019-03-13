@@ -1,8 +1,8 @@
 #
-# TacOS Source Code
-#    Tokuyama kousen Educational Computer 16 bit Version
+#  Programing Language C-- "Compiler"
+#    Tokuyama kousen Advanced educational Computer
 #
-# Copyright (C) 2016 - 2018 by
+# Copyright (C) 2019 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -17,28 +17,23 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# GNUmakefile : ユーザプログラム用の Makefile
+# lib/GMakefile : C--ライブラリのmakefile
 #
-# 2018.11.24         : clean で *.dSYM を消すように変更
-# 2016.08.11         : 初期バージョン
-#
-# $Id$
+# 2019.03.12 : 初期バージョン
 #
 
-#----------------------------------------------------------------------------
-NAME=port
-SRCS=${NAME}.cmm
-#----------------------------------------------------------------------------
+all: clean
+	make -f GNUmakefile.tac
+	make -f GNUmakefile.nortc
+	make -f GNUmakefile.rtc
 
-all : clean ${NAME}.exe # ${NAME}
+install: all
+	make -f GNUmakefile.tac install
+	make -f GNUmakefile.nortc install
+	make -f GNUmakefile.rtc install
 
-${NAME}.exe : ${SRCS}
-	cm2e -P -o ${NAME} ${SRCS}
-
-${NAME} : ${SRCS}
-	cm2c -o ${NAME} ${SRCS}
-
-clean :
-	rm -f ${NAME} *.o *.lst *.sym *.exe *.map *~
-	rm -rf ${NAME}.dSYM
-
+clean:
+	make -f GNUmakefile.tac clean
+	make -f GNUmakefile.nortc clean
+	make -f GNUmakefile.rtc clean
+	rm -f *~

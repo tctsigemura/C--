@@ -22,6 +22,7 @@
 /*
  * lib/cfunc.hmm : C-- 関数と C 関数の読みかえを定義
  *
+ * 2018.03.11 : ctype.hmm, string.hmm の関数を削除
  * 2018.02.20 : fseek を追加
  * 2016.08.07 : feof を追加
  * 2016.02.26 : 新規作成
@@ -32,34 +33,16 @@
 // stdio, stdlib の関数は C 言語の名前をそのまま使用する
 // 一部は仕様を変更したので wrapper.c の関数を参照するようにする
 #define malloc(s) _mAlloc(s)
-//#define fopen(n,m) _fOpen(n,m)
 #define feof(fp) _feof(fp)
 #define fseek(s,h,l) _fseek(s,h,l)
 
-// ctype, stringの関数は Lower Camel Case にする
+// printf は新しく作り直した
+#define fprintf    _fPrintf
+#define printf     _printf
 
-// ctype.hmm
-#define isAlnum(c) isalnum(c)
-#define isAlpha(c) isalpha(c)
-#define isDigit(c) isdigit(c)
-#define isXdigit(c) isxdigit(c)
-#define isPrint(c) isprint(c)
-#define isSpace(c) isspace(c)
-#define isLower(c) islower(c)
-#define isUpper(c) isupper(c)
-#define toLower(c) tolower(c)
-#define toUpper(c) toupper(c)
-
-// string.hmm
-#define strCpy(d,s) strcpy(d,s)
-#define strNcpy(d,s,n) strncpy(d,s,n)
-#define strCat(d,s) strcat(d,s)
-#define strNcat(d,s,n) strncat(d,s,n)
-#define strCmp(s1,s2) strcmp(s1,s2)
-#define strNcmp(s1,s2,n) strncmp(s1,s2,n)
-#define strLen(s) strlen(s)
-
-// 以下は機能が異なるので wrapper.c で解決
-//#define strChr(s,c) strchr(s,c)
-//#define strRchr(s,c) strrchr(s,c)
-//#define strStr(s1,s2) strstr(s1,s2)
+#ifdef _RTC
+#define main __main
+#define fopen(n,m) __fOpen(n,m)
+#else
+#define fopen(n,m) _fOpen(n,m)
+#endif

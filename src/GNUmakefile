@@ -119,7 +119,7 @@ install : c-- vm-c-- ic-c-- c-c-- rtc-c-- # h8300hn-c--
 	install -m 755 vm-c-- /usr/local/bin
 	install -m 755 ic-c-- /usr/local/bin
 	install -m 755 c-c-- /usr/local/bin
-	install -m 755 cb-c-- /usr/local/bin
+	install -m 755 rtc-c-- /usr/local/bin
 	install -m 755 cm2c /usr/local/bin
 	install -m 755 cm2e /usr/local/bin
 	install -m 755 cm2v /usr/local/bin

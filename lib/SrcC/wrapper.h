@@ -22,7 +22,9 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
- * 2019.02.23 : nullポインタ，配列境界チェック対応
+ * 2019.03.12 : <stdio.h>と<stdlib.h>を追加(NULLやabort()のため)
+ * 2019.03.11 : string.hmm の関数を削除
+ * 2019.02.23 : 実行時エラーチェックに対応
  * 2019.01.27 : htoi を追加
  * 2018.11.17 : lToL を追加
  * 2018.02.26 : fsize を追加
@@ -32,6 +34,10 @@
  *
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef _RTC
 // int型配列を表現する構造体型
 typedef struct { int l; int a[]; } _IA;
 
@@ -41,29 +47,81 @@ typedef struct { int l; char a[]; } _CA;
 // 参照の配列を表現する構造体型
 typedef struct  { int l; void *a[]; } _RA;
 
-// nullポインタ，配列境界チェック関数
-int *_ICA(_IA *p, int i, char *file, int line);
-char *_CCA(_CA *p, int i, char *file, int line);
-void **_RCA(_RA *p, int i, char *file, int line);
-void *_CP(void *p, char *file, int line);
+// 実行時エラーチェック用の inline 関数
+// int型の配列チェック用関数
+inline static int *_ICA(_IA *p, int i, char *file, int line) {
+  if (NULL==p) {
+    fprintf(stderr, "%s:%d Null Pointer idx=%d \n", file, line, i);
+    abort();
+  }
+  if (i<0 || p->l<=i) {
+    fprintf(stderr, "%s:%d Out of Bound idx=%d\n", file, line, i);
+    abort();
+  }
+  return &(p->a[i]);
+}
+
+// char型の配列チェック用関数
+inline static char *_CCA(_CA *p, int i, char *file, int line) {
+  if (NULL==p) {
+    fprintf(stderr, "%s:%d Null Pointer(idx=%d)\n", file, line, i);
+    abort();
+  }
+  if (i<0 || p->l<=i) {
+    fprintf(stderr, "%s:%d Out of Bound(idx=%d)\n", file, line, i);
+    abort();
+  }
+  return &(p->a[i]);
+}
+
+// 参照配列の配列チェック用関数
+inline static void **_RCA(_RA *p, int i, char *file, int line) {
+  if (NULL==p) {
+    fprintf(stderr, "%s:%d Null Pointer(idx=%d)\n", file, line, i);
+    abort();
+  }
+  if (i<0 || p->l<=i) {
+    fprintf(stderr, "%s:%d Out of Bound(idx=%d)\n", file, line, i);
+    abort();
+  }
+  return &(p->a[i]);
+}
+
+// 参照チェック関数
+inline static void *_CP(void *p, char *file, int line) {
+  if(p==NULL){
+    fprintf(stderr, "%s:%d Null Pointer\n", file, line);
+    abort();
+  }
+  return p;
+}
+#endif
 
 // 型変換など
-void *_addrAdd(void *a, int inc);
-void *_aToA(void *a);
+inline static void *_addrAdd(void *a, int inc) {
+  return (char *)a + inc;
+}
+
+inline static void *_aToA(void *a) {
+  return a;
+}
 
 // 以下は 64bit 環境では危険
 /*
-int _aToI(void *a);
-void *_iToA(int i);
+int _aToI(void *a) {
+  return (int)a;
+}
+
+void *_iToA(int i) {
+  return (void*)i;
+}
 */
 
 // TaC 版ではエラーチェックして終了する
 void * _mAlloc(int s);
 
-/* TaC 版ではエラー原因により null を返すので、
- * 以下では再現しきれていない
+// TaC 版ではエラー原因により null を返すので、以下では再現しきれていない
 FILE *_fOpen(char *n, char *m);
-*/
 
 // TaC 版では EOF になるタイミングが C 言語より早い
 int _feof(FILE *fp);
@@ -77,11 +135,16 @@ int fsize(char *path, int *size);
 // TaC 版では stdlib.cmm に記述されている関数
 int htoi(char *s);
 
-// TaC 版では string.cmm に記述されている関数
-int strChr(char *s, int c);
-int strRchr(char *s, int c);
-int strStr(char *s1, char *s2);
-char *subStr(char *s, int pos);
-
 // C-- の long（int[2]）を C の long に変換する
 long lToL(unsigned int l[]);
+
+// printf.c に作り直した
+int _fPrintf(FILE *fp, char* fmt, ...);
+int _printf(char* fmt, ...);
+
+// RTCのため文字列を変換する必要がある関数
+#ifdef _RTC
+inline static FILE* __fOpen(_CA* path, _CA* mode) {
+  return _fOpen(path->a, mode->a);
+}
+#endif

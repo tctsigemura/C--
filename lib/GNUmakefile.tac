@@ -43,20 +43,21 @@
 .cmm.o:
 	cm2e -nostdinc -I../include -c $*.cmm
 
-OBJS= crt0.o ctype.o stdio.o printf.o stdlib.o string.o syslib.o
+# crt0.o を最初に置くこと
+OBJS= SrcTac/crt0.o SrcTac/syslib.o \
+      SrcTac/stdio.o SrcTac/stdlib.o SrcTac/printf.o \
+      SrcCmm/ctype.o SrcCmm/string.o
 
 all: libtac.o
 
 libtac.o: ${OBJS}
-	ld-- libtac.o ${OBJS} > libtac.sym
+	ld-- LibTac/libtac.o ${OBJS} > LibTac/libtac.sym
+	rm ${OBJS}
 
 install: libtac.o
 	install -d -m 755 /usr/local/cmmLib
-	install -m 644 libtac.o /usr/local/cmmLib
-	install -m 644 cfunc.hmm /usr/local/cmmLib
-	install -m 644 wrapper.c /usr/local/cmmLib
-	install -m 644 wrapper.h /usr/local/cmmLib
-	ln -fs wrapper.h /usr/local/cmmLib/crt0.h
+	install -m 644 LibTac/libtac.o /usr/local/cmmLib
 
 clean:
-	rm -f *.o *.lst libtac.sym *~
+	rm -f ${OBJS}
+	rm -f LibTac/*
