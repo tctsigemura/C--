@@ -17,7 +17,7 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# lib/Makefile.rtc : C言語版（実行時エラーチェックなし）用
+# lib/Makefile.rtc : C言語版（実行時エラーチェックあり）用
 #
 # 2019.03.10 : 初期バージョン
 #
@@ -27,25 +27,25 @@
 
 # .cmm -> .c
 .cmm.c:
-	cm2c -S -nortc -nostdinc -I../include -I. -c $*.cmm
+	cm2c -S -rtc -nostdinc -I../../include -I. -c $*.cmm
 
-OBJS= LibNortc/ctype.c LibNortc/string.c LibNortc/wrapper.h
-TMP= SrcCmm/ctype.c SrcCmm/string.c
+OBJS= ctype.c string.c wrapper.h
+TMP= ../SrcCmm/ctype.c ../SrcCmm/string.c
 
-all: ${OBJS} 
+all: ${OBJS}
 
 ${OBJS}: ${TMP}
-	mv ${TMP} LibNortc 
-	cp SrcC/wrapper.h LibNortc/
-	c-c-- ../include/ctype.hmm >> LibNortc/wrapper.h
-	c-c-- ../include/string.hmm >> LibNortc/wrapper.h
+	mv ${TMP} .
+	cp ../SrcC/wrapper.h .
+	rtc-c-- ../../include/ctype.hmm >> wrapper.h
+	rtc-c-- ../../include/string.hmm >> wrapper.h
 
 install: ${OBJS}
-	install -d -m 755 /usr/local/cmmLib/LibNortc
-	install -m 644 LibNortc/*.[ch] /usr/local/cmmLib/LibNortc
-	install -m 644 SrcC/cfunc.hmm  /usr/local/cmmLib/LibNortc
-	install -m 644 SrcC/wrapper.c  /usr/local/cmmLib/LibNortc
-	install -m 644 SrcC/printf.c   /usr/local/cmmLib/LibNortc
+	install -d -m 755 /usr/local/cmmLib/LibRtc
+	install -m 644 *.[ch]  /usr/local/cmmLib/LibRtc
+	install -m 644 ../SrcC/cfunc.hmm /usr/local/cmmLib/LibRtc
+	install -m 644 ../SrcC/wrapper.c /usr/local/cmmLib/LibRtc
+	install -m 644 ../SrcC/printf.c  /usr/local/cmmLib/LibRtc
 
 clean:
 	rm -f ${TMP} ${OBJS} *~

@@ -22,6 +22,8 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
+ * 2019.03.14 : RTCのためにfputs,puts,fgets,perror関数のinlineラッパー関数追加
+ * 2019.03.13 : ltoL()をinlineにしてwrapper.cから移動
  * 2019.03.12 : <stdio.h>と<stdlib.h>を追加(NULLやabort()のため)
  * 2019.03.11 : string.hmm の関数を削除
  * 2019.02.23 : 実行時エラーチェックに対応
@@ -136,7 +138,9 @@ int fsize(char *path, int *size);
 int htoi(char *s);
 
 // C-- の long（int[2]）を C の long に変換する
-long lToL(unsigned int l[]);
+inline static long lToL(unsigned int l[]) {
+  return (((long)l[0])<<32)|l[1];
+}
 
 // printf.c に作り直した
 int _fPrintf(FILE *fp, char* fmt, ...);
@@ -146,5 +150,23 @@ int _printf(char* fmt, ...);
 #ifdef _RTC
 inline static FILE* __fOpen(_CA* path, _CA* mode) {
   return _fOpen(path->a, mode->a);
+}
+
+inline static _CA* _fgets(_CA* buf, int n, FILE* fp) {
+  if (buf->l!=n) fputs("fgets: warning: buf size != array size\n", stderr);
+  if (fgets(buf->a, n, fp)==NULL) buf=NULL;
+  return buf;
+}
+
+inline static boolean _fputs(_CA* buf, FILE *fp) {
+  return fputs(buf->a, fp)==EOF;
+}
+
+inline static boolean _puts(_CA* buf) {
+  return _fputs(buf->a, stdout);
+}
+
+inline static void _perror(_CA* buf) {
+  perror(buf->a);
 }
 #endif

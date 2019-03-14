@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Advanced educational Computer
 #
-# Copyright (C) 2019
+# Copyright (C) 2016 - 2019 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -17,35 +17,46 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# lib/Makefile.rtc : C言語版（実行時エラーチェックあり）用
+# lib/Makefile.tac : TaC用ライブラリのmakefile
 #
-# 2019.03.10 : 初期バージョン
+# 2019.03.10 : 名前を Makefile.tac に変更
+# 2018.02.24 : ../include の .hmm を使用するように変更
+# 2018.01.31 : .s にも cm2e を使用するように変更
+# 2016.06.01 : シンボリックリンク crt0.h を追加
+# 2016.05.26 : cm2e を使用するように変更
+#              wrapper.h 追加
+# 2016.02.27 : 初期バージョン
 #
+
+# 使用されそうなフラグ
+#CPFLAGS+=-DDEBUG
+#CMFLAGS+=-K
 
 # make するソースのサフィックス（拡張子） の一覧
-.SUFFIXES: .c .cmm
+.SUFFIXES: .o .cmm .s
 
-# .cmm -> .c
-.cmm.c:
-	cm2c -S -rtc -nostdinc -I../include -I. -c $*.cmm
+# .cmm -> .o
+.s.o:
+	cm2e -c $*.s
 
-OBJS= LibRtc/ctype.c LibRtc/string.c LibRtc/wrapper.h
-TMP= SrcCmm/ctype.c SrcCmm/string.c
+# .cmm -> .o
+.cmm.o:
+	cm2e -nostdinc -I../../include -c $*.cmm
 
-all: ${OBJS}
+# crt0.o を最初に置くこと
+OBJS= ../SrcTac/crt0.o  ../SrcTac/syslib.o \
+      ../SrcTac/stdio.o ../SrcTac/stdlib.o ../SrcTac/printf.o \
+      ../SrcCmm/ctype.o ../SrcCmm/string.o
 
-${OBJS}: ${TMP}
-	mv ${TMP} LibRtc
-	cp SrcC/wrapper.h LibRtc/
-	rtc-c-- ../include/ctype.hmm >> LibRtc/wrapper.h
-	rtc-c-- ../include/string.hmm >> LibRtc/wrapper.h
+all: libtac.o
 
-install: ${OBJS}
-	install -d -m 755 /usr/local/cmmLib/LibRtc
-	install -m 644 LibRtc/*.[ch]  /usr/local/cmmLib/LibRtc
-	install -m 644 SrcC/cfunc.hmm /usr/local/cmmLib/LibRtc
-	install -m 644 SrcC/wrapper.c /usr/local/cmmLib/LibRtc
-	install -m 644 SrcC/printf.c  /usr/local/cmmLib/LibRtc
+libtac.o: ${OBJS}
+	ld-- libtac.o ${OBJS} > libtac.sym
+	rm ${OBJS}
+
+install: libtac.o
+	install -d -m 755 /usr/local/cmmLib
+	install -m 644 libtac.o /usr/local/cmmLib
 
 clean:
-	rm -f ${TMP} ${OBJS} *~
+	rm -f ${OBJS} libtac.* *~

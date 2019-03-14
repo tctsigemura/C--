@@ -23,6 +23,7 @@
  * wrapper.c : C-- 版と C 版で仕様が異なる関数など
  *            (主に stdlib.hmm の関数）
  *
+ * 2019.03.13 : lToL を wrapper.h のインラインに変更
  * 2019.03.11 : 実行時エラーチェック関数inline関数に変更しwrapper.hに移動
  * 2019.03.11 : string.cmm の関数を削除(C--版を使用する）
  * 2019.02.23 : 実行時エラーチェック関数を追加
@@ -132,9 +133,4 @@ int htoi(char *s) {
     }
   }
   return v;
-}
-
-// C-- の long を C の long にする
-long lToL(unsigned int l[]) {
-  return (((long)l[0])<<32)|l[1];
 }

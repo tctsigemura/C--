@@ -22,6 +22,8 @@
 /*
  * include/stdio.hmm : lib/stdio.cmm, lib/printf.cmm の外部インタフェース
  *
+ * 2019.03.14 : fputs()，puts()の型をbooleanに変更
+ * 2019.03.13 : lToL 削除
  * 2019.03.12 : <cfunc.hmm> のインクルードはコンパイラドライバが指示する
  * 2018.11.17 : lToL 追加
  * 2018.02.20 : fseek 追加
@@ -32,8 +34,8 @@
 
 #ifdef C
 // C トランスレータの場合
-int[] lToL(int[] a);
 typedef FILE;
+
 #else
 // TacOS の場合
 #define lToL(x) (x)         // lToL はC言語の printf などを使用するために必要
@@ -50,7 +52,7 @@ struct FILE {
   int slot;                 // allFiles 配列で自分が登録された位置
 };
 
-public void _stdioInit();                  // stdlib の初期化
+public void _stdioInit();                  // stdio の初期化
 public void _flushAll();                   // 全ての書き込みバッファフラッシュ
 public void _perror(char[] msg, int err);  // エラー番号でメッセージを出力
 
@@ -79,8 +81,8 @@ public boolean fclose(FILE stream);
 
 public boolean fputc(char c, FILE stream);
 public boolean putchar(char c);
-public char[] fputs(char[] s, FILE stream);
-public char[] puts(char[] s);
+public boolean fputs(char[] s, FILE stream);
+public boolean puts(char[] s);
 
 public char fgetc(FILE stream);
 public char getchar();

@@ -19,21 +19,20 @@
 #
 # lib/GMakefile : C--ライブラリのmakefile
 #
-# 2019.03.12 : 初期バージョン
+# 2019.03.13 : 初期バージョン
 #
 
-all: clean
-	make -f GNUmakefile.tac
-	make -f GNUmakefile.nortc
-	make -f GNUmakefile.rtc
+MAKEFLAGS=--no-print-directory
 
-install: all
-	make -f GNUmakefile.tac install
-	make -f GNUmakefile.nortc install
-	make -f GNUmakefile.rtc install
+# サブディレクトリ
+SUBDIRS:=LibTac LibRtc LibNortc
 
-clean:
-	make -f GNUmakefile.tac clean
-	make -f GNUmakefile.nortc clean
-	make -f GNUmakefile.rtc clean
+all :
+	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir); )
+
+clean :
+	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir) clean; )
 	rm -f *~
+
+install :
+	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir) install; )

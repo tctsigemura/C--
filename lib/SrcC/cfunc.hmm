@@ -43,6 +43,12 @@
 #ifdef _RTC
 #define main __main
 #define fopen(n,m) __fOpen(n,m)
+#define fgets(n,m) _fgets(n,m)
+#define fputs(n,m) _fputs(n,m)
+#define puts(n)    _puts(n)
+#define perror(n)  _perror(n)
+
 #else
 #define fopen(n,m) _fOpen(n,m)
+
 #endif
