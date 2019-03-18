@@ -1,8 +1,8 @@
 /*
  * Programing Language C-- "Compiler"
- *    Tokuyama kousen Advanced educational Computer.
+ *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2016 - 2019 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,22 +20,15 @@
  */
 
 /*
- * include/ctype.hmm : lib/ctype.cmm の外部インタフェース
+ * parser.h : C--コンパイラの構文解析ルーチン
  *
- * 2019.03.12 : <cfunc.hmm> のインクルードはコンパイラドライバが指示する
- * 2016.02.26 : 新規作成
+ * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
+ * 2016.02.03         : 新規作成
  *
  * $Id$
+ *
  */
 
-public boolean isAlnum(char c);
-public boolean isAlpha(char c);
-public boolean isDigit(char c);
-public boolean isLower(char c);
-public boolean isPrint(char c);
-public boolean isSpace(char c);
-public boolean isUpper(char c);
-public boolean isXdigit(char c);
-
-public char toLower(char c);
-public char toUpper(char c);
+void psGetSrc(void);                       // C-- プログラムを読む
+void psSetOptFlag(boolean f);              // 最適化フラグを操作する
+void psSetKrnFlag(boolean f);              // カーネルフラグを操作する

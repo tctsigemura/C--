@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2019 by
+ * Copyright (C) 2016 - 2018 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,22 +20,40 @@
  */
 
 /*
- * include/ctype.hmm : lib/ctype.cmm の外部インタフェース
+ * lib/cfunc.hmm : C-- 関数と C 関数の読みかえを定義
  *
- * 2019.03.12 : <cfunc.hmm> のインクルードはコンパイラドライバが指示する
+ * 2018.03.11 : ctype.hmm, string.hmm の関数を削除
+ * 2018.02.20 : fseek を追加
+ * 2016.08.07 : feof を追加
  * 2016.02.26 : 新規作成
  *
  * $Id$
  */
 
-public boolean isAlnum(char c);
-public boolean isAlpha(char c);
-public boolean isDigit(char c);
-public boolean isLower(char c);
-public boolean isPrint(char c);
-public boolean isSpace(char c);
-public boolean isUpper(char c);
-public boolean isXdigit(char c);
+// stdio, stdlib の関数は C 言語の名前をそのまま使用する
+// 一部は仕様を変更したので wrapper.c の関数を参照するようにする
+#define malloc(s) _mAlloc(s)
+#define feof(fp) _feof(fp)
+#define fseek(s,h,l) _fseek(s,h,l)
 
-public char toLower(char c);
-public char toUpper(char c);
+// printf は新しく作り直した
+#define fprintf    _fPrintf
+#define printf     _printf
+
+#ifdef _RTC
+#define main __main
+// stdio
+#define fopen(p,m)   __fOpen(p,m)
+#define fgets(b,n,f) _fgets(b,n,f)
+#define fputs(s,f)   _fputs(s,f)
+#define puts(s)      _puts(s)
+#define perror(s)    _perror(s)
+#define fsize(p,s)   _fsize(p,s)
+// stdlib
+#define atoi(s)    _atoi(s)
+#define htoi(s)    _htoi(s)
+
+#else
+#define fopen(p,m) _fOpen(p,m)
+
+#endif
