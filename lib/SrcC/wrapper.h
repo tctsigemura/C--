@@ -142,10 +142,6 @@ inline static long lToL(unsigned int l[]) {
   return (((long)l[0])<<32)|l[1];
 }
 
-// printf.c に作り直した
-int _fPrintf(FILE *fp, _CA* fmt, ...);
-int _printf(_CA* fmt, ...);
-
 // RTCのため文字列を変換する必要がある関数
 #ifdef _RTC
 // stdio.hmm
@@ -184,5 +180,14 @@ inline static int _atoi(_CA* str) {
 inline static int _htoi(_CA* str) {
   return htoi(str->a);
 }
+
+// printf.c
+int _fPrintf(FILE *fp, _CA* fmt, ...);
+int _printf(_CA* fmt, ...);
+
+#else
+// printf.c
+int _fPrintf(FILE *fp, char *fmt, ...);
+int _printf(char* fmt, ...);
 
 #endif
