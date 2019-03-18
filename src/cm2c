@@ -6,10 +6,17 @@ function error {
   exit 1
 }
 
+# No RTC
 RTC=""
 CMM="c-c--"
-INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibNortc"
 LIBDIR=/usr/local/cmmLib/LibNortc
+INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
+
+# RTC
+#RTC="-D_RTC"
+#CMM="rtc-c--"
+#LIBDIR=/usr/local/cmmLib/LibRtc
+#INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
 
 CFLAGS="-g -O0 \
    -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
@@ -34,14 +41,14 @@ while [ $# -gt 0 ]; do
         -rtc)
             RTC="-D_RTC"
             CMM="rtc-c--"
-            INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibRtc"
             LIBDIR=/usr/local/cmmLib/LibRtc
+	    INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
             shift;;
         -nortc)
             RTC=""
             CMM="c-c--"
-            INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib/LibNortc"
             LIBDIR=/usr/local/cmmLib/LibNortc
+	    INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
             shift;;
         -I) incdir="$incdir -I$2" shift; shift;;
         -I*)incdir="$incdir $1";         shift;;
@@ -56,7 +63,9 @@ while [ $# -gt 0 ]; do
             echo  "       -E       run the preprocessor stage"            1>&2
             echo  "       -nostdinc Disable standard include directories" 1>&2
             echo  "       -rtc      Enable Run Time Check"                1>&2
+#           echo  "       -rtc      Enable Run Time Check[default]"       1>&2
             echo  "       -nortc    Disable Run Time Check[default]"      1>&2
+#           echo  "       -nortc    Disable Run Time Check"               1>&2
             echo  "       -I dir    Add incude directory"                 1>&2
             echo  "       -Dxx=yy  define xx as yy"                       1>&2
             echo  "       -h       print this message"                    1>&2
@@ -80,10 +89,10 @@ while [ $# -gt 0 ]; do
     case "${ext}" in
         *.cmm)
             if [ "${eflag}" == "yes" ]; then
-                eval cpp ${CPPFLAGS} ${RTC} -include ${LIBDIR}/cfunc.hmm \
-                    ${INCDIR} ${incdir} $1 || error
+                eval cpp ${CPPFLAGS} ${RTC} ${INCDIR} -include cfunc.hmm \
+                    ${incdir} $1 || error
             else
-                eval cpp ${CPPFLAGS} ${RTC} -include ${LIBDIR}/cfunc.hmm \
+                eval cpp ${CPPFLAGS} ${RTC} -include cfunc.hmm \
                     ${INCDIR} ${incdir} $1 > $$.tmp || error rm $$.tmp
                 ${CMM} -O $$.tmp > ${name}.c || error rm $$.tmp ${name}.c
                 rm $$.tmp
@@ -91,8 +100,8 @@ while [ $# -gt 0 ]; do
                 if [ "${sflag}" != "yes" ]; then
                     objs="${objs} ${name}.o"
                     tmps="${tmps} ${name}.o"
-                    cc -c ${CFLAGS} ${RTC} -include ${LIBDIR}/wrapper.h \
-                         ${INCDIR} ${name}.c || error rm ${name}.c
+                    cc -c ${CFLAGS} ${RTC} ${INCDIR} -include wrapper.h \
+                        ${name}.c || error rm ${name}.c
                     rm -f ${name}.c
                 fi
             fi ;;
@@ -100,8 +109,8 @@ while [ $# -gt 0 ]; do
             if [ "${eflag}" != "yes" -a "${sflag}" != "yes" ]; then
                 objs="${objs} ${name}.o"
                 tmps="${tmps} ${name}.o"
-                cc -c ${CFLAGS} ${RTC} -include ${LIBDIR}/wrapper.h \
-                    ${INCDIR} ${name}.c || error
+                cc -c ${CFLAGS} ${RTC} ${INCDIR} -include wrapper.h \
+                    ${name}.c || error
             fi ;;
         *.o)
             objs="${objs} ${name}.o" ;;

@@ -17,9 +17,9 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# lib/Makefile.tac : TaC用ライブラリのmakefile
+# LibTac/GNUmakefile : TaC用ライブラリのmakefile
 #
-# 2019.03.10 : 名前を Makefile.tac に変更
+# 2019.03.15 : LibTac に移動
 # 2018.02.24 : ../include の .hmm を使用するように変更
 # 2018.01.31 : .s にも cm2e を使用するように変更
 # 2016.06.01 : シンボリックリンク crt0.h を追加
@@ -41,7 +41,7 @@
 
 # .cmm -> .o
 .cmm.o:
-	cm2e -nostdinc -I../../include -c $*.cmm
+	cm2e -nostdinc -I../../include -I../SrcC -c $*.cmm
 
 # crt0.o を最初に置くこと
 OBJS= ../SrcTac/crt0.o  ../SrcTac/syslib.o \

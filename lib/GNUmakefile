@@ -32,7 +32,7 @@ all :
 
 clean :
 	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir) clean; )
-	rm -f *~
+	rm -f */*~ *~
 
 install :
 	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir) install; )

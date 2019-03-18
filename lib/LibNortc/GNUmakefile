@@ -27,7 +27,7 @@
 
 # .cmm -> .c
 .cmm.c:
-	cm2c -S -nortc -nostdinc -I../../include -I. -c $*.cmm
+	cm2c -S -nortc -nostdinc -I../../include -I../SrcC -c $*.cmm
 
 OBJS= ctype.c string.c wrapper.h
 TMP= ../SrcCmm/ctype.c ../SrcCmm/string.c

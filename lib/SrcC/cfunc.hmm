@@ -42,13 +42,18 @@
 
 #ifdef _RTC
 #define main __main
-#define fopen(n,m) __fOpen(n,m)
-#define fgets(n,m) _fgets(n,m)
-#define fputs(n,m) _fputs(n,m)
-#define puts(n)    _puts(n)
-#define perror(n)  _perror(n)
+// stdio
+#define fopen(p,m)   __fOpen(p,m)
+#define fgets(b,n,f) _fgets(b,n,f)
+#define fputs(s,f)   _fputs(s,f)
+#define puts(s)      _puts(s)
+#define perror(s)    _perror(s)
+#define fsize(p,s)   _fsize(p,s)
+// stdlib
+#define atoi(s)    _atoi(s)
+#define htoi(s)    _htoi(s)
 
 #else
-#define fopen(n,m) _fOpen(n,m)
+#define fopen(p,m) _fOpen(p,m)
 
 #endif

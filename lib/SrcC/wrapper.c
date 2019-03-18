@@ -43,6 +43,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 #ifdef _RTC
 // C-- で記述した main 関数
@@ -89,11 +90,11 @@ void * _mAlloc(int s) {
   return p;
 }
 
-// TaC 版ではエラー原因により null を返すので、以下では再現しきれていない
+// TaC 版ではエラー原因により null を返す
 FILE *_fOpen(char *n, char *m) {
   FILE *fp = fopen(n, m);
-  if (fp==NULL) {
-    perror("fopen");
+  if (fp==NULL && errno==EINVAL) {
+    perror(m);
     exit(1);
   }
   return fp;

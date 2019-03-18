@@ -1,8 +1,8 @@
 #
-#  Programing Language C-- "Compiler"
-#    Tokuyama kousen Advanced educational Computer
+# TacOS Source Code
+#    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2019
+# Copyright (C) 2016 - 2018 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -17,35 +17,28 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# lib/Makefile.rtc : C言語版（実行時エラーチェックあり）用
+# GNUmakefile : ユーザプログラム用の Makefile
 #
-# 2019.03.10 : 初期バージョン
+# 2018.11.24         : clean で *.dSYM を消すように変更
+# 2016.08.11         : 初期バージョン
+#
+# $Id$
 #
 
-# make するソースのサフィックス（拡張子） の一覧
-.SUFFIXES: .c .cmm
+#----------------------------------------------------------------------------
+NAME=hello
+SRCS=${NAME}.cmm
+#----------------------------------------------------------------------------
 
-# .cmm -> .c
-.cmm.c:
-	cm2c -S -rtc -nostdinc -I../../include -I../SrcC -c $*.cmm
+all : clean ${NAME}.exe ${NAME}
 
-OBJS= ctype.c string.c wrapper.h
-TMP= ../SrcCmm/ctype.c ../SrcCmm/string.c
+${NAME}.exe : ${SRCS}
+	cm2e -o ${NAME} ${SRCS}
 
-all: ${OBJS}
+${NAME} : ${SRCS}
+	cm2c -o ${NAME} ${SRCS}
 
-${OBJS}: ${TMP}
-	mv ${TMP} .
-	cp ../SrcC/wrapper.h .
-	rtc-c-- ../../include/ctype.hmm >> wrapper.h
-	rtc-c-- ../../include/string.hmm >> wrapper.h
+clean :
+	rm -f ${NAME} *.o *.lst *.sym *.exe *.map *~
+	rm -rf ${NAME}.dSYM
 
-install: ${OBJS}
-	install -d -m 755 /usr/local/cmmLib/LibRtc
-	install -m 644 *.[ch]  /usr/local/cmmLib/LibRtc
-	install -m 644 ../SrcC/cfunc.hmm /usr/local/cmmLib/LibRtc
-	install -m 644 ../SrcC/wrapper.c /usr/local/cmmLib/LibRtc
-	install -m 644 ../SrcC/printf.c  /usr/local/cmmLib/LibRtc
-
-clean:
-	rm -f ${TMP} ${OBJS} *~

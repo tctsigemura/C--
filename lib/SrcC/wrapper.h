@@ -143,30 +143,46 @@ inline static long lToL(unsigned int l[]) {
 }
 
 // printf.c に作り直した
-int _fPrintf(FILE *fp, char* fmt, ...);
-int _printf(char* fmt, ...);
+int _fPrintf(FILE *fp, _CA* fmt, ...);
+int _printf(_CA* fmt, ...);
 
 // RTCのため文字列を変換する必要がある関数
 #ifdef _RTC
+// stdio.hmm
 inline static FILE* __fOpen(_CA* path, _CA* mode) {
   return _fOpen(path->a, mode->a);
 }
 
 inline static _CA* _fgets(_CA* buf, int n, FILE* fp) {
-  if (buf->l!=n) fputs("fgets: warning: buf size != array size\n", stderr);
+  if (buf->l<n) fputs("fgets: warning: buf size < array size\n", stderr);
   if (fgets(buf->a, n, fp)==NULL) buf=NULL;
   return buf;
 }
 
-inline static boolean _fputs(_CA* buf, FILE *fp) {
+inline static int _fputs(_CA* buf, FILE *fp) {
   return fputs(buf->a, fp)==EOF;
 }
 
-inline static boolean _puts(_CA* buf) {
-  return _fputs(buf->a, stdout);
+inline static int _puts(_CA* buf) {
+  return fputs(buf->a, stdout)==EOF;
 }
 
 inline static void _perror(_CA* buf) {
   perror(buf->a);
 }
+
+inline static int _fsize(_CA* path, _IA* size) {
+  if (size->l!=2) fputs("fsize: warning: array size != 2\n", stderr);
+  return fsize(path->a, size->a);
+}
+
+// stdlib.hmm
+inline static int _atoi(_CA* str) {
+  return atoi(str->a);
+}
+
+inline static int _htoi(_CA* str) {
+  return htoi(str->a);
+}
+
 #endif

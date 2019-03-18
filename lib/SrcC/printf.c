@@ -127,7 +127,11 @@ static void conv16(char c, int w, boolean lf, char p) {
   } else if (c=='c') {                          // 文字として出力
     putCW(va_arg(va,int),w,lf);                 //   char は int 扱い
   } else if (c=='s') {                          // 文字列として出力
+#ifdef _RTC
+    putS(va_arg(va,_CA*)->a,w,lf);
+#else
     putS(va_arg(va,char*),w,lf);
+#endif
   } else if (c=='%') {                          // '%' を出力
     putC('%');
   } else {
@@ -139,7 +143,11 @@ static void conv16(char c, int w, boolean lf, char p) {
 // 書式文字列を解析して long（int[]）を出力する
 typedef unsigned long ul;
 static void conv32(char c, int w, boolean lf, char p) {
+#ifdef _RTC
+  int* arg = va_arg(va, _IA*)->a;
+#else
   int* arg = va_arg(va, int*);
+#endif
   if (c=='d') {                                 // 符号なし10進数だけ利用可
     ul n = lToL(arg);                           // C-- の long を long に変換
     int l = n % 100000000;
@@ -194,6 +202,23 @@ static int print(char *fmt) {
 }
 
 // 以下が外部に公開される関数
+#ifdef _RTC
+int _fPrintf(FILE *fp, _CA* fmt, ...) {
+  va_start(va, fmt);
+  out = fp;                                     // 出力先は fp
+  int r = print(fmt->a);
+  va_end(va);
+  return r;
+}
+
+int _printf(_CA* fmt, ...) {
+  va_start(va, fmt);
+  out = stdout;                                 // 出力先は stdout
+  int r = print(fmt->a);
+  va_end(va);
+  return r;
+}
+#else
 int _fPrintf(FILE *fp, char* fmt, ...) {
   va_start(va, fmt);
   out = fp;                                     // 出力先は fp
@@ -209,3 +234,4 @@ int _printf(char* fmt, ...) {
   va_end(va);
   return r;
 }
+#endif
