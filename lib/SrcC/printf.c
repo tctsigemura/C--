@@ -135,7 +135,7 @@ static void conv16(char c, int w, boolean lf, char p) {
   } else if (c=='%') {                          // '%' を出力
     putC('%');
   } else {
-    fputs("Illegal format string\n", stderr);
+    fputs("fprintf: Invalid conversion\n", stderr);
     exit(1);                                    // どれでもなければエラー
   }
 }
