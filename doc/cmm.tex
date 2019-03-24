@@ -1,6 +1,7 @@
 %
 % C-- 言語 ver.3.x の解説書
 %
+% 2019.03.18 v.3.2.0 : トランスレータ版に実行時エラーチェックを試験的に導入
 % 2019.01.27 v.3.1.12: メモリ保護違反，I/O特権モード，in(),out(),htoi()等追記
 % 2018.11.18 v.3.1.11: fsize()、printf(``%ld'')、32ビット演算を追記
 % 2018.02.24         : fseek() の説明を追加
@@ -71,12 +72,13 @@
 %----------------------------------------------------------------------
 \newcommand{\figref}[1]{図~\ref{fig:#1}}
 \newcommand{\tabref}[1]{表~\ref{tab:#1}}
-\newcommand{\ver}{Ver. 3.1.12}
+\newcommand{\ver}{Ver. 3.2.0}
 \newcommand{\cmm}{{\tt C--}}
 \newcommand{\cmml}{\cmm 言語}
 \newcommand{\cmmc}{{\tt c--}}
 \newcommand{\vcmmc}{{\tt vm-c--}}
 \newcommand{\ccmmc}{{\tt c-c--}}
+\newcommand{\rtccmmc}{{\tt rtc-c--}}
 \newcommand{\icmmc}{{\tt ic-c--}}
 \newcommand{\cme}{{\tt cm2e}}
 \newcommand{\cmc}{{\tt cm2c}}
@@ -137,7 +139,7 @@
 ~
 \vfill
 \begin{flushleft}
-Copyright \copyright ~~ 2016 - 2018 by \\
+Copyright \copyright ~~ 2016 - 2019 by \\
 Dept. of Computer Science and Electronic Engineering, \\
 Tokuyama College of Technology, JAPAN
 \end{flushleft}
@@ -173,7 +175,8 @@ Tokuyama College of Technology, JAPAN
 ~
 \subsubsection{変更履歴}
 \begin{flushleft}
-2019年01月27日 v.3.1.12: メモリ保護違反,I/O特権モード,in(),out(),htoi()追記 \\
+2019年03月24日 v.3.2.0  トランスレータ版に実行時エラーチェックを試験的に導入 \\
+2019年01月27日 v.3.1.12 メモリ保護違反,I/O特権モード,in(),out(),htoi()追記 \\
 2018年11月18日 V.3.1.11 fsize、fseek、printf("\%ld")、32ビット演算を追記 \\
 2018年01月27日 V.3.1.10 ドライバの -nostdinc -I オプションを追記 \\
 2016年10月09日 V.3.1.7 cm2iの記述を追加、文法まとめを改良 \\
@@ -189,9 +192,9 @@ Tokuyama College of Technology, JAPAN
 \subsubsection{対応ソフトウェアのバージョン}
 \begin{tabular}{|l|l|}
 \hline
-{\tt C--}      & Ver.3.1.12 \\
+{\tt C--}      & Ver.3.2.0 \\
 \hline
-{\tt Util--}   & Ver.3.0.2 \\
+{\tt Util--}   & Ver.3.0.3 \\
 \hline
 %{\tt AS--}     & Ver.2.1.1 \\
 %\hline
@@ -210,10 +213,11 @@ Tokuyama College of Technology, JAPAN
 \fbox{\parbox{10cm}{ \vspace{0.3cm}
 \large{\bf　プログラミング言語 \cmm} \\
 \\
-　発行年月　２０１９年１月　\ver \\
+　発行年月　２０１９年３月　\ver \\
+　著　　者　重村　哲至 \\
 　発　　行　独立行政法人国立高等専門学校機構 \\
 　　　　　　徳山工業高等専門学校 \\
-　　　　　　情報電子工学科　重村哲至 \\
+　　　　　　情報電子工学科 \\
 　　　　　　〒745-8585 山口県周南市学園台 \\
 　　　　　　sigemura@tokuyama.ac.jp \\
 }}

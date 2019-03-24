@@ -6,7 +6,7 @@ function error {
   exit 1
 }
 
-INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib"
+INCDIR="-I/usr/local/cmmInclude"
 LIBDIR=/usr/local/cmmLib
 
 CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc"
@@ -84,7 +84,7 @@ objs=""
 tmps=""
 while [ $# -gt 0 ]; do
     j=`basename $1`
-    name=`expr "${j}" : '\(.*\)\.[^.]*'`
+    name=`dirname $1`/`expr "${j}" : '\(.*\)\.[^.]*'`
     ext=`expr "${j}" : '.*\(\.[^.]*\)'`
     case "${ext}" in
         *.cmm)
