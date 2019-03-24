@@ -167,54 +167,56 @@ static void f5(int _cmm_1P,int _cmm_2P,char *_cmm_3P){
 (x[(i[x[1]]+1)]=(i[_cmm_1P]=(i[5]=1)));
 (_cmm_2P=y[1][(((_cmm_1P*_cmm_2P)*f2()[2])*x[3])]);
 }
-struct X {
+typedef struct _X X;
+struct _X {
 int a;
 int b;
-struct X **c;
+X **c;
 };
-struct Y {
+typedef struct _Y Y;
+struct _Y {
 int a;
 int b;
 char *c;
 };
-static struct X *z1;
-static struct X _cmm_57T={1,2,0};
-static struct X *z2=&_cmm_57T;
-static struct X _cmm_58T={1,2,0};
-static struct X _cmm_59T={3,4,0};
-static struct X *_cmm_60T[]={&_cmm_58T,&_cmm_59T};
-static struct X **z3=_cmm_60T;
+static X *z1;
+static X _cmm_57T={1,2,0};
+static X *z2=&_cmm_57T;
+static X _cmm_58T={1,2,0};
+static X _cmm_59T={3,4,0};
+static X *_cmm_60T[]={&_cmm_58T,&_cmm_59T};
+static X **z3=_cmm_60T;
 #define _cmm_7S "ab"
-static struct Y _cmm_61T={1,2,_cmm_7S};
-static struct Y *z4=&_cmm_61T;
-static struct Y *z5=0;
+static Y _cmm_61T={1,2,_cmm_7S};
+static Y *z4=&_cmm_61T;
+static Y *z5=0;
 #define _cmm_8S "abc"
-static struct Y _cmm_62T={1,2,_cmm_8S};
-static struct Y *_cmm_63T[]={0,&_cmm_62T,0};
-static struct Y **z6=_cmm_63T;
-static struct Y *_cmm_64T[3];
-static struct Y **z7=_cmm_64T;
-static struct Y *_cmm_65T[3];
-static struct Y *_cmm_66T[3];
-static struct Y **_cmm_67T[]={_cmm_65T,_cmm_66T};
-static struct Y ***z8=_cmm_67T;
-static struct Y **_cmm_68T[2];
-static struct Y ***z9=_cmm_68T;
+static Y _cmm_62T={1,2,_cmm_8S};
+static Y *_cmm_63T[]={0,&_cmm_62T,0};
+static Y **z6=_cmm_63T;
+static Y *_cmm_64T[3];
+static Y **z7=_cmm_64T;
+static Y *_cmm_65T[3];
+static Y *_cmm_66T[3];
+static Y **_cmm_67T[]={_cmm_65T,_cmm_66T};
+static Y ***z8=_cmm_67T;
+static Y **_cmm_68T[2];
+static Y ***z9=_cmm_68T;
 static void f6(){
 (z1=z2);
-(z1=_mAlloc(sizeof(struct X )));
+(z1=_mAlloc(sizeof(X )));
 free(z1);
 (z1=z3[3]);
 (a=z3[3]->a);
 (z1=z3[3]->c[1]);
 (a=z2->c[1]->c[1]->a);
-(z8[1][1]=_mAlloc(sizeof(struct Y )));
+(z8[1][1]=_mAlloc(sizeof(Y )));
 (z8[1][1]->a=1);
 free(z8);
 }
-struct X *f7(int _cmm_1P);
-struct X **f8(struct X *_cmm_1P);
-struct X **f9(struct X **_cmm_1P);
+X *f7(int _cmm_1P);
+X **f8(X *_cmm_1P);
+X **f9(X **_cmm_1P);
 void f10(char *_cmm_1P,...);
 #define _cmm_9S "aaa"
 #define _cmm_10S "aaa"

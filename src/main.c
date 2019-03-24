@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * main.c : C--コンパイラのメインルーチン
  *
+ * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2016.09.14         : lxSetFname()をsetFname()に変更(lexicalからutilに移動）
  * 2016.06.04         : eOpen() を使用するように変更
  * 2016.02.05 v3.0.0  : syntax.c から分離して新規作成
@@ -34,8 +35,8 @@
 #include <stdlib.h>
 #include <strings.h>
 #include "util.h"                   // その他機能モジュール
-#include "syntax.h"                 // 構文解析モジュール
-#include "lexical.h"                // 字句解析モジュール
+#include "parser.h"                 // 構文解析器モジュール
+#include "lexer.h"                  // 字句解析器モジュール
 
 // 使い方表示関数
 static void usage(char *name) {
@@ -71,19 +72,19 @@ int main(int argc, char *argv[]) {
   if (argc>i &&
       (strcmp(argv[i],"-O")==0 ||
        strcmp(argv[i],"-O1")==0)  ) {        // "-O","-O1" で、最適化
-    snSetOptFlag(true);
+    psSetOptFlag(true);
     i = i + 1;
   }
 
   if (argc>i &&
       strcmp(argv[i],"-O0")==0) {            // "-O0" で、最適化しない
-    snSetOptFlag(false);
+    psSetOptFlag(false);
     i = i + 1;
   }
 
   if (argc>i &&
       strcmp(argv[i],"-K")==0) {             // "-K" で、カーネルコンパイル
-    snSetKrnFlag(true);
+    psSetKrnFlag(true);
     i = i + 1;
   }
 
@@ -99,7 +100,7 @@ int main(int argc, char *argv[]) {
   }
 
   lxSetFp(fp);                               // 字句解析に fp を知らせる
-  snGetSrc();                                // fp からソースコードを入力して
+  psGetSrc();                                // fp からソースコードを入力して
                                              //   stdout へ出力
   return 0;
 }

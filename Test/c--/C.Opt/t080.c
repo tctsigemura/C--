@@ -14,20 +14,21 @@ static char _cmm_5T[]={1,0};
 static char _cmm_6T[]={1,0};
 static char *_cmm_7T[]={_cmm_5T,_cmm_6T};
 static char **g=_cmm_7T;
-struct X {
+typedef struct _X X;
+struct _X {
 int a;
 char b;
 char *c;
 };
 #define _cmm_1S "abc"
-static struct X _cmm_8T={1,1,_cmm_1S};
-static struct X *h=&_cmm_8T;
+static X _cmm_8T={1,1,_cmm_1S};
+static X *h=&_cmm_8T;
 #define _cmm_2S "abc"
 #define _cmm_3S "def"
-static struct X _cmm_9T={1,1,_cmm_2S};
-static struct X _cmm_10T={2,0,_cmm_3S};
-static struct X *_cmm_11T[]={&_cmm_9T,&_cmm_10T};
-static struct X **i=_cmm_11T;
+static X _cmm_9T={1,1,_cmm_2S};
+static X _cmm_10T={2,0,_cmm_3S};
+static X *_cmm_11T[]={&_cmm_9T,&_cmm_10T};
+static X **i=_cmm_11T;
 static void f0();
 static char f1(char _cmm_1P){
 (b=(_cmm_1P&&(a<0)));
