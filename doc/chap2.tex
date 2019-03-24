@@ -59,7 +59,7 @@ install -m 755 vm-c-- /usr/local/bin
 \item {\cme}は，
 {\cmm}プログラムを{\tac}で実行できる「{\tt .exe}」ファイルに変換します．
 \item {\cmc}は，
-{\cmm}プログラムをUNIXやMacで実行できるファイルに変換します．
+{\cmm}プログラムをUNIXやmacOSで実行できるファイルに変換します．
 \item {\cmi}は，
 {\cmm}プログラムを中間コードに変換します．
 \item {\cmv}は，
@@ -68,7 +68,7 @@ install -m 755 vm-c-- /usr/local/bin
 {\cmm}プログラムを{\tac}のアセンブリ言語に変換します．
 通常{\cme}から呼び出され，ユーザが直接使用することはありません．
 \item {\ccmmc}は，{\cmm}プログラムを{\cl}に変換するトランスレータです．
-変換された{\cl}プログラムはUNIXやMacで実行できます．
+変換された{\cl}プログラムはUNIXやmacOSで実行できます．
 通常{\cmc}から呼び出され，ユーザが直接使用することはありません．
 \item {\rtccmmc}は{\ccmmc}と同様なトランスレータですが，
 {\ccmmc}と異なり，
@@ -77,6 +77,7 @@ install -m 755 vm-c-- /usr/local/bin
 \|null|参照を使用した場合，
 配列使用時に添字が範囲を超えていた場合に，
 それを検出してプログラムが確実に停止します．
+通常{\cmc}から呼び出され，ユーザが直接使用することはありません．
 \item {\icmmc}は，コンパイラの勉強をしたい人のために，
 中間言語(\pageref{app:vm}ページ)を出力して見せるコンパイラです．
 通常{\cmi}から呼び出され，ユーザが直接使用することはありません．
@@ -86,7 +87,7 @@ install -m 755 vm-c-- /usr/local/bin
 通常{\cmv}から呼び出され，ユーザが直接使用することはありません．
 \end{itemize}
 
-なお，これら八つのプログラムの使用方法は，
+なお，これら九つのプログラムの使用方法は，
 コマンドリファレンス(\pageref{app:command}ページ)で紹介します．
 
 \subsection{ヘッダファイルのインストール}
@@ -131,7 +132,7 @@ install -m 644 ../SrcC/wrapper.c  /usr/local/cmmLib/LibNotc
 \|/usr/local/cmmLib|ディレクトリには，以下のものがインストールされます．
 
 \begin{itemize}
-\item {\tt libtac.o}は{\cmml}で記述した{\tacos}用のライブラリ関数です．
+\item {\tt libtac.o}は{\cmml}で記述した{\tacos}用のライブラリ関数群です．
 \item {\tt LibNortc}ディレクトリには，
 トランスレータが実行時エラーチェックを行わない実行形式を作るときに
 使用する{\cl}で記述したライブラリ関数などがインストールされます．
@@ -332,7 +333,7 @@ clean:
 \begin{mylist}
 \begin{verbatim}
 #
-# Makefile.unix : C--言語からMacOSやUNIXの実行形式に変換する手順
+# Makefile.unix : C--言語からmacOSやUNIXの実行形式に変換する手順
 #
 
 hello: hello.cmm
@@ -351,7 +352,7 @@ clean:
 
 all: hello hello.exe hello.v
 
-# UNIX, Mac の a.out へ変換
+# UNIX, macOS の a.out へ変換
 hello: hello.cmm
         cm2c -o hello hello.cmm
 

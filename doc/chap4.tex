@@ -59,8 +59,7 @@ public int printf(char[] format, ...);
 \subsection{puts関数}
 
 標準出力ストリームへ１行出力します．
-エラー（EOFもエラーの一種）が発生した場合は\|true|を，
-正常時には\|false|を返します．
+エラーが発生した場合は\|true|を，正常時には\|false|を返します．
 
 \begin{quote}
 \begin{verbatim}
@@ -97,8 +96,8 @@ public char getchar();
 \subsection{fopen関数}
 
 ファイルを開きます．
-\|path|引数はファイルへのパス，
-\|mode|引数はオープンのモードです．
+\|path|はファイルへのパス，
+\|mode|はオープンのモードです．
 パスは``\|/|''区切りで表現します．
 \tacos にはカレントディレクトリはありません．
 \|fopen|は正常時に\|FILE|構造体，
@@ -124,7 +123,7 @@ public FILE fopen(char[] path, char[] mode);
 \end{quote}
 
 \|fopen|は，
-書き込みモード，追記モードの時ファイルが存在しない場合，
+書き込みモードか追記モード時にファイルが存在しない場合は，
 自動的にファイルを作成します．
 
 \subsection{fclose関数}
@@ -145,7 +144,7 @@ public boolean fclose(FILE stream);
 
 \subsection{fseek関数}
 
-\|stream|引数で指定したファイルの読み書き位置を変更します．
+\|stream|で指定したファイルの読み書き位置を変更します．
 seek 位置は，
 {\tacos}版では\|offsh|(16bit)，
 \|offsl|(16bit)を合わせた32bitで指定します．
@@ -165,7 +164,7 @@ public boolean fseek(FILE stream, int offsh, int offsl);
 
 \subsection{fsize関数}
 
-\|path|引数で指定したファイルのサイズを\|size|に書き込みます．
+\|path|で指定したファイルのサイズを\|size|に書き込みます．
 ファイルサイズは，
 {\tacos}版では\|size[0]|(上位16bit)，
 \|size[1]|(下位16bit)を合わせた32bitです．
@@ -186,7 +185,7 @@ public boolean fsize(char[] path, int[] size);
 \subsection{fprintf関数}
 
 出力ストリームを明示できる\|printf|関数です．
-\|stream|引数に出力先を指定します．
+\|stream|に出力先を指定します．
 出力ストリームは，\|fopen|で開いたファイルか\|stdout|，
 \|stderr|です．
 
@@ -200,7 +199,7 @@ public int fprintf(FILE stream, char[] format, ...);
 \subsection{fputs関数}
 
 出力ストリームを明示できる\|puts|関数です．
-\|stream|引数に出力先を指定します．
+\|stream|に出力先を指定します．
 出力ストリームは，\|fopen|で開いたファイルか\|stdout|，
 \|stderr|です．
 
@@ -214,7 +213,7 @@ public boolean fputs(char[] s, FILE stream);
 \subsection{fputc関数}
 
 出力ストリームを明示できる\|putchar|関数です．
-\|stream|引数に出力先を指定します．
+\|stream|に出力先を指定します．
 出力ストリームは，\|fopen|で開いたファイルか\|stdout|，
 \|stderr|です．
 
@@ -229,8 +228,8 @@ public boolean fputc(char c, FILE stream);
 
 任意の入力ストリームから１行入力します．
 入力は\|buf|に文字列として格納します．
-\|n|引数には\|buf|のサイズを渡します．
-通常，\|buf|には\|\n|も格納されます．
+\|n|には\|buf|のサイズを渡します．
+通常，\|buf|に\|'\n'|も格納されます．
 \|fgets|は，EOFで\|null|を，
 正常時には\|buf|を返します．
 
@@ -269,15 +268,7 @@ public char fgetc(FILE stream);
 \|fgetc|関数がEOFに出会うと強制的にプログラムを終了する仕様になっています．
 \|fgetc|関数を実行する前に，必ず，
 \|feof|関数を用いて EOF チェックをする必要があります．
-\|cat|プログラムのソースコードに使用例があります．
-
-\begin{quote}
-\begin{verbatim}
-while (!feof(fp)) {
-  putchar(fgetc(fp));
-}
-\end{verbatim}
-\end{quote}
+\pageref{chap4:cat1}ページのソースコードに使用例があります．
 
 \subsection{feof関数}
 
@@ -324,131 +315,77 @@ public boolean fflush(FILE stream);
 \subsection{readDir関数}
 \label{chap4:readDir}
 
-ディレクトリファイルを読みます．
-{\tacos}版だけで使用できる関数です．
+FAT16ファイルシステムのディレクトリファイルを読みます．
 \|fd|には\|open|システムコールでオープン済のファイル記述子を，
 \|dir|には\|Dir|構造体のインスタンスを渡します．
 \|Dir|構造体の\|name|メンバーは，
 大きさ12の文字配列で初期化されている必要があります．
 
-\|ls|プログラムのソースコードに使用例があります．
-
 \begin{quote}
 \begin{verbatim}
 #include <stdio.hmm>
-struct Dir {
-    char[] name;
-    int    attr;
-    int    clst;
-    int    lenH, lenL;
-};
-Dir dir = {"            ", 0, 0, 0, 0 };
 public int readDir(int fd, Dir dir);
 \end{verbatim}
 \end{quote}
 
+\|Dir|構造体は\|stdio.hmm|中で次のように宣言されています．
+
+\begin{quote}
+\begin{verbatim}
+struct Dir {
+    char[] name;              // ファイル名
+    int    attr;              // ファイルの属性
+    int    clst;              // ファイルの開始クラスタ
+    int    lenH, lenL;        // ファイルの長さ
+};
+\end{verbatim}
+\end{quote}
+
+次に\|ls|プログラムのソースコードから抜粋したreadDir関数の使用例を示します．
+
+\begin{mylist}
+\begin{verbatim}
+#include <stdio.hmm>
+Dir dir = {"            ", 0, 0, 0, 0 };
+int[] fLen = array(2);
+
+// ディレクトリの一覧を表示する
+int printDir(char[] fname) {
+  int fd = open(fname, READ);                // ディレクトリを開く
+  if (fd<0) {
+    perror(fname);
+    return 1;
+  }
+
+  printf("FileNameExt Attr Clst FileLength\n");
+  while (readDir(fd, dir)>0) {               // ファイルが続く間
+    fLen[0]=dir.lenH;
+    fLen[1]=dir.lenL;
+    printf("%11s 0x%02x %4d %9ld\n",         // ファイルの一覧出力
+            dir.name, dir.attr, dir.clst,fLen);
+  }
+  close(fd);
+  return 0;
+}
+\end{verbatim}
+\end{mylist}
+
 \subsection{perror関数}
 
-現在の\|errno|グローバル変数の値に応じたエラーメッセージを表示します．
+\|errno|グローバル変数の値に応じたエラーメッセージを表示します．
 \|msg|はエラーメッセージの先頭に付け加えます．
 \|errno|にはシステムコールやライブラリ関数がエラー番号をセットします．
 \tabref{chap4:err}に{\tacos}版のエラーとメッセージの一覧を示します．
+\|errno|グローバル変数と表中の記号名は\|errno.hmm|で宣言されています．
 
 \begin{quote}
 \begin{verbatim}
 #include <stdio.hmm>
 #include <errno.hmm>
+public int errno;
 public void perror(char[] msg);
 \end{verbatim}
 \end{quote}
-
-\subsection{プログラム例}
-
-\cmml で記述した，標準入出力関数の使用例を以下に示します．
-
-\subsubsection{TacOS 専用のプログラム例}
-
-\begin{itemize}
-\item エラー処理 \\
-\tacos では，\|errno|変数にセットされるエラー番号が負の値になっています．
-また，アプリケーションが負の終了コードで終わった場合，
-シェルが終了コードを\|errno|とみなし
-エラーメッセージを表示する仕様になっています．
-
-更にライブラリは，ユーザプログラムのバグが原因と考えられるエラーや，
-メモリ不足のような対処が難しいエラーが発生したとき，
-負の終了コードでプログラムを終了します．
-そこで，以下のようなエラー処理を簡略化したプログラムを書くことができます．
-
-このプログラムは，
-メモリ不足で\|FILE|構造体の割り付けができないなど，
-対処が難しいエラーの場合に，
-\|fopen|内部で自動的に\|errno|を終了コードにして終了します．
-プログラムの終了コードによりシェルがエラーメッセージを表示します．
-
-ファイルが見つからないなどプログラムに知らせた方が良いエラーの場合は，
-\|fopen|がエラーを示す戻り値(\|null|)を持って返ります．
-可能ならユーザプログラムがエラー回復を試みるべきです．
-下のプログラムはエラー回復を試みることなく
-\|errno|を終了コードとして終了した例になっています．
-エラーメッセージの表示をプログラム中で行っていませんが，
-シェルが\|errno|に対応したエラーメッセージを表示します．
-
-\item EOFの検出 \\
-EOF の検出は\|feof|関数を用いて行います．
-{\cl}のプログラムと書き方が異なりますので注意してください．
-
-\end{itemize}
-
-\begin{mylist}
-\begin{verbatim}
-// ファイルの内容を表示するプログラム
-// （TacOS 専用バージョン）
-#include <stdio.hmm>
-#include <errno.hmm>
-public int main(int argc, char[][] argv) {
-  FILE fp = fopen("a.txt", "r");
-  if (fp==null) exit(errno);     // エラー表示をシェルに任せる
-  while (!feof(fp)) {
-    putchar(fgetc(fp));
-  }
-  fclose(fp);
-  return 0;
-}
-\end{verbatim}
-\end{mylist}
-
-\subsubsection{TacOS トランスレータ共通版のプログラム例}
-
-\cl プログラム風に記述することもできます．
-前の例ではシェルがエラーメッセージを表示したので，
-エラーメッセージの内容をプログラムから細かく指定することができませんでした．
-次の例ではプログラムが自力でエラーメッセージを表示するので，
-エラーになったファイルの名前をエラーメッセージに含めることができます．
-
-エラー表示を行ったプログラムは終了コード\|1|で終わります．
-終了コードが正なので，シェルはエラーメッセージを表示しません．
-
-\begin{mylist}
-\begin{verbatim}
-// ファイルの内容を表示するプログラム
-// （トランスレータ，TacOS 共通バージョン）
-#include <stdio.hmm>
-public int main(int argc, char[][] argv) {
-  char fname = "a.txt";
-  FILE fp = fopen(fname, "r");
-  if (fp==null) {
-    perror(fname);     // エラー表示を自分で行う
-    return 1;
-  }
-  while (!feof(fp)) {
-    putchar(fgetc(fp));
-  }
-  fclose(fp);
-  return 0;
-}
-\end{verbatim}
-\end{mylist}
 
 \begin{mytable}{tbhp}{エラー一覧}{chap4:err}
 \begin{tabular}{l|l|l}
@@ -491,6 +428,93 @@ EUNOMEM   & malloc: Insufficient memory & ヒープ領域が不足 \\
 EUBADA    & free: Bad address           & mallocした領域ではない \\
 \end{tabular}
 \end{mytable}
+
+\subsection{プログラム例}
+
+\cmml で記述した，標準入出力関数の使用例を以下に示します．
+
+\subsubsection{TacOS 専用のプログラム例}
+
+\begin{itemize}
+\item エラー処理 \\
+\tacos では，\|errno|変数にセットされるエラー番号が負の値になっています．
+また，アプリケーションが負の終了コードで終わった場合，
+シェルが終了コードを\|errno|とみなし
+エラーメッセージを表示する仕様になっています．
+更にライブラリは，ユーザプログラムのバグが原因と考えられるエラーや，
+メモリ不足のような対処が難しいエラーが発生したとき，
+負の終了コードでプログラムを終了します．
+そこで，以下のようなエラー処理を簡略化したプログラムを書くことができます．
+
+このプログラムは，
+メモリ不足で\|FILE|構造体の割り付けができないなど，
+対処が難しいエラーの場合に，
+\|fopen|内部で自動的に\|errno|を終了コードにして終了します．
+プログラムの終了コードによりシェルがエラーメッセージを表示します．
+
+ファイルが見つからないなどプログラムに知らせた方が良いエラーの場合は，
+\|fopen|がエラーを示す戻り値(\|null|)を持って返ります．
+可能ならユーザプログラムがエラー回復を試みるべきです．
+下のプログラムはエラー回復を試みることなく
+\|errno|を終了コードとして終了しています．
+エラーメッセージの表示をプログラム中で行っていませんが，
+シェルが\|errno|に対応したエラーメッセージを表示します．
+
+\item EOFの検出 \\
+EOF の検出は\|feof|関数を用いて行います．
+{\cl}のプログラムと書き方が異なりますので注意してください．
+
+\end{itemize}
+
+\begin{mylist}
+\begin{verbatim}
+// ファイルの内容を表示するプログラム（TacOS 専用バージョン）
+#include <stdio.hmm>
+#include <errno.hmm>
+public int main(int argc, char[][] argv) {
+  FILE fp = fopen("a.txt", "r");
+  if (fp==null) exit(errno);     // エラー表示をシェルに任せる
+  while (!feof(fp)) {
+    putchar(fgetc(fp));
+  }
+  fclose(fp);
+  return 0;
+}
+\end{verbatim}
+\label{chap4:cat1}
+\end{mylist}
+
+\subsubsection{TacOS トランスレータ共通版のプログラム例}
+
+\cl プログラム風に記述することもできます．
+前の例ではシェルがエラーメッセージを表示したので，
+エラーメッセージの内容をプログラムから細かく指定することができませんでした．
+次の例ではプログラムが自力でエラーメッセージを表示するので，
+エラーになったファイルの名前をエラーメッセージに含めることができます．
+
+エラー表示を行ったプログラムは終了コード\|1|で終わります．
+終了コードが正なので，シェルはエラーメッセージを表示しません．
+
+\begin{mylist}
+\begin{verbatim}
+// ファイルの内容を表示するプログラム
+// （トランスレータ，TacOS 共通バージョン）
+#include <stdio.hmm>
+public int main(int argc, char[][] argv) {
+  char fname = "a.txt";
+  FILE fp = fopen(fname, "r");
+  if (fp==null) {
+    perror(fname);     // エラー表示を自分で行う
+    return 1;
+  }
+  while (!feof(fp)) {
+    putchar(fgetc(fp));
+  }
+  fclose(fp);
+  return 0;
+}
+\end{verbatim}
+\end{mylist}
 
 \section{標準ライブラリ}
 
@@ -634,7 +658,7 @@ public char[] strCpy(char[] d, char[] s);
 文字列\|s|の最大\|n|文字を文字配列\|d|にコピーし，
 \|d|を関数値として返します．
 文字配列の使用されない部分には\|'\0'|が書き込まれます．
-文字列の長さが\|n|以上の場合は，
+文字列\|s|の長さが\|n|以上の場合は，
 \|'\0'|が書き込まれないので注意して下さい．
 
 \begin{quote}
@@ -799,7 +823,7 @@ public boolean isPrint(char c);
 
 \subsection{isLower関数}
 
-文字\|c|がアルファベット小文字なら（'a'〜'z'）\|true|を返します．
+文字\|c|がアルファベット小文字（'a'〜'z'）なら\|true|を返します．
 
 \begin{quote}
 \begin{verbatim}
@@ -810,7 +834,7 @@ public boolean isLower(char c);
 
 \subsection{isUpper関数}
 
-文字\|c|がアルファベット大文字なら（'A'〜'Z'）\|true|を返します．
+文字\|c|がアルファベット大文字（'A'〜'Z'）なら\|true|を返します．
 
 \begin{quote}
 \begin{verbatim}
@@ -832,8 +856,8 @@ public boolean isXdigit(char c);
 
 \subsection{isSpace関数}
 
-文字\|c|が空白文字（\|'\t'|，\|'\n'|，\|'\v'|，
-\|'\f'|，\|'\r'|，\|' '|）なら\|true|を返します．
+文字\|c|が空白文字（\|'\t'(TAB)|，\|'\n'(LF)|，\|'\x0b'(VT)|，
+\|'\x0c'(FF)|，\|'\r'(CR)|，\|' '|）なら\|true|を返します．
 
 \begin{quote}
 \begin{verbatim}
@@ -967,7 +991,6 @@ printf 関数のような可変個引数の関数を実現するために，
 可変個引数関数の内部で引数を配列としてアクセスできるようにする関数です．
 {\ul}args 関数は{\ul}args を呼び出した
 {\cmm}関数の第1引数を添字\|0|とする\|int|配列を返します．
-{\ul}args 関数は，トランスレータ版では使用できません．
 
 \begin{quote}
 \begin{verbatim}
@@ -997,7 +1020,6 @@ int f(char[] s, ...) {         // ... は可変個引数の関数を表す
 引数の\|dst|，\|src|が32ビットデータを表現する\|int|配列です．
 $dst = dst + src$を計算します．
 {\ul}add32 関数が返す値は\|dst|配列の参照です．
-{\ul}add32 関数は，トランスレータ版では使用できません．
 
 \begin{quote}
 \begin{verbatim}
@@ -1008,7 +1030,6 @@ public int[] _add32(int[] dst, int[] src);
 
 次に使用例を示します．
 \|a|，\|b|配列が32ビットデータを表します．
-これらは，２つの16ビットデータです．
 この例は{\ul}add32 関数が\|dst|の参照を返すことを利用しています．
 
 \begin{mylist}
@@ -1026,7 +1047,6 @@ int[] b = {23456,7890}:
 \tac で32ビットの計算を行うための関数です．
 $dst = dst - src$を計算します．
 {\ul}sub32 関数が返す値は\|dst|配列の参照です．
-{\ul}sub32 関数は，トランスレータ版では使用できません．
 
 \begin{quote}
 \begin{verbatim}
@@ -1041,7 +1061,6 @@ public int[] _sub32(int[] dst, int[] src);
 \tac で32ビットの計算を行うための関数です．
 $dst = dst / src$を計算します．
 {\ul}div32 関数が返す値は\|dst|配列の参照です．
-{\ul}div32 関数は，トランスレータ版では使用できません．
 
 \begin{quote}
 \begin{verbatim}
@@ -1057,7 +1076,6 @@ public int[] _div32(int[] dst, int[] src);
 \|dst|を\|src|で割った余りを返します．
 上記の３つの関数と異なり関数の返り値と\|src|が\|int|型，
 \|dst|の値は変化しないことに気を付けて下さい．
-{\ul}mod32 関数は，トランスレータ版では使用できません．
 
 \begin{quote}
 \begin{verbatim}
@@ -1072,7 +1090,6 @@ public int _mod32(int[] dst, int src);
 \tac のI/Oポートをアクセスする関数です．
 I/O特権モードのアプリケーションプログラムだけが使用できます．
 I/O空間の\|p|番地からワード（16ビット）のデータを入力します．
-{\ul}in 関数は，トランスレータ版では使用できません．
 
 \begin{quote}
 \begin{verbatim}
@@ -1087,7 +1104,6 @@ public int _in(int p);
 \tac のI/Oポートをアクセスする関数です．
 I/O特権モードのアプリケーションプログラムだけが使用できます．
 I/O空間の\|p|番地に\|v|のワード（16ビット）データを出力します．
-{\ul}in 関数は，トランスレータ版では使用できません．
 
 \begin{quote}
 \begin{verbatim}

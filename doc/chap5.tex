@@ -18,7 +18,8 @@ UNIXの\|fork-exec|方式とは異なります．
 
 \subsection{exec}
 
-\|name|でファイル名を指定して新しいプロセスでプログラムの実行を開始します．
+\|path|でプログラムファイルを指定し，
+新しいプロセスで新しいプログラムの実行を開始します．
 \|argv|は，開始するプログラムの\|main|関数の
 第２引数（\|char[][]argv|）に渡される文字列配列です．
 \|exec|は正常なら\|0|，エラー発生なら負のエラー番号を返します．
@@ -26,7 +27,7 @@ UNIXの\|fork-exec|方式とは異なります．
 \begin{quote}
 \begin{verbatim}
 #include <syslib.hmm>
-public int exec(char[] name, void[] argv);
+public int exec(char[] path, void[] argv);
 \end{verbatim}
 \end{quote}
 
@@ -61,7 +62,7 @@ int main(int argc, char[][]argv) {
 \|_exit|はプログラム（プロセス）を終了します．
 \|_exit|は入出力のバッファをフラッシュしません．
 \|_exit|は緊急終了用に使用し，
-普通は\|exit|を使用します．
+普通は標準ライブラリの\|exit|を使用します．
 
 \|status|は，親プロセスに返す終了コードです．
 \|0|が正常終了の意味，\|1|以上はユーザが決めた終了コード，
@@ -106,7 +107,7 @@ public int sleep(int ms);
 
 \section{ファイル操作}
 
-\tacos は，microSDカードのFAT16ファイルシステムを扱うことができます．
+\tacos は，マイクロSDカードのFAT16ファイルシステムを扱うことができます．
 VFATには対応していません．
 
 \subsection{creat}
