@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2019.05.07         : エラーメッセージ訂正「関数がreturnで終わっていない」
  * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2019.03.03         : genStr() に文字列長引数を追加
  * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
@@ -1002,7 +1003,7 @@ static void getFunc(void) {
 	 ntGetDim(funcIdx)!=0)      &&       //
 	ntGetType(funcIdx)!=TyINTR  &&       // interupt型以外の関数が
 	lastStat!=LxRETURN)                  // return文で終わっていない
-      error("関数が値を返していない");
+      error("関数がreturnで終わっていない");
     //syPrintTree();                         // ### デバッグ用 ###
     if (optFlag) optTree(syGetRoot());       // 木を最適化する
     //syPrintTree();                         // ### デバッグ用 ###
