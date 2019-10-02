@@ -24,7 +24,7 @@
  *
  * 2016.02.27 : exit を _exit に変更
  * 2016.02.25 : 新規作成（TacOS の usr/include/syslib.h をもとに）
- * 
+ *
  *$Id$
  *
  */
@@ -35,10 +35,8 @@
 #define BLKSIZ  512
 #define CONCTL_GETMODE 0
 #define CONCTL_SETMODE 1
-#define CONCTL_MODE_RAW 0
-#define CONCTL_MODE_BLOCK 0
 #define CONCTL_MODE_COOKED 1
-#define CONCTL_MODE_NONBLOCK 2
+#define CONCTL_MODE_ECHO 2
 
 public int exec(char[] name, void[] argv);
 public void _exit(int status);
@@ -54,6 +52,5 @@ public int read(int fd, void[] buf, int len);
 public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
 public int conRead(char[] buf, int len);
-public int conWrite(char[] buf);
+public int conWrite(char[] buf, int len);
 public int conCtl(int request, int argp);
-
