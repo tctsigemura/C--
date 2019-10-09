@@ -86,7 +86,7 @@ public boolean fflush(FILE fp) {
 
   if (fp.tty) {                                 // コンソールの場合
     fp.buf[fp.cnt]='\0';                        //  文字列として完成させる
-    conWrite(fp.buf, fp.cnt);                   //  コンソールに送信
+    ttyWrite(fp.buf, fp.cnt);                   //  コンソールに送信
     fp.cnt=0;                                   //  バッファは空
   } else {                                      // ファイルの場合
     int l = write(fp.fd, fp.buf, fp.cnt);       //  バッファを出力する
@@ -113,7 +113,7 @@ public boolean fputc(char c, FILE fp) {
   if (fp.buf==null) {                           // バッファがない
     fputcBuf[0] = c;                            //   別のバッファに格納して
     fputcBuf[1] = '\0';
-    conWrite(fputcBuf, 1);                      //   コンソールに送信
+    ttyWrite(fputcBuf, 1);                      //   コンソールに送信
   } else {                                      // バッファがある
     fp.buf[fp.cnt] = c;                         //   バッファに追加する
     fp.cnt = fp.cnt + 1;
@@ -142,7 +142,7 @@ public boolean puts(char[] str) {
 // 読み込みバッファにデータを読む
 void fillBuf(FILE fp) {
   if (fp.tty) {                                 // コンソールの場合は
-    int l = conRead(fp.buf, fp.size);
+    int l = ttyRead(fp.buf, fp.size);
     fp.buf[l]='\n';
     fp.len = l + 1;
   } else {

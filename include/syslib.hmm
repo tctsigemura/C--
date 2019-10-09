@@ -33,10 +33,10 @@
 #define WRITE   1
 #define APPEND  2
 #define BLKSIZ  512
-#define CONCTL_GETMODE 0
-#define CONCTL_SETMODE 1
-#define CONCTL_MODE_COOKED 1
-#define CONCTL_MODE_ECHO 2
+#define TTYCTL_GETMODE 0
+#define TTYCTL_SETMODE 1
+#define TTYCTL_MODE_COOKED 1
+#define TTYCTL_MODE_ECHO 2
 
 public int exec(char[] name, void[] argv);
 public void _exit(int status);
@@ -51,6 +51,6 @@ public int close(int fd);
 public int read(int fd, void[] buf, int len);
 public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
-public int conRead(char[] buf, int len);
-public int conWrite(char[] buf, int len);
-public int conCtl(int request, int argp);
+public int ttyRead(char[] buf, int len);
+public int ttyWrite(char[] buf, int len);
+public int ttyCtl(int request, int argp);

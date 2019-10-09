@@ -46,26 +46,13 @@ _errno  dw      0           ; エラー番号
 ; 10     read
 ; 11     write
 ; 12     seek
-; 13     conRead
-<<<<<<< HEAD
-<<<<<<< HEAD
-; 14     conWrite 
-; 15     malloc
-; 16     free
- 
-=======
-; 14     conWrite
-; 15     conCtl
+; 13     ttyRead
+; 14     ttyWrite
+; 15     ttyCtl
 ; 16     malloc
 ; 17     free
 
->>>>>>> 6c7af53... Update syslib.s
-=======
-; 14     conWrite
-; 15     malloc
-; 16     free
 
->>>>>>> 75f1191... conWriteに長さを指定するよう修正
 
 ; ユーザスタックに積まれたパラメータをカーネルスタックに積み直す
 ; ここでは、ユーザスタックから G1~G3 レジスタに取り出してレジスタ渡しを行う
@@ -173,28 +160,19 @@ _seek
         ld      g0,#12          ; G0 にシステムコール番号を格納
         jmp    .l3
 
-_conRead
+_ttyRead
         ld      g0,#13          ; G0 にシステムコール番号を格納
         jmp     .l2
 
-_conWrite
+_ttyWrite
         ld      g0,#14          ; G0 にシステムコール番号を格納
-<<<<<<< HEAD
-<<<<<<< HEAD
-        jmp     .l1
-      
-=======
         jmp     .l2
 
->>>>>>> 75f1191... conWriteに長さを指定するよう修正
-; malloc(#15) と free(#16) システムコールはユーザプロセスでは使用できない
-=======
         jmp     .l2
 
-_conCtl
+_ttyCtl
         ld      g0,#15          ; G0 にシステムコール番号を格納
         jmp     .l2
 
 ; malloc(#16) と free(#17) システムコールはユーザプロセスでは使用できない
->>>>>>> 6c7af53... Update syslib.s
 ; ユーザプロセスでは malloc と free はライブラリ関数として実現される
