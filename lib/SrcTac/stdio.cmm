@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2019.10.10 : TacOSとの整合を取るため、fillBuf(), fputc(), fflush()を修正
  * 2019.03.14 : fputs()，puts()の型をbooleanに変更
  * 2019.03.11 : subStr()を使用しないようにfsize()を書き換え
  * 2019.01.10 : perror にエラー追加（EMEMVIO）
@@ -143,7 +144,6 @@ public boolean puts(char[] str) {
 void fillBuf(FILE fp) {
   if (fp.tty) {                                 // コンソールの場合は
     int l = ttyRead(fp.buf, fp.size);
-    fp.buf[l]='\n';
     fp.len = l + 1;
   } else {
     int l = read(fp.fd, fp.buf, fp.size);
