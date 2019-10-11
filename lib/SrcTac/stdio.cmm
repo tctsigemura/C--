@@ -144,7 +144,7 @@ public boolean puts(char[] str) {
 void fillBuf(FILE fp) {
   if (fp.tty) {                                 // コンソールの場合は
     int l = ttyRead(fp.buf, fp.size);
-    fp.len = l + 1;
+    fp.len = l;
   } else {
     int l = read(fp.fd, fp.buf, fp.size);
     if (l<0) {
