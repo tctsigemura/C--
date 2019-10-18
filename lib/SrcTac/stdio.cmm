@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2019.10.10 : TacOSとの整合を取るため、fillBuf(), fputc(), fflush()を修正
  * 2019.03.14 : fputs()，puts()の型をbooleanに変更
  * 2019.03.11 : subStr()を使用しないようにfsize()を書き換え
  * 2019.01.10 : perror にエラー追加（EMEMVIO）
@@ -86,7 +87,7 @@ public boolean fflush(FILE fp) {
 
   if (fp.tty) {                                 // コンソールの場合
     fp.buf[fp.cnt]='\0';                        //  文字列として完成させる
-    conWrite(fp.buf);                           //  コンソールに送信
+    ttyWrite(fp.buf, fp.cnt);                   //  コンソールに送信
     fp.cnt=0;                                   //  バッファは空
   } else {                                      // ファイルの場合
     int l = write(fp.fd, fp.buf, fp.cnt);       //  バッファを出力する
@@ -113,7 +114,7 @@ public boolean fputc(char c, FILE fp) {
   if (fp.buf==null) {                           // バッファがない
     fputcBuf[0] = c;                            //   別のバッファに格納して
     fputcBuf[1] = '\0';
-    conWrite(fputcBuf);                         //   コンソールに送信
+    ttyWrite(fputcBuf, 1);                      //   コンソールに送信
   } else {                                      // バッファがある
     fp.buf[fp.cnt] = c;                         //   バッファに追加する
     fp.cnt = fp.cnt + 1;
@@ -142,9 +143,8 @@ public boolean puts(char[] str) {
 // 読み込みバッファにデータを読む
 void fillBuf(FILE fp) {
   if (fp.tty) {                                 // コンソールの場合は
-    int l = conRead(fp.buf, fp.size);
-    fp.buf[l]='\n';
-    fp.len = l + 1;
+    int l = ttyRead(fp.buf, fp.size);
+    fp.len = l;
   } else {
     int l = read(fp.fd, fp.buf, fp.size);
     if (l<0) {
@@ -181,7 +181,7 @@ public char fgetc(FILE fp) {
 
 public char getchar() {
   return fgetc(stdin);
-}    
+}
 
 // 文字列を入力する
 public char[] fgets(char[] str, int n, FILE fp) {

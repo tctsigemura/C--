@@ -24,7 +24,7 @@
  *
  * 2016.02.27 : exit を _exit に変更
  * 2016.02.25 : 新規作成（TacOS の usr/include/syslib.h をもとに）
- * 
+ *
  *$Id$
  *
  */
@@ -33,6 +33,10 @@
 #define WRITE   1
 #define APPEND  2
 #define BLKSIZ  512
+#define TTYCTL_GETMODE 0
+#define TTYCTL_SETMODE 1
+#define TTYCTL_MODE_COOKED 1
+#define TTYCTL_MODE_ECHO 2
 
 public int exec(char[] name, void[] argv);
 public void _exit(int status);
@@ -47,5 +51,6 @@ public int close(int fd);
 public int read(int fd, void[] buf, int len);
 public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
-public int conRead(char[] buf, int len);
-public int conWrite(char[] buf);
+public int ttyRead(char[] buf, int len);
+public int ttyWrite(char[] buf, int len);
+public int ttyCtl(int request, int argp);

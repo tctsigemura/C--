@@ -1,4 +1,4 @@
-% 
+%
 %  ５章 システムコール
 %
 \chapter{システムコール}
@@ -259,35 +259,35 @@ public int seek(int fd, int ptrh, int ptrl);
 コンソール入出力には，
 通常は\pageref{chap4:stdio}ページの標準入出力ライブラリ関数を用います．
 以下のシステムコールは，主にライブラリ関数の内部で使用されます．
-\|conRead|はライブラリ関数が\|stdin|からの読み込みをする場合に，
-\|conWrite|はライブラリ関数が\|stdout|，\|stderr|への
+\|ttyRead|はライブラリ関数が\|stdin|からの読み込みをする場合に，
+\|ttyWrite|はライブラリ関数が\|stdout|，\|stderr|への
 書き込みをする場合にライブラリ関数内部で使用されます．
 
-\subsection{conRead}
+\subsection{ttyRead}
 
-\|conRead|はキーボードから１行入力します．
+\|ttyRead|はキーボードから１行入力します．
 読み込んだ内容は\|buf|で指定されるバッファに文字列として格納されます．
 \|len|は\|buf|のバイト数です．
 文字列の最後には\|'\0'|が格納されます．
 \|'\n'|は含まれません．
 \|buf|の大きさは入力可能な文字数より\|1|大きくする必要があります．
-\|conRead|はキーボードから入力した文字数を返します．
+\|ttyRead|はキーボードから入力した文字数を返します．
 
 \begin{quote}
 \begin{verbatim}
 #include <syslib.hmm>
-public int conRead(char[] buf, int len);
+public int ttyRead(char[] buf, int len);
 \end{verbatim}
 \end{quote}
 
-\subsection{conWrite}
+\subsection{ttyWrite}
 
-\|conWrite|は画面に文字列を出力します．
+\|ttyWrite|は画面に文字列を出力します．
 \|buf|には出力する文字列を格納して渡します．
 
 \begin{quote}
 \begin{verbatim}
 #include <syslib.hmm>
-public int conWrite(char[] buf);
+public int ttyWrite(char[] buf, int len);
 \end{verbatim}
 \end{quote}
