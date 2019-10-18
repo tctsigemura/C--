@@ -1,6 +1,7 @@
 %
 % C-- 言語 ver.3.x の解説書
 %
+% 2019.10.18 v.3.2.1 : conRead,conWriteをttyRead,ttyWriteに変更，ttyCtlを追加
 % 2019.03.18 v.3.2.0 : トランスレータ版に実行時エラーチェックを試験的に導入
 % 2019.01.27 v.3.1.12: メモリ保護違反，I/O特権モード，in(),out(),htoi()等追記
 % 2018.11.18 v.3.1.11: fsize()、printf(``%ld'')、32ビット演算を追記
@@ -19,7 +20,7 @@
 % 2016.05.29 V.3.1.0 : ver.3.1 用に改訂
 %                    : cm2c,cm2e,cm2v コマンドを追加しコンパイル例など変更
 % 2016.03.12 V.3.0.0 : ver.3 用に改訂
-% 
+%
 % $Id$
 %
 \documentclass[11pt,a4j,twoside,dvipdfmx]{jbook}
@@ -72,7 +73,7 @@
 %----------------------------------------------------------------------
 \newcommand{\figref}[1]{図~\ref{fig:#1}}
 \newcommand{\tabref}[1]{表~\ref{tab:#1}}
-\newcommand{\ver}{Ver. 3.2.0}
+\newcommand{\ver}{Ver. 3.2.1}
 \newcommand{\cmm}{{\tt C--}}
 \newcommand{\cmml}{\cmm 言語}
 \newcommand{\cmmc}{{\tt c--}}
@@ -175,6 +176,7 @@ Tokuyama College of Technology, JAPAN
 ~
 \subsubsection{変更履歴}
 \begin{flushleft}
+2019年10月18日 v.3.2.1  conRead/WriteをttyRead/Writeに変更,ttyCtlを追加 \\
 2019年03月24日 v.3.2.0  トランスレータ版に実行時エラーチェックを試験的に導入 \\
 2019年01月27日 v.3.1.12 メモリ保護違反,I/O特権モード,in(),out(),htoi()追記 \\
 2018年11月18日 V.3.1.11 fsize、fseek、printf("\%ld")、32ビット演算を追記 \\
@@ -192,19 +194,11 @@ Tokuyama College of Technology, JAPAN
 \subsubsection{対応ソフトウェアのバージョン}
 \begin{tabular}{|l|l|}
 \hline
-{\tt C--}      & Ver.3.2.0 \\
+{\tt C--}      & Ver.3.2.1 \\
 \hline
 {\tt Util--}   & Ver.3.0.3 \\
 \hline
-%{\tt AS--}     & Ver.2.1.1 \\
-%\hline
-%{\tt LD--}     & Ver.2.0.0 \\
-%\hline
-%{\tt OBJBIN--} & Ver.2.0.0 \\
-%\hline
-%{\tt SIZE--}   & Ver.2.1.0 \\
-%\hline
-%{\tt OBJEXE--} & Ver.1.0.0 \\
+{\tt TacOS}    & Ver.3.1.0 \\
 %\hline
 \end{tabular}
 
@@ -213,7 +207,7 @@ Tokuyama College of Technology, JAPAN
 \fbox{\parbox{10cm}{ \vspace{0.3cm}
 \large{\bf　プログラミング言語 \cmm} \\
 \\
-　発行年月　２０１９年３月　\ver \\
+　発行年月　２０１９年１０月　\ver \\
 　著　　者　重村　哲至 \\
 　発　　行　独立行政法人国立高等専門学校機構 \\
 　　　　　　徳山工業高等専門学校 \\

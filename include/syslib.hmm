@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,9 +22,10 @@
 /*
  * include/syslib.hmm : lib/syslib.s の外部インタフェース
  *
+ * 2019.10.18 : conRead, conWrite を ttyRead, ttyWrite に変更，ttyCtl を追加
  * 2016.02.27 : exit を _exit に変更
  * 2016.02.25 : 新規作成（TacOS の usr/include/syslib.h をもとに）
- * 
+ *
  *$Id$
  *
  */
@@ -47,5 +48,11 @@ public int close(int fd);
 public int read(int fd, void[] buf, int len);
 public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
-public int conRead(char[] buf, int len);
-public int conWrite(char[] buf);
+public int ttyRead(char[] buf, int len);
+public int ttyWrite(char[] buf, int len);
+
+#define TTYCTL_GETMODE 0
+#define TTYCTL_SETMODE 1
+#define TTYCTL_MODE_COOKED 1
+#define TTYCTL_MODE_ECHO 2
+public int ttyCtl(int cmd, int mode);

@@ -1,4 +1,4 @@
-% 
+%
 %  ５章 システムコール
 %
 \chapter{システムコール}
@@ -259,35 +259,70 @@ public int seek(int fd, int ptrh, int ptrl);
 コンソール入出力には，
 通常は\pageref{chap4:stdio}ページの標準入出力ライブラリ関数を用います．
 以下のシステムコールは，主にライブラリ関数の内部で使用されます．
-\|conRead|はライブラリ関数が\|stdin|からの読み込みをする場合に，
-\|conWrite|はライブラリ関数が\|stdout|，\|stderr|への
+\|ttyRead|はライブラリ関数が\|stdin|からの読み込みをする場合に，
+\|ttyWrite|はライブラリ関数が\|stdout|，\|stderr|への
 書き込みをする場合にライブラリ関数内部で使用されます．
 
-\subsection{conRead}
+\subsection{ttyRead}
 
-\|conRead|はキーボードから１行入力します．
-読み込んだ内容は\|buf|で指定されるバッファに文字列として格納されます．
+\|ttyRead|はキーボードから１行入力します．
+読み込んだ内容は\|buf|で指定されるバッファに格納されます．
 \|len|は\|buf|のバイト数です．
-文字列の最後には\|'\0'|が格納されます．
-\|'\n'|は含まれません．
-\|buf|の大きさは入力可能な文字数より\|1|大きくする必要があります．
-\|conRead|はキーボードから入力した文字数を返します．
+読み込んだ内容の最後に\|'\0'|は含まれませんが\|'\n'|は含まれます．
+\|ttyRead|はキーボードから入力した文字数を返します．
 
 \begin{quote}
 \begin{verbatim}
 #include <syslib.hmm>
-public int conRead(char[] buf, int len);
+public int ttyRead(char[] buf, int len);
 \end{verbatim}
 \end{quote}
 
-\subsection{conWrite}
+\subsection{ttyWrite}
 
-\|conWrite|は画面に文字列を出力します．
-\|buf|には出力する文字列を格納して渡します．
+\|ttyWrite|は\|buf|の内容を画面に出力します．
 
 \begin{quote}
 \begin{verbatim}
 #include <syslib.hmm>
-public int conWrite(char[] buf);
+public int ttyWrite(char[] buf, int len);
+\end{verbatim}
+\end{quote}
+
+\subsection{ttyCtl}
+
+\|ttyClt|はコンソールのモードを操作します．
+
+\begin{quote}
+\begin{verbatim}
+#include <syslib.hmm>
+public int ttyCtl(int cmd, int mode);
+\end{verbatim}
+\end{quote}
+
+\|cmd|には\|TTYCTL_GETMODE|，\|TTYCTL_SETMODE|のどちらかを指定します．
+\|TTYCTL_GETMODE|を指定した場合，\|ttyCtl|は現在のモードを返します．
+\|TTYCTL_SETMODE|を指定した場合，\|ttyCtl|はモードを\|mode|に変更します．
+\|ttyCtl|の返り値と\|mode|では，
+モードを\|TTYCTL_MODE_COOKED|と\|TTYCTL_MODE_ECHO|を
+ビットマップで表現します．
+
+\|TTYCTL_MODE_COOKED|は通常ONになっています．
+このモードがONになっている場合，
+コンソール入出力で\|'\r'|と\|'\n'|の間で適切な変換が行われます．
+また，\|'\b'|（バックスペースキー）を用いた行編集ができます．
+
+\|TTYCTL_MODE_ECHO|も通常ONになっています．
+このモードがONになっている場合，
+キーボードから入力した文字が画面にエコーバックされます．
+以下にプログラム例を示します．
+
+\begin{quote}
+\begin{verbatim}
+int mode = ttyCtl(TTYCTL_GETMODE, 0);      // 現在のモードを取得
+int noechoMode = mode & ~TTYCTL_MODE_ECHO;
+ttyCtl(TTYCTL_SETMODE, noechoMode);       // NOECHOモードに変更
+...
+ttyCtl(TTYCTL_SETMODE, mode);             // 最初の状態に戻す
 \end{verbatim}
 \end{quote}
