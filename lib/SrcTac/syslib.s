@@ -2,7 +2,7 @@
 ; Programing Language C-- "Compiler"
 ;    Tokuyama kousen Advanced educational Computer
 ;
-;  Copyright (C) 2016 by
+;  Copyright (C) 2016 - 2019 by
 ;                       Dept. of Computer Science and Electronic Engineering,
 ;                       Tokuyama College of Technology, JAPAN
 ;
@@ -20,6 +20,7 @@
 ;
 ; lib/syslib.s : システムコールに関するユーザ用ライブラリを集めたファイル
 ;
+; 2019.10.18 : conRead, conWrite を ttyRead, ttyWrite に変更，ttyCtl を追加
 ; 2016.02.27 : _exit を __exit に変更
 ; 2016.02.24 : TacOS の usr/lib からコピー
 ;
@@ -51,7 +52,6 @@ _errno  dw      0           ; エラー番号
 ; 15     ttyCtl
 ; 16     malloc
 ; 17     free
-
 
 
 ; ユーザスタックに積まれたパラメータをカーネルスタックに積み直す
@@ -166,8 +166,6 @@ _ttyRead
 
 _ttyWrite
         ld      g0,#14          ; G0 にシステムコール番号を格納
-        jmp     .l2
-
         jmp     .l2
 
 _ttyCtl

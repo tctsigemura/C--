@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2019.10.18 : ttyRead/ttyWrite は '\0' に依存しないのでバッファを１短く
  * 2019.10.10 : TacOSとの整合を取るため、fillBuf(), fputc(), fflush()を修正
  * 2019.03.14 : fputs()，puts()の型をbooleanに変更
  * 2019.03.11 : subStr()を使用しないようにfsize()を書き換え
@@ -49,11 +50,11 @@
 FILE[] allFiles = array(3+FMAX);   // オープンファイルの一覧(stdin,out,err含む)
 
 // stdin 用のFILE構造体とバッファ
-char[] stdinBuf = array(TSIZ+1);
+char[] stdinBuf = array(TSIZ);
 public FILE stdin  = {-1, READ,  null, TSIZ, 0, 0, true, false, false, 0};
 
 // stdout 用のFILE構造体とバッファ
-char[] stdoutBuf = array(TSIZ+1);
+char[] stdoutBuf = array(TSIZ);
 public FILE stdout = {-2, WRITE, null, TSIZ, 0, 0, true, false, false, 1};
 
 // stderr 用のFILE構造体(stderr はバッファリングしない)
@@ -86,7 +87,6 @@ public boolean fflush(FILE fp) {
   if (fp.cnt==0) return false;                  // フラッシュすべきものがない
 
   if (fp.tty) {                                 // コンソールの場合
-    fp.buf[fp.cnt]='\0';                        //  文字列として完成させる
     ttyWrite(fp.buf, fp.cnt);                   //  コンソールに送信
     fp.cnt=0;                                   //  バッファは空
   } else {                                      // ファイルの場合
@@ -106,14 +106,13 @@ public void _flushAll() {
 }
 
 // ファイル（ストリーム）に1文字書き込む
-char[] fputcBuf = array(2);                     // バッファリングしない場合使う
+char[] fputcBuf = array(1);                     // バッファリングしない場合使う
 public boolean fputc(char c, FILE fp) {
   chkFp(fp);                                    // 妥当な fp かチェックする
   if (fp.mode==READ) _exit(EUMODE);             // READモードにfputcできない
   if (fp.err) return true;                      // すでにエラーになっている
   if (fp.buf==null) {                           // バッファがない
     fputcBuf[0] = c;                            //   別のバッファに格納して
-    fputcBuf[1] = '\0';
     ttyWrite(fputcBuf, 1);                      //   コンソールに送信
   } else {                                      // バッファがある
     fp.buf[fp.cnt] = c;                         //   バッファに追加する
