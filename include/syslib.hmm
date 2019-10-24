@@ -36,7 +36,7 @@
 #define O_APPEND  2
 #define BLKSIZ    512
 
-public int exec(char[] name, void[] argv);
+public int exec(char[] name, void[] argv, void[] envp);
 public void _exit(int status);
 public int wait(int[] sta);
 public int sleep(int ms);
