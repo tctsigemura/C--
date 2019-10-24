@@ -110,7 +110,7 @@ _errno  dw      0           ; エラー番号
 
 _exec
         ld      g0,#0           ; G0 にシステムコール番号を格納
-        jmp     .l2
+        jmp     .l3
 
 __exit
         ld      g0,#1           ; G0 にシステムコール番号を格納
