@@ -19,6 +19,7 @@
 #
 # lib/Makefile.rtc : C言語版（実行時エラーチェックあり）用
 #
+# 2019.11.13 : environ を追加
 # 2019.03.10 : 初期バージョン
 #
 
@@ -39,6 +40,7 @@ ${OBJS}: ${TMP}
 	cp ../SrcC/wrapper.h .
 	rtc-c-- ../../include/ctype.hmm >> wrapper.h
 	rtc-c-- ../../include/string.hmm >> wrapper.h
+	c-c-- ../../include/environ.hmm >> wrapper.h
 
 install: ${OBJS}
 	install -d -m 755 /usr/local/cmmLib/LibRtc
@@ -46,6 +48,7 @@ install: ${OBJS}
 	install -m 644 ../SrcC/cfunc.hmm /usr/local/cmmLib/LibRtc
 	install -m 644 ../SrcC/wrapper.c /usr/local/cmmLib/LibRtc
 	install -m 644 ../SrcC/printf.c  /usr/local/cmmLib/LibRtc
+	install -m 644 ../SrcC/environ.c  /usr/local/cmmLib/LibRtc
 
 clean:
 	rm -f ${TMP} ${OBJS} *~

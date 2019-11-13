@@ -19,6 +19,7 @@
 #
 # LibTac/GNUmakefile : TaC用ライブラリのmakefile
 #
+# 2019.11.13 : environ を追加
 # 2019.03.15 : LibTac に移動
 # 2018.02.24 : ../include の .hmm を使用するように変更
 # 2018.01.31 : .s にも cm2e を使用するように変更
@@ -46,7 +47,7 @@
 # crt0.o を最初に置くこと
 OBJS= ../SrcTac/crt0.o  ../SrcTac/syslib.o \
       ../SrcTac/stdio.o ../SrcTac/stdlib.o ../SrcTac/printf.o \
-      ../SrcCmm/ctype.o ../SrcCmm/string.o
+      ../SrcCmm/ctype.o ../SrcCmm/string.o ../SrcCmm/environ.o
 
 all: libtac.o
 
