@@ -20,22 +20,16 @@
  */
 
 /*
- * include/environ.hmm : lib/environ.cmm の外部インタフェース
+ * include/environ.h : lib/SrcC/environ.c の外部インタフェース
  *
- * 2019.11.13 : 新規作成
+ * 2019.11.14 : environ.hmm をもとに作成
  *
  * $Id$
  */
 // 環境変数関係
-#ifdef C
-// 名前の衝突によって null になるのを防ぐ
-#define environ _environ
-public char[][] _environ;
-#else
-public char[][] environ;
-#endif
+extern char **environ;
 
-public char[] getEnv(char[] name);
-public void putEnv(char[] string);
-public void setEnv(char[] name, char[] value, boolean overwrite);
-public void unsetEnv(char[] name);
+char *getEnv(char *name);
+void putEnv(char *string);
+void setEnv(char *name, char *value, char overwrite);
+void unsetEnv(char *name);
