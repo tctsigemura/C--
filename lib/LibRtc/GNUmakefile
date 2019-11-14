@@ -30,7 +30,7 @@
 .cmm.c:
 	cm2c -S -rtc -nostdinc -I../../include -I../SrcC -c $*.cmm
 
-OBJS= ctype.c string.c wrapper.h
+OBJS= ctype.c string.c wrapper.h environ.h
 TMP= ../SrcCmm/ctype.c ../SrcCmm/string.c
 
 all: ${OBJS}
@@ -38,9 +38,10 @@ all: ${OBJS}
 ${OBJS}: ${TMP}
 	mv ${TMP} .
 	cp ../SrcC/wrapper.h .
+	cp ../SrcC/environ.h .
 	rtc-c-- ../../include/ctype.hmm >> wrapper.h
 	rtc-c-- ../../include/string.hmm >> wrapper.h
-	c-c-- ../../include/environ.hmm >> wrapper.h
+	cat environ.h >> wrapper.h
 
 install: ${OBJS}
 	install -d -m 755 /usr/local/cmmLib/LibRtc
@@ -49,6 +50,7 @@ install: ${OBJS}
 	install -m 644 ../SrcC/wrapper.c /usr/local/cmmLib/LibRtc
 	install -m 644 ../SrcC/printf.c  /usr/local/cmmLib/LibRtc
 	install -m 644 ../SrcC/environ.c  /usr/local/cmmLib/LibRtc
+	install -m 644 ../SrcC/environ.h  /usr/local/cmmLib/LibRtc
 
 clean:
 	rm -f ${TMP} ${OBJS} *~

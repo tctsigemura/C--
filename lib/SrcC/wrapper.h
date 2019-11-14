@@ -142,6 +142,8 @@ inline static long lToL(unsigned int l[]) {
   return (((long)l[0])<<32)|l[1];
 }
 
+#define _environ environ
+
 // RTCのため文字列を変換する必要がある関数
 #ifdef _RTC
 // stdio.hmm
