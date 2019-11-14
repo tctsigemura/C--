@@ -27,18 +27,91 @@
  * $Id$
  */
 #include <environ.hmm>
+#include <crt0.hmm>
+#include <stdlib.hmm>
+#include <string.hmm>
+#include <syslib.hmm>
+#include <errno.hmm>
 
 public char[][] environ;
 
+int capacity;                                               // environ に入れられる環境変数の数
+
+// 環境変数の初期化
+public void _environInit(char[][] envp) {
+  int envs = 0;
+  while (envp[envs] != null) envs = envs + 1;               // 要素数を得る
+  environ = malloc(sizeof(char[]) * (envs + 1));            // 要素数 + null
+  environ[envs] = null;                                     // null 終端
+  for (int i = 0; i < envs; i = i + 1) {                    // 要素をコピー
+    int len = strLen(envp[i]);
+    environ[i] = malloc(len + 1);
+    strCpy(environ[i], envp[i]);
+  }
+  capacity = envs;                                          // 現在の environ の大きさ
+}
+
+// 環境変数の environ 中のインデックスを返す。存在しなければ null (番兵) のインデックスを返す。
+int envIndex(char[] name) {
+  int len = strLen(name);
+  int i = 0;
+  while (environ[i] != null) {
+    int nameLen = strChr(environ[i], '=');
+    if (len == nameLen &&
+      strNcmp(environ[i], name, len) == 0)
+      return i;
+    i = i + 1;
+  }
+  return i;
+}
+
+// 環境変数の値を返す。存在しなければ null を返す。
 public char[] getEnv(char[] name) {
-  return null;
+  if (name == null) _exit(EINVAL);                          // name が null ならエラー
+  int index = envIndex(name);
+  return environ[index];                                    // 存在しない場合、 environ[index] は null
 }
-public int putEnv(char[] string) {
-  return 0;
+
+// 環境変数を設定する。
+public void putEnv(char[] string) {
+  if (string == null) _exit(EINVAL);                        // string が null ならエラー
+  int nameLen = strChr(string, '=');                        // '=' の位置 == 名前の長さ
+  if (nameLen <= 0) _exit(EINVAL);                          // 値がないか、名前の長さが 0 ならエラー
+  string[nameLen] = '\0';                                   // string を name と value に分割する
+  setEnv(string, _addrAdd(string, nameLen + 1), true);      // setEnv に渡す
+  string[nameLen] = '=';                                    // string を元に戻す
 }
-public int unsetEnv(char[] name) {
-  return 0;
+
+// 環境変数を設定する。overwrite が false で既に同名の環境変数が存在するなら何もしない。
+public void setEnv(char[] name, char[] value, boolean overwrite) {
+  if (name == null || value == null) _exit(EINVAL);         // name か value が null ならエラー
+  int nameLen = strLen(name);
+  if (strChr(name, '=') >= 0) _exit(EINVAL);                // name 中に '=' を含む場合はエラー
+  int index = envIndex(name);
+  if (environ[index] == null) {                             // 環境変数が存在しない
+    int envs = index + 1;                                   //    environ[index] == null のとき、 index == envs
+    if (envs > capacity) {
+      char[][] newEnv = malloc(sizeof(char[]) * (envs + 1));//    新しい環境変数の領域を確保する
+      for (int i = 0; i < envs; i = i + 1)                  //   すべての環境変数を
+        newEnv[i] = environ[i];                             //     newEnv にコピーする
+      newEnv[envs] = null;                                  //   null 終端
+      capacity = envs;                                      //   現在の environ の大きさ
+    }
+  } else {                                                  // 環境変数が存在する
+    if (!overwrite) return;                                 //   overwrite が false なら終了
+  }
+  environ[index] = malloc(nameLen + 1 + strLen(value) + 1); // メモリ確保
+  strCpy(environ[index], name);                             // 名前を格納
+  environ[index][nameLen] = '=';                            // '=' を格納
+  strCpy(_addrAdd(environ[index], nameLen + 1), value);     // 値を格納
 }
-public int setEnv(char[] name, char[] value, boolean overwrite) {
-  return 0;
+
+// 環境変数を削除する。存在しなければ何もしない。
+public void unsetEnv(char[] name) {
+  if (name == null) _exit(EINVAL);                          // name が null ならエラー
+  int index = envIndex(name);
+  if (environ[index] == null) return;                       // 環境変数が存在しなければ何もしない
+  free(environ[index]);                                     // メモリ解放
+  for (int i = index; environ[i] != null; i = i + 1)        // 後ろの環境変数を
+    environ[i] = environ[i + 1];                            //   前につめる
 }
