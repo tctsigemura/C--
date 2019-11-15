@@ -26,7 +26,6 @@
  *
  * $Id$
  */
-#include <environ.hmm>
 #include <crt0.hmm>
 #include <stdlib.hmm>
 #include <string.hmm>

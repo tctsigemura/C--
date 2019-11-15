@@ -22,6 +22,7 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
+ * 2019.11.14 : 環境変数関連を追加
  * 2019.03.14 : RTCのためにfputs,puts,fgets,perror関数のinlineラッパー関数追加
  * 2019.03.13 : ltoL()をinlineにしてwrapper.cから移動
  * 2019.03.12 : <stdio.h>と<stdlib.h>を追加(NULLやabort()のため)
@@ -142,7 +143,34 @@ inline static long lToL(unsigned int l[]) {
   return (((long)l[0])<<32)|l[1];
 }
 
+// 環境変数関連
 #define _environ environ
+extern char **environ;
+
+inline static char* getEnv(char* name) {
+  return getenv(name);
+}
+
+inline static void putEnv(char* string) {
+  if (putenv(string) < 0) {
+    perror("putEnv");
+    exit(1);
+  }
+}
+
+inline static void setEnv(char* name, char* value, char overwrite) {
+  if (setenv(name, value, overwrite) < 0) {
+    perror("setEnv");
+    exit(1);
+  }
+}
+
+inline static void unsetEnv(char* name) {
+  if (unsetenv(name) < 0) {
+    perror("unsetEnv");
+    exit(1);
+  }
+}
 
 // RTCのため文字列を変換する必要がある関数
 #ifdef _RTC
