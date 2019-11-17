@@ -20,41 +20,17 @@
  */
 
 /*
- * include/syslib.hmm : lib/syslib.s の外部インタフェース
+ * include/sys/fs.hmm : TacOS とユーザで共通のインクルードファイル
  *
- * 2019.11.15 : stat を追加
- * 2019.10.18 : conRead, conWrite を ttyRead, ttyWrite に変更，ttyCtl を追加
- * 2016.02.27 : exit を _exit に変更
- * 2016.02.25 : 新規作成（TacOS の usr/include/syslib.h をもとに）
+ * 2019.11.15 : 新規作成
  *
  *$Id$
  *
  */
 
-#define READ    0
-#define WRITE   1
-#define APPEND  2
-#define BLKSIZ  512
-
-public int exec(char[] name, void[] argv);
-public void _exit(int status);
-public int wait(int[] sta);
-public int sleep(int ms);
-public int creat(char[] path);
-public int remove(char[] path);
-public int mkDir(char[] path);
-public int rmDir(char[] path);
-public int open(char[] path, int mode);
-public int close(int fd);
-public int read(int fd, void[] buf, int len);
-public int write(int fd, void[] buf, int len);
-public int seek(int fd, int ptrh, int ptrl);
-public int stat(char[] path, void[] stat);
-public int ttyRead(char[] buf, int len);
-public int ttyWrite(char[] buf, int len);
-
-#define TTYCTL_GETMODE 0
-#define TTYCTL_SETMODE 1
-#define TTYCTL_MODE_COOKED 1
-#define TTYCTL_MODE_ECHO 2
-public int ttyCtl(int cmd, int mode);
+struct Stat {
+  int attr;
+  int clst;
+  int lenH;
+  int lenL;
+};

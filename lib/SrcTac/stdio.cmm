@@ -41,6 +41,7 @@
 #include <ctype.hmm>
 #include <syslib.hmm>
 #include <errno.hmm>
+#include <sys/fs.hmm>
 
 // 標準 I/O
 #define FMAX 5                     // TacOS で１ユーザプロセスの最大ファイル数
@@ -237,27 +238,13 @@ boolean sameFname(char[] fname, char[] path, int p) { // ファイル名用の�
   return SN(pc);                                // 拡張子の最後なら一致
 }
 
-#define MAXPATH 80
-char[] dirPath = array(MAXPATH+1);              // パスを組立てるための領域
-Dir dir = {"            ", 0, 0, 0, 0 };        // ディレクトリの読出しバッファ
+Stat statmp;                                    // stat の結果を格納する
 public boolean fsize(char[] path, int[] size) {
-  int pos = strRchr(path, '/');                 // / が見つからない時は -1
-  if (pos>MAXPATH-1) _exit(EPATH);              // パス名が長すぎる
-  strCpy(dirPath, "/");                         // 絶対パスにする
-  if (pos>0) strNcat(dirPath, path, pos);       // 最後の / 直前までコピーする
-  int fd = open(dirPath, READ);                 // ディレクトリをオープン
-  if (fd<0) return true;                        // エラーなら終了
-  while (readDir(fd, dir)>0) {
-    if (sameFname(dir.name, path, pos+1)) {
-      size[0] = dir.lenH;
-      size[1] = dir.lenL;
-      close(fd);
-      return false;                            // 正常終了
-    }
-  }
-  errno = ENOENT;                              // ファイルが見つからない
-  close(fd);
-  return true;                                 // エラー終了
+  int e = stat(path, statmp);                   // stat システムコール
+  if (e<0) _exit(e);                            // stat エラーなら終了
+  size[0] = statmp.lenH;
+  size[1] = statmp.lenL;
+  return false;
 }
 
 // ------------------------- ファイルの open/close ----------------------------
