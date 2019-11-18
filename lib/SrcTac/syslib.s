@@ -20,6 +20,7 @@
 ;
 ; lib/syslib.s : システムコールに関するユーザ用ライブラリを集めたファイル
 ;
+; 2019.11.15 : stat を追加
 ; 2019.10.18 : conRead, conWrite を ttyRead, ttyWrite に変更，ttyCtl を追加
 ; 2016.02.27 : _exit を __exit に変更
 ; 2016.02.24 : TacOS の usr/lib からコピー
@@ -47,11 +48,12 @@ _errno  dw      0           ; エラー番号
 ; 10     read
 ; 11     write
 ; 12     seek
-; 13     ttyRead
-; 14     ttyWrite
-; 15     ttyCtl
-; 16     malloc
-; 17     free
+; 13     stat
+; 14     ttyRead
+; 15     ttyWrite
+; 16     ttyCtl
+; 17     malloc
+; 18     free
 
 
 ; ユーザスタックに積まれたパラメータをカーネルスタックに積み直す
@@ -158,19 +160,23 @@ _write
 
 _seek
         ld      g0,#12          ; G0 にシステムコール番号を格納
-        jmp    .l3
+        jmp     .l3
 
-_ttyRead
+_stat
         ld      g0,#13          ; G0 にシステムコール番号を格納
         jmp     .l2
 
-_ttyWrite
+_ttyRead
         ld      g0,#14          ; G0 にシステムコール番号を格納
         jmp     .l2
 
-_ttyCtl
+_ttyWrite
         ld      g0,#15          ; G0 にシステムコール番号を格納
         jmp     .l2
 
-; malloc(#16) と free(#17) システムコールはユーザプロセスでは使用できない
+_ttyCtl
+        ld      g0,#16          ; G0 にシステムコール番号を格納
+        jmp     .l2
+
+; malloc(#17) と free(#18) システムコールはユーザプロセスでは使用できない
 ; ユーザプロセスでは malloc と free はライブラリ関数として実現される

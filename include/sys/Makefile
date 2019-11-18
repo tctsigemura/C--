@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Advanced educational Computer
 #
-# Copyright (C) 2016 by
+# Copyright (C) 2016-2019 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -17,7 +17,7 @@
 # る損害に関しても，その責任を負わない．
 #
 #
-# include/Makefile : makefile
+# include/sys/Makefile : makefile
 #
 # 2019.11.15 : sys を追加
 # 2016.02.27 : 初期バージョン
@@ -27,10 +27,9 @@ all:
 	ls
 
 install:
-	install -d -m 755 /usr/local/cmmInclude
-	rm -f /usr/local/cmmInclude/*.hmm
-	install -m 644 *.hmm /usr/local/cmmInclude
-	$(MAKE) --directory=sys install
+	install -d -m 755 /usr/local/cmmInclude/sys
+	rm -f /usr/local/cmmInclude/sys/*.hmm
+	install -m 644 *.hmm /usr/local/cmmInclude/sys
 
 clean:
 	rm -f *~
