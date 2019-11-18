@@ -52,14 +52,14 @@ FILE[] allFiles = array(3+FMAX);   // オープンファイルの一覧(stdin,ou
 
 // stdin 用のFILE構造体とバッファ
 char[] stdinBuf = array(TSIZ);
-public FILE stdin  = {-1, READ,  null, TSIZ, 0, 0, true, false, false, 0};
+public FILE stdin  = {-1, O_RDONLY,  null, TSIZ, 0, 0, true, false, false, 0};
 
 // stdout 用のFILE構造体とバッファ
 char[] stdoutBuf = array(TSIZ);
-public FILE stdout = {-2, WRITE, null, TSIZ, 0, 0, true, false, false, 1};
+public FILE stdout = {-2, O_WRONLY, null, TSIZ, 0, 0, true, false, false, 1};
 
 // stderr 用のFILE構造体(stderr はバッファリングしない)
-public FILE stderr = {-3, WRITE, null, 0, 0, 0, true, false, false, 2};
+public FILE stderr = {-3, O_WRONLY, null, 0, 0, 0, true, false, false, 2};
 
 // stdio の初期化ルーチン
 public void _stdioInit() {
@@ -81,7 +81,7 @@ void chkFp(FILE fp) {
 // バッファをフラッシュする
 public boolean fflush(FILE fp) {
   chkFp(fp);                                    // 妥当な fp かチェックする
-  if (fp.mode==READ) _exit(EUMODE);             // READ はフラッシュできない
+  if (fp.mode==O_RDONLY) _exit(EUMODE);         // O_RDONLY はフラッシュできない
                                                 // (再帰にならないように_exit)
   if (fp.err) return true;                      // 既にエラーになっている
   if (fp.buf==null) return false;               // フラッシュすべきものがない
@@ -102,7 +102,7 @@ public boolean fflush(FILE fp) {
 public void _flushAll() {
   for (int i=0; i<3+FMAX; i=i+1) {
     FILE fp = allFiles[i];
-    if (fp!=null && fp.mode!=READ) fflush(fp);
+    if (fp!=null && fp.mode!=O_RDONLY) fflush(fp);
   }
 }
 
@@ -110,7 +110,7 @@ public void _flushAll() {
 char[] fputcBuf = array(1);                     // バッファリングしない場合使う
 public boolean fputc(char c, FILE fp) {
   chkFp(fp);                                    // 妥当な fp かチェックする
-  if (fp.mode==READ) _exit(EUMODE);             // READモードにfputcできない
+  if (fp.mode==O_RDONLY) _exit(EUMODE);         // O_RDONLYモードにfputcできない
   if (fp.err) return true;                      // すでにエラーになっている
   if (fp.buf==null) {                           // バッファがない
     fputcBuf[0] = c;                            //   別のバッファに格納して
@@ -161,7 +161,7 @@ void fillBuf(FILE fp) {
 // EOFチェック
 public boolean feof(FILE fp) {
   chkFp(fp);                                    // 妥当な fp かチェックする
-  if (fp.mode!=READ) _exit(EUMODE);             // READ以外にfgetcできない
+  if (fp.mode!=O_RDONLY) _exit(EUMODE);         // O_RDONLY以外にfgetcできない
   if (fp.cnt>=fp.len) fillBuf(fp);              // バッファが空なら満たす
   return fp.eof;
 }
@@ -169,7 +169,7 @@ public boolean feof(FILE fp) {
 // ファイル（ストリーム）から1文字読み込む
 public char fgetc(FILE fp) {
   chkFp(fp);                                    // 妥当な fp かチェックする
-  if (fp.mode!=READ) _exit(EUMODE);             // READ以外にfgetcできない
+  if (fp.mode!=O_RDONLY) _exit(EUMODE);         // O_RDONLY以外にfgetcできない
   if (fp.cnt>=fp.len) fillBuf(fp);              // バッファが空なら満たす
   if (fp.eof) _exit(EUEOF);                     // ユーザがEOFチェックをすべき
 
@@ -201,12 +201,12 @@ public char[] fgets(char[] str, int n, FILE fp) {
 // 読み込み位置を移動する
 public boolean fseek(FILE fp, int offsh, int offsl){
   chkFp(fp);                                    // 妥当な fp かチェックする
-  if (fp.mode!=READ) fflush(fp);                // 出力ならバッファを空にする
+  if (fp.mode!=O_RDONLY) fflush(fp);            // 出力ならバッファを空にする
 
   int r=seek(fp.fd, offsh, offsl);              // seek する
   if (r!=0) _exit(r);                           // seek エラーなら終了
 
-  if (fp.mode==READ) fillBuf(fp);               // 入力ならバッファを満たす
+  if (fp.mode==O_RDONLY) fillBuf(fp);           // 入力ならバッファを満たす
   return false;                                 // 今のところいつも正常終了
 }
 
@@ -276,9 +276,9 @@ FILE allocFile(int fd, int mode, int siz) {
 
 // リードモードオープン
 FILE rdOpen(char[] name) {
-  int fd = open(name, READ);                    // READモードでファイルオープン
+  int fd = open(name, O_RDONLY);                // O_RDONLYモードでファイルオープン
   if (fd<0) return null;                        // 原因はopenがerrnoに記録済み
-  FILE fp = allocFile(fd, READ, DSIZ);          // FILE 構造体を割当てる
+  FILE fp = allocFile(fd, O_RDONLY, DSIZ);      // FILE 構造体を割当てる
   return fp;
 }
 
@@ -298,9 +298,9 @@ public FILE fopen(char[] name, char[] mode) {
   if (strCmp(mode, "r")==0)
     return rdOpen(name);                        // リードオープン
   else if (strCmp(mode, "w")==0)
-    return awOpen(name, WRITE);                 // ライトオープン
+    return awOpen(name, O_WRONLY);              // ライトオープン
   else if (strCmp(mode, "a")==0)
-    return awOpen(name, APPEND);                // アペンドオープン
+    return awOpen(name, O_APPEND);              // アペンドオープン
 
   _exit(EUMODE);                                // モードが不正
   return null;
@@ -310,7 +310,7 @@ public FILE fopen(char[] name, char[] mode) {
 public boolean fclose(FILE fp) {
   chkFp(fp);                                    // 妥当な fp かチェックする
   if (fp.slot<3) _exit(EUSTDIO);                // 標準 I/O はクローズ禁止
-  if (fp.mode!=READ && fflush(fp))              // WRITE, APPEND ならフラッシュ
+  if (fp.mode!=O_RDONLY && fflush(fp))          // O_WRONLY, O_APPEND ならフラッシュ
     return true;                                //  フラッシュエラーなら戻る
 
   if (close(fp.fd)<0) {                         // ファイルをクローズする
@@ -364,7 +364,7 @@ char[][] errList = {                            // エラーメッセージリ�
 
   // ライブラリ(ユーザプロセス自身)が検知するエラー
   "Stack overflow",                             // -25 スタックオーバーフロー
-  "stdio: Bad open mode",                       // -26 READにfputc/WRITEにfgetc
+  "stdio: Bad open mode",                       // -26 O_RDONLYにfputc/O_WRONLYにfgetc
   "stdio: Bad file pointer",                    // -27 不正な fp が使用された
   "fgetc: EOF was ignored",                     // -28 fgetc前にEOFチェック必要
   "fopen: Too many open files",                 // -29 プロセス毎のオープン超過

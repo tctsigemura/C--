@@ -31,10 +31,10 @@
  *
  */
 
-#define READ    0
-#define WRITE   1
-#define APPEND  2
-#define BLKSIZ  512
+#define O_RDONLY  0
+#define O_WRONLY  1
+#define O_APPEND  2
+#define BLKSIZ    512
 
 public int exec(char[] name, void[] argv);
 public void _exit(int status);
