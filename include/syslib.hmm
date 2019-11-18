@@ -22,6 +22,7 @@
 /*
  * include/syslib.hmm : lib/syslib.s の外部インタフェース
  *
+ * 2019.11.15 : stat を追加
  * 2019.10.18 : conRead, conWrite を ttyRead, ttyWrite に変更，ttyCtl を追加
  * 2016.02.27 : exit を _exit に変更
  * 2016.02.25 : 新規作成（TacOS の usr/include/syslib.h をもとに）
@@ -30,10 +31,10 @@
  *
  */
 
-#define READ    0
-#define WRITE   1
-#define APPEND  2
-#define BLKSIZ  512
+#define O_RDONLY  0
+#define O_WRONLY  1
+#define O_APPEND  2
+#define BLKSIZ    512
 
 public int exec(char[] name, void[] argv);
 public void _exit(int status);
@@ -48,6 +49,7 @@ public int close(int fd);
 public int read(int fd, void[] buf, int len);
 public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
+public int stat(char[] path, void[] stat);
 public int ttyRead(char[] buf, int len);
 public int ttyWrite(char[] buf, int len);
 
