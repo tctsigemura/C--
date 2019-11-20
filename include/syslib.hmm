@@ -50,8 +50,8 @@ public int read(int fd, void[] buf, int len);
 public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
 public int stat(char[] path, void[] stat);
-public int ttyRead(char[] buf, int len);
-public int ttyWrite(char[] buf, int len);
+public int ttyRead(void[] buf, int len);
+public int ttyWrite(void[] buf, int len);
 
 #define TTYCTL_GETMODE 0
 #define TTYCTL_SETMODE 1

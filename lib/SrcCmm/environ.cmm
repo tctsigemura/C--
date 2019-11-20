@@ -73,20 +73,21 @@ public char[] getEnv(char[] name) {
 }
 
 // 環境変数を設定する。
-public void putEnv(char[] string) {
-  if (string == null) _exit(EINVAL);                        // string が null ならエラー
+public int putEnv(char[] string) {
+  if (string == null) return EINVAL;                        // string が null ならエラー
   int nameLen = strChr(string, '=');                        // '=' の位置 == 名前の長さ
-  if (nameLen <= 0) _exit(EINVAL);                          // 値がないか、名前の長さが 0 ならエラー
+  if (nameLen <= 0) return EINVAL;                          // 値がないか、名前の長さが 0 ならエラー
   string[nameLen] = '\0';                                   // string を name と value に分割する
   setEnv(string, _addrAdd(string, nameLen + 1), true);      // setEnv に渡す
   string[nameLen] = '=';                                    // string を元に戻す
+  return 0;
 }
 
 // 環境変数を設定する。overwrite が false で既に同名の環境変数が存在するなら何もしない。
-public void setEnv(char[] name, char[] value, boolean overwrite) {
-  if (name == null || value == null) _exit(EINVAL);         // name か value が null ならエラー
+public int setEnv(char[] name, char[] value, boolean overwrite) {
+  if (name == null || value == null) return EINVAL;         // name か value が null ならエラー
   int nameLen = strLen(name);
-  if (nameLen == 0 || strChr(name, '=') >= 0) _exit(EINVAL);// name の長さが 0 もしくは '=' を含む場合はエラー
+  if (nameLen == 0 || strChr(name, '=') >= 0) return EINVAL;// name の長さが 0 もしくは '=' を含む場合はエラー
   int valueLen = strLen(value);
   int index = envIndex(name);                               // 環境変数の位置を調べる
   if (environ[index] == null) {                             // 環境変数が存在しない
@@ -104,7 +105,7 @@ public void setEnv(char[] name, char[] value, boolean overwrite) {
     strCpy(environ[index], name);                           //   名前を格納
     environ[index][nameLen] = '=';                          //   '=' を格納
   } else {                                                  // 環境変数が存在する
-    if (!overwrite) return;                                 //   overwrite が false なら終了
+    if (!overwrite) return 0;                               //   overwrite が false なら終了
     if (valueLen > strLen(environ[index]) - nameLen - 1) {  //   新しい値が現在の値より長い場合
       free(environ[index]);                                 //     メモリ解放
       environ[index] = malloc(nameLen + 1 + valueLen + 1);  //     メモリ確保
@@ -113,14 +114,16 @@ public void setEnv(char[] name, char[] value, boolean overwrite) {
     }
   }
   strCpy(_addrAdd(environ[index], nameLen + 1), value);     // 値を格納
+  return 0;
 }
 
 // 環境変数を削除する。存在しなければ何もしない。
-public void unsetEnv(char[] name) {
-  if (name == null) _exit(EINVAL);                          // name が null ならエラー
+public int unsetEnv(char[] name) {
+  if (name == null) return EINVAL;                          // name が null ならエラー
   int index = envIndex(name);
-  if (environ[index] == null) return;                       // 環境変数が存在しなければ何もしない
+  if (environ[index] == null) return 0;                     // 環境変数が存在しなければ何もしない
   free(environ[index]);                                     // メモリ解放
   for (int i = index; environ[i] != null; i = i + 1)        // 後ろの環境変数 (null 終端も含む) を
     environ[i] = environ[i + 1];                            //   前につめる
+  return 0;
 }

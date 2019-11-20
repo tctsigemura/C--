@@ -151,25 +151,16 @@ inline static char* getEnv(char* name) {
   return getenv(name);
 }
 
-inline static void putEnv(char* string) {
-  if (putenv(string) < 0) {
-    perror("putEnv");
-    exit(1);
-  }
+inline static int putEnv(char* string) {
+  return putenv(string);
 }
 
-inline static void setEnv(char* name, char* value, char overwrite) {
-  if (setenv(name, value, overwrite) < 0) {
-    perror("setEnv");
-    exit(1);
-  }
+inline static int setEnv(char* name, char* value, char overwrite) {
+  return setenv(name, value, overwrite);
 }
 
-inline static void unsetEnv(char* name) {
-  if (unsetenv(name) < 0) {
-    perror("unsetEnv");
-    exit(1);
-  }
+inline static int unsetEnv(char* name) {
+  return unsetenv(name);
 }
 
 // RTCのため文字列を変換する必要がある関数
