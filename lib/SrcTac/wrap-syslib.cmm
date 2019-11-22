@@ -39,40 +39,59 @@ public int rmDir0(char[] path);
 public int open0(char[] path, int mode);
 public int stat0(char[] path, void[] stat);
 
-char[] buf = array(BUF);
-
 public int exec(char[] name, void[] argv, void[] envp) {
+  char[] buf = malloc(BUF);
   absPath(name, buf, BUF);
-  return exec0(buf, argv, envp);
+  int r = exec0(buf, argv, envp);
+  free(buf);
+  return r;
 }
 
 public int creat(char[] path) {
+  char[] buf = malloc(BUF);
   absPath(path, buf, BUF);
-  return creat0(buf);
+  int r = creat0(buf);
+  free(buf);
+  return r;
 }
 
 public int remove(char[] path) {
+  char[] buf = malloc(BUF);
   absPath(path, buf, BUF);
-  return remove0(buf);
+  int r = remove0(buf);
+  free(buf);
+  return r;
 }
 
 public int mkDir(char[] path) {
+  char[] buf = malloc(BUF);
   absPath(path, buf, BUF);
-  return mkDir0(buf);
+  int r = mkDir0(buf);
+  free(buf);
+  return r;
 }
 
 
 public int rmDir(char[] path) {
+  char[] buf = malloc(BUF);
   absPath(path, buf, BUF);
-  return rmDir0(buf);
+  int r = rmDir0(buf);
+  free(buf);
+  return r;
 }
 
 public int open(char[] path, int mode) {
+  char[] buf = malloc(BUF);
   absPath(path, buf, BUF);
-  return open0(buf, mode);
+  int r = open0(buf, mode);
+  free(buf);
+  return r;
 }
 
 public int stat(char[] path, void[] stat) {
+  char[] buf = malloc(BUF);
   absPath(path, buf, BUF);
-  return stat0(buf, stat);
+  int r = stat0(buf, stat);
+  free(buf);
+  return r;
 }

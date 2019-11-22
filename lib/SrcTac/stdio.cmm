@@ -241,11 +241,7 @@ boolean sameFname(char[] fname, char[] path, int p) { // ファイル名用の�
 
 Stat statmp;                                    // stat の結果を格納する
 public boolean fsize(char[] path, int[] size) {
-  char[] buf = malloc(81);
-  int e = absPath(path, buf, 81);               // 絶対パスに変換
-  if (e < 0) _exit(e);                          // パスのエラー
-  e = stat(buf, statmp);                        // stat システムコール
-  free(buf);
+  int e = stat(path, statmp);                   // stat システムコール
   if (e<0) _exit(e);                            // stat エラーなら終了
   size[0] = statmp.lenH;
   size[1] = statmp.lenL;
@@ -300,19 +296,15 @@ FILE awOpen(char[] name, int mode) {
 
 // ファイルオープン
 public FILE fopen(char[] name, char[] mode) {
-  char[] buffer = malloc(256);
-  absPath(name, buffer, 256);
-  FILE fp;
   if (strCmp(mode, "r")==0)
-    fp = rdOpen(buffer);                        // リードオープン
+    return rdOpen(name);                        // リードオープン
   else if (strCmp(mode, "w")==0)
-    fp = awOpen(buffer, O_WRONLY);              // ライトオープン
+    return awOpen(name, O_WRONLY);              // ライトオープン
   else if (strCmp(mode, "a")==0)
-    fp = awOpen(buffer, O_APPEND);              // アペンドオープン
-  free(buffer);
+    return awOpen(name, O_APPEND);              // アペンドオープン
 
-  if (fp == null) _exit(EUMODE);                // モードが不正
-  return fp;
+  _exit(EUMODE);                                // モードが不正
+  return null;
 }
 
 // ファイルクローズ
