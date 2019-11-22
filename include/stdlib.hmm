@@ -45,10 +45,6 @@ public void srand(int seed);
 public void exit(int status);
 
 // 環境変数関係
-#ifdef C
-// 名前の衝突によって null になるのを防ぐ
-#define environ _environ
-#endif
 public char[][] environ;
 
 public char[] getEnv(char[] name);

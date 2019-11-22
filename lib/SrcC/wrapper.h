@@ -144,7 +144,6 @@ inline static long lToL(unsigned int l[]) {
 }
 
 // 環境変数関連
-#define _environ environ
 extern char **environ;
 
 inline static char* getEnv(char* name) {
