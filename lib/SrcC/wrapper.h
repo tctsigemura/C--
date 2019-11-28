@@ -166,11 +166,11 @@ inline static int _unsetenv(char* name) {
 
 inline static int absPath(char* path, char *buf, int bufSiz) {
   char *abs = realpath(path, NULL);
-  if (abs == NULL) return -1;
+  if (abs == NULL) return 1;
   int len = strlen(abs);
   strncpy(buf, abs, bufSiz);
   free(abs);
-  return len;
+  return 0;
 }
 
 // RTCのため文字列を変換する必要がある関数
