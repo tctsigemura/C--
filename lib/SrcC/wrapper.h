@@ -40,6 +40,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef _RTC
 #include <string.h>
@@ -161,6 +162,15 @@ inline static int _setenv(char* name, char* value, char overwrite) {
 
 inline static int _unsetenv(char* name) {
   return unsetenv(name)!=0;
+}
+
+inline static int absPath(char* path, char *buf, int bufSiz) {
+  char *abs = realpath(path, NULL);
+  if (abs == NULL) return -1;
+  int len = strlen(abs);
+  strncpy(buf, abs, bufSiz);
+  free(abs);
+  return len;
 }
 
 // RTCのため文字列を変換する必要がある関数

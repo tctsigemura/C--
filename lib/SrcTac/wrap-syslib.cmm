@@ -1,0 +1,78 @@
+/*
+ * Programingxx Language C-- "Compiler"
+ *    Tokuyama kousen Advanced educational Computer.
+ *
+ * Copyright (C) 2016 - 2019 by
+ *                      Dept. of Computer Science and Electronic Engineering,
+ *                      Tokuyama College of Technology, JAPAN
+ *
+ *   上記著作権者は，Free Software Foundation によって公開されている GNU 一般公
+ * 衆利用許諾契約書バージョン２に記述されている条件を満たす場合に限り，本ソース
+ * コード(本ソースコードを改変したものを含む．以下同様)を使用・複製・改変・再配
+ * 布することを無償で許諾する．
+ *
+ *   本ソースコードは＊全くの無保証＊で提供されるものである。上記著作権者および
+ * 関連機関・個人は本ソースコードに関して，その適用可能性も含めて，いかなる保証
+ * も行わない．また，本ソースコードの利用により直接的または間接的に生じたいかな
+ * る損害に関しても，その責任を負わない．
+ *
+ *
+ */
+
+/*
+ * lib/wrap-syslib.cmm : システムコールのラッパー
+ *
+ * 2016.02.25 : 新規作成
+ *
+ * $Id$
+ */
+
+#include <syslib.hmm>
+#include <stdlib.hmm>
+#define BUF 80
+
+public int exec0(char[] name, void[] argv, void[] envp);
+public int creat0(char[] path);
+public int remove0(char[] path);
+public int mkDir0(char[] path);
+public int rmDir0(char[] path);
+public int open0(char[] path, int mode);
+public int stat0(char[] path, void[] stat);
+
+char[] buf = array(BUF);
+
+public int exec(char[] name, void[] argv, void[] envp) {
+  absPath(name, buf, BUF);
+  return exec0(buf, argv, envp);
+}
+
+public int creat(char[] path) {
+  absPath(path, buf, BUF);
+  return creat0(buf);
+}
+
+public int remove(char[] path) {
+  absPath(path, buf, BUF);
+  return remove0(buf);
+}
+
+public int mkDir(char[] path) {
+  absPath(path, buf, BUF);
+  return mkDir0(buf);
+}
+
+
+public int rmDir(char[] path) {
+  absPath(path, buf, BUF);
+  return rmDir0(buf);
+}
+
+public int open(char[] path, int mode) {
+  absPath(path, buf, BUF);
+  return open0(buf, mode);
+}
+
+public int stat(char[] path, void[] stat) {
+  absPath(path, buf, BUF);
+  return stat0(buf, stat);
+}
