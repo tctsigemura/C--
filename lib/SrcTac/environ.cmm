@@ -27,10 +27,12 @@
  * $Id$
  */
 #include <crt0.hmm>
+#include <stdio.hmm>
 #include <stdlib.hmm>
 #include <string.hmm>
 #include <syslib.hmm>
 #include <errno.hmm>
+#include <sys/fs.hmm>
 
 public char[][] environ;
 
@@ -74,23 +76,17 @@ public char[] getEnv(char[] name) {
 // 環境変数を設定する。
 public boolean putEnv(char[] string) {
   int nameLen = strChr(string, '=');                        // '=' の位置 == 名前の長さ
-  if (nameLen <= 0) {                                       // 値がないか、名前の長さが 0 ならエラー
-    errno = EINVAL;
-    return true;
-  }
+  if (nameLen <= 0) return EINVAL;                          // 値がないか、名前の長さが 0 ならエラー
   string[nameLen] = '\0';                                   // string を name と value に分割する
   setEnv(string, _addrAdd(string, nameLen + 1), true);      // setEnv に渡す
   string[nameLen] = '=';                                    // string を元に戻す
-  return false;
+  return 0;
 }
 
 // 環境変数を設定する。overwrite が false で既に同名の環境変数が存在するなら何もしない。
 public boolean setEnv(char[] name, char[] value, boolean overwrite) {
   int nameLen = strLen(name);
-  if (nameLen == 0 || strChr(name, '=') >= 0) {             // name の長さが 0 もしくは '=' を含む場合はエラー
-    errno = EINVAL;
-    return true;
-  }
+  if (nameLen == 0 || strChr(name, '=') >= 0) return EINVAL;// name の長さが 0 もしくは '=' を含む場合はエラー
   int valueLen = strLen(value);
   int index = envIndex(name);                               // 環境変数の位置を調べる
   if (environ[index] == null) {                             // 環境変数が存在しない
@@ -108,7 +104,7 @@ public boolean setEnv(char[] name, char[] value, boolean overwrite) {
     strCpy(environ[index], name);                           //   名前を格納
     environ[index][nameLen] = '=';                          //   '=' を格納
   } else {                                                  // 環境変数が存在する
-    if (!overwrite) return false;                           //   overwrite が false なら終了
+    if (!overwrite) return 0;                               //   overwrite が false なら終了
     if (valueLen > strLen(environ[index]) - nameLen - 1) {  //   新しい値が現在の値より長い場合
       free(environ[index]);                                 //     メモリ解放
       environ[index] = malloc(nameLen + 1 + valueLen + 1);  //     メモリ確保
@@ -117,15 +113,16 @@ public boolean setEnv(char[] name, char[] value, boolean overwrite) {
     }
   }
   strCpy(_addrAdd(environ[index], nameLen + 1), value);     // 値を格納
-  return false;
+  return 0;
 }
 
 // 環境変数を削除する。存在しなければ何もしない。
 public boolean unsetEnv(char[] name) {
   int index = envIndex(name);
-  if (environ[index] == null) return true;                  // 環境変数が存在しなければ何もしない
+  if (environ[index] == null) return 0;                     // 環境変数が存在しなければ何もしない
   free(environ[index]);                                     // メモリ解放
   for (int i = index; environ[i] != null; i = i + 1)        // 後ろの環境変数 (null 終端も含む) を
     environ[i] = environ[i + 1];                            //   前につめる
-  return false;
+  return 0;
 }
+

@@ -150,16 +150,16 @@ inline static char* getEnv(char* name) {
   return getenv(name);
 }
 
-inline static int putEnv(char* string) {
-  return putenv(string);
+inline static char putEnv(char* string) {
+  return putenv(string)!=0;
 }
 
 inline static int setEnv(char* name, char* value, char overwrite) {
-  return setenv(name, value, overwrite);
+  return setenv(name, value, overwrite)!=0;
 }
 
 inline static int unsetEnv(char* name) {
-  return unsetenv(name);
+  return unsetenv(name)!=0;
 }
 
 // RTCのため文字列を変換する必要がある関数
