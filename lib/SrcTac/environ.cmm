@@ -166,15 +166,7 @@ int joinPath(char[] dst, int dstSiz, char[] src, int srcLen) {
 
 // 絶対パスを取得する。
 public boolean absPath(char[] path, char[] buf, int bufSiz) {
-  if (path == null || buf == null) {                        // path か len が null
-    errno = EINVAL;
-    return true;
-  }
   int pathLen = strLen(path);
-  if (pathLen <= 0 || bufSiz <= 0) {                        // path か len の長さが 0 以下
-    errno = EINVAL;
-    return true;
-  }
   // 探索開始位置を決める
   if (path[0] == '/') {                                     // 1文字目が '/'
     strCpy(buf, "/");
@@ -209,5 +201,5 @@ public boolean absPath(char[] path, char[] buf, int bufSiz) {
     }
     p = p + nameLen + 1;
   }
-  return resLen;
+  return false;
 }

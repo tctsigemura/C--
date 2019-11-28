@@ -110,7 +110,7 @@ _errno  dw      0           ; エラー番号
 .restr  pop     g3              ; G3 を復元
         ret
 
-_exec0
+__exec
         ld      g0,#0           ; G0 にシステムコール番号を格納
         jmp     .l3
 
@@ -126,23 +126,23 @@ _sleep
         ld      g0,#3           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_creat0
+__creat
         ld      g0,#4           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_remove0
+__remove
         ld      g0,#5           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_mkDir0
+__mkDir
         ld      g0,#6           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_rmDir0
+__rmDir
         ld      g0,#7           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_open0
+__open
         ld      g0,#8           ; G0 にシステムコール番号を格納
         jmp     .l2
 
@@ -162,7 +162,7 @@ _seek
         ld      g0,#12          ; G0 にシステムコール番号を格納
         jmp     .l3
 
-_stat0
+__stat
         ld      g0,#13          ; G0 にシステムコール番号を格納
         jmp     .l2
 

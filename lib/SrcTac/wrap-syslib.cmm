@@ -27,71 +27,72 @@
  * $Id$
  */
 
+#include <stdio.hmm>
 #include <syslib.hmm>
 #include <stdlib.hmm>
 #define BUF 80
 
-public int exec0(char[] name, void[] argv, void[] envp);
-public int creat0(char[] path);
-public int remove0(char[] path);
-public int mkDir0(char[] path);
-public int rmDir0(char[] path);
-public int open0(char[] path, int mode);
-public int stat0(char[] path, void[] stat);
+public int _exec(char[] name, void[] argv, void[] envp);
+public int _creat(char[] path);
+public int _remove(char[] path);
+public int _mkDir(char[] path);
+public int _rmDir(char[] path);
+public int _open(char[] path, int mode);
+public int _stat(char[] path, void[] stat);
+
+char[] newAbsPath(char[] path) {
+  char[] buf = malloc(BUF);
+  if (buf==null) perror(path);
+  absPath(path, buf, BUF);
+  return buf;
+}
 
 public int exec(char[] name, void[] argv, void[] envp) {
-  char[] buf = malloc(BUF);
-  absPath(name, buf, BUF);
-  int r = exec0(buf, argv, envp);
+  char[] buf = newAbsPath(name);
+  int r = _exec(buf, argv, envp);
   free(buf);
   return r;
 }
 
 public int creat(char[] path) {
-  char[] buf = malloc(BUF);
-  absPath(path, buf, BUF);
-  int r = creat0(buf);
+  char[] buf = newAbsPath(path);
+  int r = _creat(buf);
   free(buf);
   return r;
 }
 
 public int remove(char[] path) {
-  char[] buf = malloc(BUF);
-  absPath(path, buf, BUF);
-  int r = remove0(buf);
+  char[] buf = newAbsPath(path);
+  int r = _remove(buf);
   free(buf);
   return r;
 }
 
 public int mkDir(char[] path) {
-  char[] buf = malloc(BUF);
-  absPath(path, buf, BUF);
-  int r = mkDir0(buf);
+  char[] buf = newAbsPath(path);
+  int r = _mkDir(buf);
   free(buf);
   return r;
 }
 
 
 public int rmDir(char[] path) {
-  char[] buf = malloc(BUF);
-  absPath(path, buf, BUF);
-  int r = rmDir0(buf);
+  char[] buf = newAbsPath(path);
+  int r = _rmDir(buf);
   free(buf);
   return r;
 }
 
 public int open(char[] path, int mode) {
-  char[] buf = malloc(BUF);
-  absPath(path, buf, BUF);
-  int r = open0(buf, mode);
+  char[] buf = newAbsPath(path);
+  int r = _open(buf, mode);
   free(buf);
   return r;
 }
 
 public int stat(char[] path, void[] stat) {
-  char[] buf = malloc(BUF);
-  absPath(path, buf, BUF);
-  int r = stat0(buf, stat);
+  char[] buf = newAbsPath(path);
+  int r = _stat(buf, stat);
   free(buf);
   return r;
 }
