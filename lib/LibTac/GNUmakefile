@@ -47,7 +47,7 @@
 # crt0.o を最初に置くこと
 OBJS= ../SrcTac/crt0.o  ../SrcTac/syslib.o \
       ../SrcTac/stdio.o ../SrcTac/stdlib.o ../SrcTac/printf.o \
-      ../SrcCmm/ctype.o ../SrcCmm/string.o ../SrcCmm/environ.o
+      ../SrcCmm/ctype.o ../SrcCmm/string.o ../SrcTac/environ.o
 
 all: libtac.o
 
