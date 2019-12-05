@@ -102,9 +102,9 @@ boolean setNEnv(char[] name, int nameLen, char[] value, boolean overwrite) {
   if (nameLen <= 0) return true;                            // name の長さが 0 以下ならエラー
   int index = envIndex(name, nameLen);                      // 環境変数の位置を調べる
   if (environ[index] == null) {                             // 環境変数が存在しない
-    int envs = index;                                       //    index は環境変数の個数
-    if (envs+1 > capacity) reallocEnv(envs+1);              //    容量が不足なら、再割付
-    environ[envs+1] = null;                                 //    null 終端
+    int envs = index+1;                                     //    index は環境変数の個数
+    if (envs > capacity) reallocEnv(envs);                  //    容量が不足なら、再割付
+    environ[envs] = null;                                   //    null 終端
   } else {                                                  // 環境変数が存在する
     free(environ[index]);                                   // 古い環境変数を解放
   }
