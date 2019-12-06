@@ -1,4 +1,4 @@
-% 
+%
 %  ４章 ライブラリ関数
 %
 \chapter{ライブラリ関数}
@@ -637,6 +637,65 @@ public void exit(int status);
 \end{verbatim}
 \end{quote}
 
+\subsection{environ変数}
+
+\|environ|変数は環境変数の配列です．配列の最後には\|null|が入ります．\|setEnv|関数などにより更新することができます．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public char[][] environ;
+\end{verbatim}
+\end{quote}
+
+\subsection{getEnv関数}
+
+\|getEnv|関数は環境変数から値を取得します．指定された環境変数が存在しない場合には\|null|を返します．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public char[] getEnv(char[] name);
+\end{verbatim}
+\end{quote}
+
+\subsection{putEnv関数}
+
+\|putEnv|関数は環境変数を設定します．
+\|str|は\|"name=value"|の形の文字列です．
+エラーが発生した場合には\|true|を，正常時には\|false|を返します．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public boolean putEnv(char[] str);
+\end{verbatim}
+\end{quote}
+
+\subsection{setEnv関数}
+
+\|setEnv|関数は環境変数を設定します．
+\|overwrite|が\|false|のとき，指定された環境変数がすでに存在すれば何もせず正常終了します．
+エラーが発生した場合には\|true|を，正常時には\|false|を返します．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public boolean setEnv(char[] name, char[] value, boolean overwrite);
+\end{verbatim}
+\end{quote}
+
+\subsection{unsetEnv関数}
+
+\|unsetEnv|関数は環境変数を削除します．
+指定された環境変数が存在しない場合，何もせず正常終了します．
+エラーが発生した場合には\|true|を，正常時には\|false|を返します．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public boolean unssetEnv(char[] name);
+\end{verbatim}
 \section{文字列操作関数}
 
 \|#include <string.hmm>|を書いた後で使用します．

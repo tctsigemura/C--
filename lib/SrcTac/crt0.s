@@ -33,12 +33,18 @@
 ; 00
 ;       SP+0         argc                            今, SP はここを指している
 ;       SP+2         argv
-;       SP+4         argv[0](argv[0]の文字列へのポインタ)
-;       SP+6         argv[1](argv[1]の文字列へのポインタ)
+;       SP+4         envp
+;       SP+6         argv[0](argv[0]の文字列へのポインタ)
+;       SP+8         argv[1](argv[1]の文字列へのポインタ)
+;       ...          ...
+;       SP+?         null
+;       SP+?         envp[0](envp[0]の文字列へのポインタ)
 ;       ...          ...
 ;       SP+?         null
 ;       SP+?         argv[0]の文字列
 ;       SP+?         argv[1]の文字列
+;       ...          ...
+;       SP+?         envp[0]の文字列
 ;       ...          ...
 ; FF
 
@@ -46,6 +52,10 @@
 .start
     call    __stdlibInit        ; stdlibの初期化ルーチンを呼ぶ
     call    __stdioInit         ; stdio の初期化ルーチンを呼ぶ
+    ld      g0,4,sp             ; envp を
+    push    g0                  ;   スタックに積む
+    call    __environInit       ; environ の初期化ルーチンを呼ぶ
+    pop     g0                  ; スタックを戻す
     call    _main               ; ユーザプログラムのメインに飛ぶ
     push    g0                  ; メインの戻り値をスタックに積む
     call    _exit               ; プログラムの最後まで到達した場合は終了する
@@ -56,7 +66,7 @@
 ;; アドレスから整数へ変換
 __aToI                          ; int _aToI(void[] a);
 ;; 整数からアドレスへ変換
-__iToA                          ; void[] _iToA(int a);         
+__iToA                          ; void[] _iToA(int a);
 ;; アドレスからアドレスへ変換
 __aToA                          ; void[] _aToA(void[] a);
         ld      g0,2,sp
@@ -171,14 +181,14 @@ __out                           ; void out(int p,int v);
         out     g1,g0	        ; I/O ポートへ出力する
         ret
 
-;; ヒープとスタックの間に 10Byte 以上の余裕があるかチェックする 
+;; ヒープとスタックの間に 10Byte 以上の余裕があるかチェックする
 __stkChk
         ld      g0,__alcAddr    ; G0 にヒープ領域の最後をロード
         add     g0,#10          ; 10Byte 分の余裕を持たせる
         cmp     g0,sp           ; G0 と G1 を比較 [ヒープの最後+10Byte] - [SP]
         jnc     .stkOverFlow    ; ユーザスタックがオーバーフローしている
         ret
-        
+
 ; スタックがオーバーフローした場合、 _exit(EUSTK) を実行
 .stkOverFlow
         ld      g0,#-25         ; パラメータ(EUSTK)

@@ -22,6 +22,7 @@
 /*
  * include/stdlib.hmm : lib/stdlib.cmm の外部インタフェース
  *
+ * 2019.11.14 : 環境変数関連を追加
  * 2019.03.12 : <cfunc.hmm> のインクルードはコンパイラドライバが指示する
  * 2019.01.27 : htoi() を追加
  * 2016.08.27 : Cトランスレータの場合を追加
@@ -43,3 +44,10 @@ public int rand();
 public void srand(int seed);
 public void exit(int status);
 
+// 環境変数関係
+public char[][] environ;
+
+public char[] getEnv(char[] name);
+public boolean putEnv(char[] string);
+public boolean setEnv(char[] name, char[] value, boolean overwrite);
+public boolean unsetEnv(char[] name);

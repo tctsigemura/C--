@@ -1,0 +1,143 @@
+/*
+ * Programing Language C-- "Compiler"
+ *    Tokuyama kousen Advanced educational Computer.
+ *
+ * Copyright (C) 2019
+ *                      Dept. of Computer Science and Electronic Engineering,
+ *                      Tokuyama College of Technology, JAPAN
+ *
+ *   上記著作権者は，Free Software Foundation によって公開されている GNU 一般公
+ * 衆利用許諾契約書バージョン２に記述されている条件を満たす場合に限り，本ソース
+ * コード(本ソースコードを改変したものを含む．以下同様)を使用・複製・改変・再配
+ * 布することを無償で許諾する．
+ *
+ *   本ソースコードは＊全くの無保証＊で提供されるものである。上記著作権者および
+ * 関連機関・個人は本ソースコードに関して，その適用可能性も含めて，いかなる保証
+ * も行わない．また，本ソースコードの利用により直接的または間接的に生じたいかな
+ * る損害に関しても，その責任を負わない．
+ *
+ *
+ */
+
+/*
+ * lib/environ.cmm : 環境変数
+ *
+ * 2019.11.13: 新規作成
+ *
+ * $Id$
+ */
+#include <crt0.hmm>
+#include <stdio.hmm>
+#include <stdlib.hmm>
+#include <string.hmm>
+#include <syslib.hmm>
+#include <errno.hmm>
+#include <sys/fs.hmm>
+
+// environ 配列の末尾には null が複数存在する場合がある
+public char[][] environ;                                    // 環境変数を格納する配列
+
+// capacity は null を含めた参照配列の大きさ
+int capacity;                                               // environ の予約された容量
+
+// 環境変数の初期化
+public void _environInit(char[][] envp) {
+  int envs = 0;
+  while (envp[envs] != null) envs = envs + 1;               // 要素数を得る
+  capacity = envs + 1;                                      // 要素数 + null
+  environ = malloc(sizeof(char[]) * capacity);
+  environ[envs] = null;                                     // null 終端
+  for (int i = 0; i < envs; i = i + 1) {                    // 要素をコピー
+    int len = strLen(envp[i]);
+    environ[i] = malloc(len + 1);
+    strCpy(environ[i], envp[i]);
+  }
+}
+
+// 環境変数の environ 中のインデックスを返す。存在しなければ環境変数の個数を返す
+// 存在しなければ、 environ[envIndex(name, len)] == null になる
+int envIndex(char[] name, int len) {
+  int i = 0;
+  while (environ[i] != null) {
+    int nameLen = strChr(environ[i], '=');
+    if (len == nameLen &&
+      strNcmp(environ[i], name, len) == 0)
+      return i;
+    i = i + 1;
+  }
+  return i;
+}
+
+// 環境変数の値を返す。存在しなければ null を返す。
+public char[] getEnv(char[] name) {
+  int index = envIndex(name, strLen(name));
+  if (environ[index] == null) return null;                  // 存在しなければ null を返す
+  return _addrAdd(environ[index], strLen(name) + 1);        // 値部分を返す
+}
+
+// environ 参照配列を再割付する
+void reallocEnv(int newCap) {
+  char[][] newEnv = malloc(sizeof(char[]) * newCap);        // 新しい配列を確保
+  int envs = 0;
+  for (; environ[envs] != null; envs = envs+1)              // すべての環境変数を
+    newEnv[envs] = environ[envs];                           //   newEnv にコピー
+  newEnv[envs] = null;                                      // null 終端
+  free(environ);
+  environ = newEnv;
+  capacity = newCap;
+}
+
+// 環境変数の文字列を作る
+char[] makeEnvStr(char[] name, int nameLen, char[] value) {
+  char[] string = malloc(nameLen + 1 + strLen(value) + 1);       // メモリ確保
+  strNcpy(string, name, nameLen);
+  string[nameLen] = '=';
+  string[nameLen+1] = '\0';
+  strCat(string, value);
+  return string;
+}
+
+// 環境変数を設定する。overwrite が false で既に同名の環境変数が存在するなら何もしない。
+boolean setNEnv(char[] name, int nameLen, char[] value, boolean overwrite) {
+  if (name == null ||                                       // name が null または
+   nameLen <= 0){                                           //  長さが 0 の場合
+    errno = EINVAL;                                         //   エラー
+    return true;                                            //   終了
+  }
+  int index = envIndex(name, nameLen);                      // 環境変数の位置を調べる
+  if (environ[index] == null) {                             // 環境変数が存在しない
+    int size = index+1;                                     //    index は環境変数の個数
+    if (size > capacity) reallocEnv(size);                  //    容量が不足なら、再割付
+    environ[size] = null;                                   //    null 終端
+  } else {                                                  // 環境変数が存在する
+    free(environ[index]);                                   // 古い環境変数を解放
+  }
+  environ[index] = makeEnvStr(name, nameLen, value);
+  return false;
+}
+
+// 環境変数を設定する。
+public boolean putEnv(char[] string) {
+  int nameLen = strChr(string, '=');                        // '=' の位置 == 名前の長さ
+  char[] value = _addrAdd(string, nameLen+1);               // value を取得
+  return setNEnv(string, nameLen, value, true);             // setNEnv に渡す
+}
+
+// 環境変数を設定する。overwrite が false で既に同名の環境変数が存在するなら何もしない。
+public boolean setEnv(char[] name, char[] value, boolean overwrite) {
+  if (strChr(name, '=') >= 0) {                             // name が '=' を含む場合はエラー
+    errno = EINVAL;
+    return true;
+  }
+  return setNEnv(name, strLen(name), value, overwrite);
+}
+
+// 環境変数を削除する。存在しなければ何もしない。
+public boolean unsetEnv(char[] name) {
+  int index = envIndex(name, strLen(name));
+  if (environ[index] == null) return false;                 // 環境変数が存在しなければ何もしない
+  free(environ[index]);                                     // メモリ解放
+  for (int i = index; environ[i] != null; i = i + 1)        // 後ろの環境変数 (null 終端も含む) を
+    environ[i] = environ[i + 1];                            //   前につめる
+  return false;
+}
