@@ -97,9 +97,23 @@ char[] makeEnvStr(char[] name, int nameLen, char[] value) {
   return string;
 }
 
+// strChr の n 文字版
+int strNchr(char[] s, char c, int n) {
+  for (int i=0; i<n; i=i+1)
+    if (s[i] == c) return i;
+  return -1;
+}
+
 // 環境変数を設定する。overwrite が false で既に同名の環境変数が存在するなら何もしない。
 boolean setNEnv(char[] name, int nameLen, char[] value, boolean overwrite) {
-  if (nameLen <= 0) return true;                            // name の長さが 0 以下ならエラー
+  if (name == null ||                                       // name が null または
+   nameLen <= 0 ||                                          //  長さが 0 または
+   strNchr(name, '=', nameLen) >= 0) {                      //  '=' を含んでいる場合
+    errno = EINVAL;                                         //   エラー
+    return true;                                            //   終了
+  }
+  for (int i=0; i<nameLen; )
+  if (!isValidName(name, nameLen)) return true;             // name が無効ならエラー
   int index = envIndex(name, nameLen);                      // 環境変数の位置を調べる
   if (environ[index] == null) {                             // 環境変数が存在しない
     int size = index+1;                                     //    index は環境変数の個数
