@@ -97,18 +97,10 @@ char[] makeEnvStr(char[] name, int nameLen, char[] value) {
   return string;
 }
 
-// strChr の n 文字版
-int strNchr(char[] s, char c, int n) {
-  for (int i=0; i<n; i=i+1)
-    if (s[i] == c) return i;
-  return -1;
-}
-
 // 環境変数を設定する。overwrite が false で既に同名の環境変数が存在するなら何もしない。
 boolean setNEnv(char[] name, int nameLen, char[] value, boolean overwrite) {
   if (name == null ||                                       // name が null または
-   nameLen <= 0 ||                                          //  長さが 0 または
-   strNchr(name, '=', nameLen) >= 0) {                      //  '=' を含んでいる場合
+   nameLen <= 0){                                           //  長さが 0 の場合
     errno = EINVAL;                                         //   エラー
     return true;                                            //   終了
   }
@@ -133,7 +125,10 @@ public boolean putEnv(char[] string) {
 
 // 環境変数を設定する。overwrite が false で既に同名の環境変数が存在するなら何もしない。
 public boolean setEnv(char[] name, char[] value, boolean overwrite) {
-  if (strChr(name, '=') >= 0) return true;                  // name が '=' を含む場合はエラー
+  if (strChr(name, '=') >= 0) {                             // name が '=' を含む場合はエラー
+    errno = EINVAL;
+    return true;
+  }
   return setNEnv(name, strLen(name), value, overwrite);
 }
 
