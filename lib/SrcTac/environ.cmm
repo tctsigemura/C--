@@ -112,8 +112,6 @@ boolean setNEnv(char[] name, int nameLen, char[] value, boolean overwrite) {
     errno = EINVAL;                                         //   エラー
     return true;                                            //   終了
   }
-  for (int i=0; i<nameLen; )
-  if (!isValidName(name, nameLen)) return true;             // name が無効ならエラー
   int index = envIndex(name, nameLen);                      // 環境変数の位置を調べる
   if (environ[index] == null) {                             // 環境変数が存在しない
     int size = index+1;                                     //    index は環境変数の個数
