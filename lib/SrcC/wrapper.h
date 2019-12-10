@@ -143,7 +143,7 @@ inline static long lToL(unsigned int l[]) {
   return (((long)l[0])<<32)|l[1];
 }
 
-// 環境変数関連
+// 環境変数関連（RTCについて未検討）
 extern char **environ;
 
 inline static char* getEnv(char* name) {
