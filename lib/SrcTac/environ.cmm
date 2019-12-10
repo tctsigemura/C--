@@ -151,16 +151,20 @@ public boolean unsetEnv(char[] name) {
   return false;
 }
 
-// 2つのパスを連結する。dst<-dst/src。返り値はパスの長さ。
+// 2つのパスを連結する。dst<-dst/src。返り値はパスの長さ。src が絶対パスの場合は src だけ。
 int joinPath(char[] dst, int dstSiz, char[] src, int srcLen) {
   int dstLen = strLen(dst);
   if (dst[dstLen-1] != '/') {                               // dst 末尾が '/' でない
     strNcat(dst, "/", dstSiz - dstLen - 1);                 //  '/' をつける
     dstLen = dstLen + 1;
   }
-  int len = dstSiz - dstLen;
+  if (src[0] == '/') {                                      // src が絶対パスなら
+    dst[0] = '\0';                                          //   dst を "" にする
+    dstLen = 0;
+  }
+  int len = dstSiz - dstLen;                                // dst に収まる範囲で
   if (len > srcLen) len = srcLen;
-  strNcat(dst, src, len);
+  strNcat(dst, src, len);                                   // src をつなげる
   return dstLen + len;
 }
 
@@ -190,7 +194,7 @@ public boolean absPath(char[] path, char[] buf, int bufSiz) {
     char[] name = _addrAdd(path, p);                        //   ファイル名
     int nameLen = strChr(name, '/');                        //   ファイル名の長さ
     if (nameLen < 0) nameLen = strLen(name);
-    if (strNcmp(name, ".", namegLen) == 0) {                //   同一ディレクトリ
+    if (strNcmp(name, ".", nameLen) == 0) {                 //   同一ディレクトリ
     } else if (strNcmp(name, "..", nameLen) == 0) {         //   親ディレクトリ
       int lastSl = strRchr(buf, '/');                       //     最後の '/'
       if (lastSl != 0) buf[lastSl] = '\0';                  //       以降を削除
