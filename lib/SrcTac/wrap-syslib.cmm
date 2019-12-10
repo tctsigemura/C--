@@ -32,6 +32,7 @@
 #include <stdlib.hmm>
 #define BUF 80
 
+// syslib.s で定義される関数 (本来のシステムコール)
 public int _exec(char[] name, void[] argv, void[] envp);
 public int _creat(char[] path);
 public int _remove(char[] path);
@@ -40,12 +41,15 @@ public int _rmDir(char[] path);
 public int _open(char[] path, int mode);
 public int _stat(char[] path, void[] stat);
 
+// path を絶対パスに変換して返す。呼び出し側で free() する必要がある。
 char[] newAbsPath(char[] path) {
   char[] buf = malloc(BUF);
   if (buf==null) perror(path);
   absPath(path, buf, BUF);
   return buf;
 }
+
+// ------------ システムコールのラッパー ------------
 
 public int exec(char[] name, void[] argv, void[] envp) {
   char[] buf = newAbsPath(name);

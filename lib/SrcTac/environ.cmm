@@ -169,7 +169,7 @@ public boolean absPath(char[] path, char[] buf, int bufSiz) {
   int pathLen = strLen(path);
   // 探索開始位置を決める
   if (path[0] == '/') {                                     // 1文字目が '/'
-    strCpy(buf, "/");
+    strCpy(buf, "/");                                       //   / から開始
   } else {                                                  // それ以外
     char[] pwd = getEnv("PWD");                             //   PWD を取得
     if (pwd == null) pwd = "/";                             //   なければ / で代用
@@ -179,25 +179,24 @@ public boolean absPath(char[] path, char[] buf, int bufSiz) {
     }
     int pwdLen = strLen(pwd);
     if (pwdLen > bufSiz) return true;                       //   buf が足りないので終了
-    strCpy(buf, pwd);
+    strCpy(buf, pwd);                                       //   pwd から開始
   }
   // パスを辿る
   Stat sta;
-  int resLen = 0;
   for (int p=0; ;) {                                        //
     while (p<pathLen && path[p]=='/') p = p + 1;            //   余計な '/' を読み飛ばす
     if (p>=pathLen) break;                                  //   パス解析完了
 
-    char[] name = _addrAdd(path, p);                        //   ファイル名の文字列
+    char[] name = _addrAdd(path, p);                        //   ファイル名
     int nameLen = strChr(name, '/');                        //   ファイル名の長さ
     if (nameLen < 0) nameLen = strLen(name);
-    if (strNcmp(name, ".", nameLen) == 0) {}                //   同一ディレクトリ
-    else if (strNcmp(name, "..", nameLen) == 0) {           //   親ディレクトリ
+    if (strNcmp(name, ".", namegLen) == 0) {                //   同一ディレクトリ
+    } else if (strNcmp(name, "..", nameLen) == 0) {         //   親ディレクトリ
       int lastSl = strRchr(buf, '/');                       //     最後の '/'
-      if (lastSl == 0) buf[1] = '\0';
-      else buf[lastSl] = '\0';                              //       以降を削除
+      if (lastSl != 0) buf[lastSl] = '\0';                  //       以降を削除
+      else buf[1] = '\0';                                   //       "/xx" -> "/"
     } else {                                                //   それ以外
-      resLen = joinPath(buf, bufSiz, name, nameLen);        //     buf に結合する
+      joinPath(buf, bufSiz, name, nameLen);                 //     buf に結合する
     }
     p = p + nameLen + 1;
   }
