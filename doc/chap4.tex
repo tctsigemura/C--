@@ -714,6 +714,32 @@ public boolean absPath(char[] path, char[] buf, int bufSiz);
 \end{verbatim}
 \end{quote}
 
+\subsection{getWd関数}
+
+\|getWd|関数はカレントディレクトリを取得します．
+\|getWd|は正常ならカレントディレクトリの文字列，エラー発生なら null を返します．
+返り値の文字列を変更しないでください．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public char[] getWd();
+\end{verbatim}
+\end{quote}
+
+\subsection{chDir関数}
+
+\|chDir|関数はカレントディレクトリを変更します．
+\|pathname|は変更先のディレクトリです．
+エラーが発生した場合には true を，正常時には false を返します．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public boolean chDir(char[] pathname);
+\end{verbatim}
+\end{quote}
+
 \section{文字列操作関数}
 
 \|#include <string.hmm>|を書いた後で使用します．

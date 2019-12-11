@@ -175,12 +175,7 @@ public boolean absPath(char[] path, char[] buf, int bufSiz) {
   if (path[0] == '/') {                                     // 1文字目が '/'
     strCpy(buf, "/");                                       //   / から開始
   } else {                                                  // それ以外
-    char[] pwd = getEnv("PWD");                             //   PWD を取得
-    if (pwd == null) pwd = "/";                             //   なければ / で代用
-    if (pwd[0] != '/') {                                    //   PWD が絶対パスでない
-      errno = EPATH;
-      return true;
-    }
+    char[] pwd = getWd();                                   //   PWD を取得
     int pwdLen = strLen(pwd);
     if (pwdLen > bufSiz) return true;                       //   buf が足りないので終了
     strCpy(buf, pwd);                                       //   pwd から開始
@@ -204,5 +199,21 @@ public boolean absPath(char[] path, char[] buf, int bufSiz) {
     }
     p = p + nameLen + 1;
   }
+  return false;
+}
+
+public char[] getWd() {
+  char[] pwd = getEnv("PWD");
+  if (pwd==null) pwd = "/";                         // PWD がない場合は "/"
+  return pwd;
+}
+
+public boolean chDir(char[] pathname) {
+  int bufSiz = 80;
+  char[] buf = malloc(bufSiz);
+  if (absPath(pathname, buf, bufSiz))               // 絶対パスに変換
+    return true;                                    //   absPath がエラー
+  if (setEnv("PWD", buf, true))                     // 環境変数 PWD を変更
+    return true;                                    //   setEnv がエラー
   return false;
 }

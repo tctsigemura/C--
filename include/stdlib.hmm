@@ -53,3 +53,5 @@ public boolean setEnv(char[] name, char[] value, boolean overwrite);
 public boolean unsetEnv(char[] name);
 
 public boolean absPath(char[] path, char[] buf, int bufSiz);
+public char[] getWd();
+public boolean chDir(char[] pathname);

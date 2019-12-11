@@ -41,6 +41,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifdef _RTC
 #include <string.h>
@@ -171,6 +172,15 @@ inline static int absPath(char* path, char *buf, int bufSiz) {
   strncpy(buf, abs, bufSiz);
   free(abs);
   return 0;
+}
+
+static char wd[256];
+inline static char *getWd() {
+  return getcwd(wd, sizeof(wd));
+}
+
+inline static int chDir(char *pathname) {
+  return chdir(pathname)!=0;
 }
 
 // RTCのため文字列を変換する必要がある関数
