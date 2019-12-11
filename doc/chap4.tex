@@ -701,6 +701,19 @@ public boolean unsetEnv(char[] name);
 \end{verbatim}
 \end{quote}
 
+\subsection{absPath関数}
+
+\|absPath|関数はカレントディレクトリからの相対パスを絶対パスに変換します．
+\|path|は相対パス，\|buf|は絶対パスを格納するバッファ，\|bufSiz|は\|buf|のサイズです．
+エラーが発生した場合には\|true|を，正常時には\|false|を返します．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public boolean absPath(char[] path, char[] buf, int bufSiz);
+\end{verbatim}
+\end{quote}
+
 \section{文字列操作関数}
 
 \|#include <string.hmm>|を書いた後で使用します．
