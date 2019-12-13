@@ -41,6 +41,7 @@
 #define printf     _printf
 
 #ifdef _RTC
+// RTC
 #define main __main
 // stdio
 #define fopen(p,m)   __fOpen(p,m)
@@ -50,10 +51,20 @@
 #define perror(s)    _perror(s)
 #define fsize(p,s)   _fsize(p,s)
 // stdlib
-#define atoi(s)    _atoi(s)
-#define htoi(s)    _htoi(s)
+#define atoi(s)        _atoi(s)
+#define htoi(s)        _htoi(s)
+#define getEnv(n)      __getenv(n)
+#define putEnv(s)      __putenv(s)
+#define setEnv(n,v,o)  __setenv(n,v,o)
+#define unsetEnv(n)    __unsetenv(n)
 
 #else
+// NORTC
+// stdio
 #define fopen(p,m) _fOpen(p,m)
-
+// stdlib
+#define getEnv(n)      _getenv(n)
+#define putEnv(s)      _putenv(s)
+#define setEnv(n,v,o)  _setenv(n,v,o)
+#define unsetEnv(n)    _unsetenv(n)
 #endif

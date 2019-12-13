@@ -41,6 +41,8 @@
 #include <stdlib.h>
 
 #ifdef _RTC
+#include <string.h>
+
 // int型配列を表現する構造体型
 typedef struct { int l; int a[]; } _IA;
 
@@ -143,22 +145,20 @@ inline static long lToL(unsigned int l[]) {
   return (((long)l[0])<<32)|l[1];
 }
 
-// 環境変数関連（RTCについて未検討）
-extern char **environ;
-
-inline static char* getEnv(char* name) {
+// 環境変数関係は仕様が異なるのでここで吸収
+inline static char* _getenv(char* name) {
   return getenv(name);
 }
 
-inline static char putEnv(char* string) {
+inline static char _putenv(char* string) {
   return putenv(string)!=0;
 }
 
-inline static int setEnv(char* name, char* value, char overwrite) {
+inline static int _setenv(char* name, char* value, char overwrite) {
   return setenv(name, value, overwrite)!=0;
 }
 
-inline static int unsetEnv(char* name) {
+inline static int _unsetenv(char* name) {
   return unsetenv(name)!=0;
 }
 
@@ -201,6 +201,30 @@ inline static int _htoi(_CA* str) {
   return htoi(str->a);
 }
 
+_CA* __cmm_getenv;
+inline static _CA* __getenv(_CA* name) {
+  char* val = _getenv(name->a);
+  if (val==NULL) return NULL;
+  if (__cmm_getenv!=NULL) free(__cmm_getenv);
+  int ssize = strlen(val)+1;
+  __cmm_getenv=malloc(sizeof(_CA)+ssize);
+  __cmm_getenv->l = ssize;
+  strcpy(__cmm_getenv->a, val);
+  return __cmm_getenv;
+}
+
+inline static int __putenv(_CA* str) {
+  return _putenv(str->a);
+}
+
+inline static int __setenv(_CA* name, _CA* val, int overwrite) {
+  return _setenv(name->a, val->a, overwrite);
+}
+
+inline static int __unsetenv(_CA* name) {
+  return _unsetenv(name->a);
+}
+
 // printf.c
 int _fPrintf(FILE *fp, _CA* fmt, ...);
 int _printf(_CA* fmt, ...);
@@ -209,5 +233,4 @@ int _printf(_CA* fmt, ...);
 // printf.c
 int _fPrintf(FILE *fp, char *fmt, ...);
 int _printf(char* fmt, ...);
-
 #endif
