@@ -22,6 +22,7 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
+ * 2019.12.13 : 環境変数関連をRTCに対応
  * 2019.11.14 : 環境変数関連を追加
  * 2019.03.14 : RTCのためにfputs,puts,fgets,perror関数のinlineラッパー関数追加
  * 2019.03.13 : ltoL()をinlineにしてwrapper.cから移動
