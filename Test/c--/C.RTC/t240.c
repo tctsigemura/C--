@@ -12,7 +12,7 @@ T *b;
 };
 static T *t;
 _IA *f();
-int main(){
+int __main(){
 ((*_ICA((*_RCA(a,1,__FILE__,__LINE__)),2,__FILE__,__LINE__))=2);
 ((*_ICA((((T*)_CP(t,__FILE__,__LINE__))->a),1,__FILE__,__LINE__))=2);
 ((((T*)_CP((((T*)_CP((((T*)_CP(t,__FILE__,__LINE__))->b),__FILE__,__LINE__))->b),__FILE__,__LINE__))->x)=2);

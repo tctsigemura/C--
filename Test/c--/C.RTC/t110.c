@@ -13,7 +13,7 @@ static X _cmm_2T={1,0};
 static X _cmm_3T={-1,1};
 static _RA _cmm_4T={2,{&_cmm_2T,&_cmm_3T}};
 static _RA *e=&_cmm_4T;
-int main(){
+int __main(){
 int _cmm_1L;
 (_cmm_1L=1);
 int _cmm_2L;

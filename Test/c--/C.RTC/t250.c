@@ -7,7 +7,7 @@ static char f;
 static char g;
 static char h;
 static char i;
-int main(){
+int __main(){
 (a=0);
 (b=1);
 (c=0);

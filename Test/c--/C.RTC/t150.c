@@ -7,7 +7,7 @@ int val;
 static Node _cmm_0T={0,0,10};
 static Node *n=&_cmm_0T;
 static Node *m;
-int main(){
+int __main(){
 ((((Node*)_CP(n,__FILE__,__LINE__))->next)=n);
 ((((Node*)_CP(n,__FILE__,__LINE__))->prev)=n);
 (m=(((Node*)_CP((((Node*)_CP(n,__FILE__,__LINE__))->next),__FILE__,__LINE__))->prev));

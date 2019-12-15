@@ -1,5 +1,5 @@
 static int a;
-int main(){
+int __main(){
 (a=2);
 return 0;
 }

@@ -1,4 +1,5 @@
 __alcAddr	WS	1
+_environ	WS	1
 .a	WS	1
 .b	DW	48
 .d	WS	1
