@@ -38,5 +38,5 @@ ${NAME} : ${SRCS}
 	cm2c -o ${NAME} ${SRCS}
 
 clean :
-	rm -f ${NAME} *.o *.lst *.sym *.exe *.map *~
+	rm -rf ${NAME} ${NAME}.dSYM *.o *.lst *.sym *.exe *.map *~ tt.dat
 
