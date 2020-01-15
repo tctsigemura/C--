@@ -38,10 +38,10 @@ public char[] strCpy(char[] d, char[] s) {
   return d;
 }
 
-// 文字数制限付きの文字列コピー
+// 文字数制限付きの文字列コピー(n文字未満コピー）
 public char[] strNcpy(char[] d, char[] s, int n) {
   int i=0;
-  for (; i<n && s[i]!='\0'; i=i+1)
+  for (; i<n-1 && s[i]!='\0'; i=i+1)
     d[i]=s[i];
   for (;i<n; i=i+1)
     d[i]='\0';
@@ -58,12 +58,12 @@ public char[] strCat(char[] d, char[] s) {
   return d;
 }
 
-// 文字数制限付きの文字列結合
+// 文字数制限付きの文字列結合（n文字未満を追加）
 public char[] strNcat(char[] d, char[] s, int n) {
   int i=0;
   while (d[i]!='\0')
     i=i+1;
-  for (int j=0; j<n && s[j]!='\0'; i=i+1,j=j+1)
+  for (int j=0; j<n-1 && s[j]!='\0'; i=i+1,j=j+1)
     d[i]=s[j];
   d[i]='\0';
   return d;
