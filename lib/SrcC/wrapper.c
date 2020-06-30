@@ -73,8 +73,10 @@ int main(int argc, char *argv[], char *envp[]) {
   envs->a[envc] = NULL;
   for (int i=0; i<envc; i=i+1) {
     envs->a[i] = _mAlloc(sizeof(_CA)+strlen(envp[i])+1);
+    ((_CA*)(envs->a[i]))->l = strlen(envp[i])+1;
     strcpy(((_CA*)(envs->a[i]))->a, envp[i]);
   }
+  _environ = envs;         // RTC用のenvironにもセットする
 
   return __main(argc, args, envs);
 }

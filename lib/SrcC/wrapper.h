@@ -249,8 +249,16 @@ inline static int __unsetenv(_CA* name) {
 int _fPrintf(FILE *fp, _CA* fmt, ...);
 int _printf(_CA* fmt, ...);
 
+// environ
+#define environ _environ    // RTCではシステムのenvironは使用できない
+_RA *_environ;              // ライブラリのものとは別のものを準備する
+
 #else
 // printf.c
 int _fPrintf(FILE *fp, char *fmt, ...);
 int _printf(char* fmt, ...);
+
+// environ
+extern char **environ;
+
 #endif
