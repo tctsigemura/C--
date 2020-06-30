@@ -11,7 +11,7 @@ return (_cmm_1P=b);
 }
 static int f(int _cmm_1P,_CA *_cmm_2P);
 static _CA _cmm_0S={6,{"abc\r\n"}};
-int main(){
+int __main(){
 (a=x);
 (b=y);
 {

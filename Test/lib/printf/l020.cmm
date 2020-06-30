@@ -31,10 +31,10 @@ public int main() {
   printf("[%%]: [%%]\n");
 #ifdef C
   //[7,1905262592]=[31970033664]
-  printf("[31970033664]: [%ld]\n", lToL(s));
+  printf("[31970033664]: [%ld]\n", s);
 #else
   //[7,12345]=[471097]
-  printf("[471097]: [%ld]\n", lToL(s));
+  printf("[471097]: [%ld]\n", s);
 #endif
   return 0;
 }

@@ -1,5 +1,5 @@
 void p();
-int main(){
+int __main(){
 int _cmm_1L;
 p();
 ((p(),p()),p());

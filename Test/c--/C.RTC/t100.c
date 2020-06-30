@@ -3,7 +3,7 @@ static int b=3;
 static int c=2;
 void f(int _cmm_1P,_CA *_cmm_2P);
 static _CA _cmm_0S={4,{"abc"}};
-int main(){
+int __main(){
 {
 int _cmm_1L;
 (_cmm_1L=a);

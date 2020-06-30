@@ -1,14 +1,22 @@
 #!/bin/sh
 
-INCDIR=/usr/local/cmmInclude
-LIBDIR=/usr/local/cmmLib
+LIBDIR=/usr/local/cmmLib/LibNoRtc
+RTC=""
+
+INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
+CPPFLAGS="-xc++ -Wno-comment -nostdinc -nostdlibinc -nobuiltininc -DC"
+CFLAGS="-g -O0 \
+   -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
+   -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
+   -Wno-dangling-else -Wno-format-security"
 
 for i in $*; do
-    j=`basename ${i}`
-    n=`expr ${j} : '\([^\.]*\)'`
-    echo '[!!!' "${n}.cmm => ${n}.c" '!!!]'
-   cpp -DC -xc++ -Wno-comment -nostdinc -I${INCDIR} -I${LIBDIR} ${i} |
+   j=`basename ${i}`
+   n=`expr ${j} : '\([^\.]*\)'`
+   echo '[!!!' "${n}.cmm => ${n}.c" '!!!]'
+   cpp ${CPPFLAGS} ${RTC} ${INCDIR} -include cfunc.hmm ${i} |
    ../../../src/c-c-- -O > ${n}.c
-#   cc -nostdinc -nostdlib -S ${n}.c
+#   cc -S ${CFLAGS} ${RTC} ${INCDIR} -include wrapper.h ${n}.c
 #   rm -f ${n}.s
 done
+

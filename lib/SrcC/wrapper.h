@@ -22,6 +22,8 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
+ * 2019.12.13 : 環境変数関連をRTCに対応
+ * 2019.11.14 : 環境変数関連を追加
  * 2019.03.14 : RTCのためにfputs,puts,fgets,perror関数のinlineラッパー関数追加
  * 2019.03.13 : ltoL()をinlineにしてwrapper.cから移動
  * 2019.03.12 : <stdio.h>と<stdlib.h>を追加(NULLやabort()のため)
@@ -38,8 +40,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #ifdef _RTC
+#include <string.h>
+
 // int型配列を表現する構造体型
 typedef struct { int l; int a[]; } _IA;
 
@@ -142,6 +148,40 @@ inline static long lToL(unsigned int l[]) {
   return (((long)l[0])<<32)|l[1];
 }
 
+// 環境変数関係は仕様が異なるのでここで吸収
+inline static char* _getenv(char* name) {
+  return getenv(name);
+}
+
+inline static char _putenv(char* string) {
+  return putenv(string)!=0;
+}
+
+inline static int _setenv(char* name, char* value, char overwrite) {
+  return setenv(name, value, overwrite)!=0;
+}
+
+inline static int _unsetenv(char* name) {
+  return unsetenv(name)!=0;
+}
+
+inline static int absPath(char* path, char *buf, int bufSiz) {
+  char *abs = realpath(path, NULL);
+  if (abs == NULL) return 1;
+  strncpy(buf, abs, bufSiz);
+  free(abs);
+  return 0;
+}
+
+static char wd[256];
+inline static char *getWd() {
+  return getcwd(wd, sizeof(wd));
+}
+
+inline static int chDir(char *pathname) {
+  return chdir(pathname)!=0;
+}
+
 // RTCのため文字列を変換する必要がある関数
 #ifdef _RTC
 // stdio.hmm
@@ -181,6 +221,30 @@ inline static int _htoi(_CA* str) {
   return htoi(str->a);
 }
 
+_CA* __cmm_getenv;
+inline static _CA* __getenv(_CA* name) {
+  char* val = _getenv(name->a);
+  if (val==NULL) return NULL;
+  if (__cmm_getenv!=NULL) free(__cmm_getenv);
+  int ssize = strlen(val)+1;
+  __cmm_getenv=malloc(sizeof(_CA)+ssize);
+  __cmm_getenv->l = ssize;
+  strcpy(__cmm_getenv->a, val);
+  return __cmm_getenv;
+}
+
+inline static int __putenv(_CA* str) {
+  return _putenv(str->a);
+}
+
+inline static int __setenv(_CA* name, _CA* val, int overwrite) {
+  return _setenv(name->a, val->a, overwrite);
+}
+
+inline static int __unsetenv(_CA* name) {
+  return _unsetenv(name->a);
+}
+
 // printf.c
 int _fPrintf(FILE *fp, _CA* fmt, ...);
 int _printf(_CA* fmt, ...);
@@ -189,5 +253,4 @@ int _printf(_CA* fmt, ...);
 // printf.c
 int _fPrintf(FILE *fp, char *fmt, ...);
 int _printf(char* fmt, ...);
-
 #endif

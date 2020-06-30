@@ -20,6 +20,7 @@
 ;
 ; lib/syslib.s : システムコールに関するユーザ用ライブラリを集めたファイル
 ;
+; 2019.12.01 : 相対パス変換でラップするために関数名を変更
 ; 2019.11.15 : stat を追加
 ; 2019.10.18 : conRead, conWrite を ttyRead, ttyWrite に変更，ttyCtl を追加
 ; 2016.02.27 : _exit を __exit に変更
@@ -110,9 +111,9 @@ _errno  dw      0           ; エラー番号
 .restr  pop     g3              ; G3 を復元
         ret
 
-_exec
+__exec
         ld      g0,#0           ; G0 にシステムコール番号を格納
-        jmp     .l2
+        jmp     .l3
 
 __exit
         ld      g0,#1           ; G0 にシステムコール番号を格納
@@ -126,23 +127,23 @@ _sleep
         ld      g0,#3           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_creat
+__creat
         ld      g0,#4           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_remove
+__remove
         ld      g0,#5           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_mkDir
+__mkDir
         ld      g0,#6           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_rmDir
+__rmDir
         ld      g0,#7           ; G0 にシステムコール番号を格納
         jmp     .l1
 
-_open
+__open
         ld      g0,#8           ; G0 にシステムコール番号を格納
         jmp     .l2
 
@@ -162,7 +163,7 @@ _seek
         ld      g0,#12          ; G0 にシステムコール番号を格納
         jmp     .l3
 
-_stat
+__stat
         ld      g0,#13          ; G0 にシステムコール番号を格納
         jmp     .l2
 

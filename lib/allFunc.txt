@@ -75,6 +75,11 @@ public int htoi(char[] s);
 public int rand();
 public void srand(int seed);
 public void exit(int status);
+public char[] getEnv(char[] name);
+public boolean putEnv(char[] string);
+public boolean setEnv(char[] name, char[] value, boolean overwrite);
+public boolean unsetEnv(char[] name);
+public boolean absPath(char[] path, char[] buf, int bufSiz);
 
 
 

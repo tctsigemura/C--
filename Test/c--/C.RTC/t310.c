@@ -15,7 +15,7 @@ static void task2(){
 ;
 }
 static char boole;
-int main(){
+int __main(){
 _IA *_cmm_1L;
 (_cmm_1L=__ItoA(65024));
 ((((TCB*)_CP((*_RCA(tcbs,0,__FILE__,__LINE__)),__FILE__,__LINE__))->pc)=((int)&task1));

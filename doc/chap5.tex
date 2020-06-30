@@ -22,34 +22,41 @@ UNIXの\|fork-exec|方式とは異なります．
 新しいプロセスで新しいプログラムの実行を開始します．
 \|argv|は，開始するプログラムの\|main|関数の
 第２引数（\|char[][]argv|）に渡される文字列配列です．
+\|envp|は，開始するプログラムに渡す環境変数です．
+\|argv|と同じ要領で文字列配列を渡します．
 \|exec|は正常なら\|0|，エラー発生なら負のエラー番号を返します．
 
 \begin{quote}
 \begin{verbatim}
 #include <syslib.hmm>
-public int exec(char[] path, void[] argv);
+public int exec(char[] path, void[] argv, void[] envp);
 \end{verbatim}
 \end{quote}
 
+下に使用例を示します．
 \|argv[0]|にプログラム名，
 \|argv[1]|に第１引数のように格納します．
 最後に\|null|を格納します．
-次に使用例を示します．
+環境変数に興味がない場合は，
+自身の環境変数（\|environ|）を子プロセスに渡します．
 
 \begin{mylist}
 \begin{verbatim}
-char[][] args = {"prog", "param1", "param2", null};
-void f() {
-  exec("/bin/prog.exe", args);
-}
+  #include <stdlib.hmm>
+  #include <syslib.hmm>
+  char[][] args = {"prog", "param1", "param2", null};
+  public int main() {
+    exec("/bin/prog.exe", args, environ);
+    return 1;
+  }
 \end{verbatim}
 \end{mylist}
 
-子プロセス側は次のようなプログラムになります．
+子プロセス側のプログラム（prog.cmm）は次のようになります．
 
 \begin{mylist}
 \begin{verbatim}
-int main(int argc, char[][]argv) {
+public int main(int argc, char[][]argv, char[][]envp) {
   int c = argc;       // 前のプログラムで起動されたとき 3
   char[] s = argv[1]; // 前のプログラムで起動されたとき "param1"
   return 0;
@@ -163,6 +170,35 @@ public int rmDir(char[] path);
 \end{verbatim}
 \end{quote}
 
+\subsection{stat}
+
+\|stat|はファイルのメタデータを\|Stat|構造体に読み出します．
+エラー発生なら負のエラー番号を返します．
+
+\begin{quote}
+\begin{verbatim}
+#include <sys/fs.hmm>
+#include <syslib.hmm>
+public int stat(char[] path, Stat stat);
+\end{verbatim}
+\end{quote}
+
+\|Stat|構造体は\|sys/fs.hmm|ファイル中で以下のように定義されます．
+\|attr|はFAT16ファイルシステムの
+ディレクトリエントリから読みだしたファイルの属性です．
+詳しい意味はFAT16ファイルシステムの文献を参照してください．
+
+\begin{quote}
+\begin{verbatim}
+struct Stat {   // FAT16ファイルシステムからファイルの情報を取り出す．
+  int attr;     // read-only(0x01)，hidden(0x02)，directory(0x10) 他
+  int clst;     // ファイルの開始クラスタ番号
+  int lenH;     // ファイル長上位16ビット
+  int lenL;     // ファイル長下位16ビット
+};
+\end{verbatim}
+\end{quote}
+
 \section{ファイルの読み書き}
 
 ファイルの読み書きには，
@@ -173,14 +209,14 @@ public int rmDir(char[] path);
 
 \|open|はファイルを開きます
 \|path|は開くファイルのパスです．
-\|mode|には\|READ|，\|WRITE|，\|APPEND|のいずれかを指定します．
+\|mode|には\|O_RDONLY|，\|O_WRONLY|，\|O_APPEND|のいずれかを指定します．
 \|open|は正常なら非負のファイル記述子，
 エラー発生なら負のエラー番号を返します．
 ファイルが存在しない場合は，どのモードでもエラーになります．
 新規ファイルに書き込みたい場合は，
 事前に\|creat|システムコールを用いてファイルを作成しておく必要があります．
 
-\|open|はディレクトリを\|READ|モードで開くことができます．
+\|open|はディレクトリを\|O_RDONLY|モードで開くことができます．
 ディレクトリは\pageref{chap4:readDir}ページの\|readDir|関数で読みます．
 
 \begin{quote}
@@ -205,7 +241,7 @@ public int close(int fd);
 
 \subsection{read}
 
-\|read|は\|open|を用い\|READ|モードで開いたファイルから
+\|read|は\|open|を用い\|O_RDONLY|モードで開いたファイルから
 データを読みます．
 \|fd|はファイル記述子です．
 \|buf|はデータを読み込むバッファ，
@@ -223,8 +259,8 @@ public int read(int fd, void[] buf, int len);
 
 \subsection{write}
 
-\|write|は\|open|を用い\|WRITE|，
-\|APPEND|モードで開いたファイルへデータを書き込みます．
+\|write|は\|open|を用い\|O_WRONLY|，
+\|O_APPEND|モードで開いたファイルへデータを書き込みます．
 \|fd|はファイル記述子です．
 \|buf|は書き込むデータが置いてあるバッファ，
 \|len|は書き込むデータのサイズ（バイト単位）です．
@@ -274,7 +310,7 @@ public int seek(int fd, int ptrh, int ptrl);
 \begin{quote}
 \begin{verbatim}
 #include <syslib.hmm>
-public int ttyRead(char[] buf, int len);
+public int ttyRead(void[] buf, int len);
 \end{verbatim}
 \end{quote}
 
@@ -285,7 +321,7 @@ public int ttyRead(char[] buf, int len);
 \begin{quote}
 \begin{verbatim}
 #include <syslib.hmm>
-public int ttyWrite(char[] buf, int len);
+public int ttyWrite(void[] buf, int len);
 \end{verbatim}
 \end{quote}
 

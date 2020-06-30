@@ -6,12 +6,12 @@
 #define _cmm_4S "abcde\"fghi"
 #define _cmm_5S "\""
 int main(){
-printf(_cmm_0S);
-printf(_cmm_1S);
-printf(_cmm_2S);
-printf(_cmm_3S);
-printf(_cmm_4S);
-printf(_cmm_5S);
+_printf(_cmm_0S);
+_printf(_cmm_1S);
+_printf(_cmm_2S);
+_printf(_cmm_3S);
+_printf(_cmm_4S);
+_printf(_cmm_5S);
 putchar(10);
 putchar(39);
 return 0;

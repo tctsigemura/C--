@@ -28,9 +28,9 @@
  *
  */
 
-struct Stat {
-  int attr;
-  int clst;
-  int lenH;
-  int lenL;
+struct Stat {   // FAT16ファイルシステムからファイルの情報を取り出す．
+  int attr;     // read-only(0x01)，hidden(0x02)，directory(0x10) 他
+  int clst;     // ファイルの開始クラスタ番号
+  int lenH;     // ファイル長上位16ビット
+  int lenL;     // ファイル長下位16ビット
 };

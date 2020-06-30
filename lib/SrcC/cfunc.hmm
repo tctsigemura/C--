@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2018 by
+ * Copyright (C) 2016 - 2019 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/cfunc.hmm : C-- 関数と C 関数の読みかえを定義
  *
+ * 2019.12.13 : 環境変数関連をRTCに対応
  * 2018.03.11 : ctype.hmm, string.hmm の関数を削除
  * 2018.02.20 : fseek を追加
  * 2016.08.07 : feof を追加
@@ -41,19 +42,30 @@
 #define printf     _printf
 
 #ifdef _RTC
+// RTC
 #define main __main
 // stdio
-#define fopen(p,m)   __fOpen(p,m)
+#define fopen(p,m) __fOpen(p,m)
 #define fgets(b,n,f) _fgets(b,n,f)
-#define fputs(s,f)   _fputs(s,f)
-#define puts(s)      _puts(s)
-#define perror(s)    _perror(s)
-#define fsize(p,s)   _fsize(p,s)
+#define fputs(s,f) _fputs(s,f)
+#define puts(s) _puts(s)
+#define perror(s) _perror(s)
+#define fsize(p,s) _fsize(p,s)
 // stdlib
-#define atoi(s)    _atoi(s)
-#define htoi(s)    _htoi(s)
+#define atoi(s) _atoi(s)
+#define htoi(s) _htoi(s)
+#define getEnv(n) __getenv(n)
+#define putEnv(s) __putenv(s)
+#define setEnv(n,v,o) __setenv(n,v,o)
+#define unsetEnv(n) __unsetenv(n)
 
 #else
+// NORTC
+// stdio
 #define fopen(p,m) _fOpen(p,m)
-
+// stdlib
+#define getEnv(n) _getenv(n)
+#define putEnv(s) _putenv(s)
+#define setEnv(n,v,o) _setenv(n,v,o)
+#define unsetEnv(n) _unsetenv(n)
 #endif

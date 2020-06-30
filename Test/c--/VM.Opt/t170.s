@@ -119,6 +119,8 @@
 	DW	.L27
 __alcAddr
 	WS	1
+_environ
+	WS	1
 .L28
 	STRING	"ABCDE"
 .f2

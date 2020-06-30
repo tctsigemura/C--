@@ -32,7 +32,7 @@
 OBJS= ctype.c string.c wrapper.h
 TMP= ../SrcCmm/ctype.c ../SrcCmm/string.c
 
-all: ${OBJS} 
+all: ${OBJS}
 
 ${OBJS}: ${TMP}
 	mv ${TMP} .

@@ -8,7 +8,7 @@ return g(_cmm_1P);
 void f(){
 FILE *_cmm_1L;
 FILE *_cmm_2L;
-(_cmm_2L=fopen(_cmm_0S,_cmm_1S));
+(_cmm_2L=_fOpen(_cmm_0S,_cmm_1S));
 (_cmm_1L=_cmm_2L);
 (_cmm_1L=h(_cmm_2L));
 }

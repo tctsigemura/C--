@@ -5,7 +5,7 @@ struct _X {
 int a;
 int b;
 };
-int main(){
+int __main(){
 int _cmm_1L;
 int _cmm_2L;
 X *_cmm_3L;

@@ -1,4 +1,4 @@
-int main(){
+int __main(){
 int _cmm_1L;
 int _cmm_2L;
 int _cmm_3L;

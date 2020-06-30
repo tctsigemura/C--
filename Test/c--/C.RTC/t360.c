@@ -24,7 +24,7 @@ int _cmm_3L;
 Symbol *_cmm_4L;
 (_cmm_4L=__AddrAdd(_cmm_3P,_cmm_3L));
 ((*_ICA(_cmm_4P,(((Reloc*)_CP(_cmm_2L,__FILE__,__LINE__))->addr),__FILE__,__LINE__))=(((Symbol*)_CP(_cmm_4L,__FILE__,__LINE__))->val));
-printf(&_cmm_0S,(((Reloc*)_CP(_cmm_2L,__FILE__,__LINE__))->addr),(((Symbol*)_CP(_cmm_4L,__FILE__,__LINE__))->val),_cmm_3L,(*_ICA(_cmm_4P,(((Reloc*)_CP(_cmm_2L,__FILE__,__LINE__))->addr),__FILE__,__LINE__)));
+_printf(&_cmm_0S,(((Reloc*)_CP(_cmm_2L,__FILE__,__LINE__))->addr),(((Symbol*)_CP(_cmm_4L,__FILE__,__LINE__))->val),_cmm_3L,(*_ICA(_cmm_4P,(((Reloc*)_CP(_cmm_2L,__FILE__,__LINE__))->addr),__FILE__,__LINE__)));
 }
 }
 return 0;

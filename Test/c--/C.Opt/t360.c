@@ -24,7 +24,7 @@ int _cmm_3L;
 Symbol *_cmm_4L;
 (_cmm_4L=__AddrAdd(_cmm_3P,_cmm_3L));
 (_cmm_4P[_cmm_2L->addr]=_cmm_4L->val);
-printf(_cmm_0S,_cmm_2L->addr,_cmm_4L->val,_cmm_3L,_cmm_4P[_cmm_2L->addr]);
+_printf(_cmm_0S,_cmm_2L->addr,_cmm_4L->val,_cmm_3L,_cmm_4P[_cmm_2L->addr]);
 }
 }
 return 0;

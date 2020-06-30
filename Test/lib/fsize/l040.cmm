@@ -15,6 +15,7 @@ public int main(int argc, char[][] argv) {
     perror(argv[1]);
     exit(1);
   }
-  printf("[%d, %d]=[%ld]\n", s[0], s[1], lToL(s));
+  printf("[%d, %d]=[%ld]\n", s[0], s[1], s);
+//  printf("[%d, %d]=[%ld]\n", s[0], s[1], lToL(s));
   return 0;
 }
