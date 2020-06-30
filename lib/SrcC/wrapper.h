@@ -168,7 +168,6 @@ inline static int _unsetenv(char* name) {
 inline static int absPath(char* path, char *buf, int bufSiz) {
   char *abs = realpath(path, NULL);
   if (abs == NULL) return 1;
-  int len = strlen(abs);
   strncpy(buf, abs, bufSiz);
   free(abs);
   return 0;

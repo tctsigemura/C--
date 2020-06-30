@@ -156,13 +156,13 @@ int joinPath(char[] dst, int dstSiz, char[] src, int srcLen) {
   int dstLen = strLen(dst);
   if (dst[dstLen-1] != '/') {                               // dst 末尾が '/' でない
     strNcat(dst, "/", dstSiz - dstLen - 1);                 //  '/' をつける
-    dstLen = dstLen + 1;
+    dstLen = strLen(dst);
   }
   if (src[0] == '/') {                                      // src が絶対パスなら
     dst[0] = '\0';                                          //   dst を "" にする
     dstLen = 0;
   }
-  int len = dstSiz - dstLen;                                // dst に収まる範囲で
+  int len = dstSiz - dstLen - 1;                            // dst に収まる範囲で
   if (len > srcLen) len = srcLen;
   strNcat(dst, src, len);                                   // src をつなげる
   return dstLen + len;
