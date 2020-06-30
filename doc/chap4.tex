@@ -641,6 +641,8 @@ public void exit(int status);
 
 \|environ|変数は環境変数の配列です．配列の最後には\|null|が入ります．
 \|setEnv|関数などにより更新することができます．
+\|environ|変数は\|stdlib.hmm|中で宣言されます．
+トランスレータ版との互換性のため自分で宣言しないで下さい．
 
 \begin{quote}
 \begin{verbatim}
