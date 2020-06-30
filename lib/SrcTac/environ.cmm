@@ -150,3 +150,70 @@ public boolean unsetEnv(char[] name) {
   }
   return false;
 }
+
+// 2つのパスを連結する。dst<-dst/src。返り値はパスの長さ。src が絶対パスの場合は src だけ。
+int joinPath(char[] dst, int dstSiz, char[] src, int srcLen) {
+  int dstLen = strLen(dst);
+  if (dst[dstLen-1] != '/') {                               // dst 末尾が '/' でない
+    strNcat(dst, "/", dstSiz - dstLen - 1);                 //  '/' をつける
+    dstLen = strLen(dst);
+  }
+  if (src[0] == '/') {                                      // src が絶対パスなら
+    dst[0] = '\0';                                          //   dst を "" にする
+    dstLen = 0;
+  }
+  int len = dstSiz - dstLen - 1;                            // dst に収まる範囲で
+  if (len > srcLen) len = srcLen;
+  strNcat(dst, src, len);                                   // src をつなげる
+  return dstLen + len;
+}
+
+// 絶対パスを取得する。
+public boolean absPath(char[] path, char[] buf, int bufSiz) {
+  int pathLen = strLen(path);
+  // 探索開始位置を決める
+  if (path[0] == '/') {                                     // 1文字目が '/'
+    strCpy(buf, "/");                                       //   / から開始
+  } else {                                                  // それ以外
+    char[] pwd = getWd();                                   //   PWD を取得
+    int pwdLen = strLen(pwd);
+    if (pwdLen > bufSiz) return true;                       //   buf が足りないので終了
+    strCpy(buf, pwd);                                       //   pwd から開始
+  }
+  // パスを辿る
+  Stat sta;
+  for (int p=0; ;) {                                        //
+    while (p<pathLen && path[p]=='/') p = p + 1;            //   余計な '/' を読み飛ばす
+    if (p>=pathLen) break;                                  //   パス解析完了
+
+    char[] name = _addrAdd(path, p);                        //   ファイル名
+    int nameLen = strChr(name, '/');                        //   ファイル名の長さ
+    if (nameLen < 0) nameLen = strLen(name);
+    if (strNcmp(name, ".", nameLen) == 0) {                 //   同一ディレクトリ
+    } else if (strNcmp(name, "..", nameLen) == 0) {         //   親ディレクトリ
+      int lastSl = strRchr(buf, '/');                       //     最後の '/'
+      if (lastSl != 0) buf[lastSl] = '\0';                  //       以降を削除
+      else buf[1] = '\0';                                   //       "/xx" -> "/"
+    } else {                                                //   それ以外
+      joinPath(buf, bufSiz, name, nameLen);                 //     buf に結合する
+    }
+    p = p + nameLen + 1;
+  }
+  return false;
+}
+
+public char[] getWd() {
+  char[] pwd = getEnv("PWD");
+  if (pwd==null) pwd = "/";                         // PWD がない場合は "/"
+  return pwd;
+}
+
+public boolean chDir(char[] pathname) {
+  int bufSiz = 80;
+  char[] buf = malloc(bufSiz);
+  if (absPath(pathname, buf, bufSiz))               // 絶対パスに変換
+    return true;                                    //   absPath がエラー
+  if (setEnv("PWD", buf, true))                     // 環境変数 PWD を変更
+    return true;                                    //   setEnv がエラー
+  return false;
+}
