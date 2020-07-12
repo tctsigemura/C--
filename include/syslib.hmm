@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2019 by
+ * Copyright (C) 2016 - 2020 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * include/syslib.hmm : lib/syslib.s の外部インタフェース
  *
+ * 2020.07.11 : pathを含むものはラッパーに置き換え
  * 2019.11.15 : stat を追加
  * 2019.10.18 : conRead, conWrite を ttyRead, ttyWrite に変更，ttyCtl を追加
  * 2016.02.27 : exit を _exit に変更
@@ -37,19 +38,26 @@
 #define BLKSIZ    512
 
 public int exec(char[] name, void[] argv, void[] envp);
+public int _exec(char[] name, void[] argv, void[] envp);
 public void _exit(int status);
 public int wait(int[] sta);
 public int sleep(int ms);
 public int creat(char[] path);
+public int _creat(char[] path);
 public int remove(char[] path);
+public int _remove(char[] path);
 public int mkDir(char[] path);
+public int _mkDir(char[] path);
 public int rmDir(char[] path);
+public int _rmDir(char[] path);
 public int open(char[] path, int mode);
+public int _open(char[] path, int mode);
 public int close(int fd);
 public int read(int fd, void[] buf, int len);
 public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
 public int stat(char[] path, void[] stat);
+public int _stat(char[] path, void[] stat);
 public int ttyRead(void[] buf, int len);
 public int ttyWrite(void[] buf, int len);
 

@@ -2,7 +2,7 @@
  * Programingxx Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2019 by
+ * Copyright (C) 2016 - 2020 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/wrap-syslib.cmm : システムコールのラッパー
  *
+ * 2020.07.11 : absPathのエラーをチェックする
  * 2019.12.01 : 新規作成
  *
  * $Id$
@@ -30,6 +31,7 @@
 #include <stdio.hmm>
 #include <syslib.hmm>
 #include <stdlib.hmm>
+#include <errno.hmm>
 #define BUF 80
 
 // syslib.s で定義される関数 (本来のシステムコール)
@@ -44,8 +46,10 @@ public int _stat(char[] path, void[] stat);
 // path を絶対パスに変換して返す。呼び出し側で free() する必要がある。
 char[] newAbsPath(char[] path) {
   char[] buf = malloc(BUF);
-  if (buf==null) perror(path);
-  absPath(path, buf, BUF);
+  if (absPath(path, buf, BUF)) {
+    free(buf);
+    buf = null;
+  }
   return buf;
 }
 
@@ -53,6 +57,7 @@ char[] newAbsPath(char[] path) {
 
 public int exec(char[] name, void[] argv, void[] envp) {
   char[] buf = newAbsPath(name);
+  if (buf==null) return errno;
   int r = _exec(buf, argv, envp);
   free(buf);
   return r;
@@ -60,6 +65,7 @@ public int exec(char[] name, void[] argv, void[] envp) {
 
 public int creat(char[] path) {
   char[] buf = newAbsPath(path);
+  if (buf==null) return errno;
   int r = _creat(buf);
   free(buf);
   return r;
@@ -67,6 +73,7 @@ public int creat(char[] path) {
 
 public int remove(char[] path) {
   char[] buf = newAbsPath(path);
+  if (buf==null) return errno;
   int r = _remove(buf);
   free(buf);
   return r;
@@ -74,6 +81,7 @@ public int remove(char[] path) {
 
 public int mkDir(char[] path) {
   char[] buf = newAbsPath(path);
+  if (buf==null) return errno;
   int r = _mkDir(buf);
   free(buf);
   return r;
@@ -82,6 +90,7 @@ public int mkDir(char[] path) {
 
 public int rmDir(char[] path) {
   char[] buf = newAbsPath(path);
+  if (buf==null) return errno;
   int r = _rmDir(buf);
   free(buf);
   return r;
@@ -89,6 +98,7 @@ public int rmDir(char[] path) {
 
 public int open(char[] path, int mode) {
   char[] buf = newAbsPath(path);
+  if (buf==null) return errno;
   int r = _open(buf, mode);
   free(buf);
   return r;
@@ -96,6 +106,7 @@ public int open(char[] path, int mode) {
 
 public int stat(char[] path, void[] stat) {
   char[] buf = newAbsPath(path);
+  if (buf==null) return errno;
   int r = _stat(buf, stat);
   free(buf);
   return r;

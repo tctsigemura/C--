@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2019
+ * Copyright (C) 2019-2020
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/environ.cmm : 環境変数
  *
+ * 2020.07.11: 環境変数，カレントディレクトリ関連のバグ修正
  * 2019.11.13: 新規作成
  *
  * $Id$
@@ -48,24 +49,23 @@ public void _environInit(char[][] envp) {
   }
   capacity = envs + 1;                                      // 要素数 + null
   environ = malloc(sizeof(char[]) * capacity);
-  environ[envs] = null;                                     // null 終端
   for (int i = 0; i < envs; i = i + 1) {                    // 要素をコピー
     int len = strLen(envp[i]);
     environ[i] = malloc(len + 1);
     strCpy(environ[i], envp[i]);
   }
+  environ[envs] = null;                                     // null 終端
 }
 
 // environ 中のインデックスを返す。存在しなければ環境変数の個数を返す
 // 存在しなければ、 environ[envIndex(name, len)] == null になる
 int envIndex(char[] name, int len) {
   int i = 0;
-  while (environ[i] != null) {
+  for (; environ[i] != null; i = i + 1) {
     int nameLen = strChr(environ[i], '=');
     if (len == nameLen && strNcmp(environ[i], name, len) == 0) {
       return i;
     }
-    i = i + 1;
   }
   return i;
 }
@@ -83,7 +83,7 @@ public char[] getEnv(char[] name) {
 void reallocEnv(int newCap) {
   char[][] newEnv = malloc(sizeof(char[]) * newCap);        // 新しい配列を確保
   int envs = 0;
-  for (; environ[envs] != null; envs = envs+1) {            // 全環境変数を
+  for (; environ[envs] != null; envs = envs + 1) {          // 全環境変数を
     newEnv[envs] = environ[envs];                           //   新配列にコピー
   }
   newEnv[envs] = null;                                      // null 終端
@@ -94,8 +94,8 @@ void reallocEnv(int newCap) {
 
 // 環境変数を表現する文字列（"名前=値"）を作る
 char[] makeEnvStr(char[] name, int nameLen, char[] value) {
-  char[] string = malloc(nameLen + 1 + strLen(value) + 1);  // メモリ確保
-  strNcpy(string, name, nameLen);                           // 「名前」をコピー
+  char[] string = malloc(nameLen+1+strLen(value)+1);        // メモリ確保
+  strNcpy(string, name, nameLen+1);                         // 「名前」をコピー
   strCat(string, "=");                                      // "="を追加
   strCat(string, value);                                    // 「値」をコピー
   return string;
@@ -109,11 +109,11 @@ boolean setNEnv(char[] name, int nameLen, char[] value, boolean overwrite) {
   }
   int index = envIndex(name, nameLen);                      // 環境変数を探索
   if (environ[index] == null) {                             // 同名のものは無い
-    int size = index + 1;                                   //   追加処理開始
+    int size = index + 2;                                   //   追加処理開始
     if (size > capacity) {                                  //   配列容量が不足
       reallocEnv(size);                                     //    配列を再割付
     }
-    environ[size] = null;                                   //   null 終端
+    environ[index+1] = null;                                // null 終端
   } else {                                                  // 同名のものがある
     free(environ[index]);                                   //   古いものを解放
   }
@@ -146,59 +146,82 @@ public boolean unsetEnv(char[] name) {
   }
   free(environ[index]);                                     // メモリを解放する
   for (int i=index; environ[i]!=null; i=i+1) {              // より後ろの要素は
-    environ[i] = environ[i+1];                            //    前につめる
+    environ[i] = environ[i+1];                              //    前につめる
   }
   return false;
 }
 
-// 2つのパスを連結する。dst<-dst/src。返り値はパスの長さ。src が絶対パスの場合は src だけ。
-int joinPath(char[] dst, int dstSiz, char[] src, int srcLen) {
-  int dstLen = strLen(dst);
-  if (dst[dstLen-1] != '/') {                               // dst 末尾が '/' でない
-    strNcat(dst, "/", dstSiz - dstLen - 1);                 //  '/' をつける
-    dstLen = strLen(dst);
+// 意味のない "." を削除する
+void delDotDir(char[] path) {
+  int l = 0;
+  for (int h=0; path[h]!='\0'; h=h+1) {
+    path[l] = path[h];
+    l = l + 1;
+    if (path[h]=='/' && path[h+1]=='.' &&
+        (path[h+2]=='/' || path[h+2]=='\0')) {              // /. なら
+        h = h + 1;                                          //   . をスキップ
+    }
   }
-  if (src[0] == '/') {                                      // src が絶対パスなら
-    dst[0] = '\0';                                          //   dst を "" にする
-    dstLen = 0;
+  path[l] = '\0';
+}
+
+// 連続する/を一つだけにする
+void oneSlash(char[] path) {
+  int l = 0;
+  for (int h=0; path[h]!='\0'; h=h+1) {
+    for (; path[h]=='/' && path[h+1]=='/'; h=h+1)           // / が連続するなら
+        ;                                                   //     スキップする
+    path[l] = path[h];
+    l = l + 1;
   }
-  int len = dstSiz - dstLen - 1;                            // dst に収まる範囲で
-  if (len > srcLen) len = srcLen;
-  strNcat(dst, src, len);                                   // src をつなげる
-  return dstLen + len;
+  path[l] = '\0';
+}
+
+// ..があったら前のディレクトリを消す
+void delDotDotDir(char[] path) {
+  int l = 0;
+  for (int h=0; path[h]!='\0'; h=h+1) {
+    if (path[h]=='/' && path[h+1]=='.' && path[h+2]=='.'    // /.. なら
+        && (path[h+3]=='/' || path[h+3]=='\0')) {
+      h = h + 2;                                            //   .. をスキップ
+      if (l>0) {
+        for (l=l-1; l>0 && path[l]!='/'; l=l-1)             //   前の/まで削除
+          ;
+      }
+    } else if (path[h]=='/' && path[h+1]=='\0') {          // 行末の/は
+      break;                                               //   コピーしない
+    } else {
+      path[l] = path[h];
+      l = l + 1;
+    }
+  }
+  path[l] = '\0';
 }
 
 // 絶対パスを取得する。
+Stat sta = {0,0,0,0};
 public boolean absPath(char[] path, char[] buf, int bufSiz) {
-  int pathLen = strLen(path);
-  // 探索開始位置を決める
   if (path[0] == '/') {                                     // 1文字目が '/'
-    strCpy(buf, "/");                                       //   / から開始
+    strCpy(buf, "/");                                       //   "/"から始める
   } else {                                                  // それ以外
-    char[] pwd = getWd();                                   //   PWD を取得
-    int pwdLen = strLen(pwd);
-    if (pwdLen > bufSiz) return true;                       //   buf が足りないので終了
-    strCpy(buf, pwd);                                       //   pwd から開始
-  }
-  // パスを辿る
-  Stat sta;
-  for (int p=0; ;) {                                        //
-    while (p<pathLen && path[p]=='/') p = p + 1;            //   余計な '/' を読み飛ばす
-    if (p>=pathLen) break;                                  //   パス解析完了
-
-    char[] name = _addrAdd(path, p);                        //   ファイル名
-    int nameLen = strChr(name, '/');                        //   ファイル名の長さ
-    if (nameLen < 0) nameLen = strLen(name);
-    if (strNcmp(name, ".", nameLen) == 0) {                 //   同一ディレクトリ
-    } else if (strNcmp(name, "..", nameLen) == 0) {         //   親ディレクトリ
-      int lastSl = strRchr(buf, '/');                       //     最後の '/'
-      if (lastSl != 0) buf[lastSl] = '\0';                  //       以降を削除
-      else buf[1] = '\0';                                   //       "/xx" -> "/"
-    } else {                                                //   それ以外
-      joinPath(buf, bufSiz, name, nameLen);                 //     buf に結合する
+    char[] pwd = getWd();                                   //   PWDを取得
+    if (strLen(pwd) >= bufSiz-2) {                          //   PWDが長すぎる
+      errno = EINVAL;                                       //  errnoを変更して
+      return true;
     }
-    p = p + nameLen + 1;
+    strCpy(buf, pwd);                                       //   pwd から開始
+    strCat(buf, "/");                                       //   念のため/追加
   }
+  if (strLen(buf)+strLen(path) >= bufSiz-1) {               // 十分なbufがない
+    errno = EINVAL;                                         //  errnoを変更して
+    return true;
+  }
+  strCat(buf, path);                                        // bufに結合する
+  if (_stat(buf, sta)<0) return true;                       // 有効なpathか確認
+  delDotDir(buf);                                           // "."を削除する
+  oneSlash(buf);                                            // 連続の"/"を処理
+  delDotDotDir(buf);                                        // ".."を処理
+  if (buf[0]=='\0') strCpy(buf, "/");                       // 処理結果が""なら
   return false;
 }
 
@@ -208,12 +231,18 @@ public char[] getWd() {
   return pwd;
 }
 
-public boolean chDir(char[] pathname) {
-  int bufSiz = 80;
-  char[] buf = malloc(bufSiz);
-  if (absPath(pathname, buf, bufSiz))               // 絶対パスに変換
-    return true;                                    //   absPath がエラー
-  if (setEnv("PWD", buf, true))                     // 環境変数 PWD を変更
-    return true;                                    //   setEnv がエラー
-  return false;
+#define BUF 80
+public boolean chDir(char[] path) {
+  boolean err = false;
+  char[] buf = malloc(BUF);
+  if (absPath(path, buf, BUF)) {                    // 絶対パスに変換
+    err = true;                                     //   absPath がエラー
+  } else if ((sta.attr&0x10)==0) {                  // ディレクトリではない
+    errno = EPATH;
+    err = true;
+  } else if (setEnv("PWD", buf, true)) {            // 環境変数 PWD を変更
+    err = true;                                     //   setEnv がエラー
+  }
+  free(buf);
+  return err;
 }
