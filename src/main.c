@@ -33,7 +33,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include "util.h"                   // その他機能モジュール
 #include "parser.h"                 // 構文解析器モジュール
 #include "lexer.h"                  // 字句解析器モジュール

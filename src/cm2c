@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function error {
   eval  "$@"
@@ -23,7 +23,8 @@ CFLAGS="-g -O0 \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
    -Wno-dangling-else -Wno-format-security"
 
-CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC"
+CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC"  # macOS
+#CPPFLAGS="-nostdinc -DC"                                  # Ubuntu
 
 myname=`basename $0`
 exefile="a.out"
@@ -50,8 +51,8 @@ while [ $# -gt 0 ]; do
             LIBDIR=/usr/local/cmmLib/LibNortc
 	    INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
             shift;;
-        -I) incdir="$incdir -I$2" shift; shift;;
-        -I*)incdir="$incdir $1";         shift;;
+        -I) incdir="${incdir} -I$2"; shift; shift;;
+        -I*)incdir="${incdir} $1";         shift;;
         -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
             CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
         -*) echo  "\"${myname}\" is the C-- compiler driver."             1>&2
