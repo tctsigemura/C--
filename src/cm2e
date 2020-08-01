@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function error {
   eval  "$@"
@@ -9,7 +9,8 @@ function error {
 INCDIR="-I/usr/local/cmmInclude"
 LIBDIR=/usr/local/cmmLib
 
-CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc"
+CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc"  # macOS
+#CPPFLAGS="-nostdinc"                                  # Ubuntu
 
 myname=`basename $0`
 exefile="a.exe"
@@ -30,8 +31,8 @@ while [ $# -gt 0 ]; do
         -K) kflag="-K"; shift;;
         -P) pflag="-P"; shift;;
         -nostdinc) INCDIR=""; shift;;
-        -I) incdir="$incdir -I$2" shift; shift;;
-        -I*)incdir="$incdir $1" shift;;
+        -I) incdir="${incdir} -I$2"; shift; shift;;
+        -I*)incdir="${incdir} $1"; shift;;
         -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
             CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
         -*) echo  "\"${myname}\" is the C-- compiler driver."             1>&2

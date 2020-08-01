@@ -282,14 +282,12 @@ static void gen2OpExpr(int node, struct Expr* c) {
   int typ  = syGetType(node);                     // 演算の種類
   int lval = syGetLVal(node);                     // 左辺
   int rval = syGetRVal(node);                     // 右辺
-  boolean swap = false;
 
   if (isCommutativeOp(typ) &&                     // 左右を可換な演算で右辺が
       evalDepth(lval) < evalDepth(rval)) {        //   多くのスタックを使うなら
     int tmp = lval;                               // 左右の辺を入れ換える
     lval = rval;
     rval = tmp;
-    swap = true;
   }
 
   // 両辺を処理する

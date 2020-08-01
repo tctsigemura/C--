@@ -41,7 +41,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <strings.h>
+#include <string.h>
 
 #include "lexer.h"
 #include "util.h"
