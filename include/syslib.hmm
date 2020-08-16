@@ -22,6 +22,7 @@
 /*
  * include/syslib.hmm : lib/syslib.s の外部インタフェース
  *
+ * 2020.08.16 : ifndef 追加
  * 2020.07.11 : pathを含むものはラッパーに置き換え
  * 2019.11.15 : stat を追加
  * 2019.10.18 : conRead, conWrite を ttyRead, ttyWrite に変更，ttyCtl を追加
@@ -31,6 +32,9 @@
  *$Id$
  *
  */
+
+#ifndef SYSLIB_HMM
+#define SYSLIB_HMM
 
 #define O_RDONLY  0
 #define O_WRONLY  1
@@ -66,3 +70,5 @@ public int ttyWrite(void[] buf, int len);
 #define TTYCTL_MODE_COOKED 1
 #define TTYCTL_MODE_ECHO 2
 public int ttyCtl(int cmd, int mode);
+
+#endif

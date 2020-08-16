@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2019 by
+ * Copyright (C) 2016 - 2020 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,11 +22,15 @@
 /*
  * include/sys/fs.hmm : TacOS とユーザで共通のインクルードファイル
  *
+ * 2020.08.16 : ifndef 追加
  * 2019.11.15 : 新規作成
  *
  *$Id$
  *
  */
+
+#ifndef SYS_FS_HMM
+#define SYS_FS_HMM
 
 struct Stat {   // FAT16ファイルシステムからファイルの情報を取り出す．
   int attr;     // read-only(0x01)，hidden(0x02)，directory(0x10) 他
@@ -34,3 +38,5 @@ struct Stat {   // FAT16ファイルシステムからファイルの情報を�
   int lenH;     // ファイル長上位16ビット
   int lenL;     // ファイル長下位16ビット
 };
+
+#endif
