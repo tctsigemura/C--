@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer
  *
- * Copyright (C) 2016 - 2019 by
+ * Copyright (C) 2016 - 2020 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * include/crt0.hmm : lib/crt0.s の外部インタフェース
  *
+ * 2020.08.16 : ifndef 追加
  * 2019.01.20 : _in()，_out()を追加
  * 2018.11.14 : 32ビット演算を追加
  * 2016.02.25 : 新規作成
@@ -29,6 +30,8 @@
  * $Id$
  */
 
+#ifndef CRT0_HMM
+#define CRT0_HMM
 
 // C-- 言語をサポートする関数
 public int    _aToI(void[] a);                      // 型変換ルーチン
@@ -46,3 +49,5 @@ public int    _mod32(int[] dst, int src);           // 32ビット剰余算
 public int    _sp();                                // 現在の SP の値を返す
 public int    _in(int p);                           // I/Oからワードを入力
 public void   _out(int p, int v);                   // I/Oへワードを出力
+
+#endif
