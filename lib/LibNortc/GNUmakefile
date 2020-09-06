@@ -37,8 +37,8 @@ all: ${OBJS}
 ${OBJS}: ${TMP}
 	mv ${TMP} .
 	cp ../SrcC/wrapper.h .
-	c-c-- ../../include/ctype.hmm >> wrapper.h
-	c-c-- ../../include/string.hmm >> wrapper.h
+	cpp -nostdinc ../../include/ctype.hmm | c-c-- >> wrapper.h
+	cpp -nostdinc ../../include/string.hmm | c-c-- >> wrapper.h
 
 install: ${OBJS}
 	install -d -m 755 /usr/local/cmmLib/LibNortc

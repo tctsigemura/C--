@@ -37,8 +37,8 @@ all: ${OBJS}
 ${OBJS}: ${TMP}
 	mv ${TMP} .
 	cp ../SrcC/wrapper.h .
-	rtc-c-- ../../include/ctype.hmm >> wrapper.h
-	rtc-c-- ../../include/string.hmm >> wrapper.h
+	cpp -nostdinc ../../include/ctype.hmm | rtc-c-- >> wrapper.h
+	cpp -nostdinc ../../include/string.hmm | rtc-c-- >> wrapper.h
 
 install: ${OBJS}
 	install -d -m 755 /usr/local/cmmLib/LibRtc
