@@ -169,7 +169,7 @@ static void printArgs(int node){
 
 // 配列アクセスの場合
 #ifdef _RTC
-static void printArryOp(int typ, int lVal, int rVal) {
+static void printArryOp(int typ, int lVal, int rVal, int ln) {
   printf("(*");                                     // "(*"
   if (typ==SyIDXR)      printf("_RCA(");            // 参照型なら "_RCA("
   else if (typ==SyIDXI) printf("_ICA(");            // int 型なら "_ICA("
@@ -179,7 +179,7 @@ static void printArryOp(int typ, int lVal, int rVal) {
   printExp(lVal);                                   // "左辺式"
   printf(",");                                      // ","
   printExp(rVal);                                   // "右辺式"
-  printf(",__FILE__,__LINE__))");                   // ",__FILE__,__LINE__))"
+  printf(",__FILE__,%d))",ln);             // ",__FILE__,__LINE__))"
 }
 #else
 static void printArryOp(int typ, int lVal, int rVal) {
@@ -192,12 +192,12 @@ static void printArryOp(int typ, int lVal, int rVal) {
 
 // 構造体の場合
 #ifdef _RTC
-static void printDotOp(int lVal, int rVal) {
+static void printDotOp(int lVal, int rVal, int ln) {
   int typ=syGetRVal(rVal);                          // 構造体型のidx
   int fld=syGetLVal(rVal);                          // フィールドのidx
   printf("(((%s*)_CP(", ntGetName(-typ));           // "((型名*)_CP("
   printExp(lVal);                                   // "左辺式"
-  printf(",__FILE__,__LINE__))->");                 // ",__FILE__,__LINE__)->"
+  printf(",__FILE__,%d))->",ln);                 // ",__FILE__,__LINE__)->"
   printf("%s)", ntGetName(fld));                    // "フィールド名"
 }
 #else
