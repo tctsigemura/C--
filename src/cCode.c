@@ -179,10 +179,10 @@ static void printArryOp(int typ, int lVal, int rVal, int ln) {
   printExp(lVal);                                   // "左辺式"
   printf(",");                                      // ","
   printExp(rVal);                                   // "右辺式"
-  printf(",__FILE__,%d))",ln);             // ",__FILE__,__LINE__))"
+  printf(",%s,%d))",getFname(),ln);                 // ",エラー発生時の入力ファイル名,エラー発生箇所の行番号))"
 }
 #else
-static void printArryOp(int typ, int lVal, int rVal) {
+static void printArryOp(int typ, int lVal, int rVal, int ln) {
   printExp(lVal);                                   // "左辺式[右辺式]"
   printf("[");                                      //
   printExp(rVal);                                   //
@@ -197,14 +197,14 @@ static void printDotOp(int lVal, int rVal, int ln) {
   int fld=syGetLVal(rVal);                          // フィールドのidx
   printf("(((%s*)_CP(", ntGetName(-typ));           // "((型名*)_CP("
   printExp(lVal);                                   // "左辺式"
-  printf(",__FILE__,%d))->",ln);                 // ",__FILE__,__LINE__)->"
+  printf(",%s,%d))->",getFname(),ln);               // ",エラー発生時の入力ファイル名,エラー発生箇所の行番号))->"
   printf("%s)", ntGetName(fld));                    // "フィールド名"
 }
 #else
-static void printDotOp(int lVal, int rVal) {
-  printExp(lVal);                                 //   "左辺式->フィールド名"
-  printf("->");                                   //
-  printf("%s", ntGetName(syGetLVal(rVal)));       //
+static void printDotOp(int lVal, int rVal, int ln) {
+  printExp(lVal);                                   //   "左辺式->フィールド名"
+  printf("->");                                     //
+  printf("%s", ntGetName(syGetLVal(rVal)));         //
 }
 #endif
 
@@ -213,6 +213,7 @@ static void printExp(int node){
   int typ = syGetType(node);
   int lVal = syGetLVal(node);
   int rVal = syGetRVal(node);
+  int ln = syGetLn(node);
   if (typ==SyCNST) {                                // 定数なら
     printf("%d", syGetLVal(node));                  //   "値"
   } else if (typ==SySTR) {                          // 文字列なら
@@ -233,9 +234,9 @@ static void printExp(int node){
     if (rVal!=SyNULL) printArgs(rVal);              //
     printf(")");                                    //
   } else if (SyISIDX(typ)) {                        // [] なら
-    printArryOp(typ, lVal, rVal);                   //
+    printArryOp(typ, lVal, rVal, ln);               //
   } else if (typ==SyDOT) {                          // . なら
-    printDotOp(lVal, rVal);                         //
+    printDotOp(lVal, rVal, ln);                         //
   } else if (typ==SyCHR) {                          // chr() なら
     printf("(0xff&");                               //   念のため0xffでマスク
     printExp(lVal);                                 //   "(0xff & 式)"
