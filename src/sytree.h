@@ -142,7 +142,7 @@ int syGetRoot();                             // 構文木のルートを取り�
 #define sySetLVal(idx,v) (syLVal[idx]=(v))
 #define sySetRVal(idx,v) (syRVal[idx]=(v))
 
-#ifdef _RTC
+#ifdef C
 #define syGetLn(idx)   (syLn[idx])
 #define sySetLn(idx,v)   (syLn[idx]=(v))
 #endif
