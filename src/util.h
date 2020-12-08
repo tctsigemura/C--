@@ -60,5 +60,5 @@ boolean strEndsWith(char *s, char *sfx);  // 文字列最後の一致をテス�
 FILE *eOpen(char *fname, char *mod);      // エラーチェック付きの fopen
 
 #ifdef C
-char getFname();
+char* getFname();
 #endif
