@@ -179,7 +179,7 @@ static void printArryOp(int typ, int lVal, int rVal, int ln) {
   printExp(lVal);                                   // "左辺式"
   printf(",");                                      // ","
   printExp(rVal);                                   // "右辺式"
-  printf(",%s,%d))",getFname(),ln);                 // ",ファイル名,行番号))"
+  printf(",\"%s\",%d))",getFname(),ln);             // ",ファイル名,行番号))"
 }
 #else
 static void printArryOp(int typ, int lVal, int rVal, int ln) {
@@ -197,7 +197,7 @@ static void printDotOp(int lVal, int rVal, int ln) {
   int fld=syGetLVal(rVal);                          // フィールドのidx
   printf("(((%s*)_CP(", ntGetName(-typ));           // "((型名*)_CP("
   printExp(lVal);                                   // "左辺式"
-  printf(",%s,%d))->",getFname(),ln);               // ",ファイル名,行番号))->"
+  printf(",\"%s\",%d))->",getFname(),ln);           // ",ファイル名,行番号))->"
   printf("%s)", ntGetName(fld));                    // "フィールド名"
 }
 #else
