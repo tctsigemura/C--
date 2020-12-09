@@ -51,7 +51,7 @@
 int syType[SyMAX];                           // ノードの種類
 int syLVal[SyMAX];                           // ノードの値１
 int syRVal[SyMAX];                           // ノードの値２
-#ifdef _RTC
+#ifdef C
 int syLn[SyMAX];                             // 対応するソースの行番号
 #endif
 
