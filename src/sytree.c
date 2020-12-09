@@ -64,7 +64,9 @@ int syNewNode(int type, int lVal, int rVal) {
   sySetType(idx, type);
   sySetLVal(idx, lVal);
   sySetRVal(idx, rVal);
-  //sySetLn(idx, lxGetLn());                   //  ソースの行番号も記録
+  #ifdef C
+  sySetLn(idx, lxGetLn());                     //  ソースの行番号も記録
+  #endif
   syNextIdx = syNextIdx + 1;
   return idx;
 }

@@ -51,7 +51,9 @@
 int syType[SyMAX];                           // ノードの種類
 int syLVal[SyMAX];                           // ノードの値１
 int syRVal[SyMAX];                           // ノードの値２
-//int syLn[SyMAX];                           // 対応するソースの行番号
+#ifdef C
+int syLn[SyMAX];                             // 対応するソースの行番号
+#endif
 
 // 構文木のノード(LVal, Rval)に格納される特殊な値
 #define SyNULL        9999                   // 構文木のNULLポインタ
@@ -95,7 +97,7 @@ int syRVal[SyMAX];                           // ノードの値２
 
 #define SyISCMP(c)    (((c)&0xf00)==0x400)  // 比較演算かどうか判定
 #define SyGT          0x404                 // ２項演算 >  (Greater Than)
-#define SyGE          0x405                 // ２項演算 >  (Greater or Equal)
+#define SyGE          0x405                 // ２項演算 >= (Greater or Equal)
 #define SyLT          0x406                 // ２項演算 <  (Less Than)
 #define SyLE          0x407                 // ２項演算 <= (Less or Equal)
 #define SyEQU         0x408                 // ２項演算 == (EQUal)
@@ -135,11 +137,14 @@ int syGetRoot();                             // 構文木のルートを取り�
 #define syGetType(idx) (syType[idx])         // 構文木表からデータを取り出す
 #define syGetLVal(idx) (syLVal[idx])
 #define syGetRVal(idx) (syRVal[idx])
-//#define syGetLn(idx)   (syLn[idx])
 
 #define sySetType(idx,v) (syType[idx]=(v))   // 構文木表にデータを書き込む
 #define sySetLVal(idx,v) (syLVal[idx]=(v))
 #define sySetRVal(idx,v) (syRVal[idx]=(v))
-//#define sySetLn(idx,v)   (syLn[idx]=(v))
+
+#ifdef C
+#define syGetLn(idx)   (syLn[idx])
+#define sySetLn(idx,v)   (syLn[idx]=(v))
+#endif
 
 void syPrintTree();                          // デバッグ用
