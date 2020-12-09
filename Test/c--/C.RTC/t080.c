@@ -35,7 +35,7 @@ static char f1(char _cmm_1P){
 (b=0);
 for(;(b==1);)
 {
-(b=(*_CCA(e,a,__FILE__,__LINE__)));
+(b=(*_CCA(e,a,"../t080.cmm",29)));
 (b=(!b));
 }
 {

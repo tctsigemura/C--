@@ -12,5 +12,5 @@ static _IA _cmm_5T={5,{[4]=0}};
 static _RA _cmm_6T={5,{&_cmm_1T,&_cmm_2T,&_cmm_3T,&_cmm_4T,&_cmm_5T}};
 static _RA *y=&_cmm_6T;
 static void f2(){
-(b=(*_ICA((*_RCA(y,1,__FILE__,__LINE__)),((a*b)+(c*f1())),__FILE__,__LINE__)));
+(b=(*_ICA((*_RCA(y,1,"../t020.cmm",15)),((a*b)+(c*f1())),"../t020.cmm",15)));
 }

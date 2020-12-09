@@ -67,13 +67,13 @@ _CA *_cmm_5L;
 (_cmm_1L=10);
 (b=(0xff&_cmm_1L));
 (_cmm_2L=b);
-((*_ICA(i,_cmm_1L,__FILE__,__LINE__))=_cmm_2L);
+((*_ICA(i,_cmm_1L,"../t170.cmm",40))=_cmm_2L);
 (_cmm_1L=(_cmm_2L=10));
-((*_ICA(i,_cmm_1L,__FILE__,__LINE__))=(_cmm_2L=10));
-((*_ICA(i,_cmm_1L,__FILE__,__LINE__))=((*_ICA(i,_cmm_2L,__FILE__,__LINE__))=(_cmm_2L=20)));
-(_cmm_1L=(*_ICA((*_RCA(l,1,__FILE__,__LINE__)),2,__FILE__,__LINE__)));
-(_cmm_1L=(*_ICA((*_RCA(l,(*_ICA(i,5,__FILE__,__LINE__)),__FILE__,__LINE__)),(*_ICA(i,_cmm_1L,__FILE__,__LINE__)),__FILE__,__LINE__)));
-((*_ICA((*_RCA(l,(*_ICA(i,5,__FILE__,__LINE__)),__FILE__,__LINE__)),(*_ICA(i,_cmm_1L,__FILE__,__LINE__)),__FILE__,__LINE__))=((*_ICA(i,_cmm_1L,__FILE__,__LINE__))=20));
+((*_ICA(i,_cmm_1L,"../t170.cmm",42))=(_cmm_2L=10));
+((*_ICA(i,_cmm_1L,"../t170.cmm",43))=((*_ICA(i,_cmm_2L,"../t170.cmm",43))=(_cmm_2L=20)));
+(_cmm_1L=(*_ICA((*_RCA(l,1,"../t170.cmm",44)),2,"../t170.cmm",44)));
+(_cmm_1L=(*_ICA((*_RCA(l,(*_ICA(i,5,"../t170.cmm",45)),"../t170.cmm",45)),(*_ICA(i,_cmm_1L,"../t170.cmm",45)),"../t170.cmm",45)));
+((*_ICA((*_RCA(l,(*_ICA(i,5,"../t170.cmm",46)),"../t170.cmm",46)),(*_ICA(i,_cmm_1L,"../t170.cmm",46)),"../t170.cmm",46))=((*_ICA(i,_cmm_1L,"../t170.cmm",46))=20));
 return _cmm_1L;
 }
 static char f3(){
@@ -126,5 +126,5 @@ int _cmm_21L;
 (_cmm_21L=(((a*b)+6)+(c*d)));
 char _cmm_22L;
 (_cmm_22L=(_cmm_4L&&_cmm_5L));
-((*_ICA(pq,2,__FILE__,__LINE__))=2);
+((*_ICA(pq,2,"../t170.cmm",78))=2);
 }

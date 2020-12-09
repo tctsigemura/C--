@@ -13,9 +13,9 @@ X *_cmm_3L;
 (_cmm_1L=(_cmm_1L+1));
 (_cmm_2L=_cmm_2L);
 (_cmm_2L=(_cmm_2L+-1));
-(_cmm_1L=(*_ICA(a,0,__FILE__,__LINE__)));
-(_cmm_2L=(*_ICA(a,1,__FILE__,__LINE__)));
-(_cmm_1L=(((X*)_CP(_cmm_3L,__FILE__,__LINE__))->a));
-(_cmm_2L=(((X*)_CP(_cmm_3L,__FILE__,__LINE__))->b));
+(_cmm_1L=(*_ICA(a,0,"../t190.cmm",19)));
+(_cmm_2L=(*_ICA(a,1,"../t190.cmm",20)));
+(_cmm_1L=(((X*)_CP(_cmm_3L,"../t190.cmm",21))->a));
+(_cmm_2L=(((X*)_CP(_cmm_3L,"../t190.cmm",22))->b));
 return 0;
 }
