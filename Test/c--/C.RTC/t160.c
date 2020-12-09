@@ -42,8 +42,8 @@ int _cmm_1L;
 _RA *_cmm_2L;
 _CA *_cmm_3L;
 (_cmm_3L=&_cmm_2S);
-((*_ICA(h,1,__FILE__,__LINE__))=1);
-((*_ICA((*_RCA((*_RCA((*_RCA(_cmm_2L,0,__FILE__,__LINE__)),1,__FILE__,__LINE__)),1,__FILE__,__LINE__)),3,__FILE__,__LINE__))=2);
+((*_ICA(h,1,"../t160.cmm",26))=1);
+((*_ICA((*_RCA((*_RCA((*_RCA(_cmm_2L,0,"../t160.cmm",27)),1,"../t160.cmm",27)),1,"../t160.cmm",27)),3,"../t160.cmm",27))=2);
 }
 static _CA _cmm_3S={3,{"ab"}};
 static _CA _cmm_4S={3,{"cd"}};
@@ -90,9 +90,9 @@ int _cmm_2L;
 int _cmm_3L;
 _IA *_cmm_4L;
 (_cmm_4L=_mAlloc((sizeof(int )*10)));
-if(((*_ICA(_cmm_4L,0,__FILE__,__LINE__))==0))((*_ICA(_cmm_4L,1,__FILE__,__LINE__))=1);
-else ((*_ICA(_cmm_4L,1,__FILE__,__LINE__))=0);
-{if(((*_ICA(_cmm_4L,0,__FILE__,__LINE__))==1))((*_ICA(_cmm_4L,1,__FILE__,__LINE__))=1);
+if(((*_ICA(_cmm_4L,0,"../t160.cmm",43))==0))((*_ICA(_cmm_4L,1,"../t160.cmm",43))=1);
+else ((*_ICA(_cmm_4L,1,"../t160.cmm",43))=0);
+{if(((*_ICA(_cmm_4L,0,"../t160.cmm",44))==1))((*_ICA(_cmm_4L,1,"../t160.cmm",44))=1);
 }{if((_cmm_1L==1))(_cmm_1L=2);
 }if((_cmm_1L!=0))(_cmm_1L=3);
 else (_cmm_1L=4);
@@ -113,7 +113,7 @@ int _cmm_5L;
 {
 (_cmm_1L=0);
 for(;(_cmm_1L<3);(_cmm_1L=(_cmm_1L+1)))
-((*_ICA(_cmm_4L,_cmm_1L,__FILE__,__LINE__))=_cmm_1L);
+((*_ICA(_cmm_4L,_cmm_1L,"../t160.cmm",59))=_cmm_1L);
 }
 for(;(((_cmm_1L==2)||(_cmm_2L==2))||(_cmm_3L==2));)
 {
@@ -135,7 +135,7 @@ int _cmm_1L;
 int _cmm_2L;
 (_cmm_2L=2);
 f1(((_cmm_1L==1)&&(_cmm_2L==1)),_cmm_2L);
-return (*_RCA(ab,1,__FILE__,__LINE__));
+return (*_RCA(ab,1,"../t160.cmm",78));
 }
 static void f3(){
 ;
@@ -164,8 +164,8 @@ static _IA _cmm_55T={5,{[4]=0}};
 static _RA _cmm_56T={5,{&_cmm_51T,&_cmm_52T,&_cmm_53T,&_cmm_54T,&_cmm_55T}};
 static _RA *y=&_cmm_56T;
 static void f5(int _cmm_1P,int _cmm_2P,_CA *_cmm_3P){
-((*_ICA(x,((*_ICA(i,(*_ICA(x,1,__FILE__,__LINE__)),__FILE__,__LINE__))+1),__FILE__,__LINE__))=((*_ICA(i,_cmm_1P,__FILE__,__LINE__))=((*_ICA(i,5,__FILE__,__LINE__))=1)));
-(_cmm_2P=(*_ICA((*_RCA(y,1,__FILE__,__LINE__)),(((_cmm_1P*_cmm_2P)*(*_CCA(f2(),2,__FILE__,__LINE__)))*(*_ICA(x,3,__FILE__,__LINE__))),__FILE__,__LINE__)));
+((*_ICA(x,((*_ICA(i,(*_ICA(x,1,"../t160.cmm",95)),"../t160.cmm",95))+1),"../t160.cmm",95))=((*_ICA(i,_cmm_1P,"../t160.cmm",95))=((*_ICA(i,5,"../t160.cmm",95))=1)));
+(_cmm_2P=(*_ICA((*_RCA(y,1,"../t160.cmm",96)),(((_cmm_1P*_cmm_2P)*(*_CCA(f2(),2,"../t160.cmm",96)))*(*_ICA(x,3,"../t160.cmm",96))),"../t160.cmm",96)));
 }
 typedef struct _X X;
 struct _X {
@@ -206,12 +206,12 @@ static void f6(){
 (z1=z2);
 (z1=_mAlloc(sizeof(X )));
 free(z1);
-(z1=(*_RCA(z3,3,__FILE__,__LINE__)));
-(a=(((X*)_CP((*_RCA(z3,3,__FILE__,__LINE__)),__FILE__,__LINE__))->a));
-(z1=(*_RCA((((X*)_CP((*_RCA(z3,3,__FILE__,__LINE__)),__FILE__,__LINE__))->c),1,__FILE__,__LINE__)));
-(a=(((X*)_CP((*_RCA((((X*)_CP((*_RCA((((X*)_CP(z2,__FILE__,__LINE__))->c),1,__FILE__,__LINE__)),__FILE__,__LINE__))->c),1,__FILE__,__LINE__)),__FILE__,__LINE__))->a));
-((*_RCA((*_RCA(z8,1,__FILE__,__LINE__)),1,__FILE__,__LINE__))=_mAlloc(sizeof(Y )));
-((((Y*)_CP((*_RCA((*_RCA(z8,1,__FILE__,__LINE__)),1,__FILE__,__LINE__)),__FILE__,__LINE__))->a)=1);
+(z1=(*_RCA(z3,3,"../t160.cmm",123)));
+(a=(((X*)_CP((*_RCA(z3,3,"../t160.cmm",124)),"../t160.cmm",124))->a));
+(z1=(*_RCA((((X*)_CP((*_RCA(z3,3,"../t160.cmm",125)),"../t160.cmm",125))->c),1,"../t160.cmm",125)));
+(a=(((X*)_CP((*_RCA((((X*)_CP((*_RCA((((X*)_CP(z2,"../t160.cmm",126))->c),1,"../t160.cmm",126)),"../t160.cmm",126))->c),1,"../t160.cmm",126)),"../t160.cmm",126))->a));
+((*_RCA((*_RCA(z8,1,"../t160.cmm",127)),1,"../t160.cmm",127))=_mAlloc(sizeof(Y )));
+((((Y*)_CP((*_RCA((*_RCA(z8,1,"../t160.cmm",128)),1,"../t160.cmm",128)),"../t160.cmm",128))->a)=1);
 free(z8);
 }
 X *f7(int _cmm_1P);
@@ -224,15 +224,15 @@ static _CA _cmm_11S={4,{"bbb"}};
 static void f11(int _cmm_1P,...){
 int _cmm_1L;
 (z1=f7(1));
-(_cmm_1P=(((X*)_CP(f7(1),__FILE__,__LINE__))->b));
-(z1=(*_RCA(f8(z1),1,__FILE__,__LINE__)));
-(z1=(*_RCA(f9(z3),1,__FILE__,__LINE__)));
+(_cmm_1P=(((X*)_CP(f7(1),"../t160.cmm",141))->b));
+(z1=(*_RCA(f8(z1),1,"../t160.cmm",142)));
+(z1=(*_RCA(f9(z3),1,"../t160.cmm",143)));
 (z1=0);
 f10(&_cmm_9S);
 f10(&_cmm_10S,2,&_cmm_11S);
 f11(_cmm_1L,_cmm_1P,_cmm_1L,_cmm_1P,_cmm_1L);
-((*_RCA(z6,1,__FILE__,__LINE__))=((*_RCA(z6,2,__FILE__,__LINE__))=(*_RCA(z6,3,__FILE__,__LINE__))));
-((*_ICA(((*_RCA(y,1,__FILE__,__LINE__))=(*_RCA(y,2,__FILE__,__LINE__))),1,__FILE__,__LINE__))=1);
+((*_RCA(z6,1,"../t160.cmm",148))=((*_RCA(z6,2,"../t160.cmm",148))=(*_RCA(z6,3,"../t160.cmm",148))));
+((*_ICA(((*_RCA(y,1,"../t160.cmm",149))=(*_RCA(y,2,"../t160.cmm",149))),1,"../t160.cmm",149))=1);
 {
 int _cmm_2L;
 (_cmm_2L=0);

@@ -18,12 +18,12 @@ int _cmm_4L;
 _CA *_cmm_5L;
 (_cmm_5L=&_cmm_0S);
 int _cmm_6L;
-(_cmm_6L=(*_CCA(_cmm_5L,1,__FILE__,__LINE__)));
+(_cmm_6L=(*_CCA(_cmm_5L,1,"../t600.cmm",12)));
 _printf(&_cmm_1S,_cmm_1L);
 _printf(&_cmm_2S,_cmm_2L);
 _printf(&_cmm_3S,_cmm_3L);
 _printf(&_cmm_4S,_cmm_4L);
-_printf(&_cmm_5S,(*_CCA(_cmm_5L,1,__FILE__,__LINE__)));
+_printf(&_cmm_5S,(*_CCA(_cmm_5L,1,"../t600.cmm",18)));
 _printf(&_cmm_6S,_cmm_6L);
 return 0;
 }
