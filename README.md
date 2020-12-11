@@ -9,7 +9,7 @@ C言語で悩んだ配列の実態、配列名、配列を指すポインタの�
 常に参照です。
 
 詳細は
-[マニュアル](https://github.com/tctsigemura/C--/blob/master/doc/cmm.pdf)をご覧ください。
+[マニュアル](https://github.com/tctsigemura/C--/blob/master/doc/cmm.pdf)をご覧ください。（インストール方法もこちらです。）
 
 [TacOS](https://github.com/tctsigemura/TacOS/)は
 C--言語で記述されています。
