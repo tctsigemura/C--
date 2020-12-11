@@ -22,6 +22,7 @@
 /*
  * include/syslib.hmm : lib/syslib.s の外部インタフェース
  *
+ * 2020.12.11 : fs.hmm，tty.hmm をインクルードするように変更
  * 2020.08.16 : ifndef 追加
  * 2020.07.11 : pathを含むものはラッパーに置き換え
  * 2019.11.15 : stat を追加
@@ -35,6 +36,9 @@
 
 #ifndef SYSLIB_HMM
 #define SYSLIB_HMM
+
+#include <sys/fs.hmm>
+#include <sys/tty.hmm>
 
 #define O_RDONLY  0
 #define O_WRONLY  1
@@ -60,15 +64,11 @@ public int close(int fd);
 public int read(int fd, void[] buf, int len);
 public int write(int fd, void[] buf, int len);
 public int seek(int fd, int ptrh, int ptrl);
-public int stat(char[] path, void[] stat);
-public int _stat(char[] path, void[] stat);
+public int stat(char[] path, Stat stat);
+public int _stat(char[] path, Stat stat);
 public int ttyRead(void[] buf, int len);
 public int ttyWrite(void[] buf, int len);
-
-#define TTYCTL_GETMODE 0
-#define TTYCTL_SETMODE 1
-#define TTYCTL_MODE_COOKED 1
-#define TTYCTL_MODE_ECHO 2
 public int ttyCtl(int cmd, int mode);
 
 #endif
+

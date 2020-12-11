@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Advanced educational Computer
 #
-# Copyright (C) 2016-2019 by
+# Copyright (C) 2016-2020 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,8 +19,7 @@
 #
 # include/sys/Makefile : makefile
 #
-# 2019.11.15 : sys を追加
-# 2016.02.27 : 初期バージョン
+# 2019.11.15 : 新規作成
 #
 
 all:
