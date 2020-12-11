@@ -2,7 +2,7 @@
  * Programingxx Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2019 by
+ * Copyright (C) 2016 - 2020 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2020.12.11 : EAGAIN 追加
  * 2019.11.18 : fsize() が stat システムコールを使用するように変更
  * 2019.10.18 : ttyRead/ttyWrite は '\0' に依存しないのでバッファを１短く
  * 2019.10.10 : TacOSとの整合を取るため、fillBuf(), fputc(), fflush()を修正
@@ -355,24 +356,26 @@ char[][] errList = {                            // エラーメッセージリ�
   "No children",                                // -17 子プロセスが存在しない
   "No zombie children",                         // -18 ゾンビの子が存在しない
   "Not enough memory",                          // -19 十分な空き領域が無い
+  "Try again",                                  // -20 再実行要求
 
   // 例外ハンドラが検知するユーザプロセスのエラー
-  "Invalid system call number",                 // -20 システムコール番号が不正
-  "Zero division",                              // -21 ゼロ割り算
-  "Privilege violation",                        // -22 特権例外
-  "Illegal instruction",                        // -23 不正命令
-  "Memory violation",                           // -24 メモリ保護違反
+  "Invalid system call number",                 // -21 システムコール番号が不正
+  "Zero division",                              // -22 ゼロ割り算
+  "Privilege violation",                        // -23 特権例外
+  "Illegal instruction",                        // -24 不正命令
+  "Memory violation",                           // -25 メモリ保護違反
 
   // ライブラリ(ユーザプロセス自身)が検知するエラー
-  "Stack overflow",                             // -25 スタックオーバーフロー
-  "stdio: Bad open mode",                       // -26 O_RDONLYにfputc/O_WRONLYにfgetc
-  "stdio: Bad file pointer",                    // -27 不正な fp が使用された
-  "fgetc: EOF was ignored",                     // -28 fgetc前にEOFチェック必要
-  "fopen: Too many open files",                 // -29 プロセス毎のオープン超過
-  "fclose: Standard i/o should not be closed",  // -30 標準ioはクローズできない
-  "fprintf: Invalid conversion",                // -31 書式文字列に不正な変換
-  "malloc: Insufficient memory",                // -32 ヒープ領域が不足
-  "free: Bad address"                           // -33 mallocした領域ではない
+  "Stack overflow",                             // -26 スタックオーバーフロー
+  "stdio: Bad open mode",                       // -27 O_RDONLYにfputc/
+                                                //     O_WRONLYにfgetc
+  "stdio: Bad file pointer",                    // -28 不正な fp が使用された
+  "fgetc: EOF was ignored",                     // -29 fgetc前にEOFチェック必要
+  "fopen: Too many open files",                 // -30 プロセス毎のオープン超過
+  "fclose: Standard i/o should not be closed",  // -31 標準ioはクローズできない
+  "fprintf: Invalid conversion",                // -32 書式文字列に不正な変換
+  "malloc: Insufficient memory",                // -33 ヒープ領域が不足
+  "free: Bad address"                           // -34 mallocした領域ではない
 };
 
 public void _perror(char[] msg, int err) {

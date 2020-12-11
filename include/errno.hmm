@@ -22,6 +22,7 @@
 /*
  * include/errno.hmm : errno とエラー番号の定義
  *
+ * 2020.12.11 : EAGAIN 追加
  * 2020.08.16 : ifndef 追加
  * 2019.01.10 : エラー番号(EMEMVIO)追加
  * 2016.03.04 : 新規作成（TacOS の usr/include/syslib.h をもとに）
@@ -55,24 +56,25 @@ public int errno;
 #define ECHILD          (-17)     // 子プロセスが存在しない
 #define ENOZOMBIE       (-18)     // ゾンビ状態の子プロセスが存在しない
 #define ENOMEM          (-19)     // メモリ不足
+#define EAGAIN          (-20)     // 再実行要求
 
 // 例外ハンドラが検知するユーザプロセスのエラー
-#define ESYSNUM         (-20)     // システムコール番号が不正
-#define EZERODIV        (-21)     // ゼロ割算
-#define EPRIVVIO        (-22)     // 特権例外
-#define EILLINST        (-23)     // 不正命令
-#define EMEMVIO         (-24)     // メモリ保護違反
+#define ESYSNUM         (-21)     // システムコール番号が不正
+#define EZERODIV        (-22)     // ゼロ割算
+#define EPRIVVIO        (-23)     // 特権例外
+#define EILLINST        (-24)     // 不正命令
+#define EMEMVIO         (-25)     // メモリ保護違反
 
 // ライブラリが検知するユーザプロセスのエラー
-#define EUSTK           (-25)     // スタックオーバーフロー
-#define EUMODE          (-26)     // オープンモードと使用方法が合わない
-#define EUBADF          (-27)     // 不正なファイルポインタ
-#define EUEOF           (-28)     // fgetc の前に EOF チェックすべき
-#define EUNFILE         (-29)     // オープンファイル数が多すぎる
-#define EUSTDIO         (-30)     // 標準入出力をクローズしようとした
-#define EUFMT           (-31)     // fprintfの書式文字列に不正な変換指定
-#define EUNOMEM         (-32)     // ヒープ領域が不足
-#define EUBADA          (-33)     // 不正なアドレスが free に渡された
+#define EUSTK           (-26)     // スタックオーバーフロー
+#define EUMODE          (-27)     // オープンモードと使用方法が合わない
+#define EUBADF          (-28)     // 不正なファイルポインタ
+#define EUEOF           (-29)     // fgetc の前に EOF チェックすべき
+#define EUNFILE         (-30)     // オープンファイル数が多すぎる
+#define EUSTDIO         (-31)     // 標準入出力をクローズしようとした
+#define EUFMT           (-32)     // fprintfの書式文字列に不正な変換指定
+#define EUNOMEM         (-33)     // ヒープ領域が不足
+#define EUBADA          (-34)     // 不正なアドレスが free に渡された
 #define ELAST           (-34)     // 最後のエラー番号
 
 #endif
