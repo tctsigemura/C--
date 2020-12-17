@@ -253,6 +253,12 @@ int _printf(_CA* fmt, ...);
 #define environ _environ    // RTCではシステムのenvironは使用できない
 _RA *_environ;              // ライブラリのものとは別のものを準備する
 
+// malloc
+void* iMalloc(int n);
+void* cMalloc(int n);
+void* bMalloc(int n);
+void* rMalloc(int n);
+
 #else
 // printf.c
 int _fPrintf(FILE *fp, char *fmt, ...);
