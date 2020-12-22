@@ -137,28 +137,3 @@ int htoi(char *s) {
   }
   return v;
 }
-
-//_IA malloc
-void *iMalloc(int n){
-  _IA* tmp = malloc(sizeof(_IA)+sizeof(int)*n);
-  tmp.l = n;
-}
-
-//_CA malloc
-void *cMalloc(int n){
-  _CA* tmp = malloc(sizeof(_CA)+sizeof(char)*n);
-  tmp.l = n;
-}
-
-//_CA(boolean) malloc
-void *bMalloc(int n){
-  _CA* tmp = malloc(sizeof(_CA)+sizeof(char)*n);
-  tmp.l = n;
-}
-
-//_RA malloc
-void *rMalloc(int n){
-  _RA* tmp = malloc(sizeof(_RA))
-  tmp.l = n;
-}
-
