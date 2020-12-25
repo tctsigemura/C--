@@ -492,7 +492,7 @@ interrupt timerHdr() {         // タイマー割込みハンドラのつもり
 }
 public int main() {
   int[] vect = _iToA(0xffe0);  // vect は割込みベクタの配列
-  vect[4] = addrof(timerHdr);  // vect[4] はタイマー割込みのベクタ
+  vect[1] = addrof(timerHdr);  // vect[1] はTimer1の割込みベクタ
   ...
 }
 \end{verbatim}
