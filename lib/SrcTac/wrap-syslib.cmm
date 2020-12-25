@@ -41,7 +41,7 @@ public int _remove(char[] path);
 public int _mkDir(char[] path);
 public int _rmDir(char[] path);
 public int _open(char[] path, int mode);
-public int _stat(char[] path, void[] stat);
+public int _stat(char[] path, Stat stat);
 
 // path を絶対パスに変換して返す。呼び出し側で free() する必要がある。
 char[] newAbsPath(char[] path) {
@@ -104,7 +104,7 @@ public int open(char[] path, int mode) {
   return r;
 }
 
-public int stat(char[] path, void[] stat) {
+public int stat(char[] path, Stat stat) {
   char[] buf = newAbsPath(path);
   if (buf==null) return errno;
   int r = _stat(buf, stat);
