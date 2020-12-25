@@ -1,6 +1,8 @@
 %
 % C-- 言語 ver.3.x の解説書
 %
+% 2020.12.11 v.3.2.9 : TTYCTL_MODE_NBLOCK を追加
+%                      interruptの使用例のベクタ番号を実際に合わせる
 % 2020.06.30 v.3.2.3 : カレントディレクトリ追加
 %                      トランスレータ版の環境変数バグ訂正
 % 2019.12.10 v.3.2.2 : 環境変数ライブラリ追加，exec()に環境変数の引数追加
@@ -77,7 +79,7 @@
 %----------------------------------------------------------------------
 \newcommand{\figref}[1]{図~\ref{fig:#1}}
 \newcommand{\tabref}[1]{表~\ref{tab:#1}}
-\newcommand{\ver}{Ver. 3.2.3}
+\newcommand{\ver}{Ver. 3.2.9}
 \newcommand{\cmm}{{\tt C--}}
 \newcommand{\cmml}{\cmm 言語}
 \newcommand{\cmmc}{{\tt c--}}
@@ -144,7 +146,7 @@
 ~
 \vfill
 \begin{flushleft}
-Copyright \copyright ~~ 2016 - 2019 by \\
+Copyright \copyright ~~ 2016 - 2020 by \\
 Dept. of Computer Science and Electronic Engineering, \\
 Tokuyama College of Technology, JAPAN
 \end{flushleft}
@@ -180,9 +182,10 @@ Tokuyama College of Technology, JAPAN
 ~
 \subsubsection{変更履歴}
 \begin{flushleft}
-2020年06月30日 v.3.2.3 カレントディレクトリ追加 \\
-2019年12月10日 v.3.2.2 環境変数ライブラリ追加，Statシステムコール追加 \\
-2019年10月18日 v.3.2.1  conRead/WriteをttyRead/Writeに変更,ttyCtlを追加 \\
+2020年12月11日 v.3.2.9  \|TTYCTL_MODE_NBLOCK|追記 \\
+2020年06月30日 v.3.2.3  カレントディレクトリ追記 \\
+2019年12月10日 v.3.2.2  環境変数ライブラリ追記，Statシステムコール追記 \\
+2019年10月18日 v.3.2.1  conRead/WriteをttyRead/Writeに変更,ttyCtlを追記 \\
 2019年03月24日 v.3.2.0  トランスレータ版に実行時エラーチェックを試験的に導入 \\
 2019年01月27日 v.3.1.12 メモリ保護違反,I/O特権モード,in(),out(),htoi()追記 \\
 2018年11月18日 V.3.1.11 fsize、fseek、printf("\%ld")、32ビット演算を追記 \\
@@ -200,11 +203,11 @@ Tokuyama College of Technology, JAPAN
 \subsubsection{対応ソフトウェアのバージョン}
 \begin{tabular}{|l|l|}
 \hline
-{\tt C--}      & Ver.3.2.3 \\
+{\tt C--}      & Ver.3.2.9 \\
 \hline
 {\tt Util--}   & Ver.3.0.3 \\
 \hline
-{\tt TacOS}    & Ver.3.2.1 \\
+{\tt TacOS}    & Ver.3.3.2 \\
 \hline
 \end{tabular}
 
@@ -213,7 +216,7 @@ Tokuyama College of Technology, JAPAN
 \fbox{\parbox{10cm}{ \vspace{0.3cm}
 \large{\bf　プログラミング言語 \cmm} \\
 \\
-　発行年月　２０２０年０６月　\ver \\
+　発行年月　２０２０年１２月　\ver \\
 　著　　者　重村　哲至 \\
 　発　　行　独立行政法人国立高等専門学校機構 \\
 　　　　　　徳山工業高等専門学校 \\

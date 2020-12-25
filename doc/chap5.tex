@@ -340,7 +340,7 @@ public int ttyCtl(int cmd, int mode);
 \|TTYCTL_GETMODE|を指定した場合，\|ttyCtl|は現在のモードを返します．
 \|TTYCTL_SETMODE|を指定した場合，\|ttyCtl|はモードを\|mode|に変更します．
 \|ttyCtl|の返り値と\|mode|では，
-モードを\|TTYCTL_MODE_COOKED|と\|TTYCTL_MODE_ECHO|の
+モードを\|TTYCTL_MODE_COOKED|，\|TTYCTL_MODE_ECHO|，\|TTYCTL_MODE_NBLOCK|の
 ビットマップで表現します．
 
 \|TTYCTL_MODE_COOKED|は通常ONになっています．
@@ -351,6 +351,10 @@ public int ttyCtl(int cmd, int mode);
 \|TTYCTL_MODE_ECHO|も通常ONになっています．
 このモードがONになっている場合，
 キーボードから入力した文字が画面にエコーバックされます．
+
+\|TTYCTL_MODE_NBLOCK|は通常OFFになっています．
+このモードがONになっている場合，\|ttyRead|が入力待ちになりません．
+
 以下にプログラム例を示します．
 
 \begin{quote}
