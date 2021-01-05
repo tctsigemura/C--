@@ -257,24 +257,28 @@ _RA *_environ;              // ライブラリのものとは別のものを準�
 inline static _IA *iMalloc(int n){
   _IA* tmp = _mAlloc(sizeof(_IA)+sizeof(int)*n);
   tmp->l = n;
+  return tmp;
 }
 
 //_CA malloc
 inline static _CA *cMalloc(int n){
   _CA* tmp = _mAlloc(sizeof(_CA)+sizeof(char)*n);
   tmp->l = n;
+  return tmp;
  }
 
  //_CA(boolean) malloc
 inline static _CA *bMalloc(int n){
   _CA* tmp = _mAlloc(sizeof(_CA)+sizeof(char)*n);
   tmp->l = n;
+  return tmp;
 }
 
 //_RA malloc
 inline static _RA *rMalloc(int n){
   _RA* tmp = _mAlloc(sizeof(_RA)+sizeof(char*)*n);
   tmp->l = n;
+  return tmp;
 }
 
 #else
