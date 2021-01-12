@@ -103,7 +103,7 @@ public char[] cMalloc(int n) {
   return malloc(sizeof(char)*n);
 }
 public boolean[] bMalloc(int n) {
-  return malloc(sizeof(char)*n);
+  return malloc(sizeof(boolean)*n);
 }
 public void[] rMalloc(int n) {
   return malloc(sizeof(void[])*n);
