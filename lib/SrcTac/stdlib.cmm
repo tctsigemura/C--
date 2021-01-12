@@ -96,6 +96,19 @@ public void[] malloc(int siz) {                 // メモリ割り当て
   return _addrAdd(m, MBSIZE);                   // 管理領域を除いて返す
 }
 
+public int[] iMalloc(int n) {                   // malloc関連
+  return malloc(sizeof(int)*n);
+}
+public char[] cMalloc(int n) {
+  return malloc(sizeof(char)*n);
+}
+public boolean[] bMalloc(int n) {
+  return malloc(sizeof(boolean)*n);
+}
+public void[] rMalloc(int n) {
+  return malloc(sizeof(void[])*n);
+}
+
 // メモリを解放する
 public void free(void[] mem) {                  // 領域解放
   MemBlk q = _addrAdd(mem, -MBSIZE);            // 解放する領域

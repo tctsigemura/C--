@@ -39,6 +39,10 @@ public void[] _alcAddr;                      // ヒープ領域終端を示す�
 public void _stdlibInit();                   // stdlib の初期化
 
 public void[] malloc(int s);
+public int[] iMalloc(int n);
+public char[] cMalloc(int n);
+public boolean[] bMalloc(int n);
+public void[] rMalloc(int n);
 public void[] calloc(int c, int s);
 public void free(void[] m);
 
