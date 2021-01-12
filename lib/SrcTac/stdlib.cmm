@@ -96,7 +96,7 @@ public void[] malloc(int siz) {                 // メモリ割り当て
   return _addrAdd(m, MBSIZE);                   // 管理領域を除いて返す
 }
 
-public int[] iMalloc(int n) {
+public int[] iMalloc(int n) {                   // malloc関連
   return malloc(sizeof(int)*n);
 }
 public char[] cMalloc(int n) {
