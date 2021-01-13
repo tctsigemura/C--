@@ -2,7 +2,7 @@
  * Programingxx Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2020 by
+ * Copyright (C) 2016 - 2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/wrap-syslib.cmm : システムコールのラッパー
  *
+ * 2021.01.12 : cMallocを使用するように変更
  * 2020.07.11 : absPathのエラーをチェックする
  * 2019.12.01 : 新規作成
  *
@@ -45,7 +46,7 @@ public int _stat(char[] path, Stat stat);
 
 // path を絶対パスに変換して返す。呼び出し側で free() する必要がある。
 char[] newAbsPath(char[] path) {
-  char[] buf = malloc(BUF);
+  char[] buf = cMalloc(BUF);
   if (absPath(path, buf, BUF)) {
     free(buf);
     buf = null;

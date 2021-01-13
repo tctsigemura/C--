@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2019 by
+ * Copyright (C) 2016 - 2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * wrapper.h : wrapper.c 関数のプロトタイプ宣言
  *
+ * 2021.01.12 : iMalloc等を追加
  * 2019.12.13 : 環境変数関連をRTCに対応
  * 2019.11.14 : 環境変数関連を追加
  * 2019.03.14 : RTCのためにfputs,puts,fgets,perror関数のinlineラッパー関数追加
@@ -253,28 +254,28 @@ int _printf(_CA* fmt, ...);
 #define environ _environ    // RTCではシステムのenvironは使用できない
 _RA *_environ;              // ライブラリのものとは別のものを準備する
 
-//_IA malloc
+// int 配列用の malloc
 inline static _IA *iMalloc(int n){
   _IA* tmp = _mAlloc(sizeof(_IA)+sizeof(int)*n);
   tmp->l = n;
   return tmp;
 }
 
-//_CA malloc
+// char 配列用の malloc
 inline static _CA *cMalloc(int n){
   _CA* tmp = _mAlloc(sizeof(_CA)+sizeof(char)*n);
   tmp->l = n;
   return tmp;
  }
 
- //_CA(boolean) malloc
+ // boolean 配列用の malloc
 inline static _CA *bMalloc(int n){
   _CA* tmp = _mAlloc(sizeof(_CA)+sizeof(char)*n);
   tmp->l = n;
   return tmp;
 }
 
-//_RA malloc
+// 参照配列用の malloc
 inline static _RA *rMalloc(int n){
   _RA* tmp = _mAlloc(sizeof(_RA)+sizeof(char*)*n);
   tmp->l = n;
@@ -289,7 +290,7 @@ int _printf(char* fmt, ...);
 // environ
 extern char **environ;
 
-// malloc
+// RTC無しの場合は普通に領域を確保する
 #define iMalloc(n) _mAlloc(sizeof(int)*n)
 #define cMalloc(n) _mAlloc(sizeof(char)*n)
 #define bMalloc(n) _mAlloc(sizeof(char)*n)

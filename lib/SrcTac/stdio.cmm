@@ -1,8 +1,8 @@
 /*
- * Programingxx Language C-- "Compiler"
+ * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2020 by
+ * Copyright (C) 2016 - 2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/stdio.cmm : TacOS 用の入出力ルーチン
  *
+ * 2021.01.12 : cMallocを使用するように変更
  * 2020.12.11 : EAGAIN 追加
  * 2019.11.18 : fsize() が stat システムコールを使用するように変更
  * 2019.10.18 : ttyRead/ttyWrite は '\0' に依存しないのでバッファを１短く
@@ -269,7 +270,7 @@ FILE allocFile(int fd, int mode, int siz) {
   FILE fp = calloc(1, sizeof(FILE));            // calloc はメモリクリアもする
   fp.fd =fd;
   fp.mode = mode;
-  fp.buf = malloc(siz);                         // バッファを割当てる
+  fp.buf = cMalloc(siz);                        // バッファを割当てる
   fp.size = siz;
   allFiles[slot] = fp;                          // スロットに登録
   fp.slot = slot;                               // スロットを記録
