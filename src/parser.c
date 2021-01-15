@@ -462,7 +462,7 @@ static void getIdent(struct watch* w) {
   } else if (s==ScCOMM || s==ScGVAR) {        // 大域変数の場合
     int a = syNewNode(SyGLB, n, SyNULL);      //   大域変数を表現するノード
     setWatch(w, t, d, true, a);               //   式(w)が大域変数になる
-  } else if (s>=ScLVAR) {                     // ScLVAR の場合は
+  } else if (s==ScLVAR) {                     // ScLVAR の場合は
     if (c>0) {                                //   c>0 なら局所変数
       int a = syNewNode(SyLOC, c, SyNULL);    //     局所変数のノード
       setWatch(w, t, d, true, a);             //     式(w)が局所変数になる
@@ -854,7 +854,7 @@ static int getFor(void) {
   sta = syNewNode(SyWHL, cnd, sta);            // while文相当部分
   sta = syNewNode(SyBLK, ini, sta);            // 初期化とwhile文でブロック
 
-  ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
+  ntSetVoid(tmpIdx);                           // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
   // curScope = curScope - 1;     // C言語と同じスコープルールにするなら
   return sta;
@@ -935,7 +935,7 @@ static int getBlock(void) {
     lval = syCatNode(lval, rval);              // リストを作る
   }
   chkTok('}', "ブロックが '}' で終了していない");
-  ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
+  ntSetVoid(tmpIdx);                           // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
   if (lval!=SyNULL && syGetType(lval)==SySEMI) // 意味のあるブロックなら
     sySetType(lval, SyBLK);                    //   リストを { } で括る

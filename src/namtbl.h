@@ -77,6 +77,7 @@ void ntDefName(char *name,        // 新規登録
 	       int scope, int type, int dim, int val, boolean pub);
 
 void ntUndefName(int idx);        // 名前表をもとに戻す
+void ntSetVoid(int idx);          // スコープを検索対象外にする
 
 #define ntGetSize()     (ntNextIdx)       // 名前表のサイズを返す
 
