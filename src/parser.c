@@ -462,7 +462,7 @@ static void getIdent(struct watch* w) {
   } else if (s==ScCOMM || s==ScGVAR) {        // 大域変数の場合
     int a = syNewNode(SyGLB, n, SyNULL);      //   大域変数を表現するノード
     setWatch(w, t, d, true, a);               //   式(w)が大域変数になる
-  } else if (s>=ScLVAR) {                     // ScLVAR の場合は
+  } else if (s==ScLVAR) {                     // ScLVAR の場合は
     if (c>0) {                                //   c>0 なら局所変数
       int a = syNewNode(SyLOC, c, SyNULL);    //     局所変数のノード
       setWatch(w, t, d, true, a);             //     式(w)が局所変数になる
