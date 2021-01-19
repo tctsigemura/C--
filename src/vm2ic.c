@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * vm2ic.c : 中間コードをそのまま出力する（仮想マシンのニーモニックにもしない）
  *
+ * 2021.01.19         : 構文木の仕様変更に伴いvm*Loc, vm*Prm変更
  * 2016.09.24         : vm2vm をもとに作成
  *
  * $Id$
@@ -114,13 +115,15 @@ void vmLdGlb(int idx) {
   printf("vmLdGlb(%d)\n", idx);
 }
 
-// n番目のローカル変数の値をスタックに積む
-void vmLdLoc(int n) {
+// ローカル変数の値をスタックに積む
+void vmLdLoc(int idx) {
+  int n = ntGetCnt(idx);
   printf("vmLdLoc(%d)\n", n);
 }
 
-// n番目の引数の値をスタックに積む
-void vmLdPrm(int n) {
+// 引数の値をスタックに積む
+void vmLdPrm(int idx) {
+  int n = ntGetCnt(idx);
   printf("vmLdPrm(%d)\n", n);
 }
 
@@ -151,13 +154,15 @@ void vmStGlb(int idx) {
   printf("vmStGlb(%d)\n", idx);
 }
 
-// スタックトップの値をn番目のローカル変数にストアする(POPはしない)
-void vmStLoc(int n) {
+// スタックトップの値をローカル変数にストアする(POPはしない)
+void vmStLoc(int idx) {
+  int n = ntGetCnt(idx);
   printf("vmStLoc(%d)\n", n);
 }
 
-// スタックトップの値をn番目の引数にストアする(POPはしない)
-void vmStPrm(int n) {
+// スタックトップの値を引数にストアする(POPはしない)
+void vmStPrm(int idx) {
+  int n = ntGetCnt(idx);
   printf("vmStPrm(%d)\n", n);
 }
 
