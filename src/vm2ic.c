@@ -32,7 +32,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "util.h"
 #include "vm.h"
+#include "namtbl.h"
 
 // 名前を表現するラベルを印刷する
 void vmNam(int idx) {
