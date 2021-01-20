@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2015 by
+ * Copyright (C) 2002-2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -23,6 +23,7 @@
  * vm.h : 仮想マシンのコードから実際のコードを生成するプログラムで準備
  *        すべき関数のプロトタイプ
  *
+ * 2021.01.19         : 構文木の仕様変更に伴いvm*Loc, vm*Prmの引数を変更
  * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  * 2016.09.18         : vmLdLabをvmLdNam に変更
  *                    : vmLdStrをvmLdLab に変更
@@ -64,15 +65,15 @@ void vmJT(int lab);                // 論理値を取り出し true ならジャ
 void vmJF(int lab);                // 論理値を取り出し false ならジャンプ
 void vmLdCns(int c);               // 定数をスタックにロードする
 void vmLdGlb(int idx);             // 大域変数の値をスタックに積む
-void vmLdLoc(int n);               // n番目のローカル変数の値をスタックに積む
-void vmLdPrm(int n);               // n番目の仮引数の値をスタックに積む
+void vmLdLoc(int idx);             // ローカル変数の値をスタックに積む
+void vmLdPrm(int idx);             // 仮引数の値をスタックに積む
 void vmLdLab(int lab);             // ラベルの参照(アドレス)をスタックに積む
 void vmLdNam(int idx);             // 名前の参照(アドレス)をスタックに積む
 void vmLdWrd(void);                // ワード配列からスタックに積む
 void vmLdByt(void);                // バイト配列からスタックに積む
 void vmStGlb(int idx);             // 大域変数にストアする
-void vmStLoc(int n);               // n番目のローカル変数にストアする
-void vmStPrm(int n);               // n番目の仮引数にストアする
+void vmStLoc(int idx);             // ローカル変数にストアする
+void vmStPrm(int idx);             // 仮引数にストアする
 void vmStWrd(void);                // ワード配列にストアする
 void vmStByt(void);                // バイト配列にストアする
 void vmNeg(void);                  // ２の補数を計算し結果をスタックに積む
