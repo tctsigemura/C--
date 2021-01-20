@@ -464,10 +464,10 @@ static void getIdent(struct watch* w) {
     setWatch(w, t, d, true, a);               //   式(w)が大域変数になる
   } else if (s==ScLVAR) {                     // ScLVAR の場合は
     if (c>0) {                                //   c>0 なら局所変数
-      int a = syNewNode(SyLOC, c, SyNULL);    //     局所変数のノード
+      int a = syNewNode(SyLOC, n, SyNULL);    //     局所変数のノード
       setWatch(w, t, d, true, a);             //     式(w)が局所変数になる
     } else {                                  //   c<0 なら仮引数
-      int a = syNewNode(SyPRM,-c, SyNULL);    //     仮引数のノード
+      int a = syNewNode(SyPRM, n, SyNULL);    //     仮引数のノード
       setWatch(w, t, d, true, a);             //     式(w)が仮引数になる
     }
   } else error("バグ...getIdent");            // それ以外の名前はあり得ない

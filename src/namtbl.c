@@ -106,7 +106,8 @@ void ntDefName(char *name, int scope, int type, int dim, int cnt, boolean pub){
   ntNextIdx = ntNextIdx + 1;
 }
 
-// 名前表を印刷する（デバッグ用）
+// 名前表を印刷する（デバッグ用
+/*
 static void ntPrint() {
   for (int i=0; i<ntNextIdx; i=i+1) {
     printf("%3d ",     i);
@@ -118,10 +119,11 @@ static void ntPrint() {
     printf("%d\n",     ntPub[i]  );
   }
 }
+*/
 
 // 名前表をもとに戻す
 void ntUndefName(int idx) {                      // idx まで戻す
-  ntPrint();                                   // ＃デバッグ用
+  //ntPrint();                                   // ＃デバッグ用
   for (int i=idx; i<ntNextIdx; i=i+1)            // 名前のつづり用の領域を順に
     free(ntName[i]);                             // 解放していく
   ntNextIdx = idx;                               // nextIdx を戻せば完成
@@ -129,7 +131,7 @@ void ntUndefName(int idx) {                      // idx まで戻す
 
 // スコープを検索対象外に設定
 void ntSetVoid(int idx) {
-  ntPrint();
+  //ntPrint();                                   // ＃デバッグ用
   for (int i=idx; i<ntNextIdx; i=i+1)
     ntScope[i] = ScVOID;
 }

@@ -57,13 +57,13 @@ static void printStrLab(int lab) {
 }
 
 // ローカル変数名を印刷する（ローカル変数は番号で管理される）
-static void printLocVar(int num) {
-  printf("_cmm_%dL", num);                          // "_cmm_番号L"
+static void printLocVar(int idx) {
+  printf("%s", ntGetName(idx));                     // "名前"
 }
 
 // 仮引数名を印刷する（仮引数は番号で管理される）
-static void printParam(int num) {
-  printf("_cmm_%dP", num);                          // "_cmm_番号P"
+static void printParam(int idx) {
+  printf("%s", ntGetName(idx));                     // "名前"
 }
 
 // 型名を印刷する
@@ -334,7 +334,7 @@ static void printVAR(int node){
   int typ  = syGetLVal(rVal);                       // 型
   int dim  = syGetRVal(rVal);                       // 次元
   printType(false, typ, dim, false);                // "型名[*...]"
-  printLocVar(syGetLVal(node));                     // "_cmm_%dL"
+  printLocVar(syGetLVal(node));                     // "ローカル変数名"
   printf(";\n");                                    // ";"
 }
 
