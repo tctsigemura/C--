@@ -152,7 +152,7 @@ void vmLdLoc(int idx) {
 
 // 引数の値をスタックに積む
 void vmLdPrm(int idx) {
-  int n = ntGetCnt(idx);
+  int n = -ntGetCnt(idx);
   printf("\tLDP\t%d\n", n);
 }
 
@@ -194,7 +194,7 @@ void vmStLoc(int idx) {
 
 // スタックトップの値を引数にストアする(POPはしない)
 void vmStPrm(int idx) {
-  int n = ntGetCnt(idx);
+  int n = -ntGetCnt(idx);
   printf("\tSTP\t%d\n", n);
 }
 

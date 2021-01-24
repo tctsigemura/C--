@@ -468,7 +468,7 @@ void vmLdLoc(int idx) {                         // idx は名前表のインデ�
 
 // 引数の値をスタックに積む
 void vmLdPrm(int idx) {                         // idx は名前表のインデクス
-  int n = ntGetCnt(idx);                        // n はローカル変数番号(n>=1)
+  int n = -ntGetCnt(idx);                       // n はローカル変数番号(n>=1)
   pushStk(PRM, (n+1)*2);                        // 仮想スタックに (PRM,offs)
 }                                               //   (offs は FP からの距離)
 
@@ -510,7 +510,7 @@ void vmStLoc(int idx) {                         // idx は名前表のインデ�
 
 // スタックトップの値を引数にストアする(POPはしない)
 void vmStPrm(int idx) {                         // idx は名前表のインデクス
-  int n = ntGetCnt(idx);                        // n はローカル変数番号(n>=1)
+  int n = -ntGetCnt(idx);                       // n はローカル変数番号(n>=1)
   if (topSta!=RVAR) loadStk(0);                 // レジスタにロードし
   printf("\tST\t%s,%d,FP\n",                    // 引数へストアする
 	 regs[topAux], (n+1)*2);                //   ST Acc,n,FP

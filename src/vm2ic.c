@@ -32,7 +32,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "util.h"
 #include "vm.h"
+#include "namtbl.h"
 
 // 名前を表現するラベルを印刷する
 void vmNam(int idx) {
@@ -123,7 +125,7 @@ void vmLdLoc(int idx) {
 
 // 引数の値をスタックに積む
 void vmLdPrm(int idx) {
-  int n = ntGetCnt(idx);
+  int n = -ntGetCnt(idx);
   printf("vmLdPrm(%d)\n", n);
 }
 
@@ -162,7 +164,7 @@ void vmStLoc(int idx) {
 
 // スタックトップの値を引数にストアする(POPはしない)
 void vmStPrm(int idx) {
-  int n = ntGetCnt(idx);
+  int n = -ntGetCnt(idx);
   printf("vmStPrm(%d)\n", n);
 }
 
