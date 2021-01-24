@@ -93,7 +93,7 @@ static int ntChkName(char *str, int scope) {
 //curName         = name[nextIdx];               // 最後に登録した名前
 
 // 名前を登録する(getName, getParams から呼ばれる)
-void ntDefName(char *name, int scope, int type, int dim, int cnt, boolean pub){
+int ntDefName(char *name, int scope, int type, int dim, int cnt, boolean pub){
   if (ntNextIdx>=NtMAX) error("名前が多すぎる"); // 名前表がパンクした
   if (ntChkName(name, scope)>=0) error2("名前の２重定義", name);
   ntName[ntNextIdx]= ealloc(strlen(name)+1);     // 名前のために領域を割り当て
@@ -103,10 +103,12 @@ void ntDefName(char *name, int scope, int type, int dim, int cnt, boolean pub){
   ntDim[ntNextIdx]   = dim;                      // 次元を登録する
   ntCnt[ntNextIdx]   = cnt;                      // 値を登録する
   ntPub[ntNextIdx]   = pub;                      // 外部名
-  ntNextIdx = ntNextIdx + 1;
+  int tmpIdx = ntNextIdx;
+  ntNextIdx = tmpIdx + 1;
+  return tmpIdx;
 }
 
-// 名前表を印刷する（デバッグ用）
+// 名前表を印刷する（デバッグ用
 /*
 static void ntPrint() {
   for (int i=0; i<ntNextIdx; i=i+1) {
@@ -127,4 +129,11 @@ void ntUndefName(int idx) {                      // idx まで戻す
   for (int i=idx; i<ntNextIdx; i=i+1)            // 名前のつづり用の領域を順に
     free(ntName[i]);                             // 解放していく
   ntNextIdx = idx;                               // nextIdx を戻せば完成
+}
+
+// スコープを検索対象外に設定
+void ntSetVoid(int idx) {
+  //ntPrint();                                   // ＃デバッグ用
+  for (int i=idx; i<ntNextIdx; i=i+1)
+    ntScope[i] = ScVOID;
 }
