@@ -1,9 +1,9 @@
 void p();
 int __main(){
-int _cmm_1L;
+int a;
 p();
 ((p(),p()),p());
-_cmm_1L;
-((_cmm_1L,_cmm_1L),_cmm_1L);
+a;
+((a,a),a);
 return 0;
 }

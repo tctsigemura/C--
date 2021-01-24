@@ -1,13 +1,13 @@
-int f1(int _cmm_1P);
+int f1(int a);
 static void f2(){
-int _cmm_1L;
+int a;
 do{
-(_cmm_1L=f1(1));
-if((_cmm_1L>10))break;
+(a=f1(1));
+if((a>10))break;
 else continue;
 for(;;)
 break;
 break;
 }
-while((_cmm_1L==0));
+while((a==0));
 }

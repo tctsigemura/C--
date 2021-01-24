@@ -14,9 +14,9 @@ static X _cmm_3T={-1,1};
 static _RA _cmm_4T={2,{&_cmm_2T,&_cmm_3T}};
 static _RA *e=&_cmm_4T;
 int __main(){
-int _cmm_1L;
-(_cmm_1L=1);
-int _cmm_2L;
-(_cmm_2L=-1);
+int f;
+(f=1);
+int g;
+(g=-1);
 return 0;
 }

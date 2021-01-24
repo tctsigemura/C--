@@ -1,4 +1,4 @@
-void *__AddrAdd(void *_cmm_1P,int _cmm_2P);
+void *__AddrAdd(void *a,int i);
 #include <stdio.h>
 typedef struct _Reloc Reloc;
 struct _Reloc {
@@ -11,20 +11,20 @@ int type_sidx;
 int val;
 };
 #define _cmm_0S "reloc: %04x -> %04x (%04x) | %04x\n"
-static int relocateSegment(int *_cmm_1P,int _cmm_2P,int *_cmm_3P,int *_cmm_4P){
+static int relocateSegment(int *relocTable,int tblSize,int *symTable,int *segment){
 {
-int _cmm_1L;
-(_cmm_1L=0);
-for(;(_cmm_1L<_cmm_2P);(_cmm_1L=(_cmm_1L+sizeof(Reloc ))))
+int i;
+(i=0);
+for(;(i<tblSize);(i=(i+sizeof(Reloc ))))
 {
-Reloc *_cmm_2L;
-(_cmm_2L=__AddrAdd(_cmm_1P,_cmm_1L));
-int _cmm_3L;
-(_cmm_3L=((_cmm_2L->type_idx&16383)*sizeof(Symbol )));
-Symbol *_cmm_4L;
-(_cmm_4L=__AddrAdd(_cmm_3P,_cmm_3L));
-(_cmm_4P[_cmm_2L->addr]=_cmm_4L->val);
-_printf(_cmm_0S,_cmm_2L->addr,_cmm_4L->val,_cmm_3L,_cmm_4P[_cmm_2L->addr]);
+Reloc *reloc;
+(reloc=__AddrAdd(relocTable,i));
+int index;
+(index=((reloc->type_idx&16383)*sizeof(Symbol )));
+Symbol *symbol;
+(symbol=__AddrAdd(symTable,index));
+(segment[reloc->addr]=symbol->val);
+_printf(_cmm_0S,reloc->addr,symbol->val,index,segment[reloc->addr]);
 }
 }
 return 0;

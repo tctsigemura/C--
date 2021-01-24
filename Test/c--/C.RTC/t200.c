@@ -1,16 +1,16 @@
 int f();
 int __main(){
-int _cmm_1L;
-int _cmm_2L;
-int _cmm_3L;
-(_cmm_1L=(_cmm_2L*_cmm_3L));
-(_cmm_1L=(_cmm_2L/_cmm_3L));
-(_cmm_1L=(_cmm_2L%_cmm_3L));
-(_cmm_1L=(f()*_cmm_3L));
-(_cmm_1L=(f()/_cmm_3L));
-(_cmm_1L=(f()%_cmm_3L));
-(_cmm_1L=(_cmm_2L*f()));
-(_cmm_1L=(_cmm_2L/f()));
-(_cmm_1L=(_cmm_2L%f()));
+int i;
+int j;
+int k;
+(i=(j*k));
+(i=(j/k));
+(i=(j%k));
+(i=(f()*k));
+(i=(f()/k));
+(i=(f()%k));
+(i=(j*f()));
+(i=(j/f()));
+(i=(j%f()));
 return 0;
 }

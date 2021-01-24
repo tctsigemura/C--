@@ -1,18 +1,18 @@
 int __main(){
-int _cmm_1L;
+int a;
 {
 ;
 for(;;)
 {
 continue;
 {
-int _cmm_2L;
-(_cmm_2L=0);
-for(;(_cmm_2L<100);(_cmm_2L=(_cmm_2L+1)))
+int i;
+(i=0);
+for(;(i<100);(i=(i+1)))
 {
-{if((_cmm_2L<0))continue;
-}(_cmm_1L=3);
-{if((_cmm_2L<0))break;
+{if((i<0))continue;
+}(a=3);
+{if((i<0))break;
 }}
 }
 break;
