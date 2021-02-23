@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LIBDIR=/usr/local/cmmLib/LibNoRtc
+LIBDIR=/usr/local/cmmLib/LibNortc
 RTC=""
 
 INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
