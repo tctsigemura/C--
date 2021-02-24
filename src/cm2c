@@ -23,8 +23,11 @@ CFLAGS="-g -O0 \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
    -Wno-dangling-else -Wno-format-security"
 
-CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC"  # macOS
-#CPPFLAGS="-nostdinc -DC"                                  # Ubuntu
+if [ `uname` = Darwin ]; then
+  CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc -DC"  # macOS
+else
+  CPPFLAGS="-nostdinc -DC"                                  # Ubuntu
+fi
 
 myname=`basename $0`
 exefile="a.out"

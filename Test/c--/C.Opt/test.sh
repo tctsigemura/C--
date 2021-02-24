@@ -4,7 +4,12 @@ LIBDIR=/usr/local/cmmLib/LibNortc
 RTC=""
 
 INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
-CPPFLAGS="-xc++ -Wno-comment -nostdinc -nostdlibinc -nobuiltininc -DC"
+if [ `uname` = Darwin ]; then
+  CPPFLAGS="-xc++ -Wno-comment -nostdinc -nostdlibinc -nobuiltininc -DC" # macOS
+else
+  CPPFLAGS="-Wno-comment -nostdinc -DC"                                 # Ubuntu
+fi
+
 CFLAGS="-g -O0 \
    -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \

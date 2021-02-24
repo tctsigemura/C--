@@ -19,6 +19,8 @@ C--言語は、ある程度実用的なシステム記述言語です。
 [TacOS](https://github.com/tctsigemura/TacOS/)の
 アプリケーションを開発するためのコンパイラと、
 C言語を出力するトランスレータが準備してあります。
+トランスレータを使用すると
+macOS Big Sur または Ubuntu 18.04 上で C-- で記述したプログラムを実行できます。
 
 ### コンパイラ
 [TacOS](https://github.com/tctsigemura/TacOS/)の

@@ -8,8 +8,11 @@ function error {
 INCDIR="-I/usr/local/cmmInclude -I/usr/local/cmmLib"
 LIBDIR=/usr/local/cmmLib
 
-CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc"  # macOS
-#CPPFLAGS="-nostdinc"                                  # Ubuntu
+if [ `uname` = Darwin ]; then
+  CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc"  # macOS
+else
+  CPPFLAGS="-nostdinc"                                  # Ubuntu
+fi
 
 myname=`basename $0`
 eflag="no"
