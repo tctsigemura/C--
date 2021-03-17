@@ -7,16 +7,16 @@ function error {
 }
 
 # No RTC
-RTC=""
-CMM="c-c--"
-LIBDIR=/usr/local/cmmLib/LibNortc
-INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
+#RTC=""
+#CMM="c-c--"
+#LIBDIR=/usr/local/cmmLib/LibNortc
+#INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
 
 # RTC
-#RTC="-D_RTC"
-#CMM="rtc-c--"
-#LIBDIR=/usr/local/cmmLib/LibRtc
-#INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
+RTC="-D_RTC"
+CMM="rtc-c--"
+LIBDIR=/usr/local/cmmLib/LibRtc
+INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
 
 CFLAGS="-g -O0 \
    -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
