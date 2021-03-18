@@ -43,7 +43,7 @@ public void[] malloc(int s);
 public int[] iMalloc(int n);                 // int 配列用の malloc
 public char[] cMalloc(int n);                // char 配列用の malloc
 public boolean[] bMalloc(int n);             // boolean 配列用の malloc
-public void[] rMalloc(int n);                // 参照配列用の malloc
+public void[][] rMalloc(int n);              // 参照配列用の malloc
 public void[] calloc(int c, int s);
 public void free(void[] m);
 

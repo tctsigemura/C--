@@ -106,7 +106,7 @@ public char[] cMalloc(int n) {                  // char配列用の malloc
 public boolean[] bMalloc(int n) {               // boolean配列用の malloc
   return malloc(sizeof(boolean)*n);
 }
-public void[] rMalloc(int n) {                  // 参照配列用の malloc
+public void[][] rMalloc(int n) {                // 参照配列用の malloc
   return malloc(sizeof(void[])*n);
 }
 
