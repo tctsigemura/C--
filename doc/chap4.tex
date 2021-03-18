@@ -99,7 +99,7 @@ public char getchar();
 \|path|はファイルへのパス，
 \|mode|はオープンのモードです．
 パスは``\|/|''区切りで表現します．
-\tacos にはカレントディレクトリはありません．
+%\tacos にはカレントディレクトリはありません．
 \|fopen|は正常時に\|FILE|構造体，
 エラー時に\|null|を返します．
 
@@ -122,9 +122,9 @@ public FILE fopen(char[] path, char[] mode);
 \end{tabular}
 \end{quote}
 
-\|fopen|は，
-書き込みモードか追記モード時にファイルが存在しない場合は，
-自動的にファイルを作成します．
+%\|fopen|は，
+%書き込みモードか追記モード時にファイルが存在しない場合は，
+%自動的にファイルを作成します．
 
 \subsection{fclose関数}
 
@@ -411,6 +411,7 @@ EMFILE    & Too many open files         & プロセス毎のオープン数超�
 ECHILD    & No children                 & 子プロセスが存在しない \\
 ENOZOMBI  & No zombie children          & ゾンビ状態の子が存在しない \\
 ENOMEM    & Not enough memory           & 十分な空き領域が無い \\
+EAGAIN    & Try again                   & 再実行が必要 \\
 ESYSNUM   & Invalid system call number  & システムコール番号が不正 \\
 EZERODIV  & Zero division               & ゼロ割り算 \\
 EPRIVVIO  & Privilege violation         & 特権違反 \\
@@ -526,6 +527,10 @@ public int main(int argc, char[][] argv) {
 領域を指す参照を返します．
 \|malloc|関数は\|void[]|型なので，
 領域を指す参照は全ての参照変数に代入できます．
+\|malloc|関数は構造体領域の確保に使用します．
+配列領域は，\|iMalloc|，\|cMalloc|，\|bMalloc|，\|rMalloc|を用いて確保します．
+配列領域には添字チェックのためのデータが組み込まれますので，
+\|malloc|関数で割り当てることはできません．
 
 \begin{quote}
 \begin{verbatim}
@@ -538,11 +543,6 @@ public void[] malloc(int size);
 終了コード\|EUNOMEM|でプログラムを終了します．
 トランスレータ版では，エラーメッセージを表示したあと
 終了コード\|1|でプログラムを終了します．
-
-動的な配列確保は{\cl}と同様に\|malloc|関数を用いて行いますが，
-トランスレータ版で実行時エラーチェック機能有効にした場合は正しく動作しません．
-次期世代の{\cmm}コンパイラで対応する予定です．
-それまでは実行時エラーチェック機能と動的な配列を同時に使用しないでください．
 
 \subsection{calloc関数}
 
@@ -558,10 +558,74 @@ public void[] calloc(int c, int s);
 \end{verbatim}
 \end{quote}
 
+\subsection{iMalloc関数}
+
+ヒープ領域にint型の要素数\|c|の配列領域を確保し，
+領域を指す参照を返します．
+\|iMalloc|関数は\|int[]|型なので，
+int型配列の参照変数にしか代入できません．
+実行時の添字範囲チェックに必要なデータも作成するので，
+\|malloc|関数で確保した領域と内容が異なります．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public int[] iMalloc(int c);
+\end{verbatim}
+\end{quote}
+
+\subsection{cMalloc関数}
+
+ヒープ領域にchar型の要素数\|c|の配列領域を確保し，
+領域を指す参照を返します．
+\|cMalloc|関数は\|char[]|型なので，
+char型配列の参照変数にしか代入できません． 
+実行時の添字範囲チェックに必要なデータも作成するので，
+\|malloc|関数で確保した領域と内容が異なります．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public char[] cMalloc(int c);
+\end{verbatim}
+\end{quote}
+
+\subsection{bMalloc関数}
+
+ヒープ領域にboolean型の要素数\|c|の配列領域を確保し，
+領域を指す参照を返します．
+\|bMalloc|関数は\|boolean[]|型なので，
+boolean型配列の参照変数にしか代入できません．
+実行時の添字範囲チェックに必要なデータも作成するので，
+\|malloc|関数で確保した領域と内容が異なります．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public boolean[] bMalloc(int c);
+\end{verbatim}
+\end{quote}
+
+\subsection{rMalloc関数}
+
+ヒープ領域に参照型の要素数\|c|の配列領域を確保し，
+領域を指す参照を返します．
+\|rMalloc|関数は\|void[][]|型なので，
+参照型配列の参照変数にしか代入できません．
+実行時の添字範囲チェックに必要なデータも作成するので，
+\|malloc|関数で確保した領域と内容が異なります．
+
+\begin{quote}
+\begin{verbatim}
+#include <stdlib.hmm>
+public void[][] rMalloc(int c);
+\end{verbatim}
+\end{quote}
+
 \subsection{free関数}
 
-\|malloc|関数で割当てた領域を解放します．
-{\tacos}版では，領域が\|malloc|関数で割当てたものではない可能性がある場合
+\|malloc|関数や\|iMalloc|関数等で割当てた領域を解放します．
+{\tacos}版では，領域がこれらの関数で割当てたものではない可能性がある場合
 （マジックナンバーが破壊されている，管理されている空き領域と重なる等），
 終了コード\|EUBADA|でプログラムを終了します．
 

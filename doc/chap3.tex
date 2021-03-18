@@ -258,6 +258,28 @@ a[0] = b[9] + 1;
 \end{verbatim}
 \end{mylist}
 
+トランスレータ版では，
+実行時の添字範囲チェックがされます．
+添字範囲エラーを検知した場合の実行例を次に示します．
+
+\begin{mylist}
+\begin{verbatim}
+# トランスレータ版で配列の添字範囲エラーを検知した場合の実行例
+$ cat err.cmm
+#include <stdio.hmm>
+int[] a = array(3);
+public int main() {
+  for (int i=0; i<=3; i=i+1)  // ループの実行回数が多すぎる
+    a[i] = i;                 // ここでエラーが発生するはず
+  return 0;
+}
+$ cm2c -o err err.cmm
+$ ./err
+err.cmm:5 Out of Bound idx=3
+Abort trap: 6
+\end{verbatim}
+\end{mylist}
+
 \subsubsection{多次元配列}
 
 多次元配列は配列の配列として表現されます．

@@ -103,6 +103,7 @@ Password:
 install -d -m 755 /usr/local/cmmInclude
 rm -f /usr/local/cmmInclude/*.hmm
 install -m 644 *.hmm /usr/local/cmmInclude
+...
 \end{verbatim}
 \end{mylist}
 
@@ -114,6 +115,7 @@ install -m 644 *.hmm /usr/local/cmmInclude
 \begin{verbatim}
 $ sudo make install
 Password:
+...
 cm2e -c ../SrcTac/crt0.s
 ...
 install -m 644 libtac.o /usr/local/cmmLib
@@ -218,7 +220,7 @@ $ ls -l
 #include <stdio.h>
 #define _cmm_0S "hello,world\n"
 int main(){
-printf(_cmm_0S);
+_printf(_cmm_0S);
 return 0;
 }
 \end{verbatim}
