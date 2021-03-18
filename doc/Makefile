@@ -5,10 +5,9 @@
 # $Id$
 #
 all :
-	platex cmm.tex
-	platex cmm.tex
-	dvipdfmx cmm.dvi
-#	open cmm.pdf
+	latexmk -lualatex cmm
 
 clean:
-	rm -f *~ *.aux cmm.dvi cmm.log cmm.toc cmm.out
+	rm -f *.log *.aux *.dvi *.out *.toc *.vrb *.snm *.nav *~ \
+        *.fls *.fdb_latexmk
+

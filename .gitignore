@@ -10,4 +10,6 @@
 *.snm
 *.vrb
 *.dSYM
+*.fdb_latexmk
+*.fls
 *~

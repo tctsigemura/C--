@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/stdlib.cmm : C-- のライブラリ関数
  *
+ * 2021.01.12 : iMalloc等を追加
  * 2016.02.25 : TacOS の usr/lib/lib.cmm をもとに作成
  *
  * $Id$
@@ -94,6 +95,19 @@ public void[] malloc(int siz) {                 // メモリ割り当て
 
   if (_aCmp(n, _alcAddr)>0) _alcAddr = n;       // ヒープの後端を更新
   return _addrAdd(m, MBSIZE);                   // 管理領域を除いて返す
+}
+
+public int[] iMalloc(int n) {                   // int配列用の malloc
+  return malloc(sizeof(int)*n);
+}
+public char[] cMalloc(int n) {                  // char配列用の malloc
+  return malloc(sizeof(char)*n);
+}
+public boolean[] bMalloc(int n) {               // boolean配列用の malloc
+  return malloc(sizeof(boolean)*n);
+}
+public void[][] rMalloc(int n) {                // 参照配列用の malloc
+  return malloc(sizeof(void[])*n);
 }
 
 // メモリを解放する

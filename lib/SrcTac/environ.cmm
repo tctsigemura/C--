@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2019-2020
+ * Copyright (C) 2019-2021
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/environ.cmm : 環境変数
  *
+ * 2021.01.12: iMalloc等を使用するように変更
  * 2020.07.15: 環境変数，カレントディレクトリ関連のバグ修正
  * 2019.11.13: 新規作成
  *
@@ -48,10 +49,10 @@ public void _environInit(char[][] envp) {
     envs = envs + 1;                                        // 要素数を得る
   }
   capacity = envs + 1;                                      // 要素数 + null
-  environ = malloc(sizeof(char[]) * capacity);
+  environ = rMalloc(capacity);
   for (int i = 0; i < envs; i = i + 1) {                    // 要素をコピー
     int len = strLen(envp[i]);
-    environ[i] = malloc(len + 1);
+    environ[i] = cMalloc(len + 1);
     strCpy(environ[i], envp[i]);
   }
   environ[envs] = null;                                     // null 終端
@@ -81,7 +82,7 @@ public char[] getEnv(char[] name) {
 
 // environ 参照配列を再割付する
 void reallocEnv(int newCap) {
-  char[][] newEnv = malloc(sizeof(char[]) * newCap);        // 新しい配列を確保
+  char[][] newEnv = rMalloc(newCap);                        // 新しい配列を確保
   int envs = 0;
   for (; environ[envs] != null; envs = envs + 1) {          // 全環境変数を
     newEnv[envs] = environ[envs];                           //   新配列にコピー
@@ -94,7 +95,7 @@ void reallocEnv(int newCap) {
 
 // 環境変数を表現する文字列（"名前=値"）を作る
 char[] makeEnvStr(char[] name, int nameLen, char[] value) {
-  char[] string = malloc(nameLen+1+strLen(value)+1);        // メモリ確保
+  char[] string = cMalloc(nameLen+1+strLen(value)+1);       // メモリ確保
   strNcpy(string, name, nameLen+1);                         // 「名前」をコピー
   strCat(string, "=");                                      // "="を追加
   strCat(string, value);                                    // 「値」をコピー
@@ -245,7 +246,7 @@ public char[] getWd() {
 #define BUF 80
 public boolean chDir(char[] path) {
   boolean err = false;
-  char[] buf = malloc(BUF);
+  char[] buf = cMalloc(BUF);
   if (absPath(path, buf, BUF)) {                    // 絶対パスに変換
     err = true;                                     //   absPath がエラー
   } else if ((sta.attr&0x10)==0) {                  // ディレクトリではない

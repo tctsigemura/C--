@@ -37,13 +37,13 @@ static _RA _cmm_18T={2,{&_cmm_17T,0}};
 static _RA *pq=&_cmm_18T;
 static _CA _cmm_2S={4,{"abc"}};
 static void f0(){
-int _cmm_1L;
-(_cmm_1L=1);
-_RA *_cmm_2L;
-_CA *_cmm_3L;
-(_cmm_3L=&_cmm_2S);
+int n;
+(n=1);
+_RA *m;
+_CA *a;
+(a=&_cmm_2S);
 ((*_ICA(h,1,"../t160.cmm",26))=1);
-((*_ICA((*_RCA((*_RCA((*_RCA(_cmm_2L,0,"../t160.cmm",27)),1,"../t160.cmm",27)),1,"../t160.cmm",27)),3,"../t160.cmm",27))=2);
+((*_ICA((*_RCA((*_RCA((*_RCA(m,0,"../t160.cmm",27)),1,"../t160.cmm",27)),1,"../t160.cmm",27)),3,"../t160.cmm",27))=2);
 }
 static _CA _cmm_3S={3,{"ab"}};
 static _CA _cmm_4S={3,{"cd"}};
@@ -83,58 +83,58 @@ static _CA _cmm_44T={2,{[1]=0}};
 static _RA _cmm_45T={2,{&_cmm_43T,&_cmm_44T}};
 static _RA _cmm_46T={2,{&_cmm_42T,&_cmm_45T}};
 static _RA *v=&_cmm_46T;
-static int f1(char _cmm_1P,int _cmm_2P){
-int _cmm_1L;
-(_cmm_1L=1);
-int _cmm_2L;
-int _cmm_3L;
-_IA *_cmm_4L;
-(_cmm_4L=_mAlloc((sizeof(int )*10)));
-if(((*_ICA(_cmm_4L,0,"../t160.cmm",43))==0))((*_ICA(_cmm_4L,1,"../t160.cmm",43))=1);
-else ((*_ICA(_cmm_4L,1,"../t160.cmm",43))=0);
-{if(((*_ICA(_cmm_4L,0,"../t160.cmm",44))==1))((*_ICA(_cmm_4L,1,"../t160.cmm",44))=1);
-}{if((_cmm_1L==1))(_cmm_1L=2);
-}if((_cmm_1L!=0))(_cmm_1L=3);
-else (_cmm_1L=4);
-if((_cmm_1L!=1)){
-(_cmm_1L=5);
-(_cmm_2L=6);
+static int f1(char x,int y){
+int a;
+(a=1);
+int b;
+int c;
+_IA *q;
+(q=_mAlloc((sizeof(int )*10)));
+if(((*_ICA(q,0,"../t160.cmm",43))==0))((*_ICA(q,1,"../t160.cmm",43))=1);
+else ((*_ICA(q,1,"../t160.cmm",43))=0);
+{if(((*_ICA(q,0,"../t160.cmm",44))==1))((*_ICA(q,1,"../t160.cmm",44))=1);
+}{if((a==1))(a=2);
+}if((a!=0))(a=3);
+else (a=4);
+if((a!=1)){
+(a=5);
+(b=6);
 }
 else {
-(_cmm_1L=7);
-(_cmm_2L=8);
+(a=7);
+(b=8);
 }
-for(;(_cmm_1L==0);)
+for(;(a==0);)
 {
-int _cmm_5L;
-(_cmm_5L=1);
-(_cmm_5L=(_cmm_5L+1));
+int d;
+(d=1);
+(d=(d+1));
 }
 {
-(_cmm_1L=0);
-for(;(_cmm_1L<3);(_cmm_1L=(_cmm_1L+1)))
-((*_ICA(_cmm_4L,_cmm_1L,"../t160.cmm",59))=_cmm_1L);
+(a=0);
+for(;(a<3);(a=(a+1)))
+((*_ICA(q,a,"../t160.cmm",59))=a);
 }
-for(;(((_cmm_1L==2)||(_cmm_2L==2))||(_cmm_3L==2));)
+for(;(((a==2)||(b==2))||(c==2));)
 {
-{if((_cmm_3L==1))continue;
-}for(;(_cmm_2L==2);)
-{if((_cmm_3L==3))break;
-}{if((_cmm_3L==4))break;
+{if((c==1))continue;
+}for(;(b==2);)
+{if((c==3))break;
+}{if((c==4))break;
 }}
-free(_cmm_4L);
-return _cmm_3L;
+free(q);
+return c;
 }
 static _CA _cmm_47T={2,{1,2}};
 static _CA _cmm_48T={2,{3,4}};
 static _RA _cmm_49T={2,{&_cmm_47T,&_cmm_48T}};
 static _RA *ab=&_cmm_49T;
 static _CA *f2(){
-int _cmm_1L;
-(_cmm_1L=1);
-int _cmm_2L;
-(_cmm_2L=2);
-f1(((_cmm_1L==1)&&(_cmm_2L==1)),_cmm_2L);
+int a;
+(a=1);
+int b;
+(b=2);
+f1(((a==1)&&(b==1)),b);
 return (*_RCA(ab,1,"../t160.cmm",78));
 }
 static void f3(){
@@ -147,12 +147,12 @@ for(;;)
 }
 }
 static void f4(){
-int _cmm_1L;
-(_cmm_1L=0);
-int _cmm_2L;
-(_cmm_2L=1);
-for(;(_cmm_1L<10);(_cmm_1L=(_cmm_1L+1)))
-(_cmm_1L=((_cmm_2L+1)*2));
+int i;
+(i=0);
+int j;
+(j=1);
+for(;(i<10);(i=(i+1)))
+(i=((j+1)*2));
 }
 static _IA _cmm_50T={5,{[4]=0}};
 static _IA *x=&_cmm_50T;
@@ -163,9 +163,9 @@ static _IA _cmm_54T={5,{[4]=0}};
 static _IA _cmm_55T={5,{[4]=0}};
 static _RA _cmm_56T={5,{&_cmm_51T,&_cmm_52T,&_cmm_53T,&_cmm_54T,&_cmm_55T}};
 static _RA *y=&_cmm_56T;
-static void f5(int _cmm_1P,int _cmm_2P,_CA *_cmm_3P){
-((*_ICA(x,((*_ICA(i,(*_ICA(x,1,"../t160.cmm",95)),"../t160.cmm",95))+1),"../t160.cmm",95))=((*_ICA(i,_cmm_1P,"../t160.cmm",95))=((*_ICA(i,5,"../t160.cmm",95))=1)));
-(_cmm_2P=(*_ICA((*_RCA(y,1,"../t160.cmm",96)),(((_cmm_1P*_cmm_2P)*(*_CCA(f2(),2,"../t160.cmm",96)))*(*_ICA(x,3,"../t160.cmm",96))),"../t160.cmm",96)));
+static void f5(int a,int b,_CA *s){
+((*_ICA(x,((*_ICA(i,(*_ICA(x,1,"../t160.cmm",95)),"../t160.cmm",95))+1),"../t160.cmm",95))=((*_ICA(i,a,"../t160.cmm",95))=((*_ICA(i,5,"../t160.cmm",95))=1)));
+(b=(*_ICA((*_RCA(y,1,"../t160.cmm",96)),(((a*b)*(*_CCA(f2(),2,"../t160.cmm",96)))*(*_ICA(x,3,"../t160.cmm",96))),"../t160.cmm",96)));
 }
 typedef struct _X X;
 struct _X {
@@ -214,51 +214,51 @@ free(z1);
 ((((Y*)_CP((*_RCA((*_RCA(z8,1,"../t160.cmm",128)),1,"../t160.cmm",128)),"../t160.cmm",128))->a)=1);
 free(z8);
 }
-X *f7(int _cmm_1P);
-_RA *f8(X *_cmm_1P);
-_RA *f9(_RA *_cmm_1P);
-void f10(_CA *_cmm_1P,...);
+X *f7(int a);
+_RA *f8(X *x);
+_RA *f9(_RA *x);
+void f10(_CA *s,...);
 static _CA _cmm_9S={4,{"aaa"}};
 static _CA _cmm_10S={4,{"aaa"}};
 static _CA _cmm_11S={4,{"bbb"}};
-static void f11(int _cmm_1P,...){
-int _cmm_1L;
+static void f11(int a,...){
+int b;
 (z1=f7(1));
-(_cmm_1P=(((X*)_CP(f7(1),"../t160.cmm",141))->b));
+(a=(((X*)_CP(f7(1),"../t160.cmm",141))->b));
 (z1=(*_RCA(f8(z1),1,"../t160.cmm",142)));
 (z1=(*_RCA(f9(z3),1,"../t160.cmm",143)));
 (z1=0);
 f10(&_cmm_9S);
 f10(&_cmm_10S,2,&_cmm_11S);
-f11(_cmm_1L,_cmm_1P,_cmm_1L,_cmm_1P,_cmm_1L);
+f11(b,a,b,a,b);
 ((*_RCA(z6,1,"../t160.cmm",148))=((*_RCA(z6,2,"../t160.cmm",148))=(*_RCA(z6,3,"../t160.cmm",148))));
 ((*_ICA(((*_RCA(y,1,"../t160.cmm",149))=(*_RCA(y,2,"../t160.cmm",149))),1,"../t160.cmm",149))=1);
 {
-int _cmm_2L;
-(_cmm_2L=0);
-int _cmm_3L;
-(_cmm_3L=0);
-for(;(_cmm_2L==_cmm_3L);(_cmm_2L=(_cmm_2L+1)))
-(_cmm_3L=(_cmm_3L+1));
+int i;
+(i=0);
+int j;
+(j=0);
+for(;(i==j);(i=(i+1)))
+(j=(j+1));
 }
 }
 static _CA _cmm_12S={4,{"aaa"}};
 static _CA *ss=&_cmm_12S;
 static void f12(){
-_IA *_cmm_1L;
-(_cmm_1L=_mAlloc((sizeof(int )*4)));
-free(_cmm_1L);
-char _cmm_2L;
-(_cmm_2L=1);
+_IA *x1;
+(x1=_mAlloc((sizeof(int )*4)));
+free(x1);
+char b;
+(b=1);
 }
 static void f13(){
-void *_cmm_1L;
-int _cmm_2L;
-(_cmm_2L=10);
-int _cmm_3L;
-(_cmm_3L=18);
-int _cmm_4L;
-(_cmm_4L=99);
-(_cmm_1L=ss);
-(z1=_cmm_1L);
+void *x;
+int a;
+(a=10);
+int b;
+(b=18);
+int c;
+(c=99);
+(x=ss);
+(z1=x);
 }

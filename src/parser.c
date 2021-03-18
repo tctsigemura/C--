@@ -102,6 +102,7 @@
 /*
  * グローバルデータ
  */
+static int     curIdx;              // 最近登録した名前表の添字
 static char   *curName;             // 最近登録した名前のつづり
 static int     curScope;            // 現在のスコープ
 static int     curType;             // 最近読み込んだ型
@@ -202,9 +203,9 @@ static void getName(boolean pub) {
     error("interrupt型変数/引数は使用できない");         //   型は使用できない
   if (curType==TyINTR && !krnFlag)                       // カーネルのみintrrupt
     error("interrupt型はカーネルのみで使用可");          //   型は使用できる
-  ntDefName(lxGetStr(), curScope, curType,               // 名前表に登録する
+  curIdx = ntDefName(lxGetStr(), curScope, curType,      // 名前表に登録する
 	    curDim, curCnt, pub);
-  curName = ntGetName(ntGetSize()-1);                    // 最後に登録した名前
+  curName = ntGetName(curIdx);                           // 最後に登録した名前
 }
 
 /*
@@ -462,12 +463,12 @@ static void getIdent(struct watch* w) {
   } else if (s==ScCOMM || s==ScGVAR) {        // 大域変数の場合
     int a = syNewNode(SyGLB, n, SyNULL);      //   大域変数を表現するノード
     setWatch(w, t, d, true, a);               //   式(w)が大域変数になる
-  } else if (s>=ScLVAR) {                     // ScLVAR の場合は
+  } else if (s==ScLVAR) {                     // ScLVAR の場合は
     if (c>0) {                                //   c>0 なら局所変数
-      int a = syNewNode(SyLOC, c, SyNULL);    //     局所変数のノード
+      int a = syNewNode(SyLOC, n, SyNULL);    //     局所変数のノード
       setWatch(w, t, d, true, a);             //     式(w)が局所変数になる
     } else {                                  //   c<0 なら仮引数
-      int a = syNewNode(SyPRM,-c, SyNULL);    //     仮引数のノード
+      int a = syNewNode(SyPRM, n, SyNULL);    //     仮引数のノード
       setWatch(w, t, d, true, a);             //     式(w)が仮引数になる
     }
   } else error("バグ...getIdent");            // それ以外の名前はあり得ない
@@ -702,30 +703,14 @@ static void getExpr(struct watch* w) {
 // ローカル変数の宣言を読み込む
 static int maxCnt;                             // 関数内の最大スタック使用量
                                                //   (最大ローカル変数の深さ)
-/*
-static int getLVar(void) {
-  int sta = SyNULL;
-  curCnt = curCnt + 1;                         // ローカル変数の番号
-  getName(false);                              // 変数名を読み込み表に登録
-  if (isTok('=')) {                            // '='があれば、初期化がある
-    sta = syNewNode(SyLOC, curCnt, SyNULL);    // 初期化の左辺を作る
-    struct watch *w = newWatch();
-    getAsExpr(w);                              // 初期化式にはカンマ式不可
-    chkCmpat(w, curType, curDim);              // 初期化(代入)できるかチェック
-    sta = syNewNode(SyASS, sta, w->tree);      // 左辺と右辺を接続
-    freeWatch(w);                              // 式(w)は役目を終えた
-  }
-  return sta;
-}
-*/
 
 static int getLVar(void) {
   curCnt = curCnt + 1;                         // ローカル変数の番号
   getName(false);                              // 変数名を読み込み表に登録
   int dec = syNewNode(SySEMI,curType,curDim);  // 変数の型
-  dec = syNewNode(SyVAR, curCnt, dec);         // 変数宣言
+  dec = syNewNode(SyVAR, curIdx, dec);         // 変数宣言
   if (isTok('=')) {                            // '='があれば、初期化がある
-    int sta = syNewNode(SyLOC,curCnt,SyNULL);  // 初期化の左辺を作る
+    int sta = syNewNode(SyLOC,curIdx,SyNULL);  // 初期化の左辺を作る
     struct watch *w = newWatch();
     getAsExpr(w);                              // 初期化式にはカンマ式不可
     chkCmpat(w, curType, curDim);              // 初期化(代入)できるかチェック
@@ -854,7 +839,7 @@ static int getFor(void) {
   sta = syNewNode(SyWHL, cnd, sta);            // while文相当部分
   sta = syNewNode(SyBLK, ini, sta);            // 初期化とwhile文でブロック
 
-  ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
+  ntSetVoid(tmpIdx);                           // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
   // curScope = curScope - 1;     // C言語と同じスコープルールにするなら
   return sta;
@@ -935,7 +920,7 @@ static int getBlock(void) {
     lval = syCatNode(lval, rval);              // リストを作る
   }
   chkTok('}', "ブロックが '}' で終了していない");
-  ntUndefName(tmpIdx);                         // 表からローカル変数を捨てる
+  ntSetVoid(tmpIdx);                           // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
   if (lval!=SyNULL && syGetType(lval)==SySEMI) // 意味のあるブロックなら
     sySetType(lval, SyBLK);                    //   リストを { } で括る
@@ -962,8 +947,8 @@ static void getParams(int idx) {
     curType = TyDOTDOTDOT;                     // 型は便宜的に DOTDOTDOT
     curDim  = 0;
     if (idx>=0) chkParam(idx-curCnt);          // プロトタイプ宣言があれば比較
-    ntDefName("", curScope, TyDOTDOTDOT,       // '...'を関数引数として表に登録
-	      0, curCnt, false);
+    curIdx= ntDefName("", curScope,            // '...'を関数引数として表に登録
+	      TyDOTDOTDOT, 0, curCnt, false);
   }
   chkTok(')', "引数リストが ')' で終わっていない");
 }

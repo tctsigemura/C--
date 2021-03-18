@@ -1,6 +1,9 @@
 %
 % C-- 言語 ver.3.x の解説書
 %
+% 2021.03.15 v.3.3.0 : iMalloc, cMalloc, bMalloc, rMalloc など追記
+%                      (?Mallocで作った領域はRTCで添字チェックする)
+%                      トランスレータでローカル変数名がソースと同じになる
 % 2020.12.11 v.3.2.9 : TTYCTL_MODE_NBLOCK を追加
 %                      interruptの使用例のベクタ番号を実際に合わせる
 % 2020.06.30 v.3.2.3 : カレントディレクトリ追加
@@ -29,25 +32,25 @@
 %
 % $Id$
 %
-\documentclass[11pt,a4j,twoside,dvipdfmx]{jbook}
+\documentclass[a4paper,11pt,twocolumn]{ltjsbook}   % lualatex
 \usepackage{graphicx}
 \usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{bm}
-\usepackage{fancybox}
-\usepackage{fancyhdr}
-\usepackage{lastpage}
-\usepackage[usenames]{color}
-\usepackage{multicol}
-\usepackage{bigfoot}  % \footnote{} 中で \verb/../ が利用可能になる。
-%\usepackage{listings,jlisting}
-\usepackage{url}
+%\usepackage{amssymb}
+%\usepackage{bm}
+%\usepackage{fancybox}
+%\usepackage{fancyhdr}
+%\usepackage{lastpage}
+%\usepackage[usenames]{color}
+%\usepackage{multicol}
+%\usepackage{bigfoot}  % \footnote{} 中で \verb/../ が利用可能になる。
+%\usepackage{listings}
+%\usepackage{url}
 
 %----------------------------------------------------------------------
 % ハイパーリンク設定（印刷用では色使いに注意）
-\usepackage[colorlinks,linkcolor=blue,urlcolor=blue]{hyperref}  % PDF用
-\usepackage{hyperref}                                           % 印刷用
-\usepackage{pxjahyper}
+\usepackage[unicode=true,colorlinks=true,
+     ,linkcolor=blue,urlcolor=blue]{hyperref}  % PDF用
+%\usepackage[unicode=true,hidelinks]{hyperref}  % 印刷用
 
 %----------------------------------------------------------------------
 \def\|{\verb|}
@@ -79,7 +82,7 @@
 %----------------------------------------------------------------------
 \newcommand{\figref}[1]{図~\ref{fig:#1}}
 \newcommand{\tabref}[1]{表~\ref{tab:#1}}
-\newcommand{\ver}{Ver. 3.2.9}
+\newcommand{\ver}{Ver. 3.3.0}
 \newcommand{\cmm}{{\tt C--}}
 \newcommand{\cmml}{\cmm 言語}
 \newcommand{\cmmc}{{\tt c--}}
@@ -143,10 +146,11 @@
 
 % 著作権表示
 \thispagestyle{empty}
+\onecolumn
 ~
 \vfill
 \begin{flushleft}
-Copyright \copyright ~~ 2016 - 2020 by \\
+Copyright \copyright ~~ 2016 - 2021 by \\
 Dept. of Computer Science and Electronic Engineering, \\
 Tokuyama College of Technology, JAPAN
 \end{flushleft}
@@ -164,6 +168,7 @@ Tokuyama College of Technology, JAPAN
 
 % 本文
 \mainmatter
+\onecolumn
 \include{chap1} % はじめに
 \include{chap2} % インストール
 \include{chap3} % C-- 言語の仕様
@@ -182,6 +187,7 @@ Tokuyama College of Technology, JAPAN
 ~
 \subsubsection{変更履歴}
 \begin{flushleft}
+2021年03月18日 v.3.3.0  トランスレータ版の実行時エラーチェックを正式導入 \\
 2020年12月11日 v.3.2.9  \|TTYCTL_MODE_NBLOCK|追記 \\
 2020年06月30日 v.3.2.3  カレントディレクトリ追記 \\
 2019年12月10日 v.3.2.2  環境変数ライブラリ追記，Statシステムコール追記 \\
@@ -203,11 +209,9 @@ Tokuyama College of Technology, JAPAN
 \subsubsection{対応ソフトウェアのバージョン}
 \begin{tabular}{|l|l|}
 \hline
-{\tt C--}      & Ver.3.2.9 \\
+{\tt C--}      & Ver.3.3.0 \\
 \hline
-{\tt Util--}   & Ver.3.0.3 \\
-\hline
-{\tt TacOS}    & Ver.3.3.2 \\
+{\tt TacOS}    & Ver.3.3.3 \\
 \hline
 \end{tabular}
 
@@ -216,7 +220,7 @@ Tokuyama College of Technology, JAPAN
 \fbox{\parbox{10cm}{ \vspace{0.3cm}
 \large{\bf　プログラミング言語 \cmm} \\
 \\
-　発行年月　２０２０年１２月　\ver \\
+　発行年月　２０２１年３月　\ver \\
 　著　　者　重村　哲至 \\
 　発　　行　独立行政法人国立高等専門学校機構 \\
 　　　　　　徳山工業高等専門学校 \\

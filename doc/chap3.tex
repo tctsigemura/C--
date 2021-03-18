@@ -219,12 +219,17 @@ char[] b;
 \cmml の配列は参照変数と配列インスタンスの組合せによって実現します．
 上の宣言では，参照変数が生成されるだけです．
 配列として使用するためには次の例のように
-「\|array|」や「\|malloc|」を用いて
+「\|array|」や「\|iMalloc|\footnote{
+\texttt{iMalloc}はint型の配列を割り付けます．
+char型配列を割り付ける\texttt{cMalloc}，
+boolean型配列を割り付ける\texttt{bMalloc}，
+参照型配列を割り付ける\texttt{rMalloc}も使用できます．
+}」等を用いて
 配列インスタンスを割り付ける必要があります．
 「\|array|」は，配列インスタンスを静的に割り付けます．
 「\|array|」は，関数の外で宣言される配列だけで使用できます．
-「\|malloc|」は，配列インスタンスを実行時に動的にヒープ領域に割り付けます．
-「\|malloc|」で割り付けた領域は，
+「\|iMalloc|」は，配列インスタンスを実行時に動的にヒープ領域に割り付けます．
+「\|iMalloc|」で割り付けた領域は，
 使用後「\|free|」によって解放する必要があります．
 %「\|free|」し忘れが予想されるので，
 %配列は静的に割り付けることをおすすめします．
@@ -234,9 +239,9 @@ char[] b;
 // 配列インスタンスを割り付ける例
 int[] a, b = array(10);      // 要素数10のint配列領域を割り付ける
 public int main() {
-  a = malloc(sizeof(int)*5); // 要素数5のint配列領域を割り付ける
+  a = iMalloc(5);            // 要素数5のint配列領域を割り付ける
   ...
-  free(a);                   // malloc した領域は忘れず解放する
+  free(a);                   // iMalloc した領域は忘れず解放する
   return 0;
 }
 \end{verbatim}
@@ -253,15 +258,37 @@ a[0] = b[9] + 1;
 \end{verbatim}
 \end{mylist}
 
+トランスレータ版では，
+実行時の添字範囲チェックがされます．
+添字範囲エラーを検知した場合の実行例を次に示します．
+
+\begin{mylist}
+\begin{verbatim}
+# トランスレータ版で配列の添字範囲エラーを検知した場合の実行例
+$ cat err.cmm
+#include <stdio.hmm>
+int[] a = array(3);
+public int main() {
+  for (int i=0; i<=3; i=i+1)  // ループの実行回数が多すぎる
+    a[i] = i;                 // ここでエラーが発生するはず
+  return 0;
+}
+$ cm2c -o err err.cmm
+$ ./err
+err.cmm:5 Out of Bound idx=3
+Abort trap: 6
+\end{verbatim}
+\end{mylist}
+
 \subsubsection{多次元配列}
 
 多次元配列は配列の配列として表現されます．
 \figref{chap3:array2}に示すように，
 1次元配列の参照を要素とした配列を使うと2次元配列になります．
 下に，2次元配列を使用するプログラム例を示します．
-プログラム中の \|a2| は，\|malloc| によって，
+プログラム中の \|a2| は，\|rMalloc|と\|iMalloc| によって，
 \figref{chap3:array2}のようなデータ構造に作り上げられます．
-「\|malloc|」を使用する場合は，プログラムが複雑になってしまいますが，
+「\|rMalloc|」と「\|iMalloc|」等を使用する場合はプログラムが複雑になってしまいますが，
 長方形ではない配列も実現できます．
 プログラム中 \|b2| は，「\|array|」を使用して
 多次元配列に必要な配列インスタンスを割り付けた例です．
@@ -279,9 +306,9 @@ a[0] = b[9] + 1;
 // 2次元配列の例
 int[][] a2, b2 = array(4,3);       // 2次元配列の領域を割り付ける
 public int main() {
-  a2 = malloc(sizeof(void[])*4);   // 参照の配列を割り付ける
+  a2 = rMalloc(4);                 // 参照の配列を割り付ける
   for (int i=0; i<4; i=i+1) {
-    a2[i] = malloc(sizeof(int)*3); // int 型の1次元配列を割り付ける
+    a2[i] = iMalloc(3);            // int 型の1次元配列を割り付ける
   }
   ...
   for (int i=0; i<4; i=i+1) {
@@ -336,14 +363,19 @@ void putstr() {
 \begin{mylist}
 \begin{verbatim}
 // 型変換の例
+struct ABC { int a,b,c; };
 struct XYZ { int x,y,z; };
-XYZ p = { 1, 2, 3 };
-void putXYZ() {
-  void[] tmp = p;              // tmp にはどんな参照も代入可能
-  int[]  xyz = tmp;            // tmp からはどんな参照へも代入可能
-  for (int i=0; i<3; i=i+1) {
-    printf("%d\n",xyz[i]);     // 構造体を配列として無理矢理アクセス
-  }
+ABC p = { 1, 2, 3 };
+
+void putXYZ(XYZ r) {           // XYZ構造体を印刷する関数
+  printf("(%d,%d,%d)\n",r.x,r.y,r.z);
+}
+
+public int main() {
+  void[] tmp = p;              // tmpにABC参照型を代入可能
+  XYZ q = tmp;                 // XYZ参照型にtmpを代入可能
+  putXYZ(q);
+  return 0;
 }
 \end{verbatim}
 \end{mylist}
@@ -786,8 +818,8 @@ void g() {
 型が配列型の場合は，何型の配列かとは関係なく「参照の領域サイズ
 （アドレスのバイト数）」を返します．
 通常，参照の領域サイズは「\|sizeof(void[])|」と書きます．
-配列インスタンスのサイズが必要なときは，
-\|sizeof|の値に配列の要素数を掛け算して求めます．
+%配列インスタンスのサイズが必要なときは，
+%\|sizeof|の値に配列の要素数を掛け算して求めます．
 以下に使用例を示します．
 
 \begin{mylist}
@@ -799,11 +831,10 @@ int c = sizeof(boolean);            // booleanのサイズ（TaC版で 1）
 int d = sizeof(void[]);             // 参照のサイズ（TaC版で 2）
 struct X { int x; int y; };
 int e = sizeof(X);                  // 構造体Xのサイズ（TaC版で 4）
-int[] f = malloc(sizeof(int)*3);    // 大きさ3のint配列を割当
-X[] g = malloc(sizeof(void[])*3);   // 大きさ3の参照配列を準備
-g[0] = malloc(sizeof(X));           // 構造体インスタンスを割当
-g[1] = malloc(sizeof(X));
-g[2] = malloc(sizeof(X));
+X[] f = rMalloc(3);                 // 大きさ3の参照配列を準備
+f[0] = malloc(sizeof(X));           // 構造体インスタンスを割当
+f[1] = malloc(sizeof(X));
+f[2] = malloc(sizeof(X));
 \end{verbatim}
 \end{mylist}
 

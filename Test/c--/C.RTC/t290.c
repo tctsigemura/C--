@@ -1,5 +1,5 @@
 int __main(){
-char _cmm_1L;
-(_cmm_1L=0);
+char s;
+(s=0);
 return 0;
 }

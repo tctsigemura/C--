@@ -11,10 +11,10 @@ int main(){
 (n->next=n);
 (n->prev=n);
 (m=n->next->prev);
-Node *_cmm_1L;
-(_cmm_1L=m);
-(_cmm_1L->next=_cmm_1L->prev->prev);
-int _cmm_2L;
-(_cmm_2L=_cmm_1L->val);
+Node *l;
+(l=m);
+(l->next=l->prev->prev);
+int x;
+(x=l->val);
 return 0;
 }

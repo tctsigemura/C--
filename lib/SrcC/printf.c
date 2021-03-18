@@ -72,7 +72,7 @@ static void putS(char* s, int w, boolean lf) {
 }
 
 // 数値 x を b 進数で出力
-static void putNum(int x, int b) {              // 数値を上の桁から順に出力する
+static void putNum(unsigned int x, int b) {     // 数値を上の桁から順に出力する
   if (x!=0) {
     putNum(x/b, b);                             //   逆順のために再帰使用
     putC("0123456789abcdef"[x%b]);              //   文字列は文字配列

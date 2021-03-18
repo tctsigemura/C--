@@ -3,7 +3,11 @@
 INCDIR=/usr/local/cmmInclude
 LIBDIR=/usr/local/cmmLib
 
-CPPFLAGS="-xc++ -Wno-comment -nostdinc -nostdlibinc -nobuiltininc"
+if [ `uname` = Darwin ]; then
+  CPPFLAGS="-xc++ -Wno-comment -nostdinc -nostdlibinc -nobuiltininc" # macOS
+else
+  CPPFLAGS="-Wno-comment -nostdinc"                                 # Ubuntu
+fi
 
 for i in $*; do
    j=`basename ${i}`

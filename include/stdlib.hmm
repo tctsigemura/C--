@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 - 2020 by
+ * Copyright (C) 2016 - 2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * include/stdlib.hmm : lib/stdlib.cmm の外部インタフェース
  *
+ * 2021.01.12 : iMalloc 等を追加
  * 2020.08.16 : ifndef 追加
  * 2019.11.14 : 環境変数関連を追加
  * 2019.03.12 : <cfunc.hmm> のインクルードはコンパイラドライバが指示する
@@ -39,6 +40,10 @@ public void[] _alcAddr;                      // ヒープ領域終端を示す�
 public void _stdlibInit();                   // stdlib の初期化
 
 public void[] malloc(int s);
+public int[] iMalloc(int n);                 // int 配列用の malloc
+public char[] cMalloc(int n);                // char 配列用の malloc
+public boolean[] bMalloc(int n);             // boolean 配列用の malloc
+public void[][] rMalloc(int n);              // 参照配列用の malloc
 public void[] calloc(int c, int s);
 public void free(void[] m);
 

@@ -177,13 +177,13 @@ public int rmDir(char[] path);
 
 \begin{quote}
 \begin{verbatim}
-#include <sys/fs.hmm>
 #include <syslib.hmm>
 public int stat(char[] path, Stat stat);
 \end{verbatim}
 \end{quote}
 
-\|Stat|構造体は\|sys/fs.hmm|ファイル中で以下のように定義されます．
+\|Stat|構造体は\|syslib.hmm|から間接的にインクルードされる
+\|sys/fs.hmm|ファイル中で以下のように宣言されます．
 \|attr|はFAT16ファイルシステムの
 ディレクトリエントリから読みだしたファイルの属性です．
 詳しい意味はFAT16ファイルシステムの文献を参照してください．

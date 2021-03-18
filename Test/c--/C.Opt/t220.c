@@ -1,14 +1,14 @@
 int main(){
-int _cmm_1L;
-int _cmm_2L;
+int a;
+int i;
 for(;;)
 {
 continue;
-for(;(_cmm_2L<100);)
+for(;(i<100);)
 {
-{if((_cmm_2L<0))continue;
-}(_cmm_1L=3);
-{if((_cmm_2L<0))break;
+{if((i<0))continue;
+}(a=3);
+{if((i<0))break;
 }}
 break;
 }
