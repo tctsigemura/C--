@@ -23,6 +23,7 @@
  * vm2tac.c : 仮想スタックマシンのコードから TaC-CPU V2 の機械語を生成する
  *            (仮想スタックマシンをシミュレーションする機械語を生成する)
  *
+ * 2021.03.20         : 名前表で仮引数番号が正になったことに対応
  * 2021.01.19         : 構文木の仕様変更に伴いvm*Loc, vm*Prm変更
  * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  * 2016.09.18         : vmLdLabをvmLdNam に変更
@@ -468,8 +469,8 @@ void vmLdLoc(int idx) {                         // idx は名前表のインデ�
 
 // 引数の値をスタックに積む
 void vmLdPrm(int idx) {                         // idx は名前表のインデクス
-  int n = -ntGetCnt(idx);                       // n はローカル変数番号(n>=1)
-  pushStk(PRM, (n+1)*2);                        // 仮想スタックに (PRM,offs)
+  int n = ntGetCnt(idx);                        // n はローカル変数番号(n>=0)
+  pushStk(PRM, (n+2)*2);                        // 仮想スタックに (PRM,offs)
 }                                               //   (offs は FP からの距離)
 
 // ラベルの参照(アドレス)をスタックに積む
@@ -510,10 +511,10 @@ void vmStLoc(int idx) {                         // idx は名前表のインデ�
 
 // スタックトップの値を引数にストアする(POPはしない)
 void vmStPrm(int idx) {                         // idx は名前表のインデクス
-  int n = -ntGetCnt(idx);                       // n はローカル変数番号(n>=1)
+  int n = ntGetCnt(idx);                        // n はローカル変数番号(n>=0)
   if (topSta!=RVAR) loadStk(0);                 // レジスタにロードし
   printf("\tST\t%s,%d,FP\n",                    // 引数へストアする
-	 regs[topAux], (n+1)*2);                //   ST Acc,n,FP
+	 regs[topAux], (n+2)*2);                //   ST Acc,n,FP
 }
 
 // まず、スタックから添字とワード配列の番地を取り出す

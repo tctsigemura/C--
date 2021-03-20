@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * namtbl.c : 名前表(Name Table)の管理プログラム
  *
+ * 2021.03.20         : 名前の衝突検出がScPRM, ScFLDに対応
  * 2016.09.24         : デバッグ用の ntPrint() 追加
  * 2015.08.31 v2.1.0  : CLang の警告が出ないように変更
  * 2012.12.30         : error2 関数を使用するように変更
@@ -79,11 +80,13 @@ int ntSrcGlob(int n) {                           // n は名前表の添字
 static int ntChkName(char *str, int scope) {
   for (int i=0; i<ntNextIdx; i=i+1) {            // 表全体について
     if (ntScope[i]!=ScVOID && strcmp(ntName[i],str)==0){// 衝突の可能性を調べる
-      if (scope==ScSTRC||ntScope[i]==ScSTRC)     // 構造体名は他の全てと衝突
+      if (scope==ScSTRC || ntScope[i]==ScSTRC)   // 構造体名は他の全てと衝突
 	return i;
-      if (scope>=ScLVAR)                         // 局所変数、仮引数、構造体
-	if (ntScope[i]==scope) return i;         // フィールド名はスコープが
-    }                                            // 同じものとだけ衝突
+      if (scope>=ScLVAR)                         // ScLVAR, ScFLD, ScPRM は
+        if (ntScope[i]==scope) return i;         //   同じスコープなら衝突
+      if (ntScope[i]==ScPRM && scope==ScLVAR)    // 仮引数と局所変数は衝突
+         return i;
+    }
   }
   return -1;
 }

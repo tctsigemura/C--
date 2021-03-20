@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * namtbl.h : 名前表の外部仕様を定義
  *
+ * 2021.03.20         : ScFLD, ScPRM 追加
  * 2016.02.05 v3.0.0  : トランスレータと統合(TyREF追加)
  * 2015.08.07         : 名前表サイズを300から400に変更
  * 2010.12.14         : 名前表で型を表現するために使用する定数を追加
@@ -42,7 +43,9 @@
 #define ScFUNC 1         // 定義された関数
 #define ScCOMM 2         // 初期化されない大域変数
 #define ScGVAR 3         // 初期化された大域変数
-#define ScLVAR 4         // 仮引数、ローカル変数のスコープ最小値
+#define ScLVAR 4         // ローカル変数
+#define ScFLD  5         // フィールド名（衝突チェック後はScVOID）
+#define ScPRM  6         // 仮引数
 
 /* 名前のデータ型 */
 // <=0 は構造体を表す

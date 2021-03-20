@@ -23,6 +23,7 @@
  * vm2vm.c : 仮想マシンのコードから実際のコードを生成するプログラムのサンプル
  *           (このプログラムは仮想マシンのコードを出力する)
  *
+ * 2021.03.20         : 名前表で仮引数番号が正になったことに対応
  * 2021.01.19         : 構文木の仕様変更に伴いvm*Loc, vm*Prm変更
  * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
  * 2016.09.18         : vmLdLabをvmLdNam に変更
@@ -152,7 +153,7 @@ void vmLdLoc(int idx) {
 
 // 引数の値をスタックに積む
 void vmLdPrm(int idx) {
-  int n = -ntGetCnt(idx);
+  int n = ntGetCnt(idx)+1;
   printf("\tLDP\t%d\n", n);
 }
 
@@ -194,7 +195,7 @@ void vmStLoc(int idx) {
 
 // スタックトップの値を引数にストアする(POPはしない)
 void vmStPrm(int idx) {
-  int n = -ntGetCnt(idx);
+  int n = ntGetCnt(idx)+1;
   printf("\tSTP\t%d\n", n);
 }
 

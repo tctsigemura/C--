@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2019 by
+ * Copyright (C) 2002-2021 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2021.03.20         : ScLVAR を局所変数と仮引数で共用することを止める
  * 2019.05.07         : エラーメッセージ訂正「関数がreturnで終わっていない」
  * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2019.03.03         : genStr() に文字列長引数を追加
@@ -226,9 +227,9 @@ static void getFieldLine(void) {
 // 構造体宣言を読み込む
 static void getStruct(void) {
   chkTok('{', "構造体宣言に '{' がない");
-  int structIdx=ntGetSize();                   // 構造体宣言は関数の外にあるの
-  curScope = ScLVAR;                           //   でフィールド名の衝突チェッ
-  curCnt   = 0;                                //   クは局所変数と同様でよい
+  int structIdx=ntGetSize();                   // 構造体の始まり位置
+  curScope = ScFLD;                            // スコープは構造体フィールド
+  curCnt   = 0;                                // フィールド数
   getFieldLine();                              // フィールド宣言1行分を読む
   while (!isTok('}'))                          // '}'以外の間
     getFieldLine();                            //   フィールド宣言1行分を読む
@@ -457,20 +458,17 @@ static void getIdent(struct watch* w) {
   int s = ntGetScope(n);                      //   それのスコープを調べ
   int t = ntGetType(n);                       //   それの型を調べ、
   int d = ntGetDim(n);                        //   それの配列次元数を調べ、
-  int c = ntGetCnt(n);                        //   それの番号を調べる
   if (s==ScPROT || s==ScFUNC) {               // 関数名の場合は、
     getCall(w,n);                             //   関数呼び出しの処理
   } else if (s==ScCOMM || s==ScGVAR) {        // 大域変数の場合
     int a = syNewNode(SyGLB, n, SyNULL);      //   大域変数を表現するノード
     setWatch(w, t, d, true, a);               //   式(w)が大域変数になる
-  } else if (s==ScLVAR) {                     // ScLVAR の場合は
-    if (c>0) {                                //   c>0 なら局所変数
-      int a = syNewNode(SyLOC, n, SyNULL);    //     局所変数のノード
-      setWatch(w, t, d, true, a);             //     式(w)が局所変数になる
-    } else {                                  //   c<0 なら仮引数
-      int a = syNewNode(SyPRM, n, SyNULL);    //     仮引数のノード
-      setWatch(w, t, d, true, a);             //     式(w)が仮引数になる
-    }
+  } else if (s==ScLVAR) {                     // 局所変数の場合は
+    int a = syNewNode(SyLOC, n, SyNULL);      //   局所変数のノード
+    setWatch(w, t, d, true, a);               //   式(w)が局所変数になる
+  } else if (s==ScPRM) {                      // 仮引数の場合は
+    int a = syNewNode(SyPRM, n, SyNULL);      //   仮引数のノード
+    setWatch(w, t, d, true, a);               //   式(w)が仮引数になる
   } else error("バグ...getIdent");            // それ以外の名前はあり得ない
 }
 
@@ -787,7 +785,6 @@ static int getDoWhile(void) {
 
 // FOR文
 static int getFor(void) {
-  // curScope = curScope + 1;     // C言語と同じスコープルールにするなら
   int tmpIdx  = ntGetSize();                   // for 文はひとつのスコープに
   int tmpCnt  = curCnt;                        //   なるのでローカル変数をもつ
   chkTok('(', "for の次に '(' がない");
@@ -841,7 +838,6 @@ static int getFor(void) {
 
   ntSetVoid(tmpIdx);                           // 表からローカル変数を捨てる
   curCnt = tmpCnt;                             // スタックの深さを戻す
-  // curScope = curScope - 1;     // C言語と同じスコープルールにするなら
   return sta;
 }
 
@@ -888,12 +884,9 @@ static int getStat(void) {
   else if (isTok(LxRETURN))   sta=getReturn(); // return 文を見つけた場合
   else if (isTok(LxBREAK))    sta=getBreak();  // break 文を見つけた場合
   else if (isTok(LxCONTINUE)) sta=getCont();   // continue 文を見つけた場合
+  else if (isTok('{'))        sta=getBlock();  // ブロックを見つけた場合
   else if (isTok(';'))    ;                    // 空文を見つけた場合
-  else if (isTok('{')) {                       // ブロックを見つけた場合
-    // curScope = curScope + 1;                // C言語と同じスコープルールなら
-    sta = getBlock();                          //   ブロックを読み込む
-    // curScope = curScope - 1;                // C言語と同じスコープルールなら
-  } else {                                     // どれでもなければ式文
+  else {                                       // どれでもなければ式文
     struct watch *w = newWatch();
     getExpr(w);                                // 式(w)を読み込む
     sta = w->tree;
@@ -936,9 +929,9 @@ static void chkParam(int idx) {
 // 関数宣言の引数リスト( 'f( ... )'の ... 部分)を読み込む
 static void getParams(int idx) {
   int lastTok = ',';                           // '...'の前は ',' でなきゃ
-  for(curCnt=-1;isType();curCnt=curCnt-1){     // 型名の間,オフセットを変化
+  for(curCnt=0;isType();curCnt=curCnt+1){      // 型名の間,オフセットを変化
     getType();                                 // 型を読む
-    if (idx>=0) chkParam(idx-curCnt);          // プロトタイプ宣言があれば比較
+    if (idx>=1) chkParam(idx+curCnt);          // プロトタイプ宣言があれば比較
     getName(false);                            // 仮引数名を登録
     lastTok = tok;                             // ',' があったか記録する
     if (!isTok(',')) break;                    // ',' の間繰り返す
@@ -946,7 +939,7 @@ static void getParams(int idx) {
   if (lastTok==',' && isTok(LxDOTDOTDOT)) {    // '...' があった場合
     curType = TyDOTDOTDOT;                     // 型は便宜的に DOTDOTDOT
     curDim  = 0;
-    if (idx>=0) chkParam(idx-curCnt);          // プロトタイプ宣言があれば比較
+    if (idx>=1) chkParam(idx+curCnt);          // プロトタイプ宣言があれば比較
     curIdx= ntDefName("", curScope,            // '...'を関数引数として表に登録
 	      TyDOTDOTDOT, 0, curCnt, false);
   }
@@ -967,9 +960,9 @@ static void getFunc(void) {
     error("interrupt型の配列は認められない");
   getTok();                                  // '(' を読み飛ばす
   lastStat = LxNONTOK;                       // 最後の文(returnで終わっているか)
-  curScope = ScLVAR;                         // 仮引数、ローカル変数のスコープ
+  curScope = ScPRM;                          // 仮引数のスコープ
   int prmIdx = ntGetSize();                  // 仮引数の先頭を記憶
-  getParams(idx);                            // 仮引数リストを読み込む
+  getParams(idx+1);                          // 仮引数リストを読み込む
   int prmCnt = ntGetSize()-prmIdx;           // 仮引数の個数を計算
   if (ntGetType(funcIdx)==TyINTR && prmCnt!=0) // 割込み関数は引数を持てない
     error("interrupt関数は引数を持てない");
@@ -978,6 +971,7 @@ static void getFunc(void) {
     error("引数の数が以前の宣言と異なっている");
   int locIdx = ntGetSize();                  // ローカル変数の先頭を記録
   if (isTok('{')) {                          // 関数本体がある場合
+    curScope = ScLVAR;                       // ローカル変数のスコープ
     if (idx>=0 && ntGetScope(idx)!=ScPROT) error("関数の2重定義");
     if (idx>=0) ntSetScope(idx, ScFUNC);     // 以前の宣言を定義に変更
     ntSetScope(funcIdx, ScFUNC);             // 今回の宣言を定義に変更
