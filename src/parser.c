@@ -227,15 +227,14 @@ static void getFieldLine(void) {
 // 構造体宣言を読み込む
 static void getStruct(void) {
   chkTok('{', "構造体宣言に '{' がない");
-  int structIdx=ntGetSize();                   // 構造体の始まり位置
+  int structIdx=ntGetSize();                   // 構造体フィールドの始まり位置
   curScope = ScFLD;                            // スコープは構造体フィールド
   curCnt   = 0;                                // フィールド数
   getFieldLine();                              // フィールド宣言1行分を読む
   while (!isTok('}'))                          // '}'以外の間
     getFieldLine();                            //   フィールド宣言1行分を読む
   chkTok(';', "構造体宣言が ';' で終わっていない");
-  for (int i=structIdx; i<ntGetSize(); i=i+1)  // 名前の衝突チェックが終わった
-    ntSetScope(i, ScVOID);                     //   のでフィールドのscopeに変更
+  ntSetVoid(structIdx);                        // もう衝突チェックしなくてよい
   ntSetCnt(structIdx-1,ntGetSize()-structIdx); // フィールド数を表に記録
 #ifdef C
   genStruc(structIdx-1);                       // 構造体宣言を出力
@@ -998,8 +997,7 @@ static void getFunc(void) {
     ntUndefName(funcIdx);                    //   全体を削除
   } else {                                   // そうでなければ
     ntUndefName(locIdx);                     // シグネチャーだけ残す
-    for (int i=prmIdx; i<locIdx; i=i+1)      // その際、仮引数は検索対象に
-      ntSetScope(i, ScVOID);                 // ならないスコープに変更する．
+    ntSetVoid(prmIdx);                       // 仮引数は検索対象外に変更
   }
 }
 
