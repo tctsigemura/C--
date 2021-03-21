@@ -1,6 +1,7 @@
 all:
 	(cd TaC.Opt; make)
 	(cd VM.Opt; make)
+	(cd IM.Opt; make)
 	(cd C.Opt; make)
 	(cd C.RTC; make)
 #	(cd H8.Opt; make)
@@ -11,6 +12,7 @@ all:
 asm:
 	(cd TaC.Opt; make asm)
 	(cd VM.Opt; make asm)
+	(cd IM.Opt; make asm)
 	(cd C.Opt; make asm)
 	(cd C.RTC; make asm)
 #	(cd H8.Opt; make asm)
@@ -21,6 +23,7 @@ asm:
 clean:
 	(cd TaC.Opt; make clean)
 	(cd VM.Opt; make clean)
+	(cd IM.Opt; make clean)
 	(cd C.Opt; make clean)
 	(cd C.RTC; make clean)
 #	(cd H8.Opt; make clean)

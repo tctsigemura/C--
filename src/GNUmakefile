@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2009-2019 by
+# Copyright (C) 2009-2021 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,6 +19,7 @@
 #
 # GNUmakefile : c-- の makefile
 #
+# 2020.03.21         : cm2e, cm2c, cm2i, cm2v のヘルプ表示にバージョン番号追加
 # 2019.03.11         : Run Time Check の略称を RTC にする
 # 2019.03.10         : ソースコードのファイル名変更
 # 2019.02.21         : 配列境界とnullポインタの実行時チェック
@@ -60,15 +61,15 @@
 #
 
 CC=cc -std=c99 -Wall
-VER=\"`cat ../VERSION`\"
-DATE="\"`date`\""
+VER=`cat ../VERSION`
+DATE=`date`
 
-all : c-- vm-c-- ic-c-- c-c-- rtc-c--
+all : c-- vm-c-- ic-c-- c-c-- rtc-c-- cm2e cm2c cm2i cm2v
 
 c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
       optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} \
+	${CC} ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 	-DARC=\"TaC\" -DNWORD=16 -DNBYTE=8 -o c-- \
 	main.c parser.c lexer.c namtbl.c util.c sytree.c \
 	vmCode.c vm2tac.c optree.c
@@ -76,7 +77,7 @@ c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
 vm-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h \
       util.c namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2vm.c \
       optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} \
+	${CC} ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 	-DARC=\"VM\" -DNWORD=16 -DNBYTE=8 -o vm-c-- \
 	main.c parser.c lexer.c namtbl.c util.c sytree.c \
 	vmCode.c vm2vm.c optree.c
@@ -84,15 +85,15 @@ vm-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h \
 ic-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h \
       util.c namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2ic.c \
       optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} -DARC=\"IC\" \
-	-DNWORD=16 -DNBYTE=8 -o ic-c-- \
+	${CC} ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
+	-DARC=\"IC\" -DNWORD=16 -DNBYTE=8 -o ic-c-- \
 	main.c parser.c lexer.c namtbl.c util.c sytree.c \
 	vmCode.c vm2ic.c optree.c
 
 c-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
-	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} \
+	${CC} ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 	-DARC=\"C\" -DC -DNWORD=32 -DNBYTE=8 -o c-c-- \
 	main.c parser.c lexer.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
@@ -100,7 +101,7 @@ c-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
 rtc-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
-	${CC} ${CFLAGS} -D_RTC -DDATE=${DATE} -DVER=${VER} \
+	${CC} ${CFLAGS} -D_RTC -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 	-DARC=\"C\" -DC -DNWORD=32 -DNBYTE=8 -o rtc-c-- \
 	main.c parser.c lexer.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
@@ -108,12 +109,24 @@ rtc-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
 #h8300hn-c-- : Makefile parser.c lexer.c lexer.h util.h util.c \
 #      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2h8300hn.c \
 #      optree.h optree.c
-#	${CC} ${CFLAGS} -DDATE=${DATE} -DVER=${VER} \
+#	${CC} ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 #	-DARC="\"Renesas H8/300H Tiny\"" -DNWORD=16 -DNBYTE=8 -o h8300hn-c-- \
 #	parser.c lexer.c namtbl.c util.c sytree.c vmCode.c vm2h8300hn.c \
 #	optree.c
 
-install : c-- vm-c-- ic-c-- c-c-- rtc-c-- # h8300hn-c--
+cm2e : GNUmakefile cm2e.in
+	sed -e "s/%%ver%%/${VER}/" -e "s/%%date%%/${DATE}/" cm2e.in > cm2e
+
+cm2c : GNUmakefile cm2c.in
+	sed -e "s/%%ver%%/${VER}/" -e "s/%%date%%/${DATE}/" cm2c.in > cm2c
+
+cm2i : GNUmakefile cm2i.in
+	sed -e "s/%%ver%%/${VER}/" -e "s/%%date%%/${DATE}/" cm2i.in > cm2i
+
+cm2v : GNUmakefile cm2v.in
+	sed -e "s/%%ver%%/${VER}/" -e "s/%%date%%/${DATE}/" cm2v.in > cm2v
+
+install : c-- vm-c-- ic-c-- c-c-- rtc-c-- cm2c cm2e cm2i cm2v # h8300hn-c--
 	install -d -m 755 /usr/local/bin
 	install -m 755 c-- /usr/local/bin
 	install -m 755 vm-c-- /usr/local/bin
@@ -122,12 +135,11 @@ install : c-- vm-c-- ic-c-- c-c-- rtc-c-- # h8300hn-c--
 	install -m 755 rtc-c-- /usr/local/bin
 	install -m 755 cm2c /usr/local/bin
 	install -m 755 cm2e /usr/local/bin
-	install -m 755 cm2v /usr/local/bin
 	install -m 755 cm2i /usr/local/bin
+	install -m 755 cm2v /usr/local/bin
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- rtc-c-- ic-c-- *.o *.c~ *.h~ *.txt~ *.cmm~ \
-	Makefile~ cm2?~ GNUmakefile~
-#	rm -f h8300hn-c-- vm-c-- c-- *.o *.c~ *.h~ *.txt~ *.cmm~ Makefile~
+	rm -f c-- vm-c-- c-c-- rtc-c-- ic-c-- cm2e cm2c cm2i cm2v \
+        *.o *.c~ *.h~ *.txt~ *.cmm~  Makefile~ cm2?~ GNUmakefile~
 

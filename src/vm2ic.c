@@ -22,6 +22,7 @@
 /*
  * vm2ic.c : 中間コードをそのまま出力する（仮想マシンのニーモニックにもしない）
  *
+ * 2021.03.20         : 名前表で仮引数番号が正になったことに対応
  * 2021.01.19         : 構文木の仕様変更に伴いvm*Loc, vm*Prm変更
  * 2016.09.24         : vm2vm をもとに作成
  *
@@ -125,7 +126,7 @@ void vmLdLoc(int idx) {
 
 // 引数の値をスタックに積む
 void vmLdPrm(int idx) {
-  int n = -ntGetCnt(idx);
+  int n = ntGetCnt(idx)+1;
   printf("vmLdPrm(%d)\n", n);
 }
 
@@ -164,7 +165,7 @@ void vmStLoc(int idx) {
 
 // スタックトップの値を引数にストアする(POPはしない)
 void vmStPrm(int idx) {
-  int n = -ntGetCnt(idx);
+  int n = ntGetCnt(idx)+1;
   printf("vmStPrm(%d)\n", n);
 }
 

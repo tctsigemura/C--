@@ -73,6 +73,10 @@ while [ $# -gt 0 ]; do
             echo  "       -I dir    Add incude directory"                 1>&2
             echo  "       -Dxx=yy  define xx as yy"                       1>&2
             echo  "       -h       print this message"                    1>&2
+            echo  ""                                                      1>&2
+            echo  "$0 version %%ver%%"                                    1>&2
+            echo  "(build date : %%date%%)"                               1>&2
+            echo  ""                                                      1>&2
             exit 1;;
         *)  break;;     # terminate while loop
     esac
