@@ -25,7 +25,7 @@
 MAKEFLAGS=--no-print-directory
 
 # サブディレクトリ
-SUBDIRS:=LibTac LibRtc LibNoRtc
+SUBDIRS:=LibTac LibRtc LibNortc
 
 all :
 	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir); )
