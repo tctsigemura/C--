@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2021 by
+ * Copyright (C) 2002-2022 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
+ * 2022.11.10         : 引数なし関数のvoid書き忘れを訂正
  * 2021.03.20         : ScLVAR を局所変数と仮引数で共用することを止める
  * 2019.05.07         : エラーメッセージ訂正「関数がreturnで終わっていない」
  * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
@@ -125,7 +126,7 @@ static boolean krnFlag = false;     // カーネルコンパイルモード
 #define _tok tok                             // _tok と tok の区別はない
 static int tok;                              // 次のトークン
 
-static void getTok() {                       // ディレクティブ以外を入力する
+static void getTok(void) {                   // ディレクティブ以外を入力する
   for (;;) {
     tok = lxGetTok();                        // 次のトークンを入力する
     if (tok!=LxFILE) break;                  // ディレクティブ以外なら完了
@@ -140,13 +141,13 @@ static void getTok() {                       // ディレクティブ以外を�
 // tok を使用すると _getTok() が呼ばれディレクティブを読み飛ばす。
 static int _tok;                             // 次のトークン
 
-static void getTok() {                       // 次のトークンを入力する
+static void getTok(void) {                   // 次のトークンを入力する
   _tok = lxGetTok();                         //   ディレクティブも入力する
   if (_tok==LxFILE) setFname(lxGetStr());    // ディレクティブならファイル名記憶
 }
 
 #define tok _getTok()                        // tok 使用は、_getTok() に置換え
-static int _getTok() {                       // tok 使用時に
+static int _getTok(void) {                   // tok 使用時に
   while (_tok==LxFILE) {                     //   ディレクティブを読み飛ばす
     _tok = lxGetTok();                       //     次もディレクティブなら     
     if (_tok==LxFILE) setFname(lxGetStr());  //       ファイル名記憶記憶して
@@ -1044,7 +1045,7 @@ static int getArray(int dim) {
 }
 
 // 構造体初期化('{ ... }'を読み込む
-static int getStructInit0() {
+static int getStructInit0(void) {
   int node = SyNULL;
   int i=-curType+1;                          // i が構造体フィールドを指す
   do {
@@ -1079,7 +1080,7 @@ static int getStructInit0() {
 }
 
 // 構造体の初期化
-static int getStructInit() {
+static int getStructInit(void) {
   int node = SyNULL;
   if (isTok(LxNUL)) {                        // null による初期化の場合
     node = syNewNode(SyCNST, 0, TyREF);      // NULL を木に登録
