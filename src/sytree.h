@@ -22,7 +22,7 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
- * 2022.11.22         : ifdef C を ifdef AC に変更
+ * 2022.11.22         : ifdef C を ifdef _C に変更
  * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2016.09.19         : SyLABL を SyADDR に変更
  * 2016.09.18         : SyCHAR を SyCHR に変更
@@ -52,7 +52,7 @@
 int syType[SyMAX];                           // ノードの種類
 int syLVal[SyMAX];                           // ノードの値１
 int syRVal[SyMAX];                           // ノードの値２
-#ifdef AC
+#ifdef _C
 int syLn[SyMAX];                             // 対応するソースの行番号
 #endif
 
@@ -143,7 +143,7 @@ int syGetRoot();                             // 構文木のルートを取り�
 #define sySetLVal(idx,v) (syLVal[idx]=(v))
 #define sySetRVal(idx,v) (syRVal[idx]=(v))
 
-#ifdef AC
+#ifdef _C
 #define syGetLn(idx)   (syLn[idx])
 #define sySetLn(idx,v)   (syLn[idx]=(v))
 #endif

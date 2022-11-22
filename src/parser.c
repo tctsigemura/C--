@@ -22,7 +22,7 @@
 /*
  * syntax.c : C--コンパイラの構文解析ルーチン
  *
- * 2022.11.22         : ifdef C を ifdef AC に変更
+ * 2022.11.22         : ifdef C を ifdef _C に変更
  * 2022.11.10         : 引数なし関数のvoid書き忘れを訂正
  * 2021.03.20         : ScLVAR を局所変数と仮引数で共用することを止める
  * 2019.05.07         : エラーメッセージ訂正「関数がreturnで終わっていない」
@@ -121,7 +121,7 @@ static boolean krnFlag = false;     // カーネルコンパイルモード
 //-----------------------------------------------------------------------------
 // トークンの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
 //-----------------------------------------------------------------------------
-#ifndef AC
+#ifndef _C
 // コンパイラ版はディレクティブに興味がないので
 // ディレクティブは getTok() が読み飛ばす。
 #define _tok tok                             // _tok と tok の区別はない
@@ -238,7 +238,7 @@ static void getStruct(void) {
   chkTok(';', "構造体宣言が ';' で終わっていない");
   ntSetVoid(structIdx);                        // もう衝突チェックしなくてよい
   ntSetCnt(structIdx-1,ntGetSize()-structIdx); // フィールド数を表に記録
-#ifdef AC
+#ifdef _C
   genStruc(structIdx-1);                       // 構造体宣言を出力
 #endif                                         // (トランスレータ版だけで必要)
 }
@@ -277,9 +277,9 @@ static void freeWatch(struct watch* w) {
 static void chkType(struct watch *w, int type) {
   if (w->dim>0)      error("配列型は使用できない");
   if (w->type==TyVOID) error("void型は使用できない");
-  if (type==TyBOOL && w->type!=TyBOOL)  error("論理型が必要");
-  if (type==TyINT  && w->type!=TyINT )  error("整数型が必要");
-  if (type==TyCHAR && w->type!=TyCHAR)  error("文字型が必要");
+  if (type==TyBOOL && w->type!=TyBOOL)   error("論理型が必要");
+  if ((type==TyINT || type==TyCHAR) &&
+      w->type!=TyINT && w->type!=TyCHAR) error("整数型/文字型が必要");
   if (type!=TyBOOL && type!=TyINT && type!=TyCHAR) error("バグ...chkType");
 }
 
@@ -287,9 +287,11 @@ static void chkType(struct watch *w, int type) {
 static void chkCmpat(struct watch* w, int type, int dim) {
   if (!(w->type==TyVOID && w->dim>0 && dim>0) &&    // void[] はどの [] にも OK
       !(type==TyVOID && dim>0 && w->dim>0) &&
-      !(w->type==TyVOID && w->dim==1 && type<=0)&&  // void[] と構造体は OK
+      !(w->type==TyVOID && w->dim==1 && type<=0) && // void[] と構造体は OK
       !(type==TyVOID && dim==1 && w->type<=0) &&
-      (w->type!=type || w->dim!=dim))               // それ以外は正確に型が合
+      !(w->type==TyINT && type==TyCHAR && w->dim==dim) && // int と char は OK
+      !(type==TyINT && w->type==TyCHAR && w->dim==dim) && // char と int も OK
+      !(w->type==type && w->dim==dim))              // それ以外は正確に型が合
     error("代入/比較/初期化/引数/returnの型が合わない");// わないと代入できない
 }
 
@@ -387,7 +389,7 @@ static void getSizeof(struct watch* w) {
   getType();                                  // 型を読む
   if (curType<=0&&ntGetType(-curType)==TyREF) // typedef なら
     error("typedefされた型はsizeofで使用できない");
-#ifdef AC                                     // トランスレータは sizeof を
+#ifdef _C                                     // トランスレータは sizeof を
   int a = syNewNode(SySIZE, curType, curDim); //   C言語ソースに出力する
 #else                                         // コンパイラは sizeof を計算する
   int s = NWORD / 8;                          //   INT またはポインタのサイズ
@@ -991,7 +993,7 @@ static void getFunc(void) {
     syClear();                               // コード生成終了で木を消去する
   } else {                                   // プロトタイプ宣言の場合
     chkTok(';', "プロトタイプ宣言が ';' で終わっていない");
-#ifdef AC
+#ifdef _C
     genProto(funcIdx);                       // プロトタイプ宣言を出力
 #endif                                       // (トランスレータ版だけで必要)
   }
@@ -1233,7 +1235,7 @@ void psSetKrnFlag(boolean f) { krnFlag = f; };
 //-----------------------------------------------------------------------------
 // ソースの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
 //-----------------------------------------------------------------------------
-#ifndef AC
+#ifndef _C
 // コンパイラ版はディレクティブに興味がないので getProg() を繰り返すだけ
 void psGetSrc(void) {
   getTok();                                  // 最初の tok を読み込む
