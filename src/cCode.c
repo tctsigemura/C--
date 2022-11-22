@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2014-2019 by
+ * Copyright (C) 2014-2022 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * cCode.c : C--トランスレータのコード生成部
  *
+ * 2022.11.22         : genFunc の引数の型にバグ
  * 2019.03.11         : Run-Time Check が一応動作する
  * 2019.02.16         : 渡邉くんの成果をマージ
  * 2016.11.20         : for 中の continue が最初期化を行わないバグ
@@ -392,7 +393,7 @@ void genProto(int idx) {                            // 引数は名前表の添�
 }
 
 // 関数を印刷する
-void genFunc(int idx, boolean prot, boolean kernFlg) {
+void genFunc(int idx, int depth, boolean kernFlg) {
   if (inhibitOut) return;                           // 出力抑制中
   printFuncDcl(idx);                                // "[static]型名[*...]名前"
   printf("{\n");                                    // "{"
