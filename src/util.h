@@ -59,6 +59,6 @@ int isOdigit(int ch);                     // 8進数字かテスト
 boolean strEndsWith(char *s, char *sfx);  // 文字列最後の一致をテスト
 FILE *eOpen(char *fname, char *mod);      // エラーチェック付きの fopen
 
-#ifdef C
+#ifdef AC
 char* getFname();
 #endif

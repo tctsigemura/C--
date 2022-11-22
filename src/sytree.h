@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2019 by
+ * Copyright (C) 2002-2022 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * sytree.h : 構文木関係の外部仕様を定義
  *
+ * 2022.11.22         : ifdef C を ifdef AC に変更
  * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2016.09.19         : SyLABL を SyADDR に変更
  * 2016.09.18         : SyCHAR を SyCHR に変更
@@ -51,7 +52,7 @@
 int syType[SyMAX];                           // ノードの種類
 int syLVal[SyMAX];                           // ノードの値１
 int syRVal[SyMAX];                           // ノードの値２
-#ifdef C
+#ifdef AC
 int syLn[SyMAX];                             // 対応するソースの行番号
 #endif
 
@@ -142,7 +143,7 @@ int syGetRoot();                             // 構文木のルートを取り�
 #define sySetLVal(idx,v) (syLVal[idx]=(v))
 #define sySetRVal(idx,v) (syRVal[idx]=(v))
 
-#ifdef C
+#ifdef AC
 #define syGetLn(idx)   (syLn[idx])
 #define sySetLn(idx,v)   (syLn[idx]=(v))
 #endif

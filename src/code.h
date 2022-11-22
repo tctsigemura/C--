@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2019 by
+ * Copyright (C) 2002-2022 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * code.h : コード生成関係の外部仕様を定義
  *
+ * 2022.11.22         : ifdef C を ifdef AC に変更
  * 2019.03.03         : genStr() に文字列長引数を追加
  * 2016.05.20         : genOn, genOff を廃止し genDirect を追加
  * 2016.02.03 v3.0.0  : トランスレータと統合
@@ -42,7 +43,7 @@ void genBss(int idx);                                 // 非初期化データ�
 int  genStr(char *s, int len);                        // 文字列を生成し
                                                       //   ラベル番号を返す
 // 以下はトランスレータのみで必要
-#ifdef C
+#ifdef AC
 void genProto(int idx);                               // プロトタイプ宣言を出力
 void genStruc(int idx);                               // 構造体宣言を出力
 void genDirect(int ln, char *fname);                  // ディレクティブを出力

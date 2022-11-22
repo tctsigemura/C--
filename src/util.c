@@ -56,7 +56,7 @@ void setFname(char s[]) {                          // 入力ファイル名を�
   }
   if (fname[i]!='\0') error("ファイル名が長すぎる");
 }
-#ifdef C
+#ifdef AC
 char* getFname(){
   return fname;
 }

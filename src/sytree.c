@@ -22,6 +22,7 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
+ * 2022.11.22         : ifdef C を ifdef AC に変更
  * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2016.09.19         : SyLABL を SyADDRに変更
  * 2016.09.18         : SyCHAR を SyCHR
@@ -64,7 +65,7 @@ int syNewNode(int type, int lVal, int rVal) {
   sySetType(idx, type);
   sySetLVal(idx, lVal);
   sySetRVal(idx, rVal);
-  #ifdef C
+  #ifdef AC
   sySetLn(idx, lxGetLn());                     //  ソースの行番号も記録
   #endif
   syNextIdx = syNextIdx + 1;
