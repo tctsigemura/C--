@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2021 by
+ * Copyright (C) 2002-2022 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -97,7 +97,7 @@ static int ntChkName(char *str, int scope) {
 
 // 名前を登録する(getName, getParams から呼ばれる)
 int ntDefName(char *name, int scope, int type, int dim, int cnt, boolean pub){
-  if (ntNextIdx>=NtMAX) error("名前が多すぎる"); // 名前表がパンクした
+  if (ntNextIdx>=NtMAX) error("名前表がパンク"); // 名前表がパンクした
   if (ntChkName(name, scope)>=0) error2("名前の２重定義", name);
   ntName[ntNextIdx]= ealloc(strlen(name)+1);     // 名前のために領域を割り当て
   strcpy(ntName[ntNextIdx], name);               // 名前をコピーする

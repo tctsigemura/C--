@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2021 by
+ * Copyright (C) 2002-2022 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * namtbl.h : 名前表の外部仕様を定義
  *
+ * 2022.11.11         : 名前表サイズを400から500に変更
  * 2021.03.20         : ScFLD, ScPRM 追加
  * 2016.02.05 v3.0.0  : トランスレータと統合(TyREF追加)
  * 2015.08.07         : 名前表サイズを300から400に変更
@@ -61,7 +62,7 @@
 #define TyNON       9     // 型ではない
 
 /* 名前表 */
-#define NtMAX      400      // 表のサイズ
+#define NtMAX      500      // 表のサイズ
 int     ntNextIdx;          // 次に登録する位置、スコープにより逆戻りする
 char   *ntName[NtMAX];      // 名前のつづり
 int     ntScope[NtMAX];     // スコープ(ScXXXX を格納する)
