@@ -1,0 +1,138 @@
+#!/bin/bash
+
+function error {
+  eval  "$@"
+  rm -f ${tmps}
+  exit 1
+}
+
+INCDIR="-I/usr/local/cmmInclude"
+LIBDIR=/usr/local/cmmLib
+
+if [ `uname` = Darwin ]; then
+  CPPFLAGS="-xc++ -nostdinc -nostdlibinc -nobuiltininc"  # macOS
+else
+  CPPFLAGS="-nostdinc"                                  # Ubuntu
+fi
+
+myname=`basename $0`
+exefile="a.exe"
+stksize=600
+sflag="no"
+cflag="no"
+eflag="no"
+kflag=""
+pflag=""
+incdir=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -o) exefile=$2;  shift; shift;;
+        -s) stksize=$2;  shift; shift;;
+        -S) sflag="yes"; shift;;
+        -c) cflag="yes"; shift;;
+        -E) eflag="yes"; shift;;
+        -K) kflag="-K"; shift;;
+        -P) pflag="-P"; shift;;
+        -nostdinc) INCDIR=""; shift;;
+        -I) incdir="${incdir} -I$2"; shift; shift;;
+        -I*)incdir="${incdir} $1"; shift;;
+        -D*)flg=`echo $1 | sed -e 's/"/\\\\"/g'`
+            CPPFLAGS="${CPPFLAGS} \"${flg}\""; shift;;
+        -*) echo  "\"${myname}\" is the C-- compiler driver."             1>&2
+            echo  "syntax: ${myname} [switches] <c-- source> ..."         1>&2
+            echo  "     switches are :"                                   1>&2
+            echo  "       -o exec   executable file name"                 1>&2
+            echo  "       -s ###    stack size (default=600)"             1>&2
+            echo  "       -S        leave .s file"                        1>&2
+            echo  "       -c        leave .o file"                        1>&2
+            echo  "       -E        run the preprocessor stage"           1>&2
+            echo  "       -K        kernel mode"                          1>&2
+            echo  "       -P        I/O privileg mode"                    1>&2
+            echo  "       -nostdinc Disable standard include directories" 1>&2
+            echo  "       -I dir    Add incude directory"                 1>&2
+            echo  "       -Dxx=yy   define xx as yy"                      1>&2
+            echo  "       -h        print this message"                   1>&2
+            echo  ""                                                      1>&2
+            echo  "$0 version %%ver%%"                                    1>&2
+            echo  "(build date : %%date%%)"                               1>&2
+            echo  ""                                                      1>&2
+            exit 1;;
+        *)  break;;     # terminate while loop
+    esac
+done
+
+expr "${stksize}" + 1 > /dev/null 2>&1
+if [ $? -eq 2 ]; then
+    echo "${myname} : ${stksize} : invalid stack size."           1>&2
+    exit 1
+fi
+
+if [ "${stksize}" -lt 100 ]; then
+    echo "${myname} : ${stksize} : too small stack size."         1>&2
+    exit 1
+fi
+
+if [ $# -le 0 ]; then
+    echo "${myname} : no input files."                            1>&2
+    exit 1
+fi
+
+exeext=`expr "${exefile}" : '.*\(\.[^./]*\)$'`
+if [ "${exeext}" = "" ]; then
+    exefile="${exefile}.exe"
+    exeext=".exe"
+fi
+
+if [ "${exeext}" != ".exe" ]; then
+    echo "${myname} : ${exefile} : extension must be \".exe\"."   1>&2
+    exit 1
+fi
+
+objs=""
+tmps=""
+while [ $# -gt 0 ]; do
+    j=`basename $1`
+    name=`dirname $1`/`expr "${j}" : '\(.*\)\.[^.]*'`
+    ext=`expr "${j}" : '.*\(\.[^.]*\)'`
+    case "${ext}" in
+        *.cmm)
+            if [ "${eflag}" == "yes" ]; then
+                eval cpp ${CPPFLAGS} ${INCDIR} ${incdir} $1 || error
+            else
+                eval cpp ${CPPFLAGS} ${INCDIR} ${incdir} $1 \
+                  > $$.tmp || error rm $$.tmp
+                c-- -O ${kflag} $$.tmp > ${name}.s || error rm $$.tmp ${name}.s
+                rm $$.tmp
+
+                if [ "${sflag}" != "yes" ]; then
+                    objs="${objs} ${name}.o"
+                    tmps="${tmps} ${name}.o"
+                    as-- ${name}.s || error rm -f ${name}.s ${name}.lst
+                    rm -f ${name}.s ${name}.lst
+                fi
+            fi ;;
+        *.s)
+            if [ "${eflag}" != "yes" -a "${sflag}" != "yes" ]; then
+                objs="${objs} ${name}.o"
+                tmps="${tmps} ${name}.o"
+                as-- ${name}.s || error rm -f ${name}.lst
+                rm -f ${name}.lst
+            fi ;;
+        *.o)
+            objs="${objs} ${name}.o" ;;
+        *)
+            echo "${myname} : ${j} : illegal extension." 1>&2
+            rm -f ${tmps}
+            exit 1;;
+    esac
+    shift
+done
+
+exename=`expr "${exefile}" : '\(.*\)\.[^./]*$'`
+if [ "${eflag}" != "yes" -a "${sflag}" != "yes" -a "${cflag}" != "yes" ]; then
+  ld-- $$.o  ${LIBDIR}/libtac.o ${objs} > /dev/null
+  objexe-- ${pflag} ${exefile} $$.o ${stksize} | sort --key=1 > ${exename}.map
+  rm -f ${tmps} $$.o
+fi
+
+exit 0

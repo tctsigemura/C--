@@ -1,0 +1,18 @@
+/*
+ *  t015.cmm
+ *  char 配列を返す関数
+ */
+
+int a=1;
+public int b=2;
+char c=chr(3);
+public char[] x = array(5);
+char[][] y = array(5,5);
+
+char[] f1() {
+  return y[1];
+}
+
+void f2() {
+  c=y[1][a*b+ord(c)*ord(f1()[2])];
+}

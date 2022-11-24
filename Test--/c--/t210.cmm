@@ -1,0 +1,18 @@
+//
+// t210.cmm
+// for,と break, continue
+//
+
+public int main() {
+  int a;
+  for (;;) {
+    if (1>0) continue;
+    for (int i=0; i<100; i=i+1) {
+      if (i<0) continue;
+      a = 3;
+      if (i<0) break;
+    }
+    if (1>0) break;
+  }
+  return 0;
+}

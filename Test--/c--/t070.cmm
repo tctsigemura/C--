@@ -1,0 +1,19 @@
+/*
+ *  t070.cmm
+ *  do - while 文
+ */
+
+public int f1(int a);
+
+void f2() {
+  int a;
+  do {
+    a = f1(1);
+    if (a>10) break;
+    else continue;
+    while (true) {
+      break;
+    }
+    break;
+  } while (a==0);
+}

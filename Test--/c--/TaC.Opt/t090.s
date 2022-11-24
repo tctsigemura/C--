@@ -1,0 +1,76 @@
+.a	WS	1
+.b	DW	1
+.L1	DB	1
+	DB	0
+.e	DW	.L1
+.L2	STRING	"abc"
+.L3	DW	1
+	DW	1
+	DW	.L2
+.h	DW	.L3
+.L4	STRING	"abc"
+.L5	STRING	"def"
+.L6	DW	1
+	DW	1
+	DW	.L4
+.L7	DW	2
+	DW	0
+	DW	.L5
+.L8	DW	.L6
+	DW	.L7
+.i	DW	.L8
+.f1	PUSH	FP
+	LD	FP,SP
+	PUSH	G3
+	CALL	__stkChk
+	LD	G0,.a
+	CMP	G0,#0
+	JGE	.L10
+	LD	G0,4,FP
+	JMP	.L9
+.L10
+	LD	G0,#0
+.L9
+	ST	G0,.b
+	LD	G0,4,FP
+	CMP	G0,#0
+	JZ	.L12
+	LD	G0,.a
+	CMP	G0,#0
+	LD	G0,#1
+	JLT	.L11
+.L12
+	LD	G0,#0
+.L11
+	ST	G0,.b
+	LD	G0,#0
+	ST	G0,.b
+	LD	G0,#1
+	ST	G0,.b
+.L13
+	LD	G0,.b
+	CMP	G0,#1
+	JNZ	.L14
+	LD	G0,.b
+	XOR	G0,#1
+	ST	G0,.b
+	JMP	.L13
+.L14
+	LD	G3,#0
+.L15
+	CMP	G3,#10
+	JNZ	.L16
+	LD	G0,G3
+	ADD	G0,#1
+	LD	G3,G0
+	JMP	.L15
+.L16
+	LD	G0,.b
+	CMP	G0,#0
+	LD	G0,#1
+	JZ	.T0
+	LD	G0,#0
+.T0
+	POP	G3
+	POP	FP
+	RET

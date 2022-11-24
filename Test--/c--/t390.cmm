@@ -1,0 +1,15 @@
+/*
+ * t390.cmm : 右辺に複雑な式がある場合(2012.09.18 追加)
+ */
+
+char[][]a;
+int[]   c;
+int     e;
+
+public char    x();
+public int     y();
+
+public int main() {
+ a[2+1][c[4]+5+c[6]+y()+e]=x();
+ return 0;
+}

@@ -1,0 +1,17 @@
+//
+// t280.cmm : レジスタ変数が不足する場合
+// 
+
+void f() {
+  int a;
+  int b;
+  int c;
+  int d;
+  int e;
+  int f;    // ここまでレジスタ変数
+  int g;
+  int h;
+
+  e = f;
+  g = h;
+}

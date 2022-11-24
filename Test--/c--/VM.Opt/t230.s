@@ -1,0 +1,101 @@
+_main
+	ENTRY	1
+	LDL	1
+	LDC	1
+	GT
+	JF	.L1
+	LDC	1
+	STL	1
+	POP
+.L1
+	LDC	1
+	LDL	1
+	GT
+	JF	.L2
+	LDC	1
+	STL	1
+	POP
+.L2
+	LDL	1
+	LDC	1
+	GE
+	JF	.L3
+	LDC	1
+	STL	1
+	POP
+.L3
+	LDC	1
+	LDL	1
+	GE
+	JF	.L4
+	LDC	1
+	STL	1
+	POP
+.L4
+	LDL	1
+	LDC	1
+	EQ
+	JF	.L5
+	LDC	1
+	STL	1
+	POP
+.L5
+	LDC	1
+	LDL	1
+	EQ
+	JF	.L6
+	LDC	1
+	STL	1
+	POP
+.L6
+	LDL	1
+	LDC	1
+	NE
+	JF	.L7
+	LDC	1
+	STL	1
+	POP
+.L7
+	LDC	1
+	LDL	1
+	NE
+	JF	.L8
+	LDC	1
+	STL	1
+	POP
+.L8
+	LDL	1
+	LDC	1
+	LE
+	JF	.L9
+	LDC	1
+	STL	1
+	POP
+.L9
+	LDC	1
+	LDL	1
+	LE
+	JF	.L10
+	LDC	1
+	STL	1
+	POP
+.L10
+	LDL	1
+	LDC	1
+	LT
+	JF	.L11
+	LDC	1
+	STL	1
+	POP
+.L11
+	LDC	1
+	LDL	1
+	LT
+	JF	.L12
+	LDC	1
+	STL	1
+	POP
+.L12
+	LDC	0
+	MREG
+	RET

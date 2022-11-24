@@ -1,0 +1,40 @@
+//
+// l020.cmm : printf のテスト
+//
+#include <stdio.hmm>
+
+#ifdef C
+//[7,1905262592]=[31970033664]
+int[] s = {7,1905262592};
+#else
+//[7,12345]=[471097]
+int[] s = {7,12345};
+#endif
+
+public int main() {
+  printf("[100]: [%d]\n", 100);
+  printf("[-100]: [%d]\n", -100);
+  printf("[  100]: [%5d]\n", 100);
+  printf("[100  ]: [%-5d]\n", 100);
+  printf("[ -100]: [%5d]\n", -100);
+  printf("[-100 ]: [%-5d]\n", -100);
+  printf("[0x64]: [0x%x]\n", 100);
+  printf("[0xff9c]: [0x%x]\n", -100);
+  printf("[0x0000]: [0x%04x]\n", 0);
+  printf("[0x   0]: [0x%4x]\n", 0);
+  printf("[0144]: [0%o]\n", 100);
+  printf("[0177634]: [0%o]\n", -100);
+  printf("[ A]: [%2c]\n", 'A');
+  printf("[A ]: [%-2c]\n", 'A');
+  printf("[  ab]: [%4s]\n", "ab");
+  printf("[ab  ]: [%-4s]\n", "ab");
+  printf("[%%]: [%%]\n");
+#ifdef C
+  //[7,1905262592]=[31970033664]
+  printf("[31970033664]: [%ld]\n", s);
+#else
+  //[7,12345]=[471097]
+  printf("[471097]: [%ld]\n", s);
+#endif
+  return 0;
+}

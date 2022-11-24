@@ -1,0 +1,21 @@
+//
+// l040.cmm
+// (fseek のテスト)
+//
+#include <stdio.hmm>
+#include <stdlib.hmm>
+
+int[] s = array(2);     // s[0] に上位16bit, s[1] に下位16bit
+public int main(int argc, char[][] argv) {
+  if (argc!=2) {
+    fprintf(stderr, "usage: %s path\n", argv[0]);
+    exit(1);
+  }
+  if (fsize(argv[1], s)) {
+    perror(argv[1]);
+    exit(1);
+  }
+  printf("[%d, %d]=[%ld]\n", s[0], s[1], s);
+//  printf("[%d, %d]=[%ld]\n", s[0], s[1], lToL(s));
+  return 0;
+}

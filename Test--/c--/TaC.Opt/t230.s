@@ -1,0 +1,56 @@
+_main	PUSH	FP
+	LD	FP,SP
+	PUSH	G3
+	CALL	__stkChk
+	CMP	G3,#1
+	JLE	.L1
+	LD	G3,#1
+.L1
+	CMP	G3,#1
+	JGE	.L2
+	LD	G3,#1
+.L2
+	CMP	G3,#1
+	JLT	.L3
+	LD	G3,#1
+.L3
+	CMP	G3,#1
+	JGT	.L4
+	LD	G3,#1
+.L4
+	CMP	G3,#1
+	JNZ	.L5
+	LD	G3,#1
+.L5
+	CMP	G3,#1
+	JNZ	.L6
+	LD	G3,#1
+.L6
+	CMP	G3,#1
+	JZ	.L7
+	LD	G3,#1
+.L7
+	CMP	G3,#1
+	JZ	.L8
+	LD	G3,#1
+.L8
+	CMP	G3,#1
+	JGT	.L9
+	LD	G3,#1
+.L9
+	CMP	G3,#1
+	JLT	.L10
+	LD	G3,#1
+.L10
+	CMP	G3,#1
+	JGE	.L11
+	LD	G3,#1
+.L11
+	CMP	G3,#1
+	JLE	.L12
+	LD	G3,#1
+.L12
+	LD	G0,#0
+	POP	G3
+	POP	FP
+	RET

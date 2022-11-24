@@ -1,0 +1,15 @@
+//
+// t260.cmm : 条件式
+//
+boolean a,b,c,d,e,f,g,h,i;
+
+public int main() {
+  if (true && false && true) a = true; else a = false;
+  if (true || false || true) b = true;
+  if (1>1 && 2>2 && 3>3) c = true;
+  if (1>1 || 2>2 || 3>3) d = true;
+  if (1>1 || 2>2 || 3>3 && 4>4 && 5>5) e = true;
+  if (1>1 && 2>2 && 3>3 || 4>4 || 5>5) f = true;
+  if (1>1 || 2>2 && 3>3 && 4>4 || 5>5) g = true;
+  return 0;
+}

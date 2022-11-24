@@ -1,0 +1,779 @@
+__alcAddr
+	WS	1
+_environ
+	WS	1
+.a
+	WS	1
+.b
+	DW	48
+.d
+	WS	1
+.e
+	WS	1
+.f
+	DW	10
+.g
+	DW	20
+.h
+	WS	1
+.L1
+	DW	1000
+	DW	2000
+	DW	3000
+.i
+	DW	.L1
+.j
+	WS	1
+.k
+	WS	1
+.L2
+	DW	4000
+	DW	5000
+.L3
+	DW	6000
+	DW	7000
+	DW	8000
+.L4
+	DW	.L2
+	DW	.L3
+.l
+	DW	.L4
+.L5
+	STRING	"aaaa"
+.n
+	DW	.L5
+.L6
+	STRING	"abc"
+.L7
+	DB	97
+	DB	98
+	DB	0
+.L8
+	DW	.L6
+	DW	.L7
+.o
+	DW	.L8
+.L9
+	DW	6
+.L10
+	DW	7
+	DW	8
+.L11
+	DW	9
+.L12
+	WS	10
+.L13
+	DW	.L9
+	DW	.L10
+	DW	.L11
+.L14
+	DW	.L12
+	DW	.L13
+.p
+	DW	.L14
+.L15
+	DW	6
+.L16
+	DW	7
+	DW	8
+.L17
+	DW	9
+.L18
+	DW	.L15
+	DW	.L16
+	DW	.L17
+.L19
+	DW	.L18
+.L20
+	DW	.L19
+	DW	0
+.L21
+	DW	.L20
+	DW	0
+.pq
+	DW	.L21
+.L22
+	STRING	"abc"
+.f0
+	ENTRY	3
+	LDC	1
+	STL	1
+	POP
+	LDC	.L22
+	STL	3
+	POP
+	LDC	1
+	LDG	.h
+	LDC	1
+	STW
+	POP
+	LDC	2
+	LDL	2
+	LDC	0
+	LDW
+	LDC	1
+	LDW
+	LDC	1
+	LDW
+	LDC	3
+	STW
+	POP
+	RET
+.L23
+	STRING	"ab"
+.L24
+	STRING	"cd"
+.L25
+	DW	.L23
+	DW	.L24
+.L26
+	WS	3
+.L27
+	DW	.L25
+	DW	.L26
+.q
+	DW	.L27
+.L28
+	DW	1
+	DW	2
+.L29
+	DW	3
+	DW	4
+	DW	5
+.L30
+	DW	6
+.L31
+	DW	7
+	DW	8
+.L32
+	DW	9
+.L33
+	DW	.L28
+	DW	.L29
+.L34
+	DW	.L30
+	DW	.L31
+	DW	.L32
+.L35
+	DW	.L33
+	DW	.L34
+.r
+	DW	.L35
+.L36
+	BS	3
+.s
+	DW	.L36
+.L37
+	BS	2
+.L38
+	BS	2
+.L39
+	BS	2
+.L40
+	DW	.L37
+	DW	.L38
+	DW	.L39
+.t
+	DW	.L40
+.L41
+	BS	2
+.L42
+	BS	2
+.L43
+	BS	2
+.L44
+	BS	2
+.L45
+	DW	.L41
+	DW	.L42
+.L46
+	DW	.L43
+	DW	.L44
+.L47
+	DW	.L45
+	DW	.L46
+.u
+	DW	.L47
+.L48
+	STRING	"ab"
+.L49
+	STRING	"cd"
+.L50
+	DW	.L48
+	DW	.L49
+.L51
+	BS	2
+.L52
+	BS	2
+.L53
+	DW	.L51
+	DW	.L52
+.L54
+	DW	.L50
+	DW	.L53
+.v
+	DW	.L54
+.f1
+	ENTRY	5
+	LDC	1
+	STL	1
+	POP
+	LDC	20
+	ARG
+	CALLF	1,_malloc
+	STL	4
+	POP
+	LDL	4
+	LDC	0
+	LDW
+	LDC	0
+	EQ
+	JF	.L55
+	LDC	1
+	LDL	4
+	LDC	1
+	STW
+	POP
+	JMP	.L56
+.L55
+	LDC	0
+	LDL	4
+	LDC	1
+	STW
+	POP
+.L56
+	LDL	4
+	LDC	0
+	LDW
+	LDC	1
+	EQ
+	JF	.L57
+	LDC	1
+	LDL	4
+	LDC	1
+	STW
+	POP
+.L57
+	LDL	1
+	LDC	1
+	EQ
+	JF	.L58
+	LDC	2
+	STL	1
+	POP
+.L58
+	LDL	1
+	LDC	0
+	NE
+	JF	.L59
+	LDC	3
+	STL	1
+	POP
+	JMP	.L60
+.L59
+	LDC	4
+	STL	1
+	POP
+.L60
+	LDL	1
+	LDC	1
+	NE
+	JF	.L61
+	LDC	5
+	STL	1
+	POP
+	LDC	6
+	STL	2
+	POP
+	JMP	.L62
+.L61
+	LDC	7
+	STL	1
+	POP
+	LDC	8
+	STL	2
+	POP
+.L62
+.L63
+	LDL	1
+	LDC	0
+	EQ
+	JF	.L64
+	LDC	1
+	STL	5
+	POP
+	LDL	5
+	LDC	1
+	ADD
+	STL	5
+	POP
+	JMP	.L63
+.L64
+	LDC	0
+	STL	1
+	POP
+.L65
+	LDL	1
+	LDC	3
+	LT
+	JF	.L66
+	LDL	1
+	LDL	4
+	LDL	1
+	STW
+	POP
+	LDL	1
+	LDC	1
+	ADD
+	STL	1
+	POP
+	JMP	.L65
+.L66
+.L67
+	LDL	1
+	LDC	2
+	EQ
+	JT	.L68
+	LDL	2
+	LDC	2
+	EQ
+	JT	.L68
+	LDL	3
+	LDC	2
+	EQ
+	JF	.L69
+.L68
+	LDL	3
+	LDC	1
+	EQ
+	JF	.L70
+	JMP	.L67
+.L70
+.L71
+	LDL	2
+	LDC	2
+	EQ
+	JF	.L72
+	LDL	3
+	LDC	3
+	EQ
+	JF	.L73
+	JMP	.L72
+.L73
+	JMP	.L71
+.L72
+	LDL	3
+	LDC	4
+	EQ
+	JF	.L74
+	JMP	.L69
+.L74
+	JMP	.L67
+.L69
+	LDL	4
+	ARG
+	CALLP	1,_free
+	LDL	3
+	MREG
+	RET
+.L75
+	DB	1
+	DB	2
+.L76
+	DB	3
+	DB	4
+.L77
+	DW	.L75
+	DW	.L76
+.ab
+	DW	.L77
+.f2
+	ENTRY	2
+	LDC	1
+	STL	1
+	POP
+	LDC	2
+	STL	2
+	POP
+	LDL	2
+	ARG
+	LDL	1
+	LDC	1
+	EQ
+	JF	.L79
+	LDL	2
+	LDC	1
+	EQ
+; BOOLAND .L79,.L-1,.L78
+	JMP	.L78
+.L79
+	LDC	0
+.L78
+; ----
+	ARG
+	CALLF	2,.f1
+	POP
+	LDG	.ab
+	LDC	1
+	LDW
+	MREG
+	RET
+.f3
+	ENTRY	0
+.L80
+	JMP	.L80
+	RET
+.f4
+	ENTRY	2
+	LDC	0
+	STL	1
+	POP
+	LDC	1
+	STL	2
+	POP
+.L81
+	LDL	1
+	LDC	10
+	LT
+	JF	.L82
+	LDL	2
+	LDC	1
+	ADD
+	LDC	2
+	MUL
+	STL	1
+	POP
+	LDL	1
+	LDC	1
+	ADD
+	STL	1
+	POP
+	JMP	.L81
+.L82
+	RET
+.L83
+	WS	5
+.x
+	DW	.L83
+.L84
+	WS	5
+.L85
+	WS	5
+.L86
+	WS	5
+.L87
+	WS	5
+.L88
+	WS	5
+.L89
+	DW	.L84
+	DW	.L85
+	DW	.L86
+	DW	.L87
+	DW	.L88
+.y
+	DW	.L89
+.f5
+	ENTRY	0
+	LDC	1
+	LDG	.i
+	LDC	5
+	STW
+	LDG	.i
+	LDP	1
+	STW
+	LDG	.x
+	LDG	.i
+	LDG	.x
+	LDC	1
+	LDW
+	LDW
+	LDC	1
+	ADD
+	STW
+	POP
+	LDG	.y
+	LDC	1
+	LDW
+	CALLF	0,.f2
+	LDC	2
+	LDB
+	LDP	1
+	LDP	2
+	MUL
+	MUL
+	LDG	.x
+	LDC	3
+	LDW
+	MUL
+	LDW
+	STP	2
+	POP
+	RET
+.z1
+	WS	1
+.L90
+	DW	1
+	DW	2
+	DW	0
+.z2
+	DW	.L90
+.L91
+	DW	1
+	DW	2
+	DW	0
+.L92
+	DW	3
+	DW	4
+	DW	0
+.L93
+	DW	.L91
+	DW	.L92
+.z3
+	DW	.L93
+.L94
+	STRING	"ab"
+.L95
+	DW	1
+	DW	2
+	DW	.L94
+.z4
+	DW	.L95
+.z5
+	DW	0
+.L96
+	STRING	"abc"
+.L97
+	DW	1
+	DW	2
+	DW	.L96
+.L98
+	DW	0
+	DW	.L97
+	DW	0
+.z6
+	DW	.L98
+.L99
+	WS	3
+.z7
+	DW	.L99
+.L100
+	WS	3
+.L101
+	WS	3
+.L102
+	DW	.L100
+	DW	.L101
+.z8
+	DW	.L102
+.L103
+	WS	2
+.z9
+	DW	.L103
+.f6
+	ENTRY	0
+	LDG	.z2
+	STG	.z1
+	POP
+	LDC	6
+	ARG
+	CALLF	1,_malloc
+	STG	.z1
+	POP
+	LDG	.z1
+	ARG
+	CALLP	1,_free
+	LDG	.z3
+	LDC	3
+	LDW
+	STG	.z1
+	POP
+	LDG	.z3
+	LDC	3
+	LDW
+	LDC	0
+	LDW
+	STG	.a
+	POP
+	LDG	.z3
+	LDC	3
+	LDW
+	LDC	2
+	LDW
+	LDC	1
+	LDW
+	STG	.z1
+	POP
+	LDG	.z2
+	LDC	2
+	LDW
+	LDC	1
+	LDW
+	LDC	2
+	LDW
+	LDC	1
+	LDW
+	LDC	0
+	LDW
+	STG	.a
+	POP
+	LDC	6
+	ARG
+	CALLF	1,_malloc
+	LDG	.z8
+	LDC	1
+	LDW
+	LDC	1
+	STW
+	POP
+	LDC	1
+	LDG	.z8
+	LDC	1
+	LDW
+	LDC	1
+	LDW
+	LDC	0
+	STW
+	POP
+	LDG	.z8
+	ARG
+	CALLP	1,_free
+	RET
+.L104
+	STRING	"aaa"
+.L105
+	STRING	"aaa"
+.L106
+	STRING	"bbb"
+.f11
+	ENTRY	3
+	LDC	1
+	ARG
+	CALLF	1,_f7
+	STG	.z1
+	POP
+	LDC	1
+	ARG
+	CALLF	1,_f7
+	LDC	1
+	LDW
+	STP	1
+	POP
+	LDG	.z1
+	ARG
+	CALLF	1,_f8
+	LDC	1
+	LDW
+	STG	.z1
+	POP
+	LDG	.z3
+	ARG
+	CALLF	1,_f9
+	LDC	1
+	LDW
+	STG	.z1
+	POP
+	LDC	0
+	STG	.z1
+	POP
+	LDC	.L104
+	ARG
+	CALLP	1,_f10
+	LDC	.L106
+	ARG
+	LDC	2
+	ARG
+	LDC	.L105
+	ARG
+	CALLP	3,_f10
+	LDL	1
+	ARG
+	LDP	1
+	ARG
+	LDL	1
+	ARG
+	LDP	1
+	ARG
+	LDL	1
+	ARG
+	CALLP	5,.f11
+	LDG	.z6
+	LDC	3
+	LDW
+	LDG	.z6
+	LDC	2
+	STW
+	LDG	.z6
+	LDC	1
+	STW
+	POP
+	LDC	1
+	LDG	.y
+	LDC	2
+	LDW
+	LDG	.y
+	LDC	1
+	STW
+	LDC	1
+	STW
+	POP
+	LDC	0
+	STL	2
+	POP
+	LDC	0
+	STL	3
+	POP
+.L107
+	LDL	2
+	LDL	3
+	EQ
+	JF	.L108
+	LDL	3
+	LDC	1
+	ADD
+	STL	3
+	POP
+	LDL	2
+	LDC	1
+	ADD
+	STL	2
+	POP
+	JMP	.L107
+.L108
+	RET
+.L109
+	STRING	"aaa"
+.ss
+	DW	.L109
+.f12
+	ENTRY	2
+	LDC	8
+	ARG
+	CALLF	1,_malloc
+	STL	1
+	POP
+	LDL	1
+	ARG
+	CALLP	1,_free
+	LDC	1
+	STL	2
+	POP
+	RET
+.f13
+	ENTRY	4
+	LDC	10
+	STL	2
+	POP
+	LDC	18
+	STL	3
+	POP
+	LDC	99
+	STL	4
+	POP
+	LDG	.ss
+	STL	1
+	POP
+	LDL	1
+	STG	.z1
+	POP
+	RET

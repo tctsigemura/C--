@@ -1,0 +1,106 @@
+.a
+	WS	1
+.f
+	ENTRY	0
+	LDG	.a
+	LDC	1
+	GT
+	JF	.L1
+	LDG	.a
+	LDC	7
+	GT
+	JF	.L2
+	LDC	3
+	STG	.a
+	POP
+	JMP	.L3
+.L2
+	LDC	5
+	STG	.a
+	POP
+.L3
+	JMP	.L4
+.L1
+	LDC	6
+	STG	.a
+	POP
+.L4
+	LDG	.a
+	LDC	2
+	GT
+	JF	.L5
+	LDG	.a
+	LDC	8
+	GT
+	JF	.L6
+	LDC	3
+	STG	.a
+	POP
+	JMP	.L7
+.L6
+	LDC	5
+	STG	.a
+	POP
+.L7
+.L5
+	LDG	.a
+	LDC	3
+	GT
+	JF	.L8
+	LDG	.a
+	LDC	9
+	GT
+	JF	.L9
+	LDC	3
+	STG	.a
+	POP
+.L9
+	JMP	.L10
+.L8
+	LDC	5
+	STG	.a
+	POP
+.L10
+	LDG	.a
+	LDC	4
+	GT
+	JF	.L11
+	LDG	.a
+	LDC	10
+	GT
+	JF	.L12
+	LDC	3
+	STG	.a
+	POP
+	JMP	.L13
+.L12
+	LDG	.a
+	LDC	11
+	GT
+	JF	.L14
+	LDC	4
+	STG	.a
+	POP
+.L14
+.L13
+	JMP	.L15
+.L11
+	LDC	5
+	STG	.a
+	POP
+.L15
+	LDG	.a
+	LDC	5
+	GT
+	JF	.L16
+	JMP	.L17
+.L16
+.L17
+	LDG	.a
+	LDC	6
+	GT
+	JF	.L18
+	JMP	.L19
+.L18
+.L19
+	RET

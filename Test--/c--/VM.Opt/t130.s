@@ -1,0 +1,83 @@
+.x
+	DW	0
+.y
+	WS	1
+.f
+	ENTRY	3
+	LDL	1
+	LDL	2
+	EQ
+	LDG	.x
+	LDG	.y
+	EQ
+	EQ
+	JF	.L1
+	LDL	1
+	CHR
+	MREG
+	JMP	.L2
+.L1
+	LDL	3
+	LDL	3
+	EQ
+	JF	.L3
+	LDL	1
+	CHR
+	MREG
+	JMP	.L2
+.L3
+	LDL	1
+	LDC	2
+	MUL
+	STL	2
+	STL	1
+	POP
+	LDC	0
+	STL	1
+	POP
+	LDC	0
+	STL	2
+	POP
+.L4
+	LDL	1
+	LDC	10
+	LT
+	JF	.L5
+	LDL	2
+	LDC	2
+	MUL
+	STL	2
+	POP
+	LDL	1
+	LDC	1
+	ADD
+	STL	1
+	POP
+	JMP	.L4
+.L5
+	LDC	0
+	STL	2
+	STL	1
+	POP
+.L6
+	LDL	1
+	LDC	10
+	LT
+	JF	.L7
+	LDL	2
+	LDC	2
+	MUL
+	STL	2
+	POP
+	LDL	1
+	LDC	1
+	ADD
+	STL	1
+	POP
+	JMP	.L6
+.L7
+	LDL	1
+	CHR
+	MREG
+.L2
+	RET

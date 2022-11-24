@@ -1,0 +1,58 @@
+//
+// l010.cmm
+// (fseek のテスト)
+//
+#include <stdio.hmm>
+#include <stdlib.hmm>
+#define  BUFSZ 100
+
+int[] buf = array(BUFSZ);
+public int main() {
+  // 64KiBのファイルを作る
+  FILE fpw = fopen("tt.dat", "w");
+  if (fpw==null) {
+    perror("tt.dat:write");
+    exit(1);
+  }
+  for (int i=0;; i=i+1) {
+    fputc(chr(i>>8), fpw);
+    fputc(chr(i),    fpw);
+    if (i==(1<<15)-1) break;   // オーバーフローする前に脱出
+  }
+
+/*
+  fclose(fpw);
+  printf("close\n");
+  fpw = fopen("tt.dat", "w");
+*/
+
+  // 123バイトにfseekして
+  fseek(fpw, 0, 123);
+
+  // 123バイトの0xaaを書く
+  for (int i=0; i<123; i=i+1) {
+    fputc(chr(0xaa), fpw);
+  }
+  
+  fclose(fpw);
+
+  // 作ったファイルを読む
+  FILE fpr = fopen("tt.dat", "r");
+  if (fpr==null) {
+    perror("tt.dat:read");
+    exit(1);
+  }
+  
+  // 123 + 123 - 2 に fseek して
+  #define BASE (123+123-2)
+  fseek(fpr, 0, BASE);
+
+  for (int i=BASE/2; i<=BASE/2+3; i=i+1) {
+    char c1 = fgetc(fpr);
+    char c2 = fgetc(fpr);
+    printf("%04x : %04x\n", i, (ord(c1)<<8)+ord(c2));
+  }
+  
+  fclose(fpr);
+  return 0;
+}

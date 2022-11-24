@@ -1,0 +1,16 @@
+// typedef のテスト
+#include <stdio.hmm>
+// typedef FILE;
+// FILE fopen();
+
+public FILE g(FILE f);
+
+FILE h(FILE f) {
+  return g(f);
+}
+
+public void f() { 
+  FILE f,p = fopen("aaa.txt", "r");
+  f = p;
+  f = h(p);
+}

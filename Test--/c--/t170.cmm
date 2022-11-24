@@ -1,0 +1,79 @@
+/*
+ *  t170.cmm
+ *  複雑な初期化、色々な算術式
+ */
+
+int a;
+char b, c;
+int d, e;
+int f = 10, g = 20;
+int[] h, i = { 1000,2000,3000 }, j;
+int[][] k, l = { { 4000,5000},{6000,7000,8000} };
+int[][][] m = { { {1,2},{3,4,5} }, { {6},{7,8},{9} } };
+char[] n = "aaaa";
+char[][] o = {"abc",{'a','b','\0'}};
+int[][][] p = { array(10), { {6},{7,8},{9} } };
+int[] pq;
+
+void f1() {
+  int n;
+  n = 1;
+}
+
+char[][][] q = { {"ab","cd"}, array(3)};
+//void[] malloc(int n);
+#include <stdlib.hmm>
+
+int f2(int x, int y) {
+  int la;
+  int lb;
+  int[] lc = malloc(10);
+  {
+    int ld = x;
+    int le = x;
+  }
+  int le = 30;
+  char[] ls = "ABCDE";
+  la = 10;
+  b = chr(la);
+  lb = ord(b);
+  i[la] = lb;
+  la = lb = 10;
+  i[la] = lb = 10;
+  i[la] = i[lb] = lb = 20;
+  la = l[1][2];
+  la = l[i[5]][i[la]];
+  l[i[5]][i[la]]=i[la]=20;
+  return la;
+}
+
+boolean f3() {
+  boolean x = true || x && false || x;
+  return x;
+}
+
+void f4() {
+  int x = a | ord(b);
+  int y = a*ord(b) ^ 1*2;
+  int z = a & ord(b);
+  boolean w = a == ord(b);
+  boolean v = chr(a) != b;
+  boolean u = a < ord(b);
+  boolean t = a <= ord(b);
+  boolean s = a > ord(b);
+  boolean r = a >= ord(b);
+  int q = a << ord(b);
+  int p = a >> ord(b);
+  int o = a + ord(b);
+  int n = a - ord(b);
+  int m = a * ord(b);
+  int l = a / ord(b);
+  int k = a % ord(b);
+  int j = -a;
+  int i = +a;
+  boolean h = !w;
+  int g = ~a;
+  int f = a*ord(b)+ord(c)*d+2*3;
+  boolean e = w && v;
+  pq[2]=2;
+}

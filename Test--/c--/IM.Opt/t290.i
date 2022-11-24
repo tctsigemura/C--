@@ -1,0 +1,8 @@
+vmNam(0)
+vmEntry(1)
+vmLdCns(0)
+vmStLoc(1)
+vmPop()
+vmLdCns(0)
+vmMReg()
+vmRet()

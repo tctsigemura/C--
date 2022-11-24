@@ -1,0 +1,5 @@
+vmNam(0)
+vmEntry(1)
+vmLdCns(0)
+vmMReg()
+vmRet()

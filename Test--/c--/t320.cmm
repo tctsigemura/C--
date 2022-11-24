@@ -1,0 +1,16 @@
+//
+// t320.cmm
+// void 型の関数呼び出し
+//
+
+public void p();
+
+public int main() {
+  int a;
+  p();
+  p(),p(),p();
+  a;
+  a,a,a;
+
+  return 0;
+}

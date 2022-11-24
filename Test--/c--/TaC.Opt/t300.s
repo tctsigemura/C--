@@ -1,0 +1,12 @@
+.b	WS	1
+_main	PUSH	FP
+	LD	FP,SP
+	PUSH	G3
+	CALL	__stkChk
+	LD	G0,#1
+	ST	G0,.b
+	LD	G3,G0
+	LD	G0,#0
+	POP	G3
+	POP	FP
+	RET
