@@ -128,7 +128,7 @@ __sub32                     ; int[] _sub32(int[] dst, int[] src);
         ret
 
 ;; 32ビット掛け算ルーチン
-_mul32                          ; int[] _mul32(int[] dst, int src)
+__mul32                     ; int[] _mul32(int[] dst, int src)
         push    g3
         ld      g0,4,sp     ; ディスティネーション(アドレス)
         ld      g1,2,g0     ; ディスティネーション下位ワード(B)
@@ -153,7 +153,7 @@ _mul32                          ; int[] _mul32(int[] dst, int src)
         ret
 
 ;; 32ビット割算ルーチン
-_div32                          ; int[] _div32(int[] dst, int src)
+__div32                     ; int[] _div32(int[] dst, int src)
         push    g3
         ld      g0,4,sp     ; ディスティネーション(アドレス)
         ld      g1,0,g0     ; ディスティネーション上位ワード
