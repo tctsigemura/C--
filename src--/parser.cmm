@@ -275,9 +275,9 @@ void freeWatch(Watch w) {
 void chkType(Watch w, int type) {
   if (w.dim>0)      error("配列型は使用できない");
   if (w.type==TyVOID) error("void型は使用できない");
-  if (type==TyBOOL && w.type!=TyBOOL)  error("論理型が必要");
-  if (type==TyINT  && w.type!=TyINT )  error("整数型が必要");
-  if (type==TyCHAR && w.type!=TyCHAR)  error("文字型が必要");
+  if (type==TyBOOL && w.type!=TyBOOL)   error("論理型が必要");
+  if ((type==TyINT || type==TyCHAR) &&
+       w.type!=TyINT && w.type!=TyCHAR) error("整数型/文字型が必要");
   if (type!=TyBOOL && type!=TyINT && type!=TyCHAR) error("バグ...chkType");
 }
 
@@ -285,10 +285,12 @@ void chkType(Watch w, int type) {
 void chkCmpat(Watch w, int type, int dim) {
   if (!(w.type==TyVOID && w.dim>0 && dim>0) &&    // void[] はどの [] にも OK
       !(type==TyVOID && dim>0 && w.dim>0) &&
-      !(w.type==TyVOID && w.dim==1 && type<=0)&&  // void[] と構造体は OK
+      !(w.type==TyVOID && w.dim==1 && type<=0) && // void[] と構造体は OK
       !(type==TyVOID && dim==1 && w.type<=0) &&
-      (w.type!=type || w.dim!=dim))               // それ以外は正確に型が合
-    error("代入/比較/初期化/引数/returnの型が合わない");// わないと代入できない
+      !(w.type==TyINT && type==TyCHAR && w.dim==dim) && // int と char は OK
+      !(type==TyINT && w.type==TyCHAR && w.dim==dim) && // char と int も OK
+      !(w.type==type && w.dim==dim))                    // それ以外は正確に合わ
+    error("代入/比較/初期化/引数/returnの型が合わない");// ないと代入できない
 }
 
 void getAsExpr(Watch w);                         // 再帰呼出の関係で
