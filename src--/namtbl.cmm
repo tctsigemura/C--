@@ -43,7 +43,11 @@
 #include "namtbl.hmm"
 
 /* 名前表 */
-#define NtMAX      300                 // 表のサイズ
+#ifdef C                               // UNIX版コンパイラをmakeなら
+#define NtMAX      500                 //   表のサイズは大きくできる
+#else                                  // TaC版コンパイラをmake なら
+#define NtMAX      50                  //   表のサイズは小さく
+#endif
 int      ntNextIdx;                    // 次に登録する位置、スコープにより逆戻り
 char[][] ntName = array(NtMAX);        // 名前のつづり
 int[]    ntScope = array(NtMAX);       // スコープ(ScXXXX を格納する)

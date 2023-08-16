@@ -55,7 +55,11 @@
 #include "util.hmm"
 
 // 構文木表
-#define SyMAX 600                          // 表の大きさ
+#ifdef C                               // UNIX版コンパイラをmakeなら
+#define SyMAX 600                      //   表のサイズは大きくできる
+#else                                  // TaC版コンパイラをmake なら
+#define SyMAX 60                       //   表のサイズは小さく
+#endif
 int[] syType = array(SyMAX);                // ノードの種類
 int[] syLVal = array(SyMAX);                // ノードの値１
 int[] syRVal = array(SyMAX);                // ノードの値２
