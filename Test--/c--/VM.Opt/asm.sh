@@ -14,6 +14,6 @@ for i in $*; do
    n=`expr ${j} : '\([^\.]*\)'`
    echo '[!!!' "${n}.cmm => ${n}.s" '!!!]'
    cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} ${i} |
-   ../../../src/vm-c-- -O > ${n}.s
+   ../../../src--/vm-c-- -O > ${n}.s
 done
 

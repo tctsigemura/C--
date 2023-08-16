@@ -63,9 +63,7 @@
 VER=`cat ../VERSION`
 DATE=`date`
 
-#all : c-- vm-c-- ic-c-- c-c-- rtc-c-- cm2e cm2c cm2i cm2v
-#all : c--  c-c-- rtc-c--
-all : c-c--
+all : c-- c--.exe vm-c-- ic-c-- c-c-- rtc-c-- cm2e cm2c cm2i cm2v
 
 c-- : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
       util.hmm util.cmm namtbl.hmm namtbl.cmm sytree.hmm sytree.cmm \
@@ -75,21 +73,29 @@ c-- : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
 	main.cmm parser.cmm lexer.cmm namtbl.cmm util.cmm sytree.cmm \
 	vmCode.cmm vm2tac.cmm optree.cmm
 
-vm-c-- : GNUmakefile main.c #parser.c parser.h lexer.c lexer.h util.h \
-      util.c namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2vm.c \
-      optree.h optree.c
+c--.exe : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
+      util.hmm util.cmm namtbl.hmm namtbl.cmm sytree.hmm sytree.cmm \
+      code.hmm vmCode.cmm vm2tac.cmm optree.hmm optree.cmm
+	cm2e ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
+	-DARC=\"TaC\" -DNWORD=16 -DNBYTE=8 -o c-- \
+	main.cmm parser.cmm lexer.cmm namtbl.cmm util.cmm sytree.cmm \
+	vmCode.cmm vm2tac.cmm optree.cmm
+
+vm-c-- : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
+      util.hmm util.cmm namtbl.hmm namtbl.cmm sytree.hmm sytree.cmm \
+      code.hmm vmCode.cmm vm.hmm vm2vm.cmm optree.hmm optree.cmm
 	cm2c ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 	-DARC=\"VM\" -DNWORD=16 -DNBYTE=8 -o vm-c-- \
-	main.c parser.c lexer.c namtbl.c util.c sytree.c \
-	vmCode.c vm2vm.c optree.c
+	main.cmm parser.cmm lexer.cmm namtbl.cmm util.cmm sytree.cmm \
+	vmCode.cmm vm2vm.cmm optree.cmm
 
-ic-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h \
-      util.c namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2ic.c \
-      optree.h optree.c
+ic-c-- : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
+      util.hmm util.cmm namtbl.hmm namtbl.cmm sytree.hmm sytree.cmm \
+      code.hmm vmCode.cmm vm.hmm vm2ic.cmm optree.hmm optree.cmm
 	cm2c ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 	-DARC=\"IC\" -DNWORD=16 -DNBYTE=8 -o ic-c-- \
-	main.c parser.c lexer.c namtbl.c util.c sytree.c \
-	vmCode.c vm2ic.c optree.c
+	main.cmm parser.cmm lexer.cmm namtbl.cmm util.cmm sytree.cmm \
+	vmCode.cmm vm2ic.cmm optree.cmm
 
 c-c-- : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
         util.hmm util.cmm namtbl.hmm namtbl.cmm sytree.hmm sytree.cmm \
@@ -98,12 +104,6 @@ c-c-- : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
 	-DARC=\"C\" -D_C -DNWORD=32 -DNBYTE=8 -o c-c-- \
 	main.cmm parser.cmm lexer.cmm namtbl.cmm util.cmm sytree.cmm \
 	cCode.cmm optree.cmm
-	cm2e ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
-	-DARC=\"C\" -D_C -DNWORD=16 -DNBYTE=8 -o c-c-- \
-	main.cmm parser.cmm lexer.cmm namtbl.cmm util.cmm sytree.cmm \
-	cCode.cmm optree.cmm
-
-
 
 rtc-c-- : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
         util.hmm util.cmm namtbl.hmm namtbl.cmm sytree.hmm sytree.cmm \
@@ -147,6 +147,7 @@ install : c-- vm-c-- ic-c-- c-c-- rtc-c-- cm2c cm2e cm2i cm2v # h8300hn-c--
 #	install -m 755 h8300hn-c-- /usr/local/bin
 
 clean :
-	rm -f c-- vm-c-- c-c-- rtc-c-- ic-c-- cm2e cm2c cm2i cm2v \
-        *.map *.exe *.o *.c~ *.h~ *.txt~ *.cmm~  Makefile~ cm2?~ GNUmakefile~
+	rm -rf c-- vm-c-- c-c-- rtc-c-- ic-c-- cm2e cm2c cm2i cm2v \
+        *.map *.exe *.o *.dSYM \
+        *.c~ *.h~ *.txt~ *.cmm~  Makefile~ cm2?~ GNUmakefile~
 

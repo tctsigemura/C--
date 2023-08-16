@@ -14,7 +14,7 @@ for i in $*; do
    echo '[!!!' ${j} '!!!]'
    n=`expr ${j} : '\([^\.]*\)'`
    cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} ${i} |
-   ../../../src/ic-c-- -O > t.$$
+   ../../../src--/ic-c-- -O > t.$$
    diff ${n}.i t.$$
 done
 

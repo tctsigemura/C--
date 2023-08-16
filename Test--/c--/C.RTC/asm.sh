@@ -20,7 +20,7 @@ for i in $*; do
    n=`expr ${j} : '\([^\.]*\)'`
    echo '[!!!' "${n}.cmm => ${n}.c" '!!!]'
    cpp ${CPPFLAGS} ${RTC} ${INCDIR} -include cfunc.hmm ${i} |
-   ../../../src/rtc-c-- -O > ${n}.c
+   ../../../src--/rtc-c-- -O > ${n}.c
 #   cc -S ${CFLAGS} ${RTC} ${INCDIR} -include wrapper.h ${n}.c
 #   rm -f ${n}.s
 done
