@@ -17,7 +17,6 @@ fi
 
 myname=`basename $0`
 exefile="a.exe"
-stksize=600
 sflag="no"
 cflag="no"
 eflag="no"
@@ -27,7 +26,6 @@ incdir=""
 while [ $# -gt 0 ]; do
     case "$1" in
         -o) exefile=$2;  shift; shift;;
-        -s) stksize=$2;  shift; shift;;
         -S) sflag="yes"; shift;;
         -c) cflag="yes"; shift;;
         -E) eflag="yes"; shift;;
@@ -42,7 +40,6 @@ while [ $# -gt 0 ]; do
             echo  "syntax: ${myname} [switches] <c-- source> ..."         1>&2
             echo  "     switches are :"                                   1>&2
             echo  "       -o exec   executable file name"                 1>&2
-            echo  "       -s ###    stack size (default=600)"             1>&2
             echo  "       -S        leave .s file"                        1>&2
             echo  "       -c        leave .o file"                        1>&2
             echo  "       -E        run the preprocessor stage"           1>&2
@@ -60,17 +57,6 @@ while [ $# -gt 0 ]; do
         *)  break;;     # terminate while loop
     esac
 done
-
-expr "${stksize}" + 1 > /dev/null 2>&1
-if [ $? -eq 2 ]; then
-    echo "${myname} : ${stksize} : invalid stack size."           1>&2
-    exit 1
-fi
-
-if [ "${stksize}" -lt 100 ]; then
-    echo "${myname} : ${stksize} : too small stack size."         1>&2
-    exit 1
-fi
 
 if [ $# -le 0 ]; then
     echo "${myname} : no input files."                            1>&2
@@ -131,7 +117,7 @@ done
 exename=`expr "${exefile}" : '\(.*\)\.[^./]*$'`
 if [ "${eflag}" != "yes" -a "${sflag}" != "yes" -a "${cflag}" != "yes" ]; then
   ld-- $$.o  ${LIBDIR}/libtac.o ${objs} > /dev/null
-  objexe-- ${pflag} ${exefile} $$.o ${stksize} | sort --key=1 > ${exename}.map
+  objexe-- ${pflag} ${exefile} $$.o | sort --key=1 > ${exename}.map
   rm -f ${tmps} $$.o
 fi
 
