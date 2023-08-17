@@ -1,0 +1,9 @@
+// 自動型変換に関するテスト
+char c;
+int  i;
+
+char g() {
+  c = c + 1;
+  boolean b = 'a' <= c && c <= 'z';
+  return i;
+}
