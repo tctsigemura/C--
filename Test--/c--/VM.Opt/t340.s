@@ -1,5 +1,0 @@
-_main
-	ENTRY	0
-	LDC	0
-	MREG
-	RET
