@@ -60,7 +60,7 @@
 # 2010.04.09 v0.6.3  : install のオプションから -g wheel を削除(Ubuntu対応)
 #
 
-VER=`cat ../VERSION`
+VER=`cat ../VERSION`(src--)
 DATE=`date`
 
 all : c-- c--.exe vm-c-- ic-c-- c-c-- rtc-c-- cm2e cm2c cm2i cm2v
