@@ -297,9 +297,9 @@ char getEsc() {
 int putOctStr(char c, int p) {
   if (p+4 >= StrMAX) error("文字列が長すぎる");    // str に入り切らない
   str[p]='\\';                                     // (\)を書き込む
-  str[p+1] = ((c & 0700) >> 6) + '0';
-  str[p+2] = ((c & 0070) >> 3) + '0';
-  str[p+3] = ((c & 0x07)     ) + '0';
+  str[p+1] = chr(((c & 0700) >> 6) + '0');
+  str[p+2] = chr(((c & 0070) >> 3) + '0');
+  str[p+3] = chr(((c & 0x07)     ) + '0');
   return p+4;                                      // 正常に処理できた
 }
 

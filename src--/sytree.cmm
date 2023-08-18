@@ -56,7 +56,7 @@
 
 // 構文木表
 #ifdef C                               // UNIX版コンパイラをmakeなら
-#define SyMAX 600                      //   表のサイズは大きくできる
+#define SyMAX 3000                     //   表のサイズは大きくできる
 #else                                  // TaC版コンパイラをmake なら
 #define SyMAX 60                       //   表のサイズは小さく
 #endif

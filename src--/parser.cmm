@@ -274,11 +274,15 @@ void freeWatch(Watch w) {
 // 式(w)の型が int で目的の型が char なら自動型変換する
 void autoCast(Watch w, int type, int dim) {
   if (w.dim!=0 || dim!=0) return;                // 配列型は変換しない
-  if (w.type==TyINT && type==TyCHAR) {           // int -> char
-    w.tree = syNewNode(SyCHR, w.tree, SyNULL);   //   chr() を挿入し
-    w.type = TyCHAR;                             //   式の型を char に変更
-    w.lhs  = false;
-  } else if (w.type==TyCHAR && type==TyINT) {    // char -> int
+
+// char -> int の自動型変換を有効にする場合は以下を使用する
+//  if (w.type==TyINT && type==TyCHAR) {           // int -> char
+//    w.tree = syNewNode(SyCHR, w.tree, SyNULL);   //   chr() を挿入し
+//    w.type = TyCHAR;                             //   式の型を char に変更
+//    w.lhs  = false;
+//  } else if (w.type==TyCHAR && type==TyINT) {    // char -> int
+
+  if (w.type==TyCHAR && type==TyINT) {           // char -> int
     w.type = TyINT;                              //   式の型だけ int に変更
     w.lhs  = false;
   }
