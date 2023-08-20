@@ -980,8 +980,7 @@ public boolean isAlnum(char c);
 
 \subsection{isPrint関数}
 
-文字\|c|が印刷可能文字（文字コード\|0x20|〜\|0x7e|の範囲）なら
-\|true|を返します．
+文字\|c|が制御文字以外（文字コードが\|0x20|以上）なら\|true|を返します．
 
 \begin{quote}
 \begin{verbatim}

@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2019 by
+ * Copyright (C) 2002-2023 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * sytree.c : 構文木(Syntax Tree)の管理プログラム
  *
+ * 2023.08.17         : デバッグ用表示機能を更新
  * 2022.11.22         : ifdef C を ifdef _C に変更
  * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2016.09.19         : SyLABL を SyADDRに変更
@@ -108,13 +109,13 @@ static struct D d[] = {
   { "SySTR",  SySTR},                  // 文字列
   { "SyFUNC", SyFUNC},                 // 関数コール
   { "SyADDR", SyADDR},                 // ラベル(addrof 演算子が使用)
+  { "SySIZE", SySIZE},                 // データ型のサイズを求める演算子
 
   { "SyNEG",  SyNEG},                  // 単項演算 -
   { "SyNOT",  SyNOT},                  // 単項演算 !
   { "SyBNOT", SyBNOT},                 // 単項演算 ~(ビット毎のNOT)
   { "SyCHR",  SyCHR},                  // 文字型へ変換する演算子
   { "SyBOOL", SyBOOL},                 // 文字型へ変換する演算子
-  { "SySIZE", SySIZE},                 // データ型のサイズを求める演算子
 
   { "SyADD",  SyADD},                  // ２項演算 +
   { "SySUB",  SySUB},                  // ２項演算 -
@@ -126,8 +127,11 @@ static struct D d[] = {
   { "SyMUL",  SyMUL},                  // ２項演算 *
   { "SyDIV",  SyDIV},                  // ２項演算 /
   { "SyMOD",  SyMOD},                  // ２項演算 %
-  { "SyIDXW", SyIDXW},                 // 後置演算子(ワード配列([ ]))
-  { "SyIDXB", SyIDXB},                 // 後置演算子(バイト配列([ ]))
+  { "SyDOT",  SyDOT},                  // 後置演算子(構造体(.))
+  { "SyIDXR", SyIDXR},                 // 後置演算子(参照配列([ ]))
+  { "SyIDXI", SyIDXI},                 // 後置演算子(int配列([ ]))
+  { "SyIDXC", SyIDXC},                 // 後置演算子(char配列([ ]))
+  { "SyIDXB", SyIDXB},                 // 後置演算子(boolean配列([ ]))
 
   { "SyGT",   SyGT},                   // ２項演算 >  (Greater Than)
   { "SyGE",   SyGE},                   // ２項演算 >  (Greater or Equal)
@@ -150,17 +154,18 @@ static struct D d[] = {
   { "SyCNT",  SyCNT},                  // continue 文
   { "SyRET",  SyRET},                  // return 文
   { "SySEMI", SySEMI},                 // セミコロン
-  { "SyVAR",  SyVAR},                  // セミコロン
-  { "SyBLK",  SyBLK},                  // セミコロン
+  { "SyVAR",  SyVAR},                  // ローカル変数
+  { "SyBLK",  SyBLK},                  // ブロック
 
   { "SyARRY", SyARRY},                 // 非初期化配列
-  { "SyLIST", SyLIST}                  // 配列要素の初期化並び
+  { "SyLIST", SyLIST},                 // 配列要素の初期化並び
+  { NULL,     0}
 };
 
 void syPrintTree() {
   for (int i=0; i<syNextIdx; i=i+1) {
     int n = -1;
-    for (int j=0; j<sizeof(d)/sizeof(struct D); j++) {
+    for (int j=0; d[j].a!=NULL; j=j+1) {
       if (syGetType(i)==d[j].b) n = j;
     }
     if (n==-1) error("sysPrintTree バグ");

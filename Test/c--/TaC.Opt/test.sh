@@ -9,12 +9,15 @@ else
   CPPFLAGS="-Wno-comment -nostdinc"                                 # Ubuntu
 fi
 
+dir=$1
+shift
+
 for i in $*; do
    j=`basename ${i}`
    echo '[!!!' ${j} '!!!]'
    n=`expr ${j} : '\([^\.]*\)'`
    cpp ${CPPFLAGS} -I${INCDIR} -I${LIBDIR} ${i} |
-   ../../../src/c-- -O > t.$$
+   ../../../${dir}/c-- -O > t.$$
    diff ${n}.s t.$$
 done
 

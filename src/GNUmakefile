@@ -63,7 +63,7 @@
 #
 
 CC=cc -std=c99 -Wall
-VER=`cat ../VERSION`
+VER=`cat ../VERSION`(src)
 DATE=`date`
 
 all : c-- vm-c-- ic-c-- c-c-- rtc-c-- cm2e cm2c cm2i cm2v

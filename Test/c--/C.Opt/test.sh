@@ -15,13 +15,16 @@ CFLAGS="-g -O0 \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
    -Wno-dangling-else -Wno-format-security"
 
+dir=$1
+shift
+
 for i in $*; do
    rm -f $$.c $$.s
    j=`basename ${i}`
    echo '[!!!' ${j} '!!!]'
    n=`expr ${j} : '\([^\.]*\)'`
    cpp ${CPPFLAGS} ${RTC} ${INCDIR} -include cfunc.hmm ${i} |
-   ../../../src/c-c-- -O > $$.c
+   ../../../${dir}/c-c-- -O > $$.c
    diff ${n}.c $$.c
    cc -S ${CFLAGS} ${RTC} ${INCDIR} -include wrapper.h $$.c
 done

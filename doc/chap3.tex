@@ -63,9 +63,8 @@ char 型は文字の表現に使用します．
 boolean 型は true と false のどちらかの値を取る論理型です．
 \javal の boolean 型と同じものです．
 違う型の間での代入はできません．
-また，自動的な型変換も行いません
-\footnote{この仕様は厳しすぎました．将来，一部の自動的な型変換は許可します．}
-．
+char 型から int 型だけ自動的な型変換を行いますが，
+他の組合せでは自動的な型変換を行いません．
 
 \subsubsection{int 型}
 int型は16bit 符号付き2の補数表現2進数です．
@@ -97,14 +96,18 @@ int 型は，四則演算，ビット毎の論理演算，シフト演算，比�
 計算に使用できます．
 
 \subsubsection{char 型}
-char 型は文字を格納するデータ型です．
-内部表現は 8bit の ASCII コードですが整数型の一種ではなく，
-int 型との自動的な型変換や四則演算等はできません．
-char 型を用いてできる計算は同値比較だけです
-\footnote{この仕様も厳しすぎました．将来，大小比較も許可する予定です．}
-．
+char 型は 8bit の ASCII コードを格納するデータ型です．
+\cmm の char 型は符号なしです．
+char 型から int 型へは自動型変換ができます．
+情報が失われる可能性がある int 型から char 型への型変換は
+「\|chr|演算子」を用いて明示的に行う必要があります．
+char 型に適用することができる計算は同値比較だけです．
+他の演算は int 型へ自動型変換が行われた後に，
+int 型の演算が実行されます．
 「\|chr|演算子」，「\|ord|演算子」を用いた明示的な型変換により，
-char 型の文字と int 型の ASCII コードの間で相互変換ができます．
+char 型の文字と int 型の ASCII コードの間で相互変換ができます
+\footnote{以前のバージョンとの互換性を保つために
+「\texttt{ord}演算子」が使用できます．}．
 
 \begin{mylist}
 \begin{verbatim}
@@ -114,8 +117,10 @@ char b = 'A';                // 初期化もできる
 public int main() {
   char c;                    // ローカル変数
   char d = 'D';              // 初期化もできる
-  int  i = ord(b);           // char 型から ASCII コードに変換
-  c = chr(i);                // ASCII コードから char 型に変換
+  int  i = ord(b);           // char 型から int 型への明示的な型変換
+  i = 'a';                   // char 型から int 型への自動的な型変換
+  c = chr(i);                // int 型から char 型へは明示的な型変換だけ可能
+  c = chr(c + 0x20);         // c + 0x20 の結果は int 型
   return 0;
 }
 \end{verbatim}
@@ -852,6 +857,10 @@ f[2] = malloc(sizeof(X));
 char型，boolean型の値をint型に変換します．
 char型の場合は文字の ASCII コード，
 boolean型の場合は\|true=1|，\|false=0|となります．
+なお，v3.4.0以降のコンパイラでは，
+char型からint型へは自動的な型変換が可能になり
+char型を引数にするord演算子は不要になりましたが，
+以前のバージョンとの互換性のために機能を残してあります．
 
 \subsection{chr 演算}
 \label{chap3:chr}

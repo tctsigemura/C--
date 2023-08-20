@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2022 by
+ * Copyright (C) 2002-2023 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,8 +20,9 @@
  */
 
 /*
- * syntax.c : C--コンパイラの構文解析ルーチン
+ * parser.c : C--コンパイラの構文解析ルーチン
  *
+ * 2023.08.20         : char -> int 自動型変換
  * 2022.11.22         : ifdef C を ifdef _C に変更
  * 2022.11.10         : 引数なし関数のvoid書き忘れを訂正
  * 2021.03.20         : ScLVAR を局所変数と仮引数で共用することを止める
@@ -273,25 +274,41 @@ static void freeWatch(struct watch* w) {
   free(w);                                       // 領域をシステムに返却する
 }
 
+// 式(w)の型が int で目的の型が char なら自動型変換する
+void autoCast(struct watch *w, int type, int dim) {
+  if (w->dim!=0 || dim!=0) return;               // 配列型は変換しない
+
+// char -> int の自動型変換を有効にする場合は以下を使用する
+//  if (w->type==TyINT && type==TyCHAR) {          // int -> char
+//    w->tree = syNewNode(SyCHR, w->tree, SyNULL); //   chr() を挿入し
+//    w->type = TyCHAR;                            //   式の型を char に変更
+//    w->lhs  = false;
+//  } else if (w->type==TyCHAR && type==TyINT) {   // char -> int
+  if (w->type==TyCHAR && type==TyINT) {          // char -> int
+    w->type = TyINT;                             //   式の型だけ int に変更
+    w->lhs  = false;
+  }
+}
+
 // 式(w)の型が type 型の基本型か調べる
 static void chkType(struct watch *w, int type) {
   if (w->dim>0)      error("配列型は使用できない");
+  autoCast(w, type, 0);                             // int と char の自動型変換
   if (w->type==TyVOID) error("void型は使用できない");
-  if (type==TyBOOL && w->type!=TyBOOL)   error("論理型が必要");
-  if ((type==TyINT || type==TyCHAR) &&
-      w->type!=TyINT && w->type!=TyCHAR) error("整数型/文字型が必要");
+  if (type==TyBOOL && w->type!=TyBOOL)  error("論理型が必要");
+  if (type==TyINT  && w->type!=TyINT )  error("整数型が必要");
+  if (type==TyCHAR && w->type!=TyCHAR)  error("文字型が必要");
   if (type!=TyBOOL && type!=TyINT && type!=TyCHAR) error("バグ...chkType");
 }
 
 // 式(w)の値を type, dim 型へ代入可能か調べる
 static void chkCmpat(struct watch* w, int type, int dim) {
+  autoCast(w, type, dim);                           // int と char の自動型変換
   if (!(w->type==TyVOID && w->dim>0 && dim>0) &&    // void[] はどの [] にも OK
       !(type==TyVOID && dim>0 && w->dim>0) &&
       !(w->type==TyVOID && w->dim==1 && type<=0) && // void[] と構造体は OK
       !(type==TyVOID && dim==1 && w->type<=0) &&
-      !(w->type==TyINT && type==TyCHAR && w->dim==dim) && // int と char は OK
-      !(type==TyINT && w->type==TyCHAR && w->dim==dim) && // char と int も OK
-      !(w->type==type && w->dim==dim))              // それ以外は正確に型が合
+      (w->type!=type || w->dim!=dim))               // それ以外は正確に型が合
     error("代入/比較/初期化/引数/returnの型が合わない");// わないと代入できない
 }
 
@@ -357,13 +374,13 @@ static void getArgs(struct watch* w, int func) {   // funcは表の現在の関�
   if (tok!=')') {                                  // 引数が存在するなら
     do {                                           //
       getAsExpr(w);                                // 引数の式(w)(カンマ式不可)
-      list = syCatNode(list, w->tree);             // 引数リストに追加
       if (idx>lastIdx) error("引数が多い");
       if (ntGetType(idx)!=TyDOTDOTDOT) {           // 可変個引数ではないなら
 	chkCmpat(w,ntGetType(idx),ntGetDim(idx));  //     型チェックしてから
 	idx=idx+1;                                 //     インデクスを進める
       } else if (w->type==TyVOID && w->dim==0)     // 可変個引数でも
 	error("void型の関数は引数にできない");     //     void関数は使用不可
+      list = syCatNode(list, w->tree);             // 引数リストに追加
     } while (isTok(','));                          // ','が続く間繰り返す
   }
   chkTok(')', "関数呼出に ')' がない");
@@ -616,6 +633,8 @@ static void getEquExpr(struct watch* w) {
     else break;
     struct watch* w2 = newWatch();
     getCmpExpr(w2);                            // 右辺(w2)を読み込む
+    if (w->type == TyCHAR) w->type = TyINT;    // 比較演算では char は
+    if (w2->type == TyCHAR) w2->type = TyINT;  //   int と同じとみなす
     chkCmpat(w2, w->type, w->dim);             // 代入可能な型なら比較可能
     int n = syNewNode(op, w->tree, w2->tree);  // 新しいノードを作る
     setWatch(w, TyBOOL, 0, false, n);          // 式(w)は boolean 型になる
