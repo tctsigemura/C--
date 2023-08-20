@@ -244,7 +244,7 @@ boolean sameFname(char[] fname, char[] path, int p) { // ファイル名用の�
   return SN(pc);                                // 拡張子の最後なら一致
 }
 
-Stat statmp;                                    // stat の結果を格納する
+Stat statmp = {0, 0, 0, 0};                     // stat の結果を格納する
 public boolean fsize(char[] path, int[] size) {
   int e = stat(path, statmp);                   // stat システムコール
   if (e<0) _exit(e);                            // stat エラーなら終了

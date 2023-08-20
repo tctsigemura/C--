@@ -146,8 +146,10 @@ void conv32(char c, int w, boolean lf, char p) {
   if (c=='d') {                                 // 符号なし10進数だけ利用可
     int l = _mod32(arg, 10000);
     _div32(arg, 10000);
+    arg[0] = 0;
     int m = _mod32(arg, 10000);
     _div32(arg, 10000);
+    arg[0] = 0;
     int h = _mod32(arg, 10000);
     if (h!=0) {
       uPutNum(h, w-8, lf, p,   10);

@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2021 by
+ * Copyright (C) 2002-2023 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,8 +20,11 @@
  */
 
 /*
- * syntax.c : C--コンパイラの構文解析ルーチン
+ * parser.c : C--コンパイラの構文解析ルーチン
  *
+ * 2023.08.20         : char -> int 自動型変換
+ * 2022.11.22         : ifdef C を ifdef _C に変更
+ * 2022.11.10         : 引数なし関数のvoid書き忘れを訂正
  * 2021.03.20         : ScLVAR を局所変数と仮引数で共用することを止める
  * 2019.05.07         : エラーメッセージ訂正「関数がreturnで終わっていない」
  * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
@@ -119,13 +122,13 @@ static boolean krnFlag = false;     // カーネルコンパイルモード
 //-----------------------------------------------------------------------------
 // トークンの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
 //-----------------------------------------------------------------------------
-#ifndef C
+#ifndef _C
 // コンパイラ版はディレクティブに興味がないので
 // ディレクティブは getTok() が読み飛ばす。
 #define _tok tok                             // _tok と tok の区別はない
 static int tok;                              // 次のトークン
 
-static void getTok() {                       // ディレクティブ以外を入力する
+static void getTok(void) {                   // ディレクティブ以外を入力する
   for (;;) {
     tok = lxGetTok();                        // 次のトークンを入力する
     if (tok!=LxFILE) break;                  // ディレクティブ以外なら完了
@@ -140,13 +143,13 @@ static void getTok() {                       // ディレクティブ以外を�
 // tok を使用すると _getTok() が呼ばれディレクティブを読み飛ばす。
 static int _tok;                             // 次のトークン
 
-static void getTok() {                       // 次のトークンを入力する
+static void getTok(void) {                   // 次のトークンを入力する
   _tok = lxGetTok();                         //   ディレクティブも入力する
   if (_tok==LxFILE) setFname(lxGetStr());    // ディレクティブならファイル名記憶
 }
 
 #define tok _getTok()                        // tok 使用は、_getTok() に置換え
-static int _getTok() {                       // tok 使用時に
+static int _getTok(void) {                   // tok 使用時に
   while (_tok==LxFILE) {                     //   ディレクティブを読み飛ばす
     _tok = lxGetTok();                       //     次もディレクティブなら     
     if (_tok==LxFILE) setFname(lxGetStr());  //       ファイル名記憶記憶して
@@ -236,7 +239,7 @@ static void getStruct(void) {
   chkTok(';', "構造体宣言が ';' で終わっていない");
   ntSetVoid(structIdx);                        // もう衝突チェックしなくてよい
   ntSetCnt(structIdx-1,ntGetSize()-structIdx); // フィールド数を表に記録
-#ifdef C
+#ifdef _C
   genStruc(structIdx-1);                       // 構造体宣言を出力
 #endif                                         // (トランスレータ版だけで必要)
 }
@@ -271,9 +274,26 @@ static void freeWatch(struct watch* w) {
   free(w);                                       // 領域をシステムに返却する
 }
 
+// 式(w)の型が int で目的の型が char なら自動型変換する
+void autoCast(struct watch *w, int type, int dim) {
+  if (w->dim!=0 || dim!=0) return;               // 配列型は変換しない
+
+// char -> int の自動型変換を有効にする場合は以下を使用する
+//  if (w->type==TyINT && type==TyCHAR) {          // int -> char
+//    w->tree = syNewNode(SyCHR, w->tree, SyNULL); //   chr() を挿入し
+//    w->type = TyCHAR;                            //   式の型を char に変更
+//    w->lhs  = false;
+//  } else if (w->type==TyCHAR && type==TyINT) {   // char -> int
+  if (w->type==TyCHAR && type==TyINT) {          // char -> int
+    w->type = TyINT;                             //   式の型だけ int に変更
+    w->lhs  = false;
+  }
+}
+
 // 式(w)の型が type 型の基本型か調べる
 static void chkType(struct watch *w, int type) {
   if (w->dim>0)      error("配列型は使用できない");
+  autoCast(w, type, 0);                             // int と char の自動型変換
   if (w->type==TyVOID) error("void型は使用できない");
   if (type==TyBOOL && w->type!=TyBOOL)  error("論理型が必要");
   if (type==TyINT  && w->type!=TyINT )  error("整数型が必要");
@@ -283,9 +303,10 @@ static void chkType(struct watch *w, int type) {
 
 // 式(w)の値を type, dim 型へ代入可能か調べる
 static void chkCmpat(struct watch* w, int type, int dim) {
+  autoCast(w, type, dim);                           // int と char の自動型変換
   if (!(w->type==TyVOID && w->dim>0 && dim>0) &&    // void[] はどの [] にも OK
       !(type==TyVOID && dim>0 && w->dim>0) &&
-      !(w->type==TyVOID && w->dim==1 && type<=0)&&  // void[] と構造体は OK
+      !(w->type==TyVOID && w->dim==1 && type<=0) && // void[] と構造体は OK
       !(type==TyVOID && dim==1 && w->type<=0) &&
       (w->type!=type || w->dim!=dim))               // それ以外は正確に型が合
     error("代入/比較/初期化/引数/returnの型が合わない");// わないと代入できない
@@ -353,13 +374,13 @@ static void getArgs(struct watch* w, int func) {   // funcは表の現在の関�
   if (tok!=')') {                                  // 引数が存在するなら
     do {                                           //
       getAsExpr(w);                                // 引数の式(w)(カンマ式不可)
-      list = syCatNode(list, w->tree);             // 引数リストに追加
       if (idx>lastIdx) error("引数が多い");
       if (ntGetType(idx)!=TyDOTDOTDOT) {           // 可変個引数ではないなら
 	chkCmpat(w,ntGetType(idx),ntGetDim(idx));  //     型チェックしてから
 	idx=idx+1;                                 //     インデクスを進める
       } else if (w->type==TyVOID && w->dim==0)     // 可変個引数でも
 	error("void型の関数は引数にできない");     //     void関数は使用不可
+      list = syCatNode(list, w->tree);             // 引数リストに追加
     } while (isTok(','));                          // ','が続く間繰り返す
   }
   chkTok(')', "関数呼出に ')' がない");
@@ -385,7 +406,7 @@ static void getSizeof(struct watch* w) {
   getType();                                  // 型を読む
   if (curType<=0&&ntGetType(-curType)==TyREF) // typedef なら
     error("typedefされた型はsizeofで使用できない");
-#ifdef C                                      // トランスレータは sizeof を
+#ifdef _C                                     // トランスレータは sizeof を
   int a = syNewNode(SySIZE, curType, curDim); //   C言語ソースに出力する
 #else                                         // コンパイラは sizeof を計算する
   int s = NWORD / 8;                          //   INT またはポインタのサイズ
@@ -612,6 +633,8 @@ static void getEquExpr(struct watch* w) {
     else break;
     struct watch* w2 = newWatch();
     getCmpExpr(w2);                            // 右辺(w2)を読み込む
+    if (w->type == TyCHAR) w->type = TyINT;    // 比較演算では char は
+    if (w2->type == TyCHAR) w2->type = TyINT;  //   int と同じとみなす
     chkCmpat(w2, w->type, w->dim);             // 代入可能な型なら比較可能
     int n = syNewNode(op, w->tree, w2->tree);  // 新しいノードを作る
     setWatch(w, TyBOOL, 0, false, n);          // 式(w)は boolean 型になる
@@ -989,7 +1012,7 @@ static void getFunc(void) {
     syClear();                               // コード生成終了で木を消去する
   } else {                                   // プロトタイプ宣言の場合
     chkTok(';', "プロトタイプ宣言が ';' で終わっていない");
-#ifdef C
+#ifdef _C
     genProto(funcIdx);                       // プロトタイプ宣言を出力
 #endif                                       // (トランスレータ版だけで必要)
   }
@@ -1044,7 +1067,7 @@ static int getArray(int dim) {
 }
 
 // 構造体初期化('{ ... }'を読み込む
-static int getStructInit0() {
+static int getStructInit0(void) {
   int node = SyNULL;
   int i=-curType+1;                          // i が構造体フィールドを指す
   do {
@@ -1079,7 +1102,7 @@ static int getStructInit0() {
 }
 
 // 構造体の初期化
-static int getStructInit() {
+static int getStructInit(void) {
   int node = SyNULL;
   if (isTok(LxNUL)) {                        // null による初期化の場合
     node = syNewNode(SyCNST, 0, TyREF);      // NULL を木に登録
@@ -1231,7 +1254,7 @@ void psSetKrnFlag(boolean f) { krnFlag = f; };
 //-----------------------------------------------------------------------------
 // ソースの読み込みはコンパイラ版とトランスレータ版で処理が異なる。
 //-----------------------------------------------------------------------------
-#ifndef C
+#ifndef _C
 // コンパイラ版はディレクティブに興味がないので getProg() を繰り返すだけ
 void psGetSrc(void) {
   getTok();                                  // 最初の tok を読み込む
