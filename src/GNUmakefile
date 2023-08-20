@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2009-2021 by
+# Copyright (C) 2009-2022 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,6 +19,8 @@
 #
 # GNUmakefile : c-- の makefile
 #
+# 2022.11.22         : -DCをトランスレータのソースと，トランスレータが処理する
+#                      ソースの両方で使用．トランスレータ側を-D_Cに変更した．
 # 2020.03.21         : cm2e, cm2c, cm2i, cm2v のヘルプ表示にバージョン番号追加
 # 2019.03.11         : Run Time Check の略称を RTC にする
 # 2019.03.10         : ソースコードのファイル名変更
@@ -61,7 +63,7 @@
 #
 
 CC=cc -std=c99 -Wall
-VER=`cat ../VERSION`
+VER=`cat ../VERSION`(src)
 DATE=`date`
 
 all : c-- vm-c-- ic-c-- c-c-- rtc-c-- cm2e cm2c cm2i cm2v
@@ -94,7 +96,7 @@ c-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
 	${CC} ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
-	-DARC=\"C\" -DC -DNWORD=32 -DNBYTE=8 -o c-c-- \
+	-DARC=\"C\" -D_C -DNWORD=32 -DNBYTE=8 -o c-c-- \
 	main.c parser.c lexer.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
 
@@ -102,7 +104,7 @@ rtc-c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
       namtbl.h namtbl.c sytree.h sytree.c code.h cCode.c \
       optree.h optree.c
 	${CC} ${CFLAGS} -D_RTC -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
-	-DARC=\"C\" -DC -DNWORD=32 -DNBYTE=8 -o rtc-c-- \
+	-DARC=\"C\" -D_C -DNWORD=32 -DNBYTE=8 -o rtc-c-- \
 	main.c parser.c lexer.c namtbl.c util.c sytree.c \
 	cCode.c optree.c
 

@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2019 by
+ * Copyright (C) 2002-2022 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * util.c : 良く使う関数
  *
+ * 2022.11.22         : ifdef C を ifdef _C に変更
  * 2019.03.10         : 構文解析器をparser，字句解析器をlexerに名称変更
  * 2016.09.14         : setFname() を追加
  * 2016.06.04         : eOpen() を追加
@@ -56,7 +57,7 @@ void setFname(char s[]) {                          // 入力ファイル名を�
   }
   if (fname[i]!='\0') error("ファイル名が長すぎる");
 }
-#ifdef C
+#ifdef _C
 char* getFname(){
   return fname;
 }

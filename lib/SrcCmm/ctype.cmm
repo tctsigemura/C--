@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Advanced educational Computer.
  *
- * Copyright (C) 2016 by
+ * Copyright (C) 2016 - 2023 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * lib/ctype.cmm : 文字分類など
  *
+ * 2023.08.16 : isPrintで印刷可能文字にUTF-8の文字も含むように変更
  * 2016.02.26 : 新規作成
  *
  * $Id$
@@ -47,7 +48,7 @@ public boolean isXdigit(char c) {
 
 // 表示可能な文字か？
 public boolean isPrint(char c) {
-  return 0x20<=ord(c) && ord(c)<=0x7e;
+  return 0x20<=ord(c);
 }
 
 // アルファベット小文字か？

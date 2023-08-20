@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2016 by
+ * Copyright (C) 2002-2022 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -22,6 +22,7 @@
 /*
  * util.h : よく使う関数や定数の定義
  *
+ * 2022.11.22         : ifdef C を ifdef _C に変更
  * 2016.09.14         : setFname() を追加
  * 2016.06.04         : StrMAX, eOpen() を追加
  * 2016.03.01         : null の値を 0 から NULL に変更
@@ -59,6 +60,6 @@ int isOdigit(int ch);                     // 8進数字かテスト
 boolean strEndsWith(char *s, char *sfx);  // 文字列最後の一致をテスト
 FILE *eOpen(char *fname, char *mod);      // エラーチェック付きの fopen
 
-#ifdef C
+#ifdef _C
 char* getFname();
 #endif
