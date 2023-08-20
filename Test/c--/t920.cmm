@@ -6,8 +6,8 @@ int  i;
 void f() {
   boolean b = c == i;
   int i = 'c' + 1;
-  char c = i + 1;
+  char c = chr(i + 1);
 }
 
 int x = 'c' + 250;
-char y = 'c' + 250;
+char y = chr('c' + 250);

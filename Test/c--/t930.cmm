@@ -3,7 +3,7 @@ char c;
 int  i;
 
 char g() {
-  c = c + 1;
+  c = chr(c + 1);
   boolean b = 'a' <= c && c <= 'z';
-  return i;
+  return chr(i);
 }

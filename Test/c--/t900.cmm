@@ -7,7 +7,7 @@ void f(char c) { }
 // int から char へ変換
 //   引数, 代入演算, return
 char g() {
-  f(i);
-  c = i + 1;
-  return i;
+  f(chr(i));
+  c = chr(i + 1);
+  return chr(i);
 }
