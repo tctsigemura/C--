@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2002-2022 by
+ * Copyright (C) 2002-2023 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -20,8 +20,9 @@
  */
 
 /*
- * syntax.c : C--コンパイラの構文解析ルーチン
+ * parser.c : C--コンパイラの構文解析ルーチン
  *
+ * 2023.08.20         : char -> int 自動型変換
  * 2022.11.22         : ifdef C を ifdef _C に変更
  * 2022.11.10         : 引数なし関数のvoid書き忘れを訂正
  * 2021.03.20         : ScLVAR を局所変数と仮引数で共用することを止める

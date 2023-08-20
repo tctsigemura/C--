@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2009-2022 by
+# Copyright (C) 2009-2023 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,6 +19,8 @@
 #
 # GNUmakefile : c-- の makefile
 #
+# 2023.08.20 v4.0.0  : C--言語版完成
+# 2022.11.22         : C--言語版作成開始
 # 2020.03.21         : cm2e, cm2c, cm2i, cm2v のヘルプ表示にバージョン番号追加
 # 2019.03.11         : Run Time Check の略称を RTC にする
 # 2019.03.10         : ソースコードのファイル名変更

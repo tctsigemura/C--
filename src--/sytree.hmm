@@ -22,6 +22,7 @@
 /*
  * sytree.hmm : 構文木関係の外部仕様を定義
  *
+ * 2022.11.22         : C--言語版作成開始
  * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2016.09.19         : SyLABL を SyADDR に変更
  * 2016.09.18         : SyCHAR を SyCHR に変更

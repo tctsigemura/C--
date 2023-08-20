@@ -22,6 +22,7 @@
 /*
  * vmCode.cmm : C--コンパイラの仮想マシン用コード生成ルーチン
  *
+ * 2022.11.22         : C--言語版作成開始
  * 2019.03.03         : genStr() に文字列長引数を追加
  * 2019.02.19         : 配列演算を SyIDXB, SyIDXC, SyIDXI, SyIDXR に変更
  * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
