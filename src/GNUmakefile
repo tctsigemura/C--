@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2009-2022 by
+# Copyright (C) 2009-2025 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,6 +19,7 @@
 #
 # GNUmakefile : c-- の makefile
 #
+# 2025.06.18         : src/GNUmakefile に CFLAGS=-fcommon を追加（WSL2対応）
 # 2022.11.22         : -DCをトランスレータのソースと，トランスレータが処理する
 #                      ソースの両方で使用．トランスレータ側を-D_Cに変更した．
 # 2020.03.21         : cm2e, cm2c, cm2i, cm2v のヘルプ表示にバージョン番号追加
@@ -63,6 +64,7 @@
 #
 
 CC=cc -std=c99 -Wall
+CFLAGS=-fcommon
 VER=`cat ../VERSION`(src)
 DATE=`date`
 
