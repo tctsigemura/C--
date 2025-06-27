@@ -18,7 +18,7 @@ CMM="rtc-c--"
 LIBDIR=/usr/local/cmmLib/LibRtc
 INCDIR="-I/usr/local/cmmInclude -I${LIBDIR}"
 
-CFLAGS="-g -O0 \
+CFLAGS="-g -O0 -fcommon \
    -funsigned-char -Wno-parentheses-equality -Wno-tautological-compare \
    -Wno-pointer-sign -Wno-int-conversion -Wno-unused-value -Wno-unsequenced \
    -Wno-dangling-else -Wno-format-security"
