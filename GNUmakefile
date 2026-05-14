@@ -2,7 +2,7 @@
 # TacOS Source Code
 #    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2016 by
+# Copyright (C) 2016 - 2026 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,6 +19,7 @@
 #
 # Makefile : C-- の makefile
 #
+# 2026.05.12         : サブディレクトリのmakeは自動的に行わない
 # 2016.02.27         : 初期バージョン
 #
 # $Id$
@@ -29,11 +30,15 @@ MAKEFLAGS=--no-print-directory
 SUBDIRS:=src include lib
 
 all :
-	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir); )
+	@echo "$(SUBDIRS) ディレクトリで \"make\" を実行してください．"
+	@echo "（詳しくは doc/cmm.pdf を参照のこと）"
+#	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir); )
 
 clean :
 	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir) clean; )
 	rm -f *~
 
 install :
-	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir) install; )
+	@echo "$(SUBDIRS) ディレクトリで \"make install\" を実行してください．"
+	@echo "（詳しくは doc/cmm.pdf を参照のこと）"
+#	$(foreach dir, $(SUBDIRS), $(MAKE) --directory=$(dir) install; )
