@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2009-2023 by
+# Copyright (C) 2009-2026 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,6 +19,7 @@
 #
 # GNUmakefile : c-- の makefile
 #
+# 2026.09.25         : vm.hmm の記述忘れを訂正
 # 2023.08.20 v4.0.0  : C--言語版完成
 # 2022.11.22         : C--言語版作成開始
 # 2020.03.21         : cm2e, cm2c, cm2i, cm2v のヘルプ表示にバージョン番号追加
@@ -69,7 +70,7 @@ all : c-- c--.exe vm-c-- ic-c-- c-c-- rtc-c-- cm2e cm2c cm2i cm2v
 
 c-- : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
       util.hmm util.cmm namtbl.hmm namtbl.cmm sytree.hmm sytree.cmm \
-      code.hmm vmCode.cmm vm2tac.cmm optree.hmm optree.cmm
+      code.hmm vmCode.cmm vm.hmm vm2tac.cmm optree.hmm optree.cmm
 	cm2c ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 	-DARC=\"TaC\" -DNWORD=16 -DNBYTE=8 -o c-- \
 	main.cmm parser.cmm lexer.cmm namtbl.cmm util.cmm sytree.cmm \
@@ -77,7 +78,7 @@ c-- : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
 
 c--.exe : GNUmakefile main.cmm parser.cmm parser.hmm lexer.cmm lexer.hmm \
       util.hmm util.cmm namtbl.hmm namtbl.cmm sytree.hmm sytree.cmm \
-      code.hmm vmCode.cmm vm2tac.cmm optree.hmm optree.cmm
+      code.hmm vmCode.cmm vm.hmm vm2tac.cmm optree.hmm optree.cmm
 	cm2e ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 	-DARC=\"TaC\" -DNWORD=16 -DNBYTE=8 -o c-- \
 	main.cmm parser.cmm lexer.cmm namtbl.cmm util.cmm sytree.cmm \

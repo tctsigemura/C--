@@ -2,7 +2,7 @@
 #  Programing Language C-- "Compiler"
 #    Tokuyama kousen Educational Computer 16 bit Version
 #
-# Copyright (C) 2009-2025 by
+# Copyright (C) 2009-2026 by
 #                      Dept. of Computer Science and Electronic Engineering,
 #                      Tokuyama College of Technology, JAPAN
 #
@@ -19,6 +19,7 @@
 #
 # GNUmakefile : c-- の makefile
 #
+# 2026.09.25         : vm.h の記述忘れを訂正
 # 2025.06.18         : src/GNUmakefile に CFLAGS=-fcommon を追加（WSL2対応）
 # 2022.11.22         : -DCをトランスレータのソースと，トランスレータが処理する
 #                      ソースの両方で使用．トランスレータ側を-D_Cに変更した．
@@ -71,7 +72,7 @@ DATE=`date`
 all : c-- vm-c-- ic-c-- c-c-- rtc-c-- cm2e cm2c cm2i cm2v
 
 c-- : GNUmakefile main.c parser.c parser.h lexer.c lexer.h util.h util.c \
-      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm2tac.c \
+      namtbl.h namtbl.c sytree.h sytree.c code.h vmCode.c vm.h vm2tac.c \
       optree.h optree.c
 	${CC} ${CFLAGS} -DDATE=\""${DATE}"\" -DVER=\""${VER}"\" \
 	-DARC=\"TaC\" -DNWORD=16 -DNBYTE=8 -o c-- \
