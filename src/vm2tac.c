@@ -2,7 +2,7 @@
  * Programing Language C-- "Compiler"
  *    Tokuyama kousen Educational Computer 16bit Ver.
  *
- * Copyright (C) 2010-2021 by
+ * Copyright (C) 2010-2026 by
  *                      Dept. of Computer Science and Electronic Engineering,
  *                      Tokuyama College of Technology, JAPAN
  *
@@ -23,6 +23,7 @@
  * vm2tac.c : 仮想スタックマシンのコードから TaC-CPU V2 の機械語を生成する
  *            (仮想スタックマシンをシミュレーションする機械語を生成する)
  *
+ * 2026.09.25         : vmDwNameの重大なバグ(DW name が誤る)を訂正
  * 2021.03.20         : 名前表で仮引数番号が正になったことに対応
  * 2021.01.19         : 構文木の仕様変更に伴いvm*Loc, vm*Prm変更
  * 2016.09.19         : vmEntry, vmEntryK, vmEntryI変更（ラベルを出力しない）
@@ -881,7 +882,7 @@ void vmBoolAND(int lab1, int lab2, int lab3) {
 // DW name      (ポインタデータの生成)
 void vmDwName(int idx) {
   printf("\tDW\t%c%s\n",
-	 getPref(topAux), ntGetName(topAux));   //    DW  _name
+	 getPref(idx), ntGetName(idx));         //    DW  _name
 }
 
 // DW .Ln       (ポインタデータの生成)
